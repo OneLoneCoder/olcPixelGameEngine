@@ -3,7 +3,7 @@
 class Example : public olc::PixelGameEngine
 {
 public:
-	ExampleDemo()
+	Example()
 	{
 		sAppName = "Example";
 	}
