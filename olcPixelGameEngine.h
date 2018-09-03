@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h 
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v0.3               |
+	|           OneLoneCoder Pixel Game Engine v0.4               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -143,6 +143,7 @@
 	
 
 	// Include WinAPI
+	#define NOMINMAX	
 	#include <windows.h>
 	#include <gdiplus.h>
 
@@ -413,7 +414,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 
 
-
+ 
 
 
 
