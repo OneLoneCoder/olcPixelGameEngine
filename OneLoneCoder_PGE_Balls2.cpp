@@ -35,6 +35,7 @@ Last Updated: 18/02/2017
 
 #include <iostream>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 #include "olcPixelGameEngine.h"
@@ -287,7 +288,7 @@ public:
 						// how much of the segment is in the "shadow" of the object vector. The min and max clamp
 						// this to lie between 0 and the line segment length, which is then normalised. We can
 						// use this to calculate the closest point on the line segment
-						float t = max(0, min(fEdgeLength, (fLineX1 * fLineX2 + fLineY1 * fLineY2))) / fEdgeLength;
+						float t = std::max(0.0f, std::min(fEdgeLength, (fLineX1 * fLineX2 + fLineY1 * fLineY2))) / fEdgeLength;
 
 						// Which we do here
 						float fClosestPointX = edge.sx + t * fLineX1;
