@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h 
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v0.1               |
+	|           OneLoneCoder Pixel Game Engine v0.2               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -100,6 +100,13 @@
 	
 	g++ -o YourProgName YourSource.cpp -lX11 -lGL -lpthread -lpng
 
+	On some Linux configurations, the frame rate is locked to the refresh
+	rate of the monitor. This engine tries to unlock it but may not be
+	able to, in which case try launching your program like this:
+
+	vblank_mode=0 ./YourProgName
+
+
 	Compiling in Code::Blocks on Windows
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Well I wont judge you, but make sure your Code::Blocks installation
@@ -111,8 +118,8 @@
 	Thanks
 	~~~~~~
 	I'd like to extend thanks to Eremiell, slavka, Phantim, JackOJC, 
-	KrossX, Huhlig & MagetzUb for advice, ideas and testing, and I'd 
-	like to extend my appreciation to the 13K YouTube followers 
+	KrossX, Huhlig, Dragoneye & MagetzUb for advice, ideas and testing, 
+	and I'd like to extend my appreciation to the 13K YouTube followers 
 	and 1K Discord server members who give me the motivation to keep 
 	going with all this :D
 
@@ -1459,7 +1466,7 @@ namespace olc
 		XGetWindowAttributes(olc_Display, olc_Window, &gwa);
 		glViewport(0, 0, gwa.width, gwa.height);
 
-		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glSwapIntervalEXT");
+		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
 		glSwapIntervalEXT(olc_Display, olc_Window, 0);
 		return true;
 	}
