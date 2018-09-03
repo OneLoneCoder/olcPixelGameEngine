@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h 
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v0.2               |
+	|           OneLoneCoder Pixel Game Engine v0.3               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -1254,7 +1254,7 @@ namespace olc
 				SetWindowText(olc_hWnd, sTitle);
 	#else
 				char sTitle[256];
-				sprintf(sTitle, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fElapsedTime);
+				sprintf_s(sTitle, 256, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %3.2f", sAppName.c_str(), 1.0f / fElapsedTime);
 				SetWindowText(olc_hWnd, sTitle);
 	#endif
 #else
