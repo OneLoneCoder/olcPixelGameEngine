@@ -1,8 +1,8 @@
 /*
-	olcPixelGameEngine.h 
+	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v0.5               |
+	|           OneLoneCoder Pixel Game Engine v0.6               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -25,7 +25,7 @@
 	videos that are extremely graphical (for a command prompt :P )
 	have been dipping to unacceptable framerates. As the channel
 	has been popular with aspiring game developers, I'm concerned
-	that the visual appeal of the command prompt is perhaps 
+	that the visual appeal of the command prompt is perhaps
 	limited to us oldies, and I dont want to alienate younger
 	learners. Finally, I'd like to demonstrate many more
 	algorithms and image processing that exist in the graphical
@@ -36,7 +36,7 @@
 	existing code from the videos is easily portable, and the
 	programmer uses this file in exactly the same way. But I've
 	decided that rather than just build a command prompt emulator,
-	that I would at least harness some modern(ish) portable 
+	that I would at least harness some modern(ish) portable
 	technologies.
 
 	As a result, the olcPixelGameEngine supports 32-bit colour, is
@@ -52,31 +52,31 @@
 
 	Copyright 2018 OneLoneCoder.com
 
-	Redistribution and use in source and binary forms, with or without 
-	modification, are permitted provided that the following conditions 
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
 	are met:
 
-	1. Redistributions or derivations of source code must retain the above 
+	1. Redistributions or derivations of source code must retain the above
 	copyright notice, this list of conditions and the following disclaimer.
 
-	2. Redistributions or derivative works in binary form must reproduce 
-	the above copyright notice. This list of conditions and the following 
-	disclaimer must be reproduced in the documentation and/or other 
+	2. Redistributions or derivative works in binary form must reproduce
+	the above copyright notice. This list of conditions and the following
+	disclaimer must be reproduced in the documentation and/or other
 	materials provided with the distribution.
 
-	3. Neither the name of the copyright holder nor the names of its 
-	contributors may be used to endorse or promote products derived 
+	3. Neither the name of the copyright holder nor the names of its
+	contributors may be used to endorse or promote products derived
 	from this software without specific prior written permission.
 
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
-	A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-	HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
-	LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+	A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+	HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+	LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -96,8 +96,8 @@
 	Compiling in Linux
 	~~~~~~~~~~~~~~~~~~
 	You will need a modern C++ compiler, so update yours!
-	To compile use the command: 
-	
+	To compile use the command:
+
 	g++ -o YourProgName YourSource.cpp -lX11 -lGL -lpthread -lpng
 
 	On some Linux configurations, the frame rate is locked to the refresh
@@ -117,10 +117,10 @@
 
 	Thanks
 	~~~~~~
-	I'd like to extend thanks to Eremiell, slavka, Phantim, JackOJC, 
-	KrossX, Huhlig, Dragoneye, Appa & MagetzUb for advice, ideas and testing, 
-	and I'd like to extend my appreciation to the 13K YouTube followers 
-	and 1K Discord server members who give me the motivation to keep 
+	I'd like to extend thanks to Eremiell, slavka, Phantim, JackOJC,
+	KrossX, Huhlig, Dragoneye, Appa & MagetzUb for advice, ideas and testing,
+	and I'd like to extend my appreciation to the 13K YouTube followers
+	and 1K Discord server members who give me the motivation to keep
 	going with all this :D
 
 	Author
@@ -132,7 +132,7 @@
 	// Link to libraries
 #ifndef __MINGW32__
 	#pragma comment(lib, "user32.lib")		// Visual Studio Only
-	#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add 
+	#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
 	#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
 	#pragma comment(lib, "gdiplus.lib")
 #else
@@ -140,10 +140,10 @@
 	// following libs to your linker: user32 gdi32 opengl32 gdiplus
 #endif
 
-	
+
 
 	// Include WinAPI
-	#define NOMINMAX	
+	#define NOMINMAX
 	#include <windows.h>
 	#include <gdiplus.h>
 
@@ -198,9 +198,9 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	};
 
 	// Some constants for symbolic naming of Pixels
-	static const Pixel 
+	static const Pixel
 		WHITE(255, 255, 255),
-		GREY(192, 192, 192),	DARK_GREY(128, 128, 128),	VERY_DARK_GREY(64, 64, 64), 
+		GREY(192, 192, 192),	DARK_GREY(128, 128, 128),	VERY_DARK_GREY(64, 64, 64),
 		RED(255, 0, 0),			DARK_RED(128, 0, 0),		VERY_DARK_RED(64, 0, 0),
 		YELLOW(255, 255, 0),	DARK_YELLOW(128, 128, 0),	VERY_DARK_YELLOW(64, 64, 0),
 		GREEN(0, 255, 0),		DARK_GREEN(0, 128, 0),		VERY_DARK_GREEN(0, 64, 0),
@@ -292,7 +292,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// Get the state of a specific keyboard button
 		HWButton GetKey(Key k);
 		// Get the state of a specific mouse button
-		HWButton GetMouse(char b);
+		HWButton GetMouse(uint32_t b);
 		// Get Mouse X coordinate in "pixel" space
 		int32_t GetMouseX();
 		// Get Mouse Y coordinate in "pixel" space
@@ -319,12 +319,12 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// olc::Pixel::MASK   = Transparent if alpha is < 255
 		// olc::Pixel::ALPHA  = Full transparency
 		void SetPixelMode(Pixel::Mode m);
-		
+
 		// Draws a single Pixel
 		virtual void Draw(int32_t x, int32_t y, Pixel p);
 		// Draws a line from (x1,y1) to (x2,y2)
 		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p);
-		// Draws a circle located at (x,y) with radius 
+		// Draws a circle located at (x,y) with radius
 		void DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p);
 		// Fills a circle located at (x,y) with radius
 		void FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p);
@@ -338,7 +338,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p);
 		// Draws an entire sprite at location (x,y)
 		void DrawSprite(int32_t x, int32_t y, Sprite *sprite);
-		// Draws an area of a sprite at location (x,y), where the 
+		// Draws an area of a sprite at location (x,y), where the
 		// selected area is (ox,oy) to (ox+w,oy+h)
 		void DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h);
 		// Draws a single line of text
@@ -394,7 +394,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 #ifdef _WIN32
 		// Windows specific window handling
 		HWND olc_hWnd = nullptr;
-		HWND olc_WindowCreate();		
+		HWND olc_WindowCreate();
 		std::wstring wsAppName;
 		static LRESULT CALLBACK olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #else
@@ -420,7 +420,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 
 
- 
+
 
 
 
@@ -623,16 +623,18 @@ namespace olc
 		nScreenHeight = screen_h;
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
-
-#ifdef _WIN32 
+		
+#ifdef _WIN32
 #ifdef UNICODE
+#ifndef __MINGW32__
 		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		wsAppName = converter.from_bytes(sAppName);		
+		wsAppName = converter.from_bytes(sAppName);
+#endif
 #endif
 #endif
 		// Load the default font sheet
 		olc_ConstructFontSheet();
-
+		
 		// Create a sprite that represents the primary drawing target
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
@@ -713,7 +715,7 @@ namespace olc
 		return pKeyboardState[k];
 	}
 
-	HWButton PixelGameEngine::GetMouse(char b)
+	HWButton PixelGameEngine::GetMouse(uint32_t b)
 	{
 		return pMouseState[b];
 	}
@@ -750,7 +752,7 @@ namespace olc
 
 		if (nPixelMode == Pixel::MASK)
 		{
-			if(p.a != 255)
+			if(p.a == 255)
 				pDrawTarget->SetPixel(x, y, p);
 			return;
 		}
@@ -1079,14 +1081,25 @@ namespace olc
 
 	void PixelGameEngine::DrawString(int32_t x, int32_t y, std::string sText)
 	{
-		int32_t s = 0;
+		int32_t sx = 0;
+		int32_t sy = 0;
+		Pixel::Mode m = nPixelMode;
+		SetPixelMode(Pixel::MASK);
 		for (auto c : sText)
 		{
-			int32_t ox = (c - 32) % 16;
-			int32_t oy = (c - 32) / 16;
-			DrawPartialSprite(x + s, y, fontSprite, ox*8, oy*8, 8, 8);
-			s+=8;
+			if (c == '\n')
+			{
+				sx = 0; sy += 8;
+			}
+			else
+			{
+				int32_t ox = (c - 32) % 16;
+				int32_t oy = (c - 32) / 16;
+				DrawPartialSprite(x + sx, y + sy, fontSprite, ox * 8, oy * 8, 8, 8);
+				sx += 8;
+			}
 		}
+		SetPixelMode(m);
 	}
 
 	void PixelGameEngine::SetPixelMode(Pixel::Mode m)
@@ -1172,11 +1185,11 @@ namespace olc
 					}
 					else if (xev.type == ButtonPress)
 					{
-						pMouseNewState[xev.xbutton.button] = true;
+						pMouseNewState[xev.xbutton.button-1] = true;
 					}
 					else if (xev.type == ButtonRelease)
 					{
-						pMouseNewState[xev.xbutton.button] = false;
+						pMouseNewState[xev.xbutton.button-1] = false;
 					}
 					else if (xev.type == MotionNotify)
 					{
@@ -1273,7 +1286,7 @@ namespace olc
 				nFrameCount++;
 				if (fFrameTimer >= 1.0f)
 				{
-					fFrameTimer -= 1.0f;					
+					fFrameTimer -= 1.0f;
 #ifdef _WIN32
 #ifdef UNICODE
 					wchar_t sTitle[256];
@@ -1282,10 +1295,10 @@ namespace olc
 #ifndef __MINGW32__
 					char sTitle[256];
 					sprintf_s(sTitle, 256, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", sAppName.c_str(), nFrameCount);
-#else	
+#else
 					char sTitle[256];
 					sprintf(sTitle, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", sAppName.c_str(), nFrameCount);
-#endif	
+#endif
 #endif
 					SetWindowText(olc_hWnd, sTitle);
 #else
@@ -1353,11 +1366,11 @@ namespace olc
 			uint32_t sym3 = (uint32_t)data[b + 2] - 48;
 			uint32_t sym4 = (uint32_t)data[b + 3] - 48;
 			uint32_t r = sym1 << 18 | sym2 << 12 | sym3 << 6 | sym4;
-			
+
 			for (int i = 0; i < 24; i++)
 			{
 				int k = r & (1 << i) ? 255 : 0;
-				fontSprite->SetPixel(px, py, olc::Pixel(k, k, k));
+				fontSprite->SetPixel(px, py, olc::Pixel(k, k, k, k));
 				if (++py == 48) { px++; py = 0; }
 			}
 		}
@@ -1397,10 +1410,10 @@ namespace olc
 
 #ifdef UNICODE
 		olc_hWnd = CreateWindowEx(dwExStyle, L"OLC_PIXEL_GAME_ENGINE", L"", dwStyle,
-			CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
+			30, 30, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
 #else
 		olc_hWnd = CreateWindowEx(dwExStyle, "OLC_PIXEL_GAME_ENGINE", "", dwStyle,
-			CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
+			30, 30, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
 #endif
 
 		// Create Keyboard Mapping
@@ -1482,7 +1495,7 @@ namespace olc
 	Display* PixelGameEngine::olc_WindowCreate()
 	{
 		XInitThreads();
-		
+
 		// Grab the deafult display and window
 		olc_Display		= XOpenDisplay(NULL);
 		olc_WindowRoot	= DefaultRootWindow(olc_Display);
@@ -1497,7 +1510,7 @@ namespace olc
 		olc_SetWindowAttribs.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask;
 
 		// Create the window
-		olc_Window		= XCreateWindow(olc_Display, olc_WindowRoot, 0, 0, nScreenWidth * nPixelWidth, nScreenHeight * nPixelHeight, 0, olc_VisualInfo->depth, InputOutput, olc_VisualInfo->visual, CWColormap | CWEventMask, &olc_SetWindowAttribs);
+		olc_Window		= XCreateWindow(olc_Display, olc_WindowRoot, 30, 30, nScreenWidth * nPixelWidth, nScreenHeight * nPixelHeight, 0, olc_VisualInfo->depth, InputOutput, olc_VisualInfo->visual, CWColormap | CWEventMask, &olc_SetWindowAttribs);
 
 		Atom wmDelete = XInternAtom(olc_Display, "WM_DELETE_WINDOW", true);
 		XSetWMProtocols(olc_Display, olc_Window, &wmDelete, 1);
@@ -1535,12 +1548,22 @@ namespace olc
 	{
 		glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
 		glXMakeCurrent(olc_Display, olc_Window, glDeviceContext);
+		
 		XWindowAttributes gwa;
-		XGetWindowAttributes(olc_Display, olc_Window, &gwa);
+		XGetWindowAttributes(olc_Display, olc_Window, &gwa);		
 		glViewport(0, 0, gwa.width, gwa.height);
-
+		
+		glSwapIntervalEXT = nullptr;
 		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
-		glSwapIntervalEXT(olc_Display, olc_Window, 0);
+		if (glSwapIntervalEXT)
+			glSwapIntervalEXT(olc_Display, olc_Window, 0);
+		else
+		{
+			printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
+			printf("      Don't worry though, things will still work, it's just the\n");
+			printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
+		}
+		
 		return true;
 	}
 
@@ -1552,3 +1575,6 @@ namespace olc
 	std::map<uint16_t, uint8_t> PixelGameEngine::mapKeys;
 	//=============================================================
 }
+
+
+
