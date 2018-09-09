@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v0.6               |
+	|           OneLoneCoder Pixel Game Engine v1.0               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -91,7 +91,7 @@
 
 	Relevant Videos
 	~~~~~~~~~~~~~~~
-
+	https://youtu.be/kRH6oJLFYxY Introducing olcPixelGameEngine
 
 	Compiling in Linux
 	~~~~~~~~~~~~~~~~~~
@@ -143,7 +143,7 @@
 
 
 	// Include WinAPI
-	#define NOMINMAX
+	//#define NOMINMAX
 	#include <windows.h>
 	#include <gdiplus.h>
 
@@ -207,7 +207,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		CYAN(0, 255, 255),		DARK_CYAN(0, 128, 128),		VERY_DARK_CYAN(0, 64, 64),
 		BLUE(0, 0, 255),		DARK_BLUE(0, 0, 128),		VERY_DARK_BLUE(0, 0, 64),
 		MAGENTA(255, 0, 255),	DARK_MAGENTA(128, 0, 128),	VERY_DARK_MAGENTA(64, 0, 64),
-		BLACK(0, 0, 0);
+		BLACK(0, 0, 0),
+		BLANK(0, 0, 0, 0);
 
 	enum rcode
 	{
@@ -238,6 +239,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	public:
 		olc::rcode LoadFromFile(std::string sImageFile);
+		olc::rcode LoadFromSprFile(std::string sImageFile);
 
 	public:
 		int32_t width = 0;
@@ -319,30 +321,32 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// olc::Pixel::MASK   = Transparent if alpha is < 255
 		// olc::Pixel::ALPHA  = Full transparency
 		void SetPixelMode(Pixel::Mode m);
+		// Change the blend factor form between 0.0f to 1.0f;
+		void SetPixelBlend(float fBlend);
 
 		// Draws a single Pixel
-		virtual void Draw(int32_t x, int32_t y, Pixel p);
+		virtual void Draw(int32_t x, int32_t y, Pixel p = olc::WHITE);
 		// Draws a line from (x1,y1) to (x2,y2)
-		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p);
+		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p = olc::WHITE);
 		// Draws a circle located at (x,y) with radius
-		void DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p);
+		void DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
 		// Fills a circle located at (x,y) with radius
-		void FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p);
+		void FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
 		// Draws a rectangle at (x,y) to (x+w,y+h)
-		void DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p);
+		void DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		// Fills a rectangle at (x,y) to (x+w,y+h)
-		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p);
+		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		// Draws a triangle between points (x1,y1), (x2,y2) and (x3,y3)
-		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p);
+		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
-		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p);
+		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		// Draws an entire sprite at location (x,y)
 		void DrawSprite(int32_t x, int32_t y, Sprite *sprite);
 		// Draws an area of a sprite at location (x,y), where the
 		// selected area is (ox,oy) to (ox+w,oy+h)
 		void DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h);
 		// Draws a single line of text
-		void DrawString(int32_t x, int32_t y, std::string sText);
+		void DrawString(int32_t x, int32_t y, std::string sText, Pixel col = olc::WHITE);
 
 	public: // Branding
 		std::string sAppName;
@@ -351,6 +355,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		Sprite		*pDefaultDrawTarget = nullptr;
 		Sprite		*pDrawTarget = nullptr;
 		Pixel::Mode	nPixelMode = Pixel::NORMAL;
+		float		fBlendFactor = 1.0f;
 		uint32_t	nScreenWidth = 256;
 		uint32_t	nScreenHeight = 240;
 		uint32_t	nPixelWidth = 4;
@@ -472,6 +477,11 @@ namespace olc
 	Sprite::~Sprite()
 	{
 		if (pColData) delete[] pColData;
+	}
+
+	olc::rcode Sprite::LoadFromSprFile(std::string sImageFile)
+	{
+		return olc::FAIL;
 	}
 
 	olc::rcode Sprite::LoadFromFile(std::string sImageFile)
@@ -760,7 +770,7 @@ namespace olc
 		if (nPixelMode == Pixel::ALPHA)
 		{
 			Pixel d = pDrawTarget->GetPixel(x, y);
-			float a = (float)p.a / 255.0f;
+			float a = (float)(p.a / 255.0f) * fBlendFactor;
 			float c = 1.0f - a;
 			float r = a * (float)p.r + c * (float)d.r;
 			float g = a * (float)p.g + c * (float)d.g;
@@ -1079,12 +1089,13 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::DrawString(int32_t x, int32_t y, std::string sText)
+	void PixelGameEngine::DrawString(int32_t x, int32_t y, std::string sText, Pixel col)
 	{
 		int32_t sx = 0;
 		int32_t sy = 0;
 		Pixel::Mode m = nPixelMode;
-		SetPixelMode(Pixel::MASK);
+		if(col.ALPHA != 255)	SetPixelMode(Pixel::ALPHA);
+		else					SetPixelMode(Pixel::MASK);
 		for (auto c : sText)
 		{
 			if (c == '\n')
@@ -1095,7 +1106,15 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialSprite(x + sx, y + sy, fontSprite, ox * 8, oy * 8, 8, 8);
+				//DrawPartialSprite(x + sx, y + sy, fontSprite, ox * 8, oy * 8, 8, 8);
+				for (int i = 0; i < 8; i++)
+				{
+					for (int j = 0; j < 8; j++)
+					{
+						if(fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+							Draw(x + sx + i, y + sy + j, col);
+					}
+				}
 				sx += 8;
 			}
 		}
@@ -1105,6 +1124,13 @@ namespace olc
 	void PixelGameEngine::SetPixelMode(Pixel::Mode m)
 	{
 		nPixelMode = m;
+	}
+
+	void PixelGameEngine::SetPixelBlend(float fBlend)
+	{
+		fBlendFactor = fBlend;
+		if (fBlendFactor < 0.0f) fBlendFactor = 0.0f;
+		if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
 	}
 
 	// User must override these functions as required. I have not made
