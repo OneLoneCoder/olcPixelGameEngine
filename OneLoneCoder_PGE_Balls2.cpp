@@ -59,7 +59,7 @@ Part #2 https://youtu.be/ebq7L2Wtbl4
 
 Author
 ~~~~~~
-David Barr, aka javidx9, ©OneLoneCoder 2018
+David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 
@@ -68,6 +68,7 @@ David Barr, aka javidx9, ©OneLoneCoder 2018
 #include <algorithm>
 using namespace std;
 
+#define NOMINMAX
 #include "olcPixelGameEngine.h"
 
 struct sBall
