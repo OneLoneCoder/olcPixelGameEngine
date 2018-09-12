@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.0               |
+	|           OneLoneCoder Pixel Game Engine v1.1               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -128,6 +128,8 @@
 	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
+
+
 #ifdef _WIN32
 	// Link to libraries
 #ifndef __MINGW32__
@@ -150,7 +152,7 @@
 	// OpenGL Extension
 	#include <GL/gl.h>
 	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
-	wglSwapInterval_t *wglSwapInterval;
+	static wglSwapInterval_t *wglSwapInterval;
 #else
 	#include <GL/gl.h>
 	#include <GL/glx.h>
@@ -158,7 +160,7 @@
 	#include <X11/Xlib.h>
 	#include <png.h>
 	typedef int(glSwapInterval_t) (Display *dpy, GLXDrawable drawable, int interval);
-	glSwapInterval_t *glSwapIntervalEXT;
+	static glSwapInterval_t *glSwapIntervalEXT;
 #endif
 
 
@@ -264,7 +266,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		K0, K1, K2, K3, K4, K5, K6, K7, K8, K9,
 		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
 		UP, DOWN, LEFT, RIGHT,
-		SPACE, TAB, LSHIFT, RSHIFT, LCTRL, RCTRL, LALT, RALT, INS, DEL, HOME, END, PGUP, PGDN,
+		SPACE, TAB, SHIFT, CTRL, INS, DEL, HOME, END, PGUP, PGDN,
 		BACK, ESCAPE, ENTER, PAUSE, SCROLL,
 	};
 
@@ -277,7 +279,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		PixelGameEngine();
 
 	public:
-		olc::rcode	Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h);
+		olc::rcode	Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, int32_t framerate = -1);
 		olc::rcode	Start();
 
 	public: // Override Interfaces
@@ -365,6 +367,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		bool		bHasInputFocus = false;
 		float		fFrameTimer = 1.0f;
 		int			nFrameCount = 0;
+		float		fFramePeriod = 0.0f;
 		Sprite		*fontSprite = nullptr;
 
 		static std::map<uint16_t, uint8_t> mapKeys;
@@ -417,7 +420,6 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	//=============================================================
 }
-
 
 
 
@@ -627,12 +629,13 @@ namespace olc
 		sAppName = "Undefined";
 	}
 
-	olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h)
+	olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, int32_t framerate)
 	{
 		nScreenWidth = screen_w;
 		nScreenHeight = screen_h;
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
+		fFramePeriod = 1.0f / (float)framerate;
 		
 #ifdef _WIN32
 #ifdef UNICODE
@@ -1165,6 +1168,9 @@ namespace olc
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nScreenWidth, nScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
+
+
 		// Create user resources as part of this thread
 		if (!OnUserCreate())
 			bAtomActive = false;
@@ -1290,8 +1296,8 @@ namespace olc
 
 				// TODO: This is a bit slow (especially in debug, but 100x faster in release mode???)
 				// Copy pixel array into texture
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nScreenWidth, nScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
-
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
+				
 				// Display texture on screen
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f, -1.0f, 0.0f);
@@ -1459,7 +1465,7 @@ namespace olc
 		mapKeys[VK_BACK] = Key::BACK; mapKeys[VK_ESCAPE] = Key::ESCAPE; mapKeys[VK_RETURN] = Key::ENTER; mapKeys[VK_PAUSE] = Key::PAUSE;
 		mapKeys[VK_SCROLL] = Key::SCROLL; mapKeys[VK_TAB] = Key::TAB; mapKeys[VK_DELETE] = Key::DEL; mapKeys[VK_HOME] = Key::HOME;
 		mapKeys[VK_END] = Key::END; mapKeys[VK_PRIOR] = Key::PGUP; mapKeys[VK_NEXT] = Key::PGDN; mapKeys[VK_INSERT] = Key::INS;
-		mapKeys[VK_LSHIFT] = Key::LSHIFT; mapKeys[VK_RSHIFT] = Key::RSHIFT; mapKeys[VK_LCONTROL] = Key::LCTRL; mapKeys[VK_RCONTROL] = Key::RCTRL;
+		mapKeys[VK_SHIFT] = Key::SHIFT; mapKeys[VK_CONTROL] = Key::CTRL;
 		mapKeys[VK_SPACE] = Key::SPACE;
 
 		mapKeys[0x30] = Key::K0; mapKeys[0x31] = Key::K1; mapKeys[0x32] = Key::K2; mapKeys[0x33] = Key::K3; mapKeys[0x34] = Key::K4;
@@ -1561,7 +1567,7 @@ namespace olc
 		mapKeys[XK_BackSpace] = Key::BACK; mapKeys[XK_Escape] = Key::ESCAPE; mapKeys[XK_Linefeed] = Key::ENTER;	mapKeys[XK_Pause] = Key::PAUSE;
 		mapKeys[XK_Scroll_Lock] = Key::SCROLL; mapKeys[XK_Tab] = Key::TAB; mapKeys[XK_Delete] = Key::DEL; mapKeys[XK_Home] = Key::HOME;
 		mapKeys[XK_End] = Key::END; mapKeys[XK_Page_Up] = Key::PGUP; mapKeys[XK_Page_Down] = Key::PGDN;	mapKeys[XK_Insert] = Key::INS;
-		mapKeys[XK_Shift_L] = Key::LSHIFT; mapKeys[XK_Shift_R] = Key::RSHIFT; mapKeys[XK_Control_L] = Key::LCTRL; mapKeys[XK_Control_R] = Key::RCTRL;
+		mapKeys[XK_Shift_L] = Key::SHIFT; mapKeys[XK_Shift_R] = Key::SHIFT; mapKeys[XK_Control_L] = Key::CTRL; mapKeys[XK_Control_R] = Key::CTRL;
 		mapKeys[XK_space] = Key::SPACE;
 
 		mapKeys[XK_0] = Key::K0; mapKeys[XK_1] = Key::K1; mapKeys[XK_2] = Key::K2; mapKeys[XK_3] = Key::K3; mapKeys[XK_4] = Key::K4;
@@ -1601,6 +1607,4 @@ namespace olc
 	std::map<uint16_t, uint8_t> PixelGameEngine::mapKeys;
 	//=============================================================
 }
-
-
 
