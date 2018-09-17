@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.1               |
+	|           OneLoneCoder Pixel Game Engine v1.2               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -128,7 +128,7 @@
 	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
-
+#pragma once
 
 #ifdef _WIN32
 	// Link to libraries
@@ -145,7 +145,6 @@
 
 
 	// Include WinAPI
-	//#define NOMINMAX
 	#include <windows.h>
 	#include <gdiplus.h>
 
@@ -180,6 +179,9 @@
 #ifndef __MINGW32__
 #include <codecvt> // Need GCC 5.1+ people...
 #endif
+
+#undef min
+#undef max
 
 namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 {
@@ -348,7 +350,9 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// selected area is (ox,oy) to (ox+w,oy+h)
 		void DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h);
 		// Draws a single line of text
-		void DrawString(int32_t x, int32_t y, std::string sText, Pixel col = olc::WHITE);
+		void DrawString(int32_t x, int32_t y, std::string sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		// Clears entire draw target to Pixel
+		void Clear(Pixel p);
 
 	public: // Branding
 		std::string sAppName;
@@ -416,6 +420,14 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		Display*				olc_WindowCreate();
 #endif
 
+	};
+
+
+	class PGEX
+	{
+		friend class olc::PixelGameEngine;
+	protected:
+		static PixelGameEngine* pge;
 	};
 
 	//=============================================================
@@ -604,7 +616,7 @@ namespace olc
 		if (x >= 0 && x < width && y >= 0 && y < height)
 			return pColData[y*width + x];
 		else
-			return Pixel();
+			return Pixel(0,0,0,0);
 	}
 
 	void Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
@@ -627,6 +639,7 @@ namespace olc
 	PixelGameEngine::PixelGameEngine()
 	{
 		sAppName = "Undefined";
+		olc::PGEX::pge = this;
 	}
 
 	olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, int32_t framerate)
@@ -636,6 +649,9 @@ namespace olc
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
 		fFramePeriod = 1.0f / (float)framerate;
+
+		if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0)
+			return olc::FAIL;
 		
 #ifdef _WIN32
 #ifdef UNICODE
@@ -899,8 +915,16 @@ namespace olc
 		DrawLine(x, y+h, x, y, p);
 	}
 
-	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+	void PixelGameEngine::Clear(Pixel p)
 	{
+		int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
+		Pixel* m = GetDrawTarget()->GetData();
+		for (int i = 0; i < pixels; i++)
+			m[i] = p;
+	}
+
+	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+	{			
 		int32_t x2 = x + w;
 		int32_t y2 = y + h;
 
@@ -1092,7 +1116,7 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::DrawString(int32_t x, int32_t y, std::string sText, Pixel col)
+	void PixelGameEngine::DrawString(int32_t x, int32_t y, std::string sText, Pixel col, uint32_t scale)
 	{
 		int32_t sx = 0;
 		int32_t sy = 0;
@@ -1103,22 +1127,30 @@ namespace olc
 		{
 			if (c == '\n')
 			{
-				sx = 0; sy += 8;
+				sx = 0; sy += 8 * scale;
 			}
 			else
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				//DrawPartialSprite(x + sx, y + sy, fontSprite, ox * 8, oy * 8, 8, 8);
-				for (int i = 0; i < 8; i++)
+
+				if (scale > 1)
 				{
-					for (int j = 0; j < 8; j++)
-					{
-						if(fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
-							Draw(x + sx + i, y + sy + j, col);
-					}
+					for (uint32_t i = 0; i < 8; i++)
+						for (uint32_t j = 0; j < 8; j++)
+							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+								for (uint32_t is = 0; is < scale; is++)
+									for (uint32_t js = 0; js < scale; js++)
+										Draw(x + sx + (i*scale) + is, y + sy + (j*scale) + js, col);
 				}
-				sx += 8;
+				else
+				{
+					for (uint32_t i = 0; i < 8; i++)
+						for (uint32_t j = 0; j < 8; j++)
+							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)								
+								Draw(x + sx + i, y + sy + j, col);
+				}										
+				sx += 8 * scale;
 			}
 		}
 		SetPixelMode(m);
@@ -1605,6 +1637,7 @@ namespace olc
 	// read from multiple locations
 	std::atomic<bool> PixelGameEngine::bAtomActive{ false };
 	std::map<uint16_t, uint8_t> PixelGameEngine::mapKeys;
+	olc::PixelGameEngine* olc::PGEX::pge = nullptr;
 	//=============================================================
 }
 
