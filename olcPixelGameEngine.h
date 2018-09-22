@@ -125,7 +125,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, �OneLoneCoder 2018
+	David Barr, aka javidx9, �OneLoneCoder 2018
 */
 
 #pragma once
@@ -332,12 +332,16 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		virtual void Draw(int32_t x, int32_t y, Pixel p = olc::WHITE);
 		// Draws a line from (x1,y1) to (x2,y2)
 		void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p = olc::WHITE);
+		// Draws a simple line from (x1,y) to (x2,y) OR (x,y1) to (x,y2)
+		void DrawLine_gc(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p = olc::WHITE);
 		// Draws a circle located at (x,y) with radius
 		void DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
 		// Fills a circle located at (x,y) with radius
 		void FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
 		// Draws a rectangle at (x,y) to (x+w,y+h)
 		void DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
+		// Draws a simple rectangle at (x,y) to (x+w,y+h) added by G.Çetin
+		void DrawRect_gc(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		// Fills a rectangle at (x,y) to (x+w,y+h)
 		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		// Draws a triangle between points (x1,y1), (x2,y2) and (x3,y3)
@@ -859,6 +863,23 @@ namespace olc
 		}
 	}
 
+	void PixelGameEngine::DrawLine_gc(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p)
+	{
+		int xi = ((x1< x2) ? x1 : x2); int xe = ((x1 > x2) ? x1 : x2);
+		int yi = ((y1< y2) ? y1 : y2); int ye = ((y1 > y2) ? y1 : y2);
+		
+		if (y1 == y2) {
+			//x'te yürüyoruz
+			for (int x=xi;x<xe;x++)
+				Draw(x, y1, p);
+		}
+		else if (x1 == x2) {
+			//y'de yürüyoruz
+			for (int y = yi; y < ye; y++)
+				Draw(x1, y, p);
+		}
+	}
+
 	void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
 	{
 		int x0 = 0;
@@ -913,6 +934,14 @@ namespace olc
 		DrawLine(x+w, y, x+w, y+h, p);
 		DrawLine(x+w, y+h, x, y+h, p);
 		DrawLine(x, y+h, x, y, p);
+	}
+
+	void PixelGameEngine::DrawRect_gc(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+	{
+		DrawLine_gc(x, y, x + w, y, p);
+		DrawLine_gc(x + w, y, x + w, y + h, p);
+		DrawLine_gc(x + w, y + h, x, y + h, p);
+		DrawLine_gc(x, y + h, x, y, p);
 	}
 
 	void PixelGameEngine::Clear(Pixel p)
@@ -1640,4 +1669,3 @@ namespace olc
 	olc::PixelGameEngine* olc::PGEX::pge = nullptr;
 	//=============================================================
 }
-
