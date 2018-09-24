@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.2               |
+	|           OneLoneCoder Pixel Game Engine v1.3               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -183,6 +183,8 @@
 #undef min
 #undef max
 
+
+
 namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 {
 	struct Pixel
@@ -328,6 +330,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// Change the blend factor form between 0.0f to 1.0f;
 		void SetPixelBlend(float fBlend);
 
+		void SetSubPixelOffset(float ox, float oy);
+
 		// Draws a single Pixel
 		virtual void Draw(int32_t x, int32_t y, Pixel p = olc::WHITE);
 		// Draws a line from (x1,y1) to (x2,y2)
@@ -368,6 +372,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		uint32_t	nPixelHeight = 4;
 		uint32_t	nMousePosX = 0;
 		uint32_t	nMousePosY = 0;
+		float		fPixelX = 1.0f;
+		float		fPixelY = 1.0f;
+		float		fSubPixelOffsetX = 0.0f;
+		float		fSubPixelOffsetY = 0.0f;
 		bool		bHasInputFocus = false;
 		float		fFrameTimer = 1.0f;
 		int			nFrameCount = 0;
@@ -484,13 +492,13 @@ namespace olc
 		if(pColData) delete[] pColData;
 		width = w;		height = h;
 		pColData = new Pixel[width * height];
-		for (int32_t i = 0; i < width *height; i++)
+		for (int32_t i = 0; i < width*height; i++)
 			pColData[i] = Pixel();
 	}
 
 	Sprite::~Sprite()
 	{
-		if (pColData) delete[] pColData;
+		if (pColData) delete pColData;
 	}
 
 	olc::rcode Sprite::LoadFromSprFile(std::string sImageFile)
@@ -520,6 +528,7 @@ namespace olc
 		width = bmp->GetWidth();
 		height = bmp->GetHeight();
 		pColData = new Pixel[width * height];
+
 		for(int x=0; x<width; x++)
 			for (int y = 0; y < height; y++)
 			{
@@ -649,6 +658,9 @@ namespace olc
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
 		fFramePeriod = 1.0f / (float)framerate;
+
+		fPixelX = 2.0f / (float)(nScreenWidth);
+		fPixelY = 2.0f / (float)(nScreenHeight);
 
 		if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0)
 			return olc::FAIL;
@@ -797,6 +809,12 @@ namespace olc
 			pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b));
 			return;
 		}
+	}
+
+	void PixelGameEngine::SetSubPixelOffset(float ox, float oy)
+	{
+		fSubPixelOffsetX = ox * fPixelX;
+		fSubPixelOffsetY = oy * fPixelY;
 	}
 
 	void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p)
@@ -1093,6 +1111,7 @@ namespace olc
 		if (sprite == nullptr)
 			return;
 
+
 		for (int i = 0; i < sprite->width; i++)
 		{
 			for (int j = 0; j < sprite->height; j++)
@@ -1332,10 +1351,10 @@ namespace olc
 				
 				// Display texture on screen
 				glBegin(GL_QUADS);
-					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f, -1.0f, 0.0f);
-					glTexCoord2f(0.0, 0.0); glVertex3f(-1.0f,  1.0f, 0.0f);
-					glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f,  1.0f, 0.0f);
-					glTexCoord2f(1.0, 1.0); glVertex3f( 1.0f, -1.0f, 0.0f);
+					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+					glTexCoord2f(0.0, 0.0); glVertex3f(-1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
+					glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
+					glTexCoord2f(1.0, 1.0); glVertex3f( 1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
 				glEnd();
 
 				// Present Graphics to screen
