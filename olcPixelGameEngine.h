@@ -234,8 +234,19 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	//=============================================================
 
+	class SpriteBase
+	{
+	public:
+		int32_t width = 0;
+		int32_t height = 0;
+
+		virtual Pixel GetPixel(int32_t x, int32_t y) = 0;
+	};
+
+	//=============================================================
+
 	// A bitmap-like structure that stores a 2D array of Pixels
-	class Sprite
+	class Sprite : public SpriteBase
 	{
 	public:
 		Sprite();
@@ -248,11 +259,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		olc::rcode LoadFromSprFile(std::string sImageFile);
 
 	public:
-		int32_t width = 0;
-		int32_t height = 0;
-
-	public:
-		Pixel GetPixel(int32_t x, int32_t y);
+		Pixel GetPixel(int32_t x, int32_t y) override;
 		void  SetPixel(int32_t x, int32_t y, Pixel p);
 		Pixel Sample(float x, float y);
 		Pixel* GetData();
@@ -349,10 +356,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		// Draws an entire sprite at location (x,y)
-		void DrawSprite(int32_t x, int32_t y, Sprite *sprite);
+		void DrawSprite(int32_t x, int32_t y, SpriteBase *sprite);
 		// Draws an area of a sprite at location (x,y), where the
 		// selected area is (ox,oy) to (ox+w,oy+h)
-		void DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h);
+		void DrawPartialSprite(int32_t x, int32_t y, SpriteBase *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h);
 		// Draws a single line of text
 		void DrawString(int32_t x, int32_t y, std::string sText, Pixel col = olc::WHITE, uint32_t scale = 1);
 		// Clears entire draw target to Pixel
@@ -1106,7 +1113,7 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::DrawSprite(int32_t x, int32_t y, Sprite *sprite)
+	void PixelGameEngine::DrawSprite(int32_t x, int32_t y, SpriteBase *sprite)
 	{
 		if (sprite == nullptr)
 			return;
@@ -1121,7 +1128,7 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h)
+	void PixelGameEngine::DrawPartialSprite(int32_t x, int32_t y, SpriteBase *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h)
 	{
 		if (sprite == nullptr)
 			return;
