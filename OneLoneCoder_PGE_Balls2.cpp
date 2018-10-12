@@ -68,7 +68,7 @@ David Barr, aka javidx9, ©OneLoneCoder 2018
 #include <algorithm>
 using namespace std;
 
-#define NOMINMAX
+#define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
 struct sBall
