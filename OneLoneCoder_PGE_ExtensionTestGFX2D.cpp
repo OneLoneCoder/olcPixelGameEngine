@@ -46,10 +46,11 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 // Include the olcPixelGameEngine
+#define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
 // To use an extension, just include it
