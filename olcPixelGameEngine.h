@@ -125,7 +125,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -351,6 +351,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		int32_t GetMouseX();
 		// Get Mouse Y coordinate in "pixel" space
 		int32_t GetMouseY();
+		// Get Mouse wheel direction, 1 = scrolled up, -1 = scrolled down, 0 = none
+		int32_t GetMouseWheel();
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
@@ -418,6 +420,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		uint32_t	nPixelHeight = 4;
 		uint32_t	nMousePosX = 0;
 		uint32_t	nMousePosY = 0;
+		int32_t		nMouseWheelDelta = 0;
+		int32_t     nMouseWheelDirection = 0;
 		float		fPixelX = 1.0f;
 		float		fPixelY = 1.0f;
 		float		fSubPixelOffsetX = 0.0f;
@@ -828,6 +832,10 @@ namespace olc
 	int32_t PixelGameEngine::GetMouseY()
 	{
 		return nMousePosY;
+	}
+
+	int32_t PixelGameEngine::GetMouseWheel() {
+		return nMouseWheelDirection;
 	}
 
 	int32_t PixelGameEngine::ScreenWidth()
@@ -1415,6 +1423,14 @@ namespace olc
 					pMouseOldState[i] = pMouseNewState[i];
 				}
 
+				if (nMouseWheelDelta == 0)
+					nMouseWheelDirection = 0;
+				else
+					nMouseWheelDirection = nMouseWheelDelta > 0 ? 1 : -1;
+
+				nMouseWheelDelta = 0;
+				
+
 #ifdef OLC_DBG_OVERDRAW
 				olc::Sprite::nOverdrawCount = 0;
 #endif
@@ -1648,6 +1664,7 @@ namespace olc
 		case WM_RBUTTONUP:	sge->pMouseNewState[1] = false;							return 0;
 		case WM_MBUTTONDOWN:sge->pMouseNewState[2] = true;							return 0;
 		case WM_MBUTTONUP:	sge->pMouseNewState[2] = false;							return 0;
+		case WM_MOUSEWHEEL: sge->nMouseWheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);	return 0;
 		case WM_CLOSE:		bAtomActive = false;									return 0;
 		case WM_DESTROY:	PostQuitMessage(0);										return 0;
 		}
