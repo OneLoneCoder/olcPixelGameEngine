@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.6               |
+	|           OneLoneCoder Pixel Game Engine v1.7               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -125,7 +125,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -499,15 +499,15 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	If the olcPixelGameEngine.h is called from several sources it can cause
 	multiple definitions of objects. To prevent this, ALL but ONE of the pathways
-	to including this file must have OLC_OOP_MODE defined before it. This prevents
+	to including this file must have OLC_PGE_APPLICATION defined before it. This prevents
 	the definitions being duplicated.
 
 	Consider the following project structure:
 
 	Class1.h	- Includes olcPixelGameEngine.h, overrides olc::PixelGameEngine
-	Class1.cpp	- #define OLC_OOP_MODE #include "Class1.h"
+	Class1.cpp	- #define OLC_PGE_APPLICATION #include "Class1.h"
 	Class2.h	- Includes Class1.h, which includes olcPixelGameEngine.h
-	Class2.cpp	- #define OLC_OOP_MODE #include "Class2.h"
+	Class2.cpp	- #define OLC_PGE_APPLICATION #include "Class2.h"
 	main.cpp	- Includes Class1.h and Class2.h
 
 */
