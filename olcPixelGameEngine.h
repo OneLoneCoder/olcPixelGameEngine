@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.7               |
+	|           OneLoneCoder Pixel Game Engine v1.8               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -123,18 +123,20 @@
 	my appreciation to the 14K YouTube followers and 1K Discord server
 	members who give me the motivation to keep going with all this :D
 
+	Special thanks to those who bring gifts!
+	GnarGnarHead for Domina
+	Gorbit for Bastion
+
 	Author
 	~~~~~~
-	David Barr, aka javidx9, Â©OneLoneCoder 2018
+	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////// 
 
 /* Example Usage (main.cpp)
-
 	#define OLC_PGE_APPLICATION
 	#include "olcPixelGameEngine.h"
-
 	// Override base class with your custom functionality
 	class Example : public olc::PixelGameEngine
 	{
@@ -143,14 +145,12 @@
 		{
 			sAppName = "Example";
 		}
-
 	public:
 		bool OnUserCreate() override
 		{
 			// Called once at the start, so create things here
 			return true;
 		}
-
 		bool OnUserUpdate(float fElapsedTime) override
 		{
 			// called once per frame, draws random coloured pixels
@@ -160,7 +160,6 @@
 			return true;
 		}
 	};
-
 	int main()
 	{
 		Example demo;
@@ -184,9 +183,6 @@
 	// In Code::Blocks, Select C++14 in your build options, and add the
 	// following libs to your linker: user32 gdi32 opengl32 gdiplus
 #endif
-
-
-
 	// Include WinAPI
 	#include <windows.h>
 	#include <gdiplus.h>
@@ -219,9 +215,7 @@
 #include <condition_variable>
 #include <fstream>
 #include <map>
-#ifndef __MINGW32__
-#include <codecvt> // Need GCC 5.1+ people...
-#endif
+#include <functional>
 
 #undef min
 #undef max
@@ -241,7 +235,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 		Pixel();
 		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255);
-		enum Mode { NORMAL, MASK, ALPHA };
+		Pixel(uint32_t p);
+		enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
 	};
 
 	// Some constants for symbolic naming of Pixels
@@ -291,15 +286,18 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	public:
 		int32_t width = 0;
 		int32_t height = 0;
+		enum Mode { NORMAL, PERIODIC };
 
 	public:
+		void SetSampleMode(olc::Sprite::Mode mode = olc::Sprite::Mode::NORMAL);
 		Pixel GetPixel(int32_t x, int32_t y);
 		void  SetPixel(int32_t x, int32_t y, Pixel p);
 		Pixel Sample(float x, float y);
 		Pixel* GetData();
-
+	
 	private:
 		Pixel *pColData = nullptr;
+		Mode modeSample = Mode::NORMAL;
 
 #ifdef OLC_DBG_OVERDRAW
 	public:
@@ -329,7 +327,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		PixelGameEngine();
 
 	public:
-		olc::rcode	Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, int32_t framerate = -1);
+		olc::rcode	Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h);
 		olc::rcode	Start();
 
 	public: // Override Interfaces
@@ -342,7 +340,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
-		bool	 IsFocused();
+		bool IsFocused();
 		// Get the state of a specific keyboard button
 		HWButton GetKey(Key k);
 		// Get the state of a specific mouse button
@@ -373,9 +371,11 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// olc::Pixel::MASK   = Transparent if alpha is < 255
 		// olc::Pixel::ALPHA  = Full transparency
 		void SetPixelMode(Pixel::Mode m);
+		// Use a custom blend function
+		void SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel& pSource, const olc::Pixel& pDest)> pixelMode);
 		// Change the blend factor form between 0.0f to 1.0f;
 		void SetPixelBlend(float fBlend);
-
+		// Offset texels by sub-pixel amount (advanced, do not use)
 		void SetSubPixelOffset(float ox, float oy);
 
 		// Draws a single Pixel
@@ -425,9 +425,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		bool		bHasInputFocus = false;
 		float		fFrameTimer = 1.0f;
 		int			nFrameCount = 0;
-		float		fFramePeriod = 0.0f;
 		Sprite		*fontSprite = nullptr;
-
+		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 
 		static std::map<uint16_t, uint8_t> mapKeys;
 		bool		pKeyNewState[256]{ 0 };
@@ -498,7 +497,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	~~~~~~~~~~~~~~~~~~~~
 
 	If the olcPixelGameEngine.h is called from several sources it can cause
-	multiple definitions of objects. To prevent this, ALL but ONE of the pathways
+	multiple definitions of objects. To prevent this, ONLY ONE of the pathways
 	to including this file must have OLC_PGE_APPLICATION defined before it. This prevents
 	the definitions being duplicated.
 
@@ -509,6 +508,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	Class2.h	- Includes Class1.h, which includes olcPixelGameEngine.h
 	Class2.cpp	- #define OLC_PGE_APPLICATION #include "Class2.h"
 	main.cpp	- Includes Class1.h and Class2.h
+
+	If all of this is a bit too confusing, you can split this file in two!
+	Everything below this comment block can go into olcPixelGameEngineOOP.cpp
+	and everything above it can go into olcPixelGameEngineOOP.h
 
 */
 
@@ -527,7 +530,31 @@ namespace olc
 		r = red; g = green; b = blue; a = alpha;
 	}
 
+	Pixel::Pixel(uint32_t p)
+	{
+		n = p;
+	}
+
 	//==========================================================
+
+	std::wstring ConvertS2W(std::string s)
+	{
+#ifdef _WIN32
+		int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
+		wchar_t* buffer = new wchar_t[count];
+		MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
+		std::wstring w(buffer);
+		delete[] buffer;
+		return w;
+#endif
+//#ifdef __MINGW32__
+//		wchar_t *buffer = new wchar_t[sImageFile.length() + 1];
+//		mbstowcs(buffer, sImageFile.c_str(), sImageFile.length());
+//		buffer[sImageFile.length()] = L'\0';
+//		wsImageFile = buffer;
+//		delete[] buffer;
+//#else
+	}
 
 	Sprite::Sprite()
 	{
@@ -572,8 +599,7 @@ namespace olc
         wsImageFile = buffer;
         delete [] buffer;
 #else
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		wsImageFile = converter.from_bytes(sImageFile);
+		wsImageFile = ConvertS2W(sImageFile);
 #endif
         Gdiplus::Bitmap *bmp = Gdiplus::Bitmap::FromFile(wsImageFile.c_str());
 		if (bmp == nullptr)
@@ -669,17 +695,28 @@ namespace olc
 		fclose(f);
 		pColData = nullptr;
 		return olc::FAIL;
-
 #endif
+	}
+
+	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
+	{
+		modeSample = mode;
 	}
 
 
 	Pixel Sprite::GetPixel(int32_t x, int32_t y)
 	{
-		if (x >= 0 && x < width && y >= 0 && y < height)
-			return pColData[y*width + x];
+		if (modeSample == olc::Sprite::Mode::NORMAL)
+		{
+			if (x >= 0 && x < width && y >= 0 && y < height)
+				return pColData[y*width + x];
+			else
+				return Pixel(0, 0, 0, 0);
+		}
 		else
-			return Pixel(0,0,0,0);
+		{			
+			return pColData[(y%height)*width + (x%width)];
+		}
 	}
 
 	void Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
@@ -710,13 +747,12 @@ namespace olc
 		olc::PGEX::pge = this;
 	}
 
-	olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, int32_t framerate)
+	olc::rcode PixelGameEngine::Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h)
 	{
 		nScreenWidth = screen_w;
 		nScreenHeight = screen_h;
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
-		fFramePeriod = 1.0f / (float)framerate;
 
 		fPixelX = 2.0f / (float)(nScreenWidth);
 		fPixelY = 2.0f / (float)(nScreenHeight);
@@ -727,8 +763,7 @@ namespace olc
 #ifdef _WIN32
 #ifdef UNICODE
 #ifndef __MINGW32__
-		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		wsAppName = converter.from_bytes(sAppName);
+		wsAppName = ConvertS2W(sAppName);
 #endif
 #endif
 #endif
@@ -867,6 +902,12 @@ namespace olc
 			float g = a * (float)p.g + c * (float)d.g;
 			float b = a * (float)p.b + c * (float)d.b;
 			pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b));
+			return;
+		}
+
+		if (nPixelMode == Pixel::CUSTOM)
+		{
+			pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
 			return;
 		}
 	}
@@ -1256,6 +1297,12 @@ namespace olc
 		nPixelMode = m;
 	}
 
+	void PixelGameEngine::SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> pixelMode)
+	{
+		funcPixelMode = pixelMode;
+		nPixelMode = Pixel::Mode::CUSTOM;
+	}
+
 	void PixelGameEngine::SetPixelBlend(float fBlend)
 	{
 		fBlendFactor = fBlend;
@@ -1280,6 +1327,10 @@ namespace olc
 		// But leave in pixel space
 		nMousePosX = x / nPixelWidth;
 		nMousePosY = y / nPixelHeight;
+		if (nMousePosX < 0) nMousePosX = 0;
+		if (nMousePosY < 0) nMousePosY = 0;
+		if (nMousePosX >= nScreenWidth) nMousePosX = nScreenWidth-1;
+		if (nMousePosX >= nScreenHeight) nMousePosY = nScreenHeight-1;
 	}
 
 	void PixelGameEngine::EngineThread()
@@ -1450,29 +1501,19 @@ namespace olc
 				if (fFrameTimer >= 1.0f)
 				{
 					fFrameTimer -= 1.0f;
+
+					std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
 #ifdef _WIN32
 #ifdef UNICODE
-					wchar_t sTitle[256];
-					swprintf(sTitle, 256, L"OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", wsAppName.c_str(), nFrameCount);
+					SetWindowText(olc_hWnd, ConvertS2W(sTitle).c_str());
 #else
-#ifndef __MINGW32__
-					char sTitle[256];
-					sprintf_s(sTitle, 256, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", sAppName.c_str(), nFrameCount);
-#else
-					char sTitle[256];
-					sprintf(sTitle, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", sAppName.c_str(), nFrameCount);
+					SetWindowText(olc_hWnd, sTitle.c_str());
 #endif
-#endif
-					SetWindowText(olc_hWnd, sTitle);
-#else
-					char sTitle[256];
-					sprintf(sTitle, "OneLoneCoder.com - Pixel Game Engine - %s - FPS: %d", sAppName.c_str(), nFrameCount);
-					XStoreName(olc_Display, olc_Window, sTitle);
+#else					
+					XStoreName(olc_Display, olc_Window, sTitle.c_str());
 #endif
 					nFrameCount = 0;
 				}
-
-
 			}
 
 			// Allow the user to free resources if they have overrided the destroy function
