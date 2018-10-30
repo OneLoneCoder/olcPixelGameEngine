@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.8               |
+	|           OneLoneCoder Pixel Game Engine v1.9               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -117,18 +117,18 @@
 
 	Thanks
 	~~~~~~
-	I'd like to extend thanks to Eremiell, slavka, Phantim, JackOJC,
-	KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
+	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim, 
+	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
 	& MagetzUb for advice, ideas and testing, and I'd like to extend 
 	my appreciation to the 14K YouTube followers and 1K Discord server
 	members who give me the motivation to keep going with all this :D
 
 	Special thanks to those who bring gifts!
-	GnarGnarHead for Domina
-	Gorbit for Bastion
+	GnarGnarHead.......Domina
+	Gorbit99...........Bastion
 
 	Author
-	~~~~~~
+	~~~~~~ 
 	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
@@ -922,6 +922,25 @@ namespace olc
 	{
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = x2 - x1; dy = y2 - y1;
+
+		// straight lines idea by gurkanctn
+		if (dx == 0) // Line is vertical
+		{
+			if (y2 < y1) std::swap(y1, y2);
+			for (y = y1; y < y2; y++)
+				Draw(x1, y, p);
+			return;
+		}
+
+		if (dy == 0) // Line is horizontal
+		{
+			if (x2 < x1) std::swap(x1, x2);
+			for (x = x1; x < x2; x++)
+				Draw(x, y1, p);
+			return;
+		}
+
+		// Line is Funk-aye
 		dx1 = abs(dx); dy1 = abs(dy);
 		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
 		if (dy1 <= dx1)
@@ -1330,7 +1349,7 @@ namespace olc
 		if (nMousePosX < 0) nMousePosX = 0;
 		if (nMousePosY < 0) nMousePosY = 0;
 		if (nMousePosX >= nScreenWidth) nMousePosX = nScreenWidth-1;
-		if (nMousePosX >= nScreenHeight) nMousePosY = nScreenHeight-1;
+		if (nMousePosY >= nScreenHeight) nMousePosY = nScreenHeight-1;
 	}
 
 	void PixelGameEngine::EngineThread()
