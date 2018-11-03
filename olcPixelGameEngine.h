@@ -362,6 +362,11 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		// Returns the currently active draw target
 		Sprite* GetDrawTarget();
 
+		// Returns the translate in x axis value
+		int32_t GetTranslateX();
+		// Returns the translate in y axis value
+		int32_t GetTranslateY();
+
 	public: // Draw Routines
 		// Specify which Sprite should be the target of drawing functions, use nullptr
 		// to specify the primary screen
@@ -377,6 +382,22 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void SetPixelBlend(float fBlend);
 		// Offset texels by sub-pixel amount (advanced, do not use)
 		void SetSubPixelOffset(float ox, float oy);
+
+		// Methotd to translate all displaying objects about...
+		// Translate about (x, y) (It's increasing nTranslateInX and nTranslateInY with x and y)
+		void Translate(int32_t x, int32_t y);
+		// Translate displaying about x
+		void TranslateX(int32_t x);
+		// Translate displaying about y
+		void TranslateY(int32_t y);
+
+		// Methotd to translate all displaying objects into...
+		// Set translate to (x,y) (It's setting nTranslateInX and nTranslateInY into x and y)
+		void TranslateTo(int32_t x, int32_t y);
+		// Set translate to x
+		void TranslateToX(int32_t x);
+		// Set translate to y
+		void TranslateToY(int32_t y);
 
 		// Draws a single Pixel
 		virtual void Draw(int32_t x, int32_t y, Pixel p = olc::WHITE);
@@ -427,6 +448,11 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		int			nFrameCount = 0;
 		Sprite		*fontSprite = nullptr;
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
+
+		// Translation value (relative to that point will be displaying each pixel)
+		// Those values are reseting (to 0) on the end of each frame
+		int32_t		nTranslateX = 0;
+		int32_t		nTranslateY = 0;
 
 		static std::map<uint16_t, uint8_t> mapKeys;
 		bool		pKeyNewState[256]{ 0 };
@@ -875,10 +901,51 @@ namespace olc
 		return nScreenHeight;
 	}
 
+	int32_t PixelGameEngine::GetTranslateX()
+	{
+		return nTranslateX;
+	}
+
+	int32_t PixelGameEngine::GetTranslateY()
+	{
+		return nTranslateY;
+	}
+
+	void PixelGameEngine::Translate(int32_t x, int32_t y)
+	{
+		TranslateX(x);
+		TranslateY(y);
+	}
+	void PixelGameEngine::TranslateX(int32_t x)
+	{
+		nTranslateX += x;
+	}
+	void PixelGameEngine::TranslateY(int32_t y)
+	{
+		nTranslateY += y;
+	}
+
+	void PixelGameEngine::TranslateTo(int32_t x, int32_t y)
+	{
+		TranslateToX(x);
+		TranslateToY(y);
+	}
+	void PixelGameEngine::TranslateToX(int32_t x)
+	{
+		nTranslateX = x;
+	}
+	void PixelGameEngine::TranslateToY(int32_t y)
+	{
+		nTranslateY = y;
+	}
+
 	void PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
 	{
 		if (!pDrawTarget) return;
 
+		// Translate the original values
+		x += GetTranslateX();
+		y += GetTranslateY();
 
 		if (nPixelMode == Pixel::NORMAL)
 		{
@@ -1065,7 +1132,12 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
-	{			
+	{
+		// Translate x and y for the moment
+		// (That operation is important to display everythinh correctly 
+		x += GetTranslateX();
+		y += GetTranslateY();
+
 		int32_t x2 = x + w;
 		int32_t y2 = y + h;
 
@@ -1078,6 +1150,12 @@ namespace olc
 		if (x2 >= (int32_t)nScreenWidth) x2 = (int32_t)nScreenWidth;
 		if (y2 < 0) y2 = 0;
 		if (y2 >= (int32_t)nScreenHeight) y2 = (int32_t)nScreenHeight;
+
+		// Return the previous value
+		x -= GetTranslateX();
+		y -= GetTranslateY();
+		x2 -= GetTranslateX();
+		y2 -= GetTranslateY();
 
 		for (int i = x; i < x2; i++)
 			for (int j = y; j < y2; j++)
@@ -1513,6 +1591,8 @@ namespace olc
 #else
 				glXSwapBuffers(olc_Display, olc_Window);
 #endif
+				// Reset the translate values
+				TranslateTo(0, 0);
 
 				// Update Title Bar
 				fFrameTimer += fElapsedTime;
