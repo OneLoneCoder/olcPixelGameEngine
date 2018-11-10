@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                Advanced 2D Rendering - v0.1                 |
+	|                Advanced 2D Rendering - v0.3                 |
 	+-------------------------------------------------------------+
 
 	What is this?
@@ -59,9 +59,18 @@
 	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
+/*
+	Matrices stored as [Column][Row] (i.e. x, y)
 
-#pragma once
-#include "olcPixelGameEngine.h"
+	|C0R0 C1R0 C2R0|   | x |   | x'|
+	|C0R1 C1R1 C2R1| * | y | = | y'|
+	|C0R2 C1R2 C2R2|   |1.0|   | - |
+*/
+
+
+
+#ifndef OLC_PGEX_GFX2D
+#define OLC_PGEX_GFX2D
 
 #include <algorithm>
 #undef min
@@ -77,25 +86,25 @@ namespace olc
 		class Transform2D
 		{
 		public:
-			Transform2D();
+			inline Transform2D();
 
 		public:
 			// Set this transformation to unity
-			void Reset();
+			inline void Reset();
 			// Append a rotation of fTheta radians to this transform
-			void Rotate(float fTheta);
+			inline void Rotate(float fTheta);
 			// Append a translation (ox, oy) to this transform
-			void Translate(float ox, float oy);
+			inline void Translate(float ox, float oy);
 			// Append a scaling operation (sx, sy) to this transform
-			void Scale(float sx, float sy);
+			inline void Scale(float sx, float sy);
 			// Append a shear operation (sx, sy) to this transform
-			void Shear(float sx, float sy);
+			inline void Shear(float sx, float sy);
 			// Calculate the Forward Transformation of the coordinate (in_x, in_y) -> (out_x, out_y)
-			void Forward(float in_x, float in_y, float &out_x, float &out_y);
+			inline void Forward(float in_x, float in_y, float &out_x, float &out_y);
 			// Calculate the Inverse Transformation of the coordinate (in_x, in_y) -> (out_x, out_y)
-			void Backward(float in_x, float in_y, float &out_x, float &out_y);
+			inline void Backward(float in_x, float in_y, float &out_x, float &out_y);
 			// Regenerate the Inverse Transformation
-			void Invert();
+			inline void Invert();
 
 		private:
 			inline void Multiply();
@@ -107,7 +116,7 @@ namespace olc
 
 	public:
 		// Draws a sprite with the transform applied
-		static void DrawSprite(olc::Sprite *sprite, olc::GFX2D::Transform2D &transform);
+		inline static void DrawSprite(olc::Sprite *sprite, olc::GFX2D::Transform2D &transform);
 	};
 }
 
@@ -158,7 +167,7 @@ namespace olc
 			{
 				float ox, oy;
 				transform.Backward(i, j, ox, oy);
-				pge->Draw((int32_t)i, (int32_t)j, sprite->GetPixel((int32_t)ox+0.5f, (int32_t)oy+0.5f));
+				pge->Draw((int32_t)i, (int32_t)j, sprite->GetPixel((int32_t)(ox+0.5f), (int32_t)(oy+0.5f)));
 			}
 		}
 	}
@@ -195,9 +204,9 @@ namespace olc
 		{
 			for (int r = 0; r < 3; r++)
 			{
-				matrix[nTargetMatrix][c][r] = matrix[nSourceMatrix][0][r] * matrix[2][c][0] +
-											  matrix[nSourceMatrix][1][r] * matrix[2][c][1] +
-											  matrix[nSourceMatrix][2][r] * matrix[2][c][2];
+				matrix[nTargetMatrix][c][r] = matrix[2][0][r] * matrix[nSourceMatrix][c][0] +
+											  matrix[2][1][r] * matrix[nSourceMatrix][c][1] +
+											  matrix[2][2][r] * matrix[nSourceMatrix][c][2];
 			}
 		}
 
@@ -208,7 +217,7 @@ namespace olc
 	void olc::GFX2D::Transform2D::Rotate(float fTheta)
 	{		
 		// Construct Rotation Matrix
-		matrix[2][0][0] =  cosf(fTheta); matrix[2][1][0] = sinf(fTheta); matrix[2][2][0] = 0.0f;
+		matrix[2][0][0] = cosf(fTheta);  matrix[2][1][0] = sinf(fTheta); matrix[2][2][0] = 0.0f;
 		matrix[2][0][1] = -sinf(fTheta); matrix[2][1][1] = cosf(fTheta); matrix[2][2][1] = 0.0f;
 		matrix[2][0][2] = 0.0f;			 matrix[2][1][2] = 0.0f;		 matrix[2][2][2] = 1.0f;
 		Multiply();		
@@ -226,8 +235,8 @@ namespace olc
 	void olc::GFX2D::Transform2D::Shear(float sx, float sy)
 	{
 		// Construct Shear Matrix		
-		matrix[2][0][0] = 1.0f; matrix[2][1][0] = sy;   matrix[2][2][0] = 0.0f;
-		matrix[2][0][1] = sx;   matrix[2][1][1] = 1.0f; matrix[2][2][1] = 0.0f;
+		matrix[2][0][0] = 1.0f; matrix[2][1][0] = sx;   matrix[2][2][0] = 0.0f;
+		matrix[2][0][1] = sy;   matrix[2][1][1] = 1.0f; matrix[2][2][1] = 0.0f;
 		matrix[2][0][2] = 0.0f;	matrix[2][1][2] = 0.0f;	matrix[2][2][2] = 1.0f;
 		Multiply();
 	}
@@ -235,43 +244,45 @@ namespace olc
 	void olc::GFX2D::Transform2D::Translate(float ox, float oy)
 	{
 		// Construct Translate Matrix
-		matrix[2][0][0] = 1.0f; matrix[2][1][0] = 0.0f; matrix[2][2][0] = 0.0f;
-		matrix[2][0][1] = 0.0f; matrix[2][1][1] = 1.0f; matrix[2][2][1] = 0.0f;
-		matrix[2][0][2] = ox;	matrix[2][1][2] = oy;	matrix[2][2][2] = 1.0f;
+		matrix[2][0][0] = 1.0f; matrix[2][1][0] = 0.0f; matrix[2][2][0] = ox;
+		matrix[2][0][1] = 0.0f; matrix[2][1][1] = 1.0f; matrix[2][2][1] = oy;
+		matrix[2][0][2] = 0.0f;	matrix[2][1][2] = 0.0f;	matrix[2][2][2] = 1.0f;
 		Multiply();
 	}
 
 	void olc::GFX2D::Transform2D::Forward(float in_x, float in_y, float &out_x, float &out_y)
 	{
-		out_x = in_x * matrix[nSourceMatrix][0][0] + in_y * matrix[nSourceMatrix][0][1] + matrix[nSourceMatrix][0][2];
-		out_y = in_x * matrix[nSourceMatrix][1][0] + in_y * matrix[nSourceMatrix][1][1] + matrix[nSourceMatrix][1][2];
+		out_x = in_x * matrix[nSourceMatrix][0][0] + in_y * matrix[nSourceMatrix][1][0] + matrix[nSourceMatrix][2][0];
+		out_y = in_x * matrix[nSourceMatrix][0][1] + in_y * matrix[nSourceMatrix][1][1] + matrix[nSourceMatrix][2][1];
 	} 
 
 	void olc::GFX2D::Transform2D::Backward(float in_x, float in_y, float &out_x, float &out_y)
 	{
-		out_x = in_x * matrix[3][0][0] + in_y * matrix[3][0][1] + matrix[3][0][2];
-		out_y = in_x * matrix[3][1][0] + in_y * matrix[3][1][1] + matrix[3][1][2];
+		out_x = in_x * matrix[3][0][0] + in_y * matrix[3][1][0] + matrix[3][2][0];
+		out_y = in_x * matrix[3][0][1] + in_y * matrix[3][1][1] + matrix[3][2][1];
 	}
 
 	void olc::GFX2D::Transform2D::Invert()
 	{
 		if (bDirty) // Obviously costly so only do if needed
-		{
-			float det = matrix[nSourceMatrix][0][0] * (matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][2][1] * matrix[nSourceMatrix][1][2]) -
-				matrix[nSourceMatrix][0][1] * (matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][1][2] * matrix[nSourceMatrix][2][0]) +
-				matrix[nSourceMatrix][0][2] * (matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][2][1] - matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][2][0]);
+		{			
+			float det = matrix[nSourceMatrix][0][0] * (matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][1][2] * matrix[nSourceMatrix][2][1]) -
+				        matrix[nSourceMatrix][1][0] * (matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][2][1] * matrix[nSourceMatrix][0][2]) +
+				        matrix[nSourceMatrix][2][0] * (matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][1][2] - matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][0][2]);
 
 			float idet = 1.0f / det;
-			matrix[3][0][0] = (matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][2][1] * matrix[nSourceMatrix][1][2]) * idet;
-			matrix[3][0][1] = (matrix[nSourceMatrix][0][2] * matrix[nSourceMatrix][2][1] - matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][2][2]) * idet;
-			matrix[3][0][2] = (matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][1][2] - matrix[nSourceMatrix][0][2] * matrix[nSourceMatrix][1][1]) * idet;
-			matrix[3][1][0] = (matrix[nSourceMatrix][1][2] * matrix[nSourceMatrix][2][0] - matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][2][2]) * idet;
-			matrix[3][1][1] = (matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][0][2] * matrix[nSourceMatrix][2][0]) * idet;
-			matrix[3][1][2] = (matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][0][2] - matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][1][2]) * idet;
+			matrix[3][0][0] = (matrix[nSourceMatrix][1][1] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][1][2] * matrix[nSourceMatrix][2][1]) * idet;
+			matrix[3][1][0] = (matrix[nSourceMatrix][2][0] * matrix[nSourceMatrix][1][2] - matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][2][2]) * idet;
 			matrix[3][2][0] = (matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][2][1] - matrix[nSourceMatrix][2][0] * matrix[nSourceMatrix][1][1]) * idet;
-			matrix[3][2][1] = (matrix[nSourceMatrix][2][0] * matrix[nSourceMatrix][0][1] - matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][2][1]) * idet;
-			matrix[3][2][2] = (matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][1][1] - matrix[nSourceMatrix][1][0] * matrix[nSourceMatrix][0][1]) * idet;
+			matrix[3][0][1] = (matrix[nSourceMatrix][2][1] * matrix[nSourceMatrix][0][2] - matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][2][2]) * idet;
+			matrix[3][1][1] = (matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][2][2] - matrix[nSourceMatrix][2][0] * matrix[nSourceMatrix][0][2]) * idet;
+			matrix[3][2][1] = (matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][2][0] - matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][2][1]) * idet;
+			matrix[3][0][2] = (matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][1][2] - matrix[nSourceMatrix][0][2] * matrix[nSourceMatrix][1][1]) * idet;
+			matrix[3][1][2] = (matrix[nSourceMatrix][0][2] * matrix[nSourceMatrix][1][0] - matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][1][2]) * idet;
+			matrix[3][2][2] = (matrix[nSourceMatrix][0][0] * matrix[nSourceMatrix][1][1] - matrix[nSourceMatrix][0][1] * matrix[nSourceMatrix][1][0]) * idet;
 			bDirty = false;
 		}				
 	}
 }
+
+#endif
