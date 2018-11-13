@@ -416,13 +416,14 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		uint32_t	nScreenHeight = 240;
 		uint32_t	nPixelWidth = 4;
 		uint32_t	nPixelHeight = 4;
-		uint32_t	nMousePosX = 0;
-		uint32_t	nMousePosY = 0;
+		int32_t	nMousePosX = 0;
+		int32_t	nMousePosY = 0;
 		float		fPixelX = 1.0f;
 		float		fPixelY = 1.0f;
 		float		fSubPixelOffsetX = 0.0f;
 		float		fSubPixelOffsetY = 0.0f;
 		bool		bHasInputFocus = false;
+		bool		bHasMouseFocus = false;
 		float		fFrameTimer = 1.0f;
 		int			nFrameCount = 0;
 		Sprite		*fontSprite = nullptr;
@@ -453,7 +454,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		static std::atomic<bool> bAtomActive;
 
 		// Common initialisation functions
-		void olc_UpdateMouse(uint32_t x, uint32_t y);
+		void olc_UpdateMouse(int32_t x, int32_t y);
 		bool olc_OpenGLCreate();
 		void olc_ConstructFontSheet();
 
@@ -715,7 +716,7 @@ namespace olc
 		}
 		else
 		{			
-			return pColData[(y%height)*width + (x%width)];
+			return pColData[abs(y%height)*width + abs(x%width)];
 		}
 	}
 
@@ -1340,16 +1341,22 @@ namespace olc
 	{ return true; }
 	//////////////////////////////////////////////////////////////////
 
-	void PixelGameEngine::olc_UpdateMouse(uint32_t x, uint32_t y)
+	void PixelGameEngine::olc_UpdateMouse(int32_t x, int32_t y)
 	{
 		// Mouse coords come in screen space
 		// But leave in pixel space
-		nMousePosX = x / nPixelWidth;
-		nMousePosY = y / nPixelHeight;
-		if (nMousePosX < 0) nMousePosX = 0;
-		if (nMousePosY < 0) nMousePosY = 0;
-		if (nMousePosX >= nScreenWidth) nMousePosX = nScreenWidth-1;
-		if (nMousePosY >= nScreenHeight) nMousePosY = nScreenHeight-1;
+		nMousePosX = x / (int32_t)nPixelWidth;
+		nMousePosY = y / (int32_t)nPixelHeight;
+
+		if (nMousePosX >= (int32_t)nScreenWidth)
+			nMousePosX = nScreenWidth - 1;
+		if (nMousePosY >= (int32_t)nScreenHeight)
+			nMousePosY = nScreenHeight - 1;
+
+		if (nMousePosX < 0)
+			nMousePosX = 0;
+		if (nMousePosY < 0)
+			nMousePosY = 0;
 	}
 
 	void PixelGameEngine::EngineThread()
@@ -1697,7 +1704,16 @@ namespace olc
 		switch (uMsg)
 		{
 		case WM_CREATE:		sge = (PixelGameEngine*)((LPCREATESTRUCT)lParam)->lpCreateParams;	return 0;
-		case WM_MOUSEMOVE:	sge->olc_UpdateMouse(LOWORD(lParam), HIWORD(lParam));	return 0;
+		case WM_MOUSEMOVE:	
+		{
+			uint16_t x = lParam & 0xFFFF;				// Thanks @ForAbby (Discord)
+			uint16_t y = (lParam >> 16) & 0xFFFF;
+			int16_t ix = *(int16_t*)&x;
+			int16_t iy = *(int16_t*)&y;
+			sge->olc_UpdateMouse(ix, iy);	
+			return 0;
+		}
+		case WM_MOUSELEAVE: sge->bHasMouseFocus = false;
 		case WM_SETFOCUS:	sge->bHasInputFocus = true;								return 0;
 		case WM_KILLFOCUS:	sge->bHasInputFocus = false;							return 0;
 		case WM_KEYDOWN:	sge->pKeyNewState[mapKeys[wParam]] = true;				return 0;
