@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.9               |
+	|           OneLoneCoder Pixel Game Engine v1.10               |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -928,7 +928,7 @@ namespace olc
 		if (dx == 0) // Line is vertical
 		{
 			if (y2 < y1) std::swap(y1, y2);
-			for (y = y1; y < y2; y++)
+			for (y = y1; y <= y2; y++)
 				Draw(x1, y, p);
 			return;
 		}
@@ -936,7 +936,7 @@ namespace olc
 		if (dy == 0) // Line is horizontal
 		{
 			if (x2 < x1) std::swap(x1, x2);
-			for (x = x1; x < x2; x++)
+			for (x = x1; x <= x2; x++)
 				Draw(x, y1, p);
 			return;
 		}
