@@ -5,6 +5,8 @@
 	|           OneLoneCoder Pixel Game Engine v1.11              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
+	
+	The Original & Best... :P
 
 	What is this?
 	~~~~~~~~~~~~~
@@ -129,7 +131,7 @@
 
 	Author
 	~~~~~~ 
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////// 
