@@ -4,13 +4,13 @@
 	What is this?
 	~~~~~~~~~~~~~
 	This is an implementation of two algorithms that work together
-	to produuce a "line-of-sight" or "shadow casting" effect depending
+	to produce a "line-of-sight" or "shadow casting" effect depending
 	upon your perspective. To use it compile with olcPixelGameEngine.h,
 	place/remove blocks with left click and hold down right mouse button
 	to illuminate the scene from the mouse cursor.
 
 	The first algorithm converts a tile map into a set of geometric
-	primitives whcih are more conveninet to use in geometric programs
+	primitives which are more convenient to use in geometric programs
 	such as this. The second algorithm casts rays to create a triangle
 	fan that represents the visible area form the source.
 
