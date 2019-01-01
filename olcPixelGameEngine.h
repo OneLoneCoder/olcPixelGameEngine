@@ -5,7 +5,7 @@
 	|           OneLoneCoder Pixel Game Engine v1.11              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
-	
+
 	The Original & Best... :P
 
 	What is this?
@@ -119,9 +119,9 @@
 
 	Thanks
 	~~~~~~
-	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim, 
+	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim,
 	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
-	& MagetzUb for advice, ideas and testing, and I'd like to extend 
+	& MagetzUb for advice, ideas and testing, and I'd like to extend
 	my appreciation to the 14K YouTube followers and 1K Discord server
 	members who give me the motivation to keep going with all this :D
 
@@ -130,11 +130,11 @@
 	Gorbit99...........Bastion
 
 	Author
-	~~~~~~ 
+	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2018
 */
 
-////////////////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////////////////
 
 /* Example Usage (main.cpp)
 	#define OLC_PGE_APPLICATION
@@ -325,7 +325,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void  SetPixel(int32_t x, int32_t y, Pixel p);
 		Pixel Sample(float x, float y);
 		Pixel* GetData();
-	
+
 	private:
 		Pixel *pColData = nullptr;
 		Mode modeSample = Mode::NORMAL;
@@ -800,7 +800,7 @@ namespace olc
 				return Pixel(0, 0, 0, 0);
 		}
 		else
-		{			
+		{
 			return pColData[abs(y%height)*width + abs(x%width)];
 		}
 	}
@@ -985,7 +985,7 @@ namespace olc
 
 		if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0)
 			return olc::FAIL;
-		
+
 #ifdef _WIN32
 #ifdef UNICODE
 #ifndef __MINGW32__
@@ -995,7 +995,7 @@ namespace olc
 #endif
 		// Load the default font sheet
 		olc_ConstructFontSheet();
-		
+
 		// Create a sprite that represents the primary drawing target
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
@@ -1291,7 +1291,7 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
-	{			
+	{
 		int32_t x2 = x + w;
 		int32_t y2 = y + h;
 
@@ -1528,9 +1528,9 @@ namespace olc
 				{
 					for (uint32_t i = 0; i < 8; i++)
 						for (uint32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)								
+							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
 								Draw(x + sx + i, y + sy + j, col);
-				}										
+				}
 				sx += 8 * scale;
 			}
 		}
@@ -1730,7 +1730,7 @@ namespace olc
 				// TODO: This is a bit slow (especially in debug, but 100x faster in release mode???)
 				// Copy pixel array into texture
 				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
-				
+
 				// Display texture on screen
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
@@ -1760,7 +1760,7 @@ namespace olc
 #else
 					SetWindowText(olc_hWnd, sTitle.c_str());
 #endif
-#else					
+#else
 					XStoreName(olc_Display, olc_Window, sTitle.c_str());
 #endif
 					nFrameCount = 0;
@@ -1929,13 +1929,13 @@ namespace olc
 		switch (uMsg)
 		{
 		case WM_CREATE:		sge = (PixelGameEngine*)((LPCREATESTRUCT)lParam)->lpCreateParams;	return 0;
-		case WM_MOUSEMOVE:	
+		case WM_MOUSEMOVE:
 		{
 			uint16_t x = lParam & 0xFFFF;				// Thanks @ForAbby (Discord)
 			uint16_t y = (lParam >> 16) & 0xFFFF;
 			int16_t ix = *(int16_t*)&x;
 			int16_t iy = *(int16_t*)&y;
-			sge->olc_UpdateMouse(ix, iy);	
+			sge->olc_UpdateMouse(ix, iy);
 			return 0;
 		}
 		case WM_MOUSELEAVE: sge->bHasMouseFocus = false;
@@ -2012,11 +2012,11 @@ namespace olc
 	{
 		glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
 		glXMakeCurrent(olc_Display, olc_Window, glDeviceContext);
-		
+
 		XWindowAttributes gwa;
-		XGetWindowAttributes(olc_Display, olc_Window, &gwa);		
+		XGetWindowAttributes(olc_Display, olc_Window, &gwa);
 		glViewport(0, 0, gwa.width, gwa.height);
-		
+
 		glSwapIntervalEXT = nullptr;
 		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
 		if (glSwapIntervalEXT)
@@ -2027,7 +2027,7 @@ namespace olc
 			printf("      Don't worry though, things will still work, it's just the\n");
 			printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
 		}
-		
+
 		return true;
 	}
 
