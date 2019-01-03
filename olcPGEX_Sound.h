@@ -69,6 +69,16 @@
 #undef min
 #undef max
 
+typedef struct {
+	unsigned short  wFormatTag;
+	unsigned short  nChannels;
+	unsigned long nSamplesPerSec;
+	unsigned long nAvgBytesPerSec;
+	unsigned short  nBlockAlign;
+	unsigned short  wBitsPerSample;
+	unsigned short  cbSize;
+} OLC_WAVEFORMATEX;
+
 namespace olc
 {
 	// Container class for Advanced 2D Drawing functions
@@ -84,7 +94,7 @@ namespace olc
 			olc::rcode LoadFromFile(std::string sWavFile, olc::ResourcePack *pack = nullptr);
 				
 		public:
-			WAVEFORMATEX wavHeader;
+			OLC_WAVEFORMATEX wavHeader;
 			float *fSample = nullptr;
 			long nSamples = 0;
 			int nChannels = 0;
@@ -115,10 +125,10 @@ namespace olc
 		static void StopAll();
 		static float GetMixerOutput(int nChannel, float fGlobalTime, float fTimeStep);
 
-#ifdef WIN32
+
 	private:
-		static void CALLBACK waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2);
-		static void AudioThread();
+#ifdef WIN32 // Windows specific sound management
+		static void CALLBACK waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2);		
 		static unsigned int m_nSampleRate;
 		static unsigned int m_nChannels;
 		static unsigned int m_nBlockCount;
@@ -126,16 +136,19 @@ namespace olc
 		static unsigned int m_nBlockCurrent;
 		static short* m_pBlockMemory;
 		static WAVEHDR *m_pWaveHeaders;
-		static HWAVEOUT m_hwDevice;
-		static std::thread m_AudioThread;
-		static std::atomic<bool> m_bAudioThreadActive;
+		static HWAVEOUT m_hwDevice;		
 		static std::atomic<unsigned int> m_nBlockFree;
 		static std::condition_variable m_cvBlockNotZero;
 		static std::mutex m_muxBlockNotZero;
+#endif
+
+		static void AudioThread();
+		static std::thread m_AudioThread;
+		static std::atomic<bool> m_bAudioThreadActive;
 		static std::atomic<float> m_fGlobalTime;
 		static std::function<float(int, float, float)> funcUserSynth;
 		static std::function<float(int, float, float)> funcUserFilter;
-#endif
+
 		
 	};
 }
@@ -143,14 +156,11 @@ namespace olc
 
 #ifdef WIN32
 #pragma comment(lib, "winmm.lib")
+
 namespace olc
 {
 	SOUND::AudioSample::AudioSample()
-	{
-
-
-
-	}
+	{	}
 
 	SOUND::AudioSample::AudioSample(std::string sWavFile, olc::ResourcePack *pack)
 	{
@@ -506,8 +516,162 @@ namespace olc
 	std::function<float(int, float, float)> SOUND::funcUserSynth = nullptr;
 	std::function<float(int, float, float)> SOUND::funcUserFilter = nullptr;
 }
+
+#else // Non Windows
+namespace olc
+{
+	SOUND::AudioSample::AudioSample()
+	{}
+
+	SOUND::AudioSample::AudioSample(std::string sWavFile, olc::ResourcePack *pack)
+	{
+		LoadFromFile(sWavFile, pack);
+	}
+
+	olc::rcode SOUND::AudioSample::LoadFromFile(std::string sWavFile, olc::ResourcePack *pack)
+	{
+		return olc::OK;
+	}
+
+	bool SOUND::InitialiseAudio(unsigned int nSampleRate, unsigned int nChannels, unsigned int nBlocks, unsigned int nBlockSamples)
+	{		
+		return true;
+	}
+
+	// Stop and clean up audio system
+	bool SOUND::DestroyAudio()
+	{
+		return false;
+	}
+
+	
+	// Audio thread. This loop responds to requests from the soundcard to fill 'blocks'
+	// with audio data. If no requests are available it goes dormant until the sound
+	// card is ready for more data. The block is fille by the "user" in some manner
+	// and then issued to the soundcard.
+	void SOUND::AudioThread()
+	{
+		
+	}
+
+	// This vector holds all loaded sound samples in memory
+	std::vector<olc::SOUND::AudioSample> vecAudioSamples;
+
+	// This structure represents a sound that is currently playing. It only
+	// holds the sound ID and where this instance of it is up to for its
+	// current playback
+
+	void SOUND::SetUserSynthFunction(std::function<float(int, float, float)> func)
+	{
+		funcUserSynth = func;
+	}
+
+	void SOUND::SetUserFilterFunction(std::function<float(int, float, float)> func)
+	{
+		funcUserFilter = func;
+	}
+
+	// Load a 16-bit WAVE file @ 44100Hz ONLY into memory. A sample ID
+	// number is returned if successful, otherwise -1
+	unsigned int SOUND::LoadAudioSample(std::string sWavFile, olc::ResourcePack *pack)
+	{
+		olc::SOUND::AudioSample a(sWavFile, pack);
+		if (a.bSampleValid)
+		{
+			vecAudioSamples.push_back(a);
+			return vecAudioSamples.size();
+		}
+		else
+			return -1;
+	}
+
+	// Add sample 'id' to the mixers sounds to play list
+	void SOUND::PlaySample(int id, bool bLoop)
+	{
+		olc::SOUND::sCurrentlyPlayingSample a;
+		a.nAudioSampleID = id;
+		a.nSamplePosition = 0;
+		a.bFinished = false;
+		a.bFlagForStop = false;
+		a.bLoop = bLoop;
+		SOUND::listActiveSamples.push_back(a);
+	}
+
+	void SOUND::StopSample(int id)
+	{
+		// Find first occurence of sample id
+		auto s = std::find_if(listActiveSamples.begin(), listActiveSamples.end(), [&](const olc::SOUND::sCurrentlyPlayingSample &s) { return s.nAudioSampleID == id; });
+		if (s != listActiveSamples.end())
+			s->bFlagForStop = true;
+	}
+
+	void SOUND::StopAll()
+	{
+		for (auto &s : listActiveSamples)
+		{
+			s.bFlagForStop = true;
+		}
+	}
+
+	float SOUND::GetMixerOutput(int nChannel, float fGlobalTime, float fTimeStep)
+	{
+		// Accumulate sample for this channel
+		float fMixerSample = 0.0f;
+
+		for (auto &s : listActiveSamples)
+		{
+			if (m_bAudioThreadActive)
+			{
+				if (s.bFlagForStop)
+				{
+					s.bLoop = false;
+					s.bFinished = true;
+				}
+				else
+				{
+					// Calculate sample position
+					s.nSamplePosition += (long)((float)vecAudioSamples[s.nAudioSampleID - 1].wavHeader.nSamplesPerSec * fTimeStep);
+
+					// If sample position is valid add to the mix
+					if (s.nSamplePosition < vecAudioSamples[s.nAudioSampleID - 1].nSamples)
+						fMixerSample += vecAudioSamples[s.nAudioSampleID - 1].fSample[(s.nSamplePosition * vecAudioSamples[s.nAudioSampleID - 1].nChannels) + nChannel];
+					else
+					{
+						if (s.bLoop)
+						{
+							s.nSamplePosition = 0;
+						}
+						else
+							s.bFinished = true; // Else sound has completed
+					}
+				}
+			}
+			else
+				return 0.0f;
+		}
+
+		// If sounds have completed then remove them
+		listActiveSamples.remove_if([](const sCurrentlyPlayingSample &s) {return s.bFinished; });
+
+		// The users application might be generating sound, so grab that if it exists
+		if (funcUserSynth != nullptr)
+			fMixerSample += funcUserSynth(nChannel, fGlobalTime, fTimeStep);
+
+		// Return the sample via an optional user override to filter the sound		
+		if (funcUserFilter != nullptr)
+			return funcUserFilter(nChannel, fGlobalTime, fMixerSample);
+		else
+			return fMixerSample;
+	}
+
+	std::thread SOUND::m_AudioThread;
+	std::atomic<bool> SOUND::m_bAudioThreadActive{ false };
+	std::atomic<float> SOUND::m_fGlobalTime{ 0.0f };
+	std::list<SOUND::sCurrentlyPlayingSample> SOUND::listActiveSamples;
+	std::function<float(int, float, float)> SOUND::funcUserSynth = nullptr;
+	std::function<float(int, float, float)> SOUND::funcUserFilter = nullptr;
+}
 #endif
 
-// Currently no Linux implementation so just go blank :(
 
 #endif
