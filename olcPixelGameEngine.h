@@ -310,6 +310,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		Sprite(std::string sImageFile);
 		Sprite(std::string sImageFile, olc::ResourcePack *pack);
 		Sprite(int32_t w, int32_t h);
+        Sprite(Sprite const& s);
 		~Sprite();
 
 	public:
@@ -619,6 +620,16 @@ namespace olc
 		for (int32_t i = 0; i < width*height; i++)
 			pColData[i] = Pixel();
 	}
+	
+	    Sprite::Sprite(Sprite const& s)
+    {
+        if (pColData) delete[] pColData;
+        width = s.width; height = s.height;
+        pColData = new Pixel[width * height];
+        for (uint32_t i = 0; i < width*height; i++)
+            pColData[i] = s.pColData[i];
+
+    }
 
 	Sprite::~Sprite()
 	{
