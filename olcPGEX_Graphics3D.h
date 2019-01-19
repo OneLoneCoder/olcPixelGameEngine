@@ -53,6 +53,7 @@
 	Twitter:	https://www.twitter.com/javidx9
 	Twitch:		https://www.twitch.tv/javidx9
 	GitHub:		https://www.github.com/onelonecoder
+	Patreon:	https://www.patreon.com/javidx9
 	Homepage:	https://www.onelonecoder.com
 
 	Author
