@@ -521,7 +521,7 @@ namespace olc
 			// the plane, the triangle simply becomes a smaller triangle
 
 			// Copy appearance info to new triangle
-			out_tri1.col = olc::MAGENTA;// in_tri.col;
+			out_tri1.col = in_tri.col;
 
 			// The inside point is valid, so keep that...
 			out_tri1.p[0] = *inside_points[0];
@@ -550,8 +550,8 @@ namespace olc
 			// represent a quad with two new triangles
 
 			// Copy appearance info to new triangles
-			out_tri1.col = olc::GREEN;// in_tri.col;
-			out_tri2.col = olc::RED;// in_tri.col;
+			out_tri1.col = in_tri.col;
+			out_tri2.col = in_tri.col;
 			
 			// The first triangle consists of the two inside points and a new
 			// point determined by the location where one side of the triangle
@@ -1029,7 +1029,14 @@ namespace olc
 			if (flags & RENDER_CULL_CCW && GFX3D::Math::Vec_DotProduct(normal, triTransformed.p[0]) < 0.0f) continue;
 					
 			// If Lighting, calculate shading
-			triTransformed.col = olc::WHITE;
+            if(flags & RENDER_FLAT)
+            {
+                triTransformed.col = tri.col;
+            }
+            else
+            {
+                triTransformed.col = olc::WHITE;
+            }
 
 			// Clip triangle against near plane
 			int nClippedTriangles = 0;
