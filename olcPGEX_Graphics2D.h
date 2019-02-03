@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                Advanced 2D Rendering - v0.3                 |
+	|                Advanced 2D Rendering - v0.4                 |
 	+-------------------------------------------------------------+
 
 	What is this?
@@ -15,7 +15,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 OneLoneCoder.com
+	Copyright 2018 - 2019 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -56,7 +56,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, ©OneLoneCoder 2019
 */
 
 /*
@@ -99,6 +99,8 @@ namespace olc
 			inline void Scale(float sx, float sy);
 			// Append a shear operation (sx, sy) to this transform
 			inline void Shear(float sx, float sy);
+
+			inline void Perspective(float ox, float oy);
 			// Calculate the Forward Transformation of the coordinate (in_x, in_y) -> (out_x, out_y)
 			inline void Forward(float in_x, float in_y, float &out_x, float &out_y);
 			// Calculate the Inverse Transformation of the coordinate (in_x, in_y) -> (out_x, out_y)
@@ -121,7 +123,8 @@ namespace olc
 }
 
 
-
+#ifdef OLC_PGE_GRAPHICS2D
+#undef OLC_PGE_GRAPHICS2D
 
 namespace olc
 {
@@ -250,16 +253,37 @@ namespace olc
 		Multiply();
 	}
 
+	void olc::GFX2D::Transform2D::Perspective(float ox, float oy)
+	{
+		// Construct Translate Matrix
+		matrix[2][0][0] = 1.0f; matrix[2][1][0] = 0.0f; matrix[2][2][0] = 0.0f;
+		matrix[2][0][1] = 0.0f; matrix[2][1][1] = 1.0f; matrix[2][2][1] = 0.0f;
+		matrix[2][0][2] = ox;	matrix[2][1][2] = oy;	matrix[2][2][2] = 1.0f;
+		Multiply();
+	}
+
 	void olc::GFX2D::Transform2D::Forward(float in_x, float in_y, float &out_x, float &out_y)
 	{
 		out_x = in_x * matrix[nSourceMatrix][0][0] + in_y * matrix[nSourceMatrix][1][0] + matrix[nSourceMatrix][2][0];
 		out_y = in_x * matrix[nSourceMatrix][0][1] + in_y * matrix[nSourceMatrix][1][1] + matrix[nSourceMatrix][2][1];
+		float out_z = in_x * matrix[nSourceMatrix][0][2] + in_y * matrix[nSourceMatrix][1][2] + matrix[nSourceMatrix][2][2];
+		if (out_z != 0)
+		{
+			out_x /= out_z;
+			out_y /= out_z;
+		}
 	} 
 
 	void olc::GFX2D::Transform2D::Backward(float in_x, float in_y, float &out_x, float &out_y)
 	{
 		out_x = in_x * matrix[3][0][0] + in_y * matrix[3][1][0] + matrix[3][2][0];
 		out_y = in_x * matrix[3][0][1] + in_y * matrix[3][1][1] + matrix[3][2][1];
+		float out_z = in_x * matrix[3][0][2] + in_y * matrix[3][1][2] + matrix[3][2][2];
+		if (out_z != 0)
+		{
+			out_x /= out_z;
+			out_y /= out_z;
+		}
 	}
 
 	void olc::GFX2D::Transform2D::Invert()
@@ -285,4 +309,5 @@ namespace olc
 	}
 }
 
+#endif
 #endif
