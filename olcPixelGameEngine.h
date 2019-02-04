@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.12              |
+	|           OneLoneCoder Pixel Game Engine v1.13              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -50,7 +50,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 OneLoneCoder.com
+	Copyright 2018 - 2019 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -327,7 +327,9 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void SetSampleMode(olc::Sprite::Mode mode = olc::Sprite::Mode::NORMAL);
 		Pixel GetPixel(int32_t x, int32_t y);
 		void  SetPixel(int32_t x, int32_t y, Pixel p);
+
 		Pixel Sample(float x, float y);
+		Pixel SampleBL(float u, float v);
 		Pixel* GetData();
 	
 	private:
@@ -548,9 +550,12 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	Class2.cpp	- #define OLC_PGE_APPLICATION #include "Class2.h"
 	main.cpp	- Includes Class1.h and Class2.h
 
-	If all of this is a bit too confusing, you can split this file in two!
-	Everything below this comment block can go into olcPixelGameEngineOOP.cpp
-	and everything above it can go into olcPixelGameEngineOOP.h
+	If all else fails, create a file called "olcPixelGameEngine.cpp" with the following 
+	two lines. Then you can just #include "olcPixelGameEngine.h" as normal without worrying
+	about defining things. Dont forget to include that cpp file as part of your build!
+
+	#define OLC_PGE_APPLICATION
+	#include "olcPixelGameEngine.h"
 
 */
 
@@ -585,14 +590,9 @@ namespace olc
 		std::wstring w(buffer);
 		delete[] buffer;
 		return w;
+#else
+		return L"SVN FTW!";
 #endif
-//#ifdef __MINGW32__
-//		wchar_t *buffer = new wchar_t[sImageFile.length() + 1];
-//		mbstowcs(buffer, sImageFile.c_str(), sImageFile.length());
-//		buffer[sImageFile.length()] = L'\0';
-//		wsImageFile = buffer;
-//		delete[] buffer;
-//#else
 	}
 
 	Sprite::Sprite()
@@ -836,9 +836,31 @@ namespace olc
 
 	Pixel Sprite::Sample(float x, float y)
 	{
-		int32_t sx = (int32_t)(x * (float)width);
-		int32_t sy = (int32_t)(y * (float)height);
+		int32_t sx = (int32_t)((x * (float)width) - 0.5f);
+		int32_t sy = (int32_t)((y * (float)height) - 0.5f);
 		return GetPixel(sx, sy);
+	}
+
+	Pixel Sprite::SampleBL(float u, float v)
+	{
+		u = u * width - 0.5f;
+		v = v * height - 0.5f;
+		int x = (int)u;
+		int y = (int)v;
+		float u_ratio = u - x;
+		float v_ratio = v - y;
+		float u_opposite = 1 - u_ratio;
+		float v_opposite = 1 - v_ratio;
+
+		olc::Pixel p1 = GetPixel(x, y);
+		olc::Pixel p2 = GetPixel(x+1, y);
+		olc::Pixel p3 = GetPixel(x, y+1);
+		olc::Pixel p4 = GetPixel(x+1, y+1);
+
+		return olc::Pixel(
+			(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
+			(uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
+			(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
 	}
 
 	Pixel* Sprite::GetData() { return pColData; }
@@ -1967,8 +1989,8 @@ namespace olc
 		case WM_MOUSELEAVE: sge->bHasMouseFocus = false;
 		case WM_SETFOCUS:	sge->bHasInputFocus = true;								return 0;
 		case WM_KILLFOCUS:	sge->bHasInputFocus = false;							return 0;
-		case WM_KEYDOWN:	sge->pKeyNewState[mapKeys[wParam]] = true;				return 0;
-		case WM_KEYUP:		sge->pKeyNewState[mapKeys[wParam]] = false;				return 0;
+		case WM_KEYDOWN:	sge->pKeyNewState[mapKeys[(uint16_t)wParam]] = true;	return 0;
+		case WM_KEYUP:		sge->pKeyNewState[mapKeys[(uint16_t)wParam]] = false;	return 0;
 		case WM_LBUTTONDOWN:sge->pMouseNewState[0] = true;							return 0;
 		case WM_LBUTTONUP:	sge->pMouseNewState[0] = false;							return 0;
 		case WM_RBUTTONDOWN:sge->pMouseNewState[1] = true;							return 0;
