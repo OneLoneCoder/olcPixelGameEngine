@@ -225,6 +225,8 @@
 #undef min
 #undef max
 
+#include <algorithm> // for min and max
+
 namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 {
 	struct Pixel
@@ -836,8 +838,8 @@ namespace olc
 
 	Pixel Sprite::Sample(float x, float y)
 	{
-		int32_t sx = (int32_t)((x * (float)width) - 0.5f);
-		int32_t sy = (int32_t)((y * (float)height) - 0.5f);
+		int32_t sx = std::max(std::min((int32_t)((x * (float)width )), width -1), 0);
+		int32_t sy = std::max(std::min((int32_t)((y * (float)height)), height-1), 0);
 		return GetPixel(sx, sy);
 	}
 
@@ -845,17 +847,17 @@ namespace olc
 	{
 		u = u * width - 0.5f;
 		v = v * height - 0.5f;
-		int x = (int)u;
-		int y = (int)v;
+		int x = (int)floor(u); // cast to int rounds toward zero, not downward
+		int y = (int)floor(v);
 		float u_ratio = u - x;
 		float v_ratio = v - y;
 		float u_opposite = 1 - u_ratio;
 		float v_opposite = 1 - v_ratio;
 
-		olc::Pixel p1 = GetPixel(x, y);
-		olc::Pixel p2 = GetPixel(x+1, y);
-		olc::Pixel p3 = GetPixel(x, y+1);
-		olc::Pixel p4 = GetPixel(x+1, y+1);
+        olc::Pixel p1 = GetPixel(std::max(x,                  0), std::max(y,                   0));
+        olc::Pixel p2 = GetPixel(std::min(x + 1, (int)width - 1), std::max(y,                   0));
+        olc::Pixel p3 = GetPixel(std::max(x,                  0), std::min(y + 1, (int)height - 1));
+        olc::Pixel p4 = GetPixel(std::min(x + 1, (int)width - 1), std::min(y + 1, (int)height - 1));
 
 		return olc::Pixel(
 			(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
