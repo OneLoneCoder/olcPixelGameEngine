@@ -53,6 +53,8 @@
 
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
+
+#define OLC_PGEX_SOUND
 #include "olcPGEX_Sound.h"
 
 #include <list>
@@ -114,7 +116,8 @@ private:
 
 	bool OnUserCreate()
 	{
-		olc::SOUND::InitialiseAudio();
+		olc::SOUND::InitialiseAudio(44100, 1, 8, 512);
+		
 		sndSampleA = olc::SOUND::LoadAudioSample("SampleA.wav");
 		sndSampleB = olc::SOUND::LoadAudioSample("SampleB.wav");
 		sndSampleC = olc::SOUND::LoadAudioSample("SampleC.wav");
