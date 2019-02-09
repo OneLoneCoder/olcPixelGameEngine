@@ -1,8 +1,5 @@
 # olcPixelGameEngine
-The official distribution of olcPixelGameEngine, a tool used in javidx9's YouTube videos and projects
-
-# Documentation
-Please see https://github.com/OneLoneCoder/olcPixelGameEngine/wiki
+Unofficial fork of the olcPixelGameEngine, maintained and updeted by me, a tool used in javidx9's YouTube videos and projects
 
 # License (OLC-3)
 
