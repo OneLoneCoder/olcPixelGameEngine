@@ -133,7 +133,7 @@
 
 	Author
 	~~~~~~ 
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////// 
@@ -224,6 +224,8 @@
 
 #undef min
 #undef max
+
+class Rect;
 
 namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 {
@@ -427,8 +429,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
 		// Draws a rectangle at (x,y) to (x+w,y+h)
 		void DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
+		void DrawRect(Rect rect, Pixel p = olc::WHITE);
 		// Fills a rectangle at (x,y) to (x+w,y+h)
 		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
+		void FillRect(Rect rect, Pixel p = olc::WHITE);
 		// Draws a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
@@ -692,7 +696,7 @@ namespace olc
         wsImageFile = buffer;
         delete [] buffer;
 #else
-		wsImageFile = ConvertS2W(sImageFile);
+		// wsImageFile = ConvertS2W(sImageFile);
 #endif
         Gdiplus::Bitmap *bmp = Gdiplus::Bitmap::FromFile(wsImageFile.c_str());
 		if (bmp == nullptr)
@@ -1300,10 +1304,16 @@ namespace olc
 
 	void PixelGameEngine::DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
 	{
+		w--; h--;
 		DrawLine(x, y, x+w, y, p);
 		DrawLine(x+w, y, x+w, y+h, p);
 		DrawLine(x+w, y+h, x, y+h, p);
 		DrawLine(x, y+h, x, y, p);
+	}
+
+	void PixelGameEngine::DrawRect(Rect rect, Pixel p)
+	{
+		DrawRect(rect.x, rect.y, rect.w -= 1, rect.h -= 1, p)
 	}
 
 	void PixelGameEngine::Clear(Pixel p)
@@ -1335,6 +1345,11 @@ namespace olc
 		for (int i = x; i < x2; i++)
 			for (int j = y; j < y2; j++)
 				Draw(i, j, p);
+	}
+
+	void PixelGameEngine::FillRect(Rect rect, Pixel p)
+	{
+		FillRect(rect.x, rect.y, rect.w -= 1, rect.h -= 1, p)
 	}
 
 	void PixelGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
@@ -1686,7 +1701,11 @@ namespace olc
 					}
 					else if (xev.type == MotionNotify)
 					{
-						olc_UpdateMouse(xev.xmotion.x, xev.xmotion.y);
+ 						XWindowAttributes gwa;
+ 						XGetWindowAttributes(olc_Display, xev.xmotion.window, &gwa);
+ 						olc_UpdateMouse((xev.xmotion.x * nScreenWidth  *  nPixelWidth) / gwa.width,
+ 										(xev.xmotion.y * nScreenHeight * nPixelHeight) / gwa.height);
+						// olc_UpdateMouse(xev.xmotion.x, xev.xmotion.y);
 					}
 					else if (xev.type == FocusIn)
 					{
@@ -1785,7 +1804,7 @@ namespace olc
 				{
 					fFrameTimer -= 1.0f;
 
-					std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+					std::string sTitle = sAppName + " - FPS: " + std::to_string(nFrameCount);
 #ifdef _WIN32
 #ifdef UNICODE
 					SetWindowText(olc_hWnd, ConvertS2W(sTitle).c_str());
@@ -2017,7 +2036,7 @@ namespace olc
 		XSetWMProtocols(olc_Display, olc_Window, &wmDelete, 1);
 
 		XMapWindow(olc_Display, olc_Window);
-		XStoreName(olc_Display, olc_Window, "OneLoneCoder.com - Pixel Game Engine");
+		XStoreName(olc_Display, olc_Window, "");
 
 		// Create Keyboard Mapping
 		mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
@@ -2083,7 +2102,472 @@ namespace olc
 #ifdef OLC_DBG_OVERDRAW
 	int olc::Sprite::nOverdrawCount = 0;
 #endif
-	//=============================================================
+}
+
+#endif
+
+
+
+#ifndef MATHS_H_
+#define MATHS_H_
+
+const float DEG2RAD = 0.01745329251994329576923690768f;
+const float RAD2DEG = 57.2957795130823208767981548141f;
+
+inline float ToRadian(const float Degree) {
+	return (Degree * DEG2RAD);
+}
+
+inline float ToDegree(const float Radian) {
+	return (Radian * RAD2DEG);
+}
+
+template<class T>
+struct Vec4 {
+	T x, y, z, w;
+	template<class P>
+	Vec4(P x, P y, P z, P w) : x(x), y(y), z(z), w(w) {}
+	template<class P>
+	Vec4(P all) : x(all), y(all), z(all), w(all) {}
+	Vec4() : x(0), y(0), z(0), w(0) {}
+	inline Vec4& dot(const Vec4<T>& v) {
+		return (x * v.x + y * v.y + z * v.z + w * v.w);
+	}
+	inline const Vec4& operator+() {
+		return *this;
+	}
+	inline Vec4& operator-() {
+		return Vec4<T>(-x, -y, -z, -w);
+	}
+	inline Vec4& operator+(const Vec4<T>& v) {
+		return new Vec4(x + v.x, y + v.y, z + v.z, w + v.w);
+	}
+	inline Vec4& operator-(const Vec4<T>& v) {
+		return new Vec4(x - v.x, y - v.y, z - v.z, w - v.w);
+	}	
+	inline Vec4& operator*(const Vec4<T>& v) {
+		return new Vec4(x * v.x, y * v.y, z * v.z, w * v.w);
+	}
+	inline Vec4& operator/(const Vec4<T>& v) {
+		return new Vec4(x / v.x, y / v.y, z / v.z, w / v.w);
+	}
+	inline Vec4& operator+=(const Vec4<T>& v) {
+		x+=v.x; y+=v.y; z+=v.z; w+=v.w;
+		return *this;
+	}
+	inline Vec4& operator-=(const Vec4<T>& v) {
+		x-=v.x; y-=v.y; z-=v.z; w-=v.w;
+		return *this;
+	}
+	inline Vec4& operator*=(const Vec4<T>& v) {
+		x*=v.x; y*=v.y; z*=v.z; w*=v.w;
+		return *this;
+	}
+	inline Vec4& operator/=(const Vec4<T>& v) {
+		x/=v.x; y/=v.y; z/=v.z; w/=v.w;
+		return *this;
+	}
+	template<class P>
+	inline Vec4& operator+=(P s) {
+		x+=s; y+=s; z+=s; w+=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec4& operator-=(P s) {
+		x-=s; y-=s; z-=s; w-=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec4& operator*=(P s) {
+		x*=s; y*=s; z*=s; w*=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec4& operator/=(P s) {
+		x/=s; y/=s; z/=s; w/=s;
+		return *this;
+	}
+};
+
+template<class T>
+struct Vec3 {
+	T x, y, z;
+	template<class P>
+	Vec3(P x, P y, P z) : x(x), y(y), z(z) {}
+	template<class P>
+	Vec3(P all) : x(all), y(all), z(all) {}
+	Vec3() : x(0), y(0), z(0) {}
+	inline Vec3& cross(const Vec3<T>& v) {
+		return new Vec3(
+			(y * v.z - z * v.y),
+			(x * v.z - z * v.x),
+			(x * v.y - y * v.x)
+		);
+	}
+	inline Vec3& dot(const Vec3<T>& v) {
+		return (x * v.x + y * v.y + z * v.z);
+	}
+	inline const Vec3& operator+() {
+		return *this;
+	}
+	inline Vec3& operator-() {
+		return Vec3<T>(-x, -y, -z);
+	}
+	inline Vec3& operator+(const Vec3<T>& v) {
+		return new Vec3(x + v.x, y + v.y, z + v.z);
+	}
+	inline Vec3& operator-(const Vec3<T>& v) {
+		return new Vec3(x - v.x, y - v.y, z - v.z);
+	}	
+	inline Vec3& operator*(const Vec3<T>& v) {
+		return new Vec3(x * v.x, y * v.y, z * v.z);
+	}
+	inline Vec3& operator/(const Vec3<T>& v) {
+		return new Vec3(x / v.x, y / v.y, z / v.z);
+	}
+	inline Vec3& operator+=(const Vec3<T>& v) {
+		x+=v.x; y+=v.y; z+=v.z;
+		return *this;
+	}
+	inline Vec3& operator-=(const Vec3<T>& v) {
+		x-=v.x; y-=v.y; z-=v.z;
+		return *this;
+	}
+	inline Vec3& operator*=(const Vec3<T>& v) {
+		x*=v.x; y*=v.y; z*=v.z;
+		return *this;
+	}
+	inline Vec3& operator/=(const Vec3<T>& v) {
+		x/=v.x; y/=v.y; z/=v.z;
+		return *this;
+	}
+	template<class P>
+	inline Vec3& operator+=(P s) {
+		x+=s; y+=s; z+=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec3& operator-=(P s) {
+		x-=s; y-=s; z-=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec3& operator*=(P s) {
+		x*=s; y*=s; z*=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec3& operator/=(P s) {
+		x/=s; y/=s; z/=s;
+		return *this;
+	}
+};
+
+template<class T>
+struct Vec2 {
+	T x, y;
+	template<class P>
+	Vec2(P x, P y) : x(x), y(y) {}
+	template<class P>
+	Vec2(P all) : x(all), y(all) {}
+	Vec2() : x(0), y(0) {}
+		inline const Vec2& operator+() {
+		return *this;
+	}
+	inline Vec2& dot(const Vec3<T>& v) {
+		return (x * v.x + y * v.y);
+	}
+	inline Vec2& operator-() {
+		return Vec3<T>(-x, -y);
+	}
+	inline Vec2& operator+(const Vec2<T>& v) {
+		return new Vec2(x + v.x, y + v.y);
+	}
+	inline Vec2& operator-(const Vec2<T>& v) {
+		return new Vec2(x - v.x, y - v.y);
+	}	
+	inline Vec2& operator*(const Vec2<T>& v) {
+		return new Vec2(x * v.x, y * v.y);
+	}
+	inline Vec2& operator/(const Vec2<T>& v) {
+		return new Vec2(x / v.x, y / v.y);
+	}
+	inline Vec2& operator+=(const Vec2<T>& v) {
+		x+=v.x; y+=v.y;
+		return *this;
+	}
+	inline Vec2& operator-=(const Vec2<T>& v) {
+		x-=v.x; y-=v.y;
+		return *this;
+	}
+	inline Vec2& operator*=(const Vec2<T>& v) {
+		x*=v.x; y*=v.y;
+		return *this;
+	}
+	inline Vec2& operator/=(const Vec2<T>& v) {
+		x/=v.x; y/=v.y;
+		return *this;
+	}
+	template<class P>
+	inline Vec2& operator+=(P s) {
+		x+=s; y+=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec2& operator-=(P s) {
+		x-=s; y-=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec2& operator*=(P s) {
+		x*=s; y*=s;
+		return *this;
+	}
+	template<class P>
+	inline Vec2& operator/=(P s) {
+		x/=s; y/=s;
+		return *this;
+	}
+};
+
+#endif
+
+#ifndef RECT_H_
+#define RECT_H_
+
+#include <string>
+
+class Rect {
+public:
+	Rect();
+	Rect(int x, int y, int w, int h);
+	void Clear();
+
+	static Rect CreateRect(int x, int y, int w, int h) {
+		Rect tempRect(x, y, w, h);
+		return tempRect;
+	}
+
+	Rect operator+(Rect* rect) {
+		return Rect(this->x + rect->x, this->y + this->x, w, h);
+	}
+	Rect operator-(Rect* rect) {
+		return Rect(this->x - rect->x, this->y - this->x, w, h);
+	}
+	bool operator==(const Rect* rect) {
+		return (x == rect->x && y == rect->y && w == rect->w && h == rect->h);
+	}
+	bool operator!=(const Rect* rect) {
+		return !(x == rect->x && y == rect->y && w == rect->w && h == rect->h);
+	}
+
+	std::string ToString();
+
+	bool Intersects(Rect* rect);
+	// bool Intersects(int x, int y, int w, int h);
+
+	bool Contains(Rect* rect);
+	bool Contains(Vec2<int>* point);
+	bool Contains(Vec2<int> point);
+	bool Contains(int x, int y, int w, int h);
+
+	Vec2<int>* Position();
+	Vec2<int>* Center();
+	int CenterX();
+	int CenterY();
+
+	int Left();
+	int Right();
+	int Top();
+	int Bottom();
+	int Perimiter();	
+	int Area();
+
+	int GetX();
+	int GetY();
+	int GetW();
+	int GetH();
+
+	void SetRect(int x, int y, int w, int h);
+	void SetSize(Vec2<int>* size);
+	void SetPos(Vec2<int>* pos);
+	void SetPos(int x, int y);
+	void Translate(Vec2<int>* offset);
+	void TranslateX(int x);
+	void TranslateY(int y);
+
+    int x, y, w, h;
+
+	virtual ~Rect();
+private:
+};
+
+#endif
+
+#ifdef OLC_PGE_APPLICATION
+#undef OLC_PGE_APPLICATION
+
+Rect::Rect() {
+	Clear();
+}
+
+Rect::Rect(int x, int y, int w, int h) {
+	SetRect(x, y, w, h);
+}
+
+void Rect::Clear() {
+	SetRect(0, 0, 0, 0);
+}
+
+std::string Rect::ToString() {
+	std::string res = "(";
+	res += std::to_string(x);
+	res += ", ";
+	res += std::to_string(y);
+	res += ", ";
+	res += std::to_string(w);
+	res += ", ";
+	res += std::to_string(h);
+	res += ")";
+	return res;
+}
+
+bool Rect::Intersects(Rect* rect) {
+	int leftA = x;
+	int rightA = x + w;
+	int topA = y;
+	int bottomA = y + h;
+
+	int leftB = rect->x;
+	int rightB = rect->x + rect->w;
+	int topB = rect->y;
+	int bottomB = rect->y + rect->h;
+
+	if (bottomA <= topB) return false;
+	if (topA >= bottomB) return false;
+	if (rightA <= leftB) return false;
+	if (leftA >= rightB) return false;
+
+	return true;
+}
+
+// bool Rect::Intersects(int x, int y, int w, int h) {
+// 	return Intersects(&CreateRect(x, y, w, h));
+// }
+
+bool Rect::Contains(Rect* rect) {
+	return (rect->x >= x && rect->Right() <= (x + w) && rect->y >= y && rect->Bottom() <= (y + h));
+}
+
+bool Rect::Contains(Vec2<int>* point) {
+	return (point->x >= x && point->x <= (x + w) && point->y >= y && point->y <= (y + h));
+}
+
+
+bool Rect::Contains(Vec2<int> point) {
+	return (point.x >= x && point.x <= (x + w) && point.y >= y && point.y <= (y + h));
+}
+
+bool Rect::Contains(int x, int y, int w, int h) {
+	Rect tempRect(x, y, w, h);
+	return Contains(&tempRect);
+}
+
+Vec2<int>* Rect::Position() {
+	Vec2<int>* res = new Vec2<int>(x, y);
+	return res;
+}
+
+Vec2<int>* Rect::Center() {
+	Vec2<int>* res = new Vec2<int>(x + (w / 2), y + (h / 2));
+	return res;
+}
+
+int Rect::CenterX() {
+	return (x + (w / 2));
+}
+
+int Rect::CenterY() {
+	return (y + (h / 2));
+}
+
+int Rect::Left() {
+	return x;
+}
+
+int Rect::Right() {
+	return (x + w);
+}
+
+int Rect::Top() {
+	return y;
+}
+
+int Rect::Bottom() {
+	return y + h;
+}
+
+int Rect::Perimiter() {
+	return (w + w + h + h);
+}
+
+int Rect::Area() {
+	return (w + h);
+}
+
+int Rect::GetX() {
+	return x;
+}
+
+int Rect::GetY() {
+	return y;
+}
+
+int Rect::GetW() {
+	return w;
+}
+
+int Rect::GetH() {
+	return h;
+}
+
+void Rect::SetRect(int x, int y, int w, int h) {
+	this->x = x;
+	this->y = y;
+	this->w = w;
+	this->h = h;
+}
+
+void Rect::SetSize(Vec2<int>* size) {
+	this->x = size->x;
+	this->y = size->y;
+}
+
+void Rect::SetPos(Vec2<int>* pos) {
+	this->w = pos->x;
+	this->h = pos->y;
+}
+
+void Rect::SetPos(int x, int y) {
+	this->w = x;
+	this->h = y;
+}
+
+void Rect::Translate(Vec2<int>* offset) {
+	this->x += offset->x;
+	this->y += offset->y;
+}
+
+void Rect::TranslateX(int x) {
+	this->x += x;
+}
+
+void Rect::TranslateY(int y) {
+	this->y += y;
+}
+
+Rect::~Rect() {
+
 }
 
 #endif
