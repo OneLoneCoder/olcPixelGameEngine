@@ -48,7 +48,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 #define OLC_PGE_APPLICATION
