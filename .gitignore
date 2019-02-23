@@ -1,0 +1,12 @@
+# Excude compiled applications from git
+/OneLoneCoder_PGE_Balls2
+/OneLoneCoder_PGE_ExtensionTestGFX2D
+/OneLoneCoder_PGE_PathFinding_WaveProp
+/OneLoneCoder_PGE_PolygonCollisions1
+/OneLoneCoder_PGE_ShadowCasting2D
+/OneLoneCoder_PGE_SoundTest
+/OneLoneCoder_PGE_SpriteTransforms
+/olcExampleProgram
+
+# IDE
+/.vscode
