@@ -73,16 +73,91 @@
 */
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 using namespace std;
 
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
+/*
+ * atan2f() chart;  float dx = ex - sx, dy...
+ *
+ *       Name == (dx, dy) ==  deg ==   rad ==     CPP equiv
+ * ￼
+ *       East == ( 1,  0) ==    0 ==  0.00 ==     0 == 0.0f
+ * North East == ( 1, -1) ==  -45 == -0.79 ==       -M_PI_4
+ *      North == ( 0, -1) ==  -90 == -1.57 ==       -M_PI_2
+ * North West == (-1, -1) == -135 == -2.36 == M_PI_4 - M_PI
+ *       West == (-1,  0) ==  180 ==  3.14 ==	       M_PI
+ * South West == (-1,  1) ==  135 ==  2.36 == M_PI - M_PI_4
+ *      South == ( 0,  1) ==   90 ==  1.57 ==	     M_PI_2
+ * South East == ( 1,  1) ==   45 ==  0.79 ==	     M_PI_4
+ *
+ * Notice: As the Y-Axis is flipped(Quadrant III) atan is also flipped to CC roatation.
+ * 
+ */
+
+class cATan
+{
+      public:
+	float aTan;
+	// operator float&() { return this->aTan; }
+
+	cATan() = default;
+	cATan(float _tan) : aTan(_tan) {}
+	cATan(const cATan& t) : aTan(t.aTan) {}
+	cATan(float dy, float dx): aTan(atan2f(dy, dx)) {}
+
+	cATan add(float rhs)
+	{
+
+		float rad;
+		rad = fmod(rhs, M_PI);
+
+		cATan ret;
+		ret.aTan = aTan + rad;
+
+		if(ret.aTan > M_PI)
+			ret.aTan -= M_PI * 2;
+
+		return ret;
+	}
+
+	cATan subtract(float rhs)
+	{
+
+		float rad;
+		rad = fmod(rhs, M_PI);
+
+		cATan ret;
+		ret.aTan = aTan - rad;
+
+		if(ret.aTan <= -M_PI)
+			ret.aTan += M_PI * 2;
+
+		return ret;
+	}
+
+	// Exclusive.
+	bool inRange(float start, float end)
+	{
+                // assert(start != end);
+
+                if (start > end)
+                // I ordered these from least to gratest when true.
+			return aTan < end || start < aTan;
+		return start < aTan && aTan < end;
+	}
+
+};
 
 struct sEdge
 {
+	// Counter clockwise winding, like OpenGL/Vulkan.
 	float sx, sy; // Start coordinate
 	float ex, ey; // End coordinate
+	// With this we can reduce the work by 1/3.
+	cATan normal; // Direction edge is facing
 };
 
 struct sCell
@@ -154,7 +229,7 @@ private:
 						if (world[n].edge_exist[WEST])
 						{
 							// Northern neighbour has a western edge, so grow it downwards
-							vecEdges[world[n].edge_id[WEST]].ey += fBlockWidth;
+							vecEdges[world[n].edge_id[WEST]].sy += fBlockWidth;
 							world[i].edge_id[WEST] = world[n].edge_id[WEST];
 							world[i].edge_exist[WEST] = true;
 						}
@@ -162,8 +237,9 @@ private:
 						{
 							// Northern neighbour does not have one, so create one
 							sEdge edge;
-							edge.sx = (sx + x) * fBlockWidth; edge.sy = (sy + y) * fBlockWidth;
-							edge.ex = edge.sx; edge.ey = edge.sy + fBlockWidth;
+							edge.ex = (sx + x) * fBlockWidth; edge.ey = (sy + y) * fBlockWidth;
+							edge.sx = edge.ex; edge.sy = edge.ey + fBlockWidth;
+							edge.normal = cATan(edge.ey - edge.sy, edge.ex - edge.sx).subtract(M_PI_2);
 
 							// Add edge to Polygon Pool
 							int edge_id = vecEdges.size();
@@ -193,6 +269,7 @@ private:
 							sEdge edge;
 							edge.sx = (sx + x + 1) * fBlockWidth; edge.sy = (sy + y) * fBlockWidth;
 							edge.ex = edge.sx; edge.ey = edge.sy + fBlockWidth;
+							edge.normal = cATan(edge.ey - edge.sy, edge.ex - edge.sx).subtract(M_PI_2);
 
 							// Add edge to Polygon Pool
 							int edge_id = vecEdges.size();
@@ -222,6 +299,7 @@ private:
 							sEdge edge;
 							edge.sx = (sx + x) * fBlockWidth; edge.sy = (sy + y) * fBlockWidth;
 							edge.ex = edge.sx + fBlockWidth; edge.ey = edge.sy;
+							edge.normal = cATan(edge.ey - edge.sy, edge.ex - edge.sx).subtract(M_PI_2);
 
 							// Add edge to Polygon Pool
 							int edge_id = vecEdges.size();
@@ -241,7 +319,7 @@ private:
 						if (world[w].edge_exist[SOUTH])
 						{
 							// Western neighbour has one, so grow it eastwards
-							vecEdges[world[w].edge_id[SOUTH]].ex += fBlockWidth;
+							vecEdges[world[w].edge_id[SOUTH]].sx += fBlockWidth;
 							world[i].edge_id[SOUTH] = world[w].edge_id[SOUTH];
 							world[i].edge_exist[SOUTH] = true;
 						}
@@ -249,8 +327,9 @@ private:
 						{
 							// Western neighbour does not have one, so I need to create one
 							sEdge edge;
-							edge.sx = (sx + x) * fBlockWidth; edge.sy = (sy + y + 1) * fBlockWidth;
-							edge.ex = edge.sx + fBlockWidth; edge.ey = edge.sy;
+							edge.ex = (sx + x) * fBlockWidth; edge.ey = (sy + y + 1) * fBlockWidth;
+							edge.sx = edge.ex + fBlockWidth; edge.sy = edge.ey;
+							edge.normal = cATan(edge.ey - edge.sy, edge.ex - edge.sx).subtract(M_PI_2);
 
 							// Add edge to Polygon Pool
 							int edge_id = vecEdges.size();
@@ -265,7 +344,74 @@ private:
 				}
 
 			}
+
+		// For each edge in PolyMap, final check for CCW.
+                // Once again ordered for <
+		for (auto &e : vecEdges)
+		{
+		       if (e.sy == e.ey) {
+				assert(e.sx != e.ex && "Line is a point");
+                                // e.normal.aTan == M_PI_2
+				if (0.0f < e.normal.aTan) {
+					if (e.sx < e.ex) {
+						cerr << "opps: e.sx(" << e.sx << ") < e.ex(" << e.ex << "): " << e.normal.aTan << endl;
+					}
+				} else if(e.ex < e.sx) {
+					cerr << "opps: e.ex(" << e.ex << ") < e.sx(" << e.sx << "): " << e.normal.aTan << endl;
+				}
+		       } else {
+				if (e.normal.inRange(-M_PI_2, M_PI_2)) {
+					if (e.ey < e.sy) {
+						cerr << "opps: e.ey(" << e.ey << ") < e.sy(" << e.sy << "): " << e.normal.aTan << endl;
+					}
+				} else if (e.sy < e.ey) {
+					cerr << "opps: e.sy(" << e.sy << ") < e.ey(" << e.ey << "): " << e.normal.aTan << endl;
+				}
+		       }
+		}
 	}
+
+	struct sCollision
+	{
+		float min_t1 = INFINITY;
+		float min_px = 0, min_py = 0, min_ang = 0;
+		bool bValid = false;
+
+		float rdx, rdy;
+		float ox, oy;
+
+		void digest(sEdge& e2)
+		{
+			// Create line segment vector
+			float sdx = e2.ex - e2.sx;
+			float sdy = e2.ey - e2.sy;
+
+			// Just at the endge of our vision?
+			if(!(fabs(sdx - rdx) > 0.0f && fabs(sdy - rdy) > 0.0f))
+				return;
+
+			// t2 is normalised distance from line segment start to line segment end of intersect point
+			float t2 = (rdx * (e2.sy - oy) + (rdy * (ox - e2.sx))) / (sdx * rdy - sdy * rdx);
+			// t1 is normalised distance from source along ray to ray length of intersect point
+			float t1 = (e2.sx + sdx * t2 - ox) / rdx;
+
+			// If intersect point exists along ray, and along line
+			// segment then intersect point is valid
+			if (t1 > 0 && t2 >= 0 && t2 <= 1.0f)
+			{
+				// Check if this intersect point is closest to source. If
+				// it is, then store this point and reject others
+				if (t1 < min_t1)
+				{
+					min_t1 = t1;
+					min_px = ox + rdx * t1;
+					min_py = oy + rdy * t1;
+					min_ang = atan2f(min_py - oy, min_px - ox);
+					bValid = true;
+				}
+			}
+		}
+	};
 
 	void CalculateVisibilityPolygon(float ox, float oy, float radius)
 	{
@@ -273,70 +419,56 @@ private:
 		vecVisibilityPolygonPoints.clear();
 
 		// For each edge in PolyMap
-		for (auto &e1 : vecEdges)
+		vector<tuple<sEdge, cATan>> vecInterestingEdges;
+		for (auto &e : vecEdges)
 		{
+			tuple<sEdge, cATan> canidate(e, cATan(e.sy - oy, e.sx - ox));
+
+			// This should skip almost half of the Edges.
+			if (get<cATan>(canidate).inRange(e.normal.subtract(M_PI_2).aTan, e.normal.add(M_PI_2).aTan))
+				continue;
+
+			vecInterestingEdges.push_back(canidate);
+		}
+
+		for (auto &i1 : vecInterestingEdges)
+		{
+			auto &e1 = get<sEdge>(i1);
+			auto &a = get<cATan>(i1);
+
 			// Take the start point, then the end point (we could use a pool of
 			// non-duplicated points here, it would be more optimal)
 			for (int i = 0; i < 2; i++)
 			{
-				float rdx, rdy;
-				rdx = (i == 0 ? e1.sx : e1.ex) - ox;
-				rdy = (i == 0 ? e1.sy : e1.ey) - oy;
+				cATan ang;
+				if (i == 0) { ang = get<cATan>(i1); } else
+					ang = cATan(e1.ey - oy, e1.ex - ox);
 
-				float base_ang = atan2f(rdy, rdx);
+				float ang_adjust = i == 0 ? 0.0001f : -0.0001f;
 
-				float ang = 0;
-				// For each point, cast 3 rays, 1 directly at point
-				// and 1 a little bit either side
-				for (int j = 0; j < 3; j++)
+				sCollision hit;
+				hit.rdx = radius * cosf(ang.subtract(ang_adjust).aTan);
+				hit.rdy = radius * sinf(ang.subtract(ang_adjust).aTan);
+
+				sCollision miss;
+				miss.rdx = radius * cosf(ang.add(ang_adjust).aTan);
+				miss.rdy = radius * sinf(ang.add(ang_adjust).aTan);
+
+				hit.ox = miss.ox = ox;
+				hit.oy = miss.oy = oy;
+
+				// Check for ray intersection with all edges
+				for (auto &i2 : vecInterestingEdges)
 				{
-					if (j == 0)	ang = base_ang - 0.0001f;
-					if (j == 1)	ang = base_ang;
-					if (j == 2)	ang = base_ang + 0.0001f;
-
-					// Create ray along angle for required distance
-					rdx = radius * cosf(ang);
-					rdy = radius * sinf(ang);
-
-					float min_t1 = INFINITY;
-					float min_px = 0, min_py = 0, min_ang = 0;
-					bool bValid = false;
-
-					// Check for ray intersection with all edges
-					for (auto &e2 : vecEdges)
-					{
-						// Create line segment vector
-						float sdx = e2.ex - e2.sx;
-						float sdy = e2.ey - e2.sy;
-
-						if (fabs(sdx - rdx) > 0.0f && fabs(sdy - rdy) > 0.0f)
-						{
-							// t2 is normalised distance from line segment start to line segment end of intersect point
-							float t2 = (rdx * (e2.sy - oy) + (rdy * (ox - e2.sx))) / (sdx * rdy - sdy * rdx);
-							// t1 is normalised distance from source along ray to ray length of intersect point
-							float t1 = (e2.sx + sdx * t2 - ox) / rdx;
-
-							// If intersect point exists along ray, and along line 
-							// segment then intersect point is valid
-							if (t1 > 0 && t2 >= 0 && t2 <= 1.0f)
-							{
-								// Check if this intersect point is closest to source. If
-								// it is, then store this point and reject others
-								if (t1 < min_t1)
-								{
-									min_t1 = t1;
-									min_px = ox + rdx * t1;
-									min_py = oy + rdy * t1;
-									min_ang = atan2f(min_py - oy, min_px - ox);
-									bValid = true;
-								}
-							}
-						}
-					}
-
-					if(bValid)// Add intersection point to visibility polygon perimeter
-						vecVisibilityPolygonPoints.push_back({ min_ang, min_px, min_py });
+					hit.digest(get<sEdge>(i2));
+					miss.digest(get<sEdge>(i2));
 				}
+
+				if(hit.bValid)// Add intersection point to visibility polygon perimeter
+					vecVisibilityPolygonPoints.push_back({ hit.min_ang, hit.min_px, hit.min_py });
+				if(miss.bValid)// Add intersection point to visibility polygon perimeter
+					vecVisibilityPolygonPoints.push_back({ miss.min_ang, miss.min_px, miss.min_py });
+
 			}
 		}
 
@@ -398,8 +530,9 @@ public:
 		// how your final application interacts with tilemaps
 		ConvertTileMapToPolyMap(0, 0, 40, 30, fBlockWidth, nWorldWidth);
 
-
-		if (GetMouse(1).bHeld)
+		// Right click didn't do anything on Linux/X11
+#define SHINE_LIGHT (GetMouse(1).bHeld || GetKey(olc::Key::Z).bHeld)
+		if (SHINE_LIGHT)
 		{
 			CalculateVisibilityPolygon(fSourceX, fSourceY, 1000.0f);
 		}
@@ -426,10 +559,10 @@ public:
 
 		int nRaysCast2 = vecVisibilityPolygonPoints.size();
 		DrawString(4, 4, "Rays Cast: " + to_string(nRaysCast) + " Rays Drawn: " + to_string(nRaysCast2));
-		
+
 
 		// If drawing rays, set an offscreen texture as our target buffer
-		if (GetMouse(1).bHeld && vecVisibilityPolygonPoints.size() > 1)
+		if (SHINE_LIGHT && vecVisibilityPolygonPoints.size() > 1)
 		{
 			// Clear offscreen buffer for sprite
 			SetDrawTarget(buffLightTex);
