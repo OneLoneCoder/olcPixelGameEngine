@@ -58,7 +58,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 
@@ -692,10 +692,13 @@ namespace olc
 					tex_u = (1.0f - t) * tex_su + t * tex_eu;
 					tex_v = (1.0f - t) * tex_sv + t * tex_ev;
 					tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-					if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+					if (j >= 0 && i >= 0 && j < pge->ScreenWidth() && i < pge->ScreenHeight())
 					{
-						pge->Draw(j, i, spr->Sample(tex_u / tex_w, tex_v / tex_w));
-						m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
+						if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						{
+							pge->Draw(j, i, spr->Sample(tex_u / tex_w, tex_v / tex_w));
+							m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
+						}
 					}
 					t += tstep;
 				}
@@ -752,11 +755,14 @@ namespace olc
 					tex_u = (1.0f - t) * tex_su + t * tex_eu;
 					tex_v = (1.0f - t) * tex_sv + t * tex_ev;
 					tex_w = (1.0f - t) * tex_sw + t * tex_ew;
-
-					if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+					
+					if (j >= 0 && i >= 0 && j < pge->ScreenWidth() && i < pge->ScreenHeight())
 					{
-						pge->Draw(j, i, spr->Sample(tex_u / tex_w, tex_v / tex_w));
-						m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
+						if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						{
+							pge->Draw(j, i, spr->Sample(tex_u / tex_w, tex_v / tex_w));
+							m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
+						}
 					}
 					t += tstep;
 				}
@@ -862,10 +868,13 @@ namespace olc
 					tex_y = (1.0f - t) * tex_sv + t * tex_ev;
 					tex_z = (1.0f - t) * tex_sz + t * tex_ez;
 				
-					if (tex_z > m_DepthBuffer[i*pge->ScreenWidth() + j])
+					if (j >= 0 && i >= 0 && j < pge->ScreenWidth() && i < pge->ScreenHeight())
 					{
-						pge->Draw(j, i, spr->Sample(tex_x / tex_z, tex_y / tex_z));
-						m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_z;
+						if (tex_z > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						{
+							pge->Draw(j, i, spr->Sample(tex_x / tex_z, tex_y / tex_z));
+							m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_z;
+						}
 					}
 					t += tstep;
 				}
@@ -926,11 +935,14 @@ namespace olc
 					tex_x = (1.0f - t) * tex_su + t * tex_eu;
 					tex_y = (1.0f - t) * tex_sv + t * tex_ev;
 					tex_z = (1.0f - t) * tex_sz + t * tex_ez;
-
-					if (tex_z > m_DepthBuffer[i*pge->ScreenWidth() + j])
+					
+					if (j >= 0 && i >= 0 && j < pge->ScreenWidth() && i < pge->ScreenHeight())
 					{
-						pge->Draw(j, i, spr->Sample(tex_x / tex_z, tex_y / tex_z));
-						m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_z;
+						if (tex_z > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						{
+							pge->Draw(j, i, spr->Sample(tex_x / tex_z, tex_y / tex_z));
+							m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_z;
+						}
 					}
 
 					t += tstep;
