@@ -131,7 +131,7 @@
 
 	Author
 	~~~~~~ 
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////// 
@@ -1330,12 +1330,23 @@ namespace olc
 		int x0 = 0;
 		int y0 = radius;
 		int d = 3 - 2 * radius;
+		bool scanline[2048];
+
+		for (int i = 0; i < 2048; i++) {
+			scanline[i] = 0;    // Initialize all elements to zero.
+		}
+
 		if (!radius) return;
 
 		auto drawline = [&](int sx, int ex, int ny)
 		{
-			for (int i = sx; i <= ex; i++)
-				Draw(i, ny, p);
+			if (ny >= 0 && ny < 2048) {
+				if (scanline[ny] == false) {
+					for (int i = sx; i <= ex; i++)
+						Draw(i, ny, p);
+					scanline[ny] = true;
+				}
+			}
 		};
 
 		while (y0 >= x0)
