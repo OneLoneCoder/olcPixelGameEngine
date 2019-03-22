@@ -13,7 +13,7 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 ## Utilities
 * Additional fonts and font handling tools 
   * https://github.com/gorbit99/OLC-Font
-* Concert olcConsoleGameEngine ".spr" files into olc::Sprite types 
+* Convert olcConsoleGameEngine ".spr" files into olc::Sprite types 
   * https://github.com/gorbit99/SprConverter
 
 ## Cool Projects
