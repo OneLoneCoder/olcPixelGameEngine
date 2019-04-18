@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.16              |
+	|           OneLoneCoder Pixel Game Engine v1.17              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -13,31 +13,31 @@
 	for that.
 
 	However, there are limitations that I simply cannot avoid. Firstly, I need to
-	maintain several different versions of it to accommodate users on Windows7, 
+	maintain several different versions of it to accommodate users on Windows7,
 	8, 10, Linux, Mac, Visual Studio & Code::Blocks. Secondly, this year I've been
 	pushing the console to the limits of its graphical capabilities	and the effect
 	is becoming underwhelming. The engine itself is not slow at all, but the process
 	that Windows uses to draw the command prompt to the screen is, and worse still,
-	it's dynamic based upon the variation of character colours and glyphs. Sadly 
+	it's dynamic based upon the variation of character colours and glyphs. Sadly
 	I have no control over this, and recent videos that are extremely graphical
-	(for a command prompt :P ) have been dipping to unacceptable framerates. As 
-	the channel	has been popular with aspiring game developers, I'm concerned that 
+	(for a command prompt :P ) have been dipping to unacceptable framerates. As
+	the channel	has been popular with aspiring game developers, I'm concerned that
 	the visual appeal of the command prompt is perhaps limited to us oldies, and I
-	dont want to alienate younger learners. Finally, I'd like to demonstrate many 
-	more algorithms and image processing that exist in the graphical domain, for 
+	dont want to alienate younger learners. Finally, I'd like to demonstrate many
+	more algorithms and image processing that exist in the graphical domain, for
 	which the console is insufficient.
 
-	For this reason, I have created olcPixelGameEngine! The look and feel to the 
+	For this reason, I have created olcPixelGameEngine! The look and feel to the
 	programmer is almost identical, so all of my existing code from the videos is
 	easily portable, and the programmer uses this file in exactly the same way. But
-	I've decided that rather than just build a command prompt emulator,	that I 
+	I've decided that rather than just build a command prompt emulator,	that I
 	would at least harness some modern(ish) portable technologies.
 
-	As a result, the olcPixelGameEngine supports 32-bit colour, is written in a 
-	cross-platform style, uses modern(ish) C++ conventions and most importantly, 
-	renders much much faster. I	will use this version when my applications are 
+	As a result, the olcPixelGameEngine supports 32-bit colour, is written in a
+	cross-platform style, uses modern(ish) C++ conventions and most importantly,
+	renders much much faster. I	will use this version when my applications are
 	predominantly graphics based, but use the console version when they are
-	predominantly text based - Don't worry, loads more command prompt silliness to 
+	predominantly text based - Don't worry, loads more command prompt silliness to
 	come yet, but evolution is important!!
 
 	License (OLC-3)
@@ -45,14 +45,14 @@
 
 	Copyright 2018 - 2019 OneLoneCoder.com
 
-	Redistribution and use in source and binary forms, with or without modification, 
+	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
 
-	1. Redistributions or derivations of source code must retain the above copyright 
+	1. Redistributions or derivations of source code must retain the above copyright
 	notice, this list of conditions and the following disclaimer.
 
-	2. Redistributions or derivative works in binary form must reproduce the above 
-	copyright notice. This list of conditions and the following	disclaimer must be 
+	2. Redistributions or derivative works in binary form must reproduce the above
+	copyright notice. This list of conditions and the following	disclaimer must be
 	reproduced in the documentation and/or other materials provided with the distribution.
 
 	3. Neither the name of the copyright holder nor the names of its contributors may
@@ -62,12 +62,12 @@
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS	"AS IS" AND ANY
 	EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-	SHALL THE COPYRIGHT	HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
-	INCIDENTAL,	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-	TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
-	BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-	CONTRACT, STRICT LIABILITY, OR TORT	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
-	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+	SHALL THE COPYRIGHT	HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL,	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+	TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+	BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+	CONTRACT, STRICT LIABILITY, OR TORT	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 	SUCH DAMAGE.
 
 	Links
@@ -110,32 +110,33 @@
 	Ports
 	~~~~~
 	olc::PixelGameEngine has been ported and tested with varying degrees of
-	success to: WinXP, Win7, Win8, Win10, Various Linux, Rapberry Pi, 
+	success to: WinXP, Win7, Win8, Win10, Various Linux, Rapberry Pi,
 	Chromebook, Playstation Portable (PSP) and Nintendo Switch. If you are
 	interested in the details of these ports, come and visit the Discord!
 
 	Thanks
 	~~~~~~
-	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim, 
+	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim,
 	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
-	Ralakus, Gorbit99, raoul, joshinils, benedani & MagetzUb for advice, ideas and 
-	testing, and I'd like to extend my appreciation to the 40K YouTube followers, 
-	22 Patreons and 2.6K Discord server	members who give me the motivation to keep 
+	Ralakus, Gorbit99, raoul, joshinils, benedani & MagetzUb for advice, ideas and
+	testing, and I'd like to extend my appreciation to the 40K YouTube followers,
+	22 Patreons and 2.6K Discord server	members who give me the motivation to keep
 	going with all this :D
 
 	Special thanks to those who bring gifts!
 	GnarGnarHead.......Domina
 	Gorbit99...........Bastion, Ori & The Blind Forest
+	Marti Morta........Gris
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
 
 	Author
-	~~~~~~ 
+	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
 */
 
-////////////////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////////////////
 
 /* Example Usage (main.cpp)
 	#define OLC_PGE_APPLICATION
@@ -185,6 +186,13 @@
 #else
 	// In Code::Blocks, Select C++14 in your build options, and add the
 	// following libs to your linker: user32 gdi32 opengl32 gdiplus
+	#if !defined _WIN32_WINNT
+        #ifdef HAVE_MSMF
+            #define _WIN32_WINNT 0x0600 // Windows Vista
+        #else
+            #define _WIN32_WINNT 0x0500 // Windows 2000
+        #endif
+    #endif
 #endif
 	// Include WinAPI
 	#include <windows.h>
@@ -280,10 +288,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		inline v2d_generic  perp()                               { return v2d_generic(-y, x);                           }
 		inline T dot(const v2d_generic& rhs)                     { return this->x * rhs.x + this->y * rhs.y;            }
 		inline T cross(const v2d_generic& rhs)                   { return this->x * rhs.y - this->y * rhs.x;            }
-		inline v2d_generic  operator +  (const v2d_generic& rhs) { return v2d_generic(this->x + rhs.x, this->y + rhs.y);}
-		inline v2d_generic  operator -  (const v2d_generic& rhs) { return v2d_generic(this->x - rhs.x, this->y - rhs.y);}
-		inline v2d_generic  operator *  (const T& rhs)           { return v2d_generic(this->x * rhs, this->y * rhs);    }
-		inline v2d_generic  operator /  (const T& rhs)           { return v2d_generic(this->x / rhs, this->y / rhs);    }
+		inline v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y);}
+		inline v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y);}
+		inline v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs);    }
+		inline v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs);    }
 		inline v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this;    }
 		inline v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this;    }
 		inline v2d_generic& operator *= (const T& rhs)           { this->x *= rhs; this->y *= rhs; return *this;        }
@@ -297,7 +305,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs) { return v2d_generic<T>(lhs / rhs.x, lhs / rhs.y); }
 	template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs){ return v2d_generic<T>(lhs / rhs.x, lhs / rhs.y); }
 	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)   { return v2d_generic<T>(lhs / rhs.x, lhs / rhs.y); }
-	
+
 	typedef v2d_generic<int> vi2d;
 	typedef v2d_generic<float> vf2d;
 	typedef v2d_generic<double> vd2d;
@@ -312,7 +320,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	};
 
 	//=============================================================
-	
+
 
 	class ResourcePack
 	{
@@ -369,7 +377,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		Pixel Sample(float x, float y);
 		Pixel SampleBL(float u, float v);
 		Pixel* GetData();
-	
+
 	private:
 		Pixel *pColData = nullptr;
 		Mode modeSample = Mode::NORMAL;
@@ -598,7 +606,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 	to including this file must have OLC_PGE_APPLICATION defined before it. This prevents
 	the definitions being duplicated.
 
-	If all else fails, create a file called "olcPixelGameEngine.cpp" with the following 
+	If all else fails, create a file called "olcPixelGameEngine.cpp" with the following
 	two lines. Then you can just #include "olcPixelGameEngine.h" as normal without worrying
 	about defining things. Dont forget to include that cpp file as part of your build!
 
@@ -856,7 +864,7 @@ namespace olc
 				return Pixel(0, 0, 0, 0);
 		}
 		else
-		{			
+		{
 			return pColData[abs(y%height)*width + abs(x%width)];
 		}
 	}
@@ -1067,7 +1075,7 @@ namespace olc
 
 		if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0)
 			return olc::FAIL;
-		
+
 #ifdef _WIN32
 #ifdef UNICODE
 #ifndef __MINGW32__
@@ -1077,7 +1085,7 @@ namespace olc
 #endif
 		// Load the default font sheet
 		olc_ConstructFontSheet();
-		
+
 		// Create a sprite that represents the primary drawing target
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
@@ -1194,14 +1202,14 @@ namespace olc
 
 
 		if (nPixelMode == Pixel::NORMAL)
-		{			
+		{
 			return pDrawTarget->SetPixel(x, y, p);
 		}
 
 		if (nPixelMode == Pixel::MASK)
 		{
 			if(p.a == 255)
-				return pDrawTarget->SetPixel(x, y, p);		
+				return pDrawTarget->SetPixel(x, y, p);
 		}
 
 		if (nPixelMode == Pixel::ALPHA)
@@ -1212,12 +1220,12 @@ namespace olc
 			float r = a * (float)p.r + c * (float)d.r;
 			float g = a * (float)p.g + c * (float)d.g;
 			float b = a * (float)p.b + c * (float)d.b;
-			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b));			
+			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b));
 		}
 
 		if (nPixelMode == Pixel::CUSTOM)
 		{
-			return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));			
+			return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
 		}
 
 		return false;
@@ -1330,7 +1338,7 @@ namespace olc
 			if (mask & 0x10) Draw(x - x0, y + y0, p);
 			if (mask & 0x20) Draw(x - y0, y + x0, p);
 			if (mask & 0x40) Draw(x - y0, y - x0, p);
-			if (mask & 0x80) Draw(x - x0, y - y0, p);														
+			if (mask & 0x80) Draw(x - x0, y - y0, p);
 			if (d < 0) d += 4 * x0++ + 6;
 			else d += 4 * (x0++ - y0--) + 10;
 		}
@@ -1382,7 +1390,7 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
-	{			
+	{
 		int32_t x2 = x + w;
 		int32_t y2 = y + h;
 
@@ -1619,9 +1627,9 @@ namespace olc
 				{
 					for (uint32_t i = 0; i < 8; i++)
 						for (uint32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)								
+							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
 								Draw(x + sx + i, y + sy + j, col);
-				}										
+				}
 				sx += 8 * scale;
 			}
 		}
@@ -1668,13 +1676,13 @@ namespace olc
 		int32_t wh = nScreenHeight * nPixelHeight;
 		float wasp = (float)ww / (float)wh;
 
-		nViewW = nWindowWidth;
-		nViewH = (float)nViewW / wasp;
+		nViewW = (int32_t)nWindowWidth;
+		nViewH = (int32_t)((float)nViewW / wasp);
 
 		if (nViewH > nWindowHeight)
 		{
 			nViewH = nWindowHeight;
-			nViewW = (float)nViewH * wasp;
+			nViewW = (int32_t)((float)nViewH * wasp);
 		}
 
 		nViewX = (nWindowWidth - nViewW) / 2;
@@ -1686,7 +1694,7 @@ namespace olc
 		nWindowWidth = x;
 		nWindowHeight = y;
 		olc_UpdateViewport();
-		
+
 	}
 
 	void PixelGameEngine::olc_UpdateMouseWheel(int32_t delta)
@@ -1904,7 +1912,7 @@ namespace olc
 				// TODO: This is a bit slow (especially in debug, but 100x faster in release mode???)
 				// Copy pixel array into texture
 				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
-				
+
 				// Display texture on screen
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
@@ -1934,7 +1942,7 @@ namespace olc
 #else
 					SetWindowText(olc_hWnd, sTitle.c_str());
 #endif
-#else					
+#else
 					XStoreName(olc_Display, olc_Window, sTitle.c_str());
 #endif
 					nFrameCount = 0;
@@ -1965,14 +1973,14 @@ namespace olc
 
 	}
 
-#ifdef _WIN32 
+#ifdef _WIN32
 	// Thanks @MaGetzUb for this, which allows sprites to be defined
 	// at construction, by initialising the GDI subsystem
-	static class GDIPlusStartup 
+	static class GDIPlusStartup
 	{
 	public:
-		GDIPlusStartup() 
-		{		
+		GDIPlusStartup()
+		{
 			Gdiplus::GdiplusStartupInput startupInput;
 			ULONG_PTR	token;
 			Gdiplus::GdiplusStartup(&token, &startupInput, NULL);
@@ -2047,7 +2055,7 @@ namespace olc
 		// Define window furniture
 		DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE; // | WS_THICKFRAME;
-		
+
 		int nCosmeticOffset = 30;
 		nViewW = nWindowWidth;
 		nViewH = nWindowHeight;
@@ -2064,7 +2072,7 @@ namespace olc
 			nWindowWidth = mi.rcMonitor.right;
 			nWindowHeight = mi.rcMonitor.bottom;
 
-			
+
 		}
 
 		olc_UpdateViewport();
@@ -2149,13 +2157,13 @@ namespace olc
 		switch (uMsg)
 		{
 		case WM_CREATE:		sge = (PixelGameEngine*)((LPCREATESTRUCT)lParam)->lpCreateParams;	return 0;
-		case WM_MOUSEMOVE:	
+		case WM_MOUSEMOVE:
 		{
 			uint16_t x = lParam & 0xFFFF;				// Thanks @ForAbby (Discord)
 			uint16_t y = (lParam >> 16) & 0xFFFF;
 			int16_t ix = *(int16_t*)&x;
 			int16_t iy = *(int16_t*)&y;
-			sge->olc_UpdateMouse(ix, iy);	
+			sge->olc_UpdateMouse(ix, iy);
 			return 0;
 		}
 		case WM_SIZE:
@@ -2182,7 +2190,7 @@ namespace olc
 		case WM_CLOSE:		bAtomActive = false;									return 0;
 		case WM_DESTROY:	PostQuitMessage(0);										return 0;
 		}
-		return DefWindowProc(hWnd, uMsg, wParam, lParam); 
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 #else
 	// Do the Linux stuff!
@@ -2274,11 +2282,11 @@ namespace olc
 	{
 		glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
 		glXMakeCurrent(olc_Display, olc_Window, glDeviceContext);
-		
+
 		XWindowAttributes gwa;
-		XGetWindowAttributes(olc_Display, olc_Window, &gwa);		
+		XGetWindowAttributes(olc_Display, olc_Window, &gwa);
 		glViewport(0, 0, gwa.width, gwa.height);
-		
+
 		glSwapIntervalEXT = nullptr;
 		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
 		if (glSwapIntervalEXT)
@@ -2289,7 +2297,7 @@ namespace olc
 			printf("      Don't worry though, things will still work, it's just the\n");
 			printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
 		}
-		
+
 		return true;
 	}
 
