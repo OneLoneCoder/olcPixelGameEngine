@@ -16,5 +16,9 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 * Convert olcConsoleGameEngine ".spr" files into olc::Sprite types 
   * https://github.com/gorbit99/SprConverter
 
+## Customisations
+* Version with SDL backend, and native controller support
+  * https://github.com/Allersnj/olcPixelGameEngineSDL
+
 ## Cool Projects
 Have you made something using olcPixelGameEngine? Contact me to get a link to it here!
