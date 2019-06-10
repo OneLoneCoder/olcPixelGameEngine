@@ -133,7 +133,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -423,6 +423,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		virtual bool OnUserUpdate(float fElapsedTime);
 		// Called once on application termination, so you can be a clean coder
 		virtual bool OnUserDestroy();
+		// Called before drawcall on screen
+		virtual bool UpdateGraphics();
 
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
@@ -1668,6 +1670,8 @@ namespace olc
 	{ return false; }
 	bool PixelGameEngine::OnUserDestroy()
 	{ return true; }
+	bool PixelGameEngine::UpdateGraphics()
+	{ return true; }
 	//////////////////////////////////////////////////////////////////
 
 	void PixelGameEngine::olc_UpdateViewport()
@@ -1905,29 +1909,31 @@ namespace olc
 				// Handle Frame Update
 				if (!OnUserUpdate(fElapsedTime))
 					bAtomActive = false;
+				
+				if (UpdateGraphics())
+				{
+					// Display Graphics
+					glViewport(nViewX, nViewY, nViewW, nViewH);
 
-				// Display Graphics
-				glViewport(nViewX, nViewY, nViewW, nViewH);
+					// TODO: This is a bit slow (especially in debug, but 100x faster in release mode???)
+					// Copy pixel array into texture
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
 
-				// TODO: This is a bit slow (especially in debug, but 100x faster in release mode???)
-				// Copy pixel array into texture
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, nScreenWidth, nScreenHeight, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
+					// Display texture on screen
+					glBegin(GL_QUADS);
+						glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+						glTexCoord2f(0.0, 0.0); glVertex3f(-1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
+						glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
+						glTexCoord2f(1.0, 1.0); glVertex3f( 1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
+					glEnd();
 
-				// Display texture on screen
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
-					glTexCoord2f(0.0, 0.0); glVertex3f(-1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
-					glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f + (fSubPixelOffsetX),  1.0f + (fSubPixelOffsetY), 0.0f);
-					glTexCoord2f(1.0, 1.0); glVertex3f( 1.0f + (fSubPixelOffsetX), -1.0f + (fSubPixelOffsetY), 0.0f);
-				glEnd();
-
-				// Present Graphics to screen
+					// Present Graphics to screen
 #ifdef _WIN32
-				SwapBuffers(glDeviceContext);
+					SwapBuffers(glDeviceContext);
 #else
-				glXSwapBuffers(olc_Display, olc_Window);
+					glXSwapBuffers(olc_Display, olc_Window);
 #endif
-
+				}
 				// Update Title Bar
 				fFrameTimer += fElapsedTime;
 				nFrameCount++;
