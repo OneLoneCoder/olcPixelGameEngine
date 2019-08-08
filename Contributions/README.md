@@ -5,6 +5,10 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 ## PixelGameEngine Extensions (PGEX)
 * Widens support for audio files into olcPGEX_Sound.h
   * https://github.com/gorbit99/olcPGEX_AudioConvert
+  
+## MacOS Support
+* These will potentially be absorbed into main build
+  * https://github.com/MumflrFumperdink/olcPGEMac
 
 ## Build Systems
 * CMake script 
