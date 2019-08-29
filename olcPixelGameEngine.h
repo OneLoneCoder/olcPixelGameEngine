@@ -576,6 +576,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		XVisualInfo*            olc_VisualInfo;
 		Colormap                olc_ColourMap;
 		XSetWindowAttributes    olc_SetWindowAttribs;
+		XSizeHints			    olc_SizeHints;
 		Display*				olc_WindowCreate();
 #endif
 
@@ -2244,6 +2245,14 @@ namespace olc
 			nWindowWidth = gwa.width;
 			nWindowHeight = gwa.height;
 			olc_UpdateViewport();
+		} else {
+			olc_SizeHints.flags = PMaxSize | PMinSize;
+			olc_SizeHints.max_width = nScreenWidth * nPixelWidth;
+			olc_SizeHints.max_height = nScreenHeight * nPixelHeight;
+			olc_SizeHints.min_width = nScreenWidth * nPixelWidth;
+			olc_SizeHints.min_height = nScreenHeight * nPixelHeight;
+
+			XSetWMNormalHints(olc_Display, olc_Window, &olc_SizeHints);
 		}
 
 		// Create Keyboard Mapping
