@@ -133,7 +133,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -414,6 +414,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 
 	public:
 		olc::rcode	Construct(uint32_t screen_w, uint32_t screen_h, uint32_t pixel_w, uint32_t pixel_h, bool full_screen = false);
+		// Selects maximum pixel size to fit in the display resolution
+		olc::rcode	ConstructAuto(uint32_t screen_w, uint32_t screen_h, bool full_screen = false);
 		olc::rcode	Start();
 
 	public: // Override Interfaces
@@ -560,6 +562,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void olc_UpdateViewport();
 		bool olc_OpenGLCreate();
 		void olc_ConstructFontSheet();
+		uint32_t olc_GetMaximumPixelSize(uint32_t w, uint32_t h);
 
 
 #ifdef _WIN32
@@ -1091,6 +1094,12 @@ namespace olc
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
 		return olc::OK;
+	}
+
+	olc::rcode PixelGameEngine::ConstructAuto(uint32_t screen_w, uint32_t screen_h, bool fullscreen)
+	{
+		uint32_t pixelSize = olc_GetMaximumPixelSize(screen_w, screen_h);
+		return Construct(screen_w, screen_h, pixelSize, pixelSize, fullscreen);
 	}
 
 	olc::rcode PixelGameEngine::Start()
@@ -1727,6 +1736,53 @@ namespace olc
 			nMousePosXcache = 0;
 		if (nMousePosYcache < 0)
 			nMousePosYcache = 0;
+	}
+	#ifdef _WIN32
+	static int minWidth;
+	static int minHeight;
+	static WINAPI BOOL MonitorInfoProc(HMONITOR mon, HDC dc, LPRECT rect, LPARAM param) {
+		MONITORINFO info;
+		info.cbSize = sizeof(MONITORINFO);
+		GetMonitorInfo(mon, &info);
+		int w = info.rcWork.right - info.rcWork.left;
+		int h = info.rcWork.bottom - info.rcWork.top;
+		if (w < minWidth) {
+			minWidth = w;
+		}
+		if (h < minHeight) {
+			minHeight = h;
+		}
+		return TRUE;
+	}
+#endif
+
+	uint32_t PixelGameEngine::olc_GetMaximumPixelSize(uint32_t width, uint32_t height) 
+	{
+#ifdef _WIN32
+		minWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		minHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		EnumDisplayMonitors(NULL, NULL, &MonitorInfoProc, 0);
+#else
+		Display* d = XOpenDisplay(NULL);
+		int defaultScreen = DefaultScreen(d);
+		Screen *s = ScreenOfDisplay(d, defaultScreen);
+		int minWidth = WidthOfScreen(s);
+		int minHeight = HeightOfScreen(s);
+		int screensCount = ScreenCount(d);
+		for (int i=0; i < screensCount; i++) {
+			s = ScreenOfDisplay(d, i);
+			if (WidthOfScreen(s) < minWidth) {
+				minWidth = WidthOfScreen(s);
+			}
+			if (HeightOfScreen(s) < minHeight) {
+				minHeight = HeightOfScreen(s);
+			}
+		}		
+#endif
+		uint32_t pixelWidth = minWidth / width;
+		uint32_t pixelHeight = minHeight / height;
+
+		return std::min(pixelWidth, pixelHeight);
 	}
 
 	void PixelGameEngine::EngineThread()
