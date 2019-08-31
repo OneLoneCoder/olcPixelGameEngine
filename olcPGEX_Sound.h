@@ -167,7 +167,7 @@ namespace olc
 
 	private:
 #ifdef USE_WINDOWS // Windows specific sound management
-		static void CALLBACK waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2);
+		static void CALLBACK SOUND::waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD_PTR dwInstance, DWORD dwParam1, DWORD dwParam2);
 		static unsigned int m_nSampleRate;
 		static unsigned int m_nChannels;
 		static unsigned int m_nBlockCount;
@@ -501,7 +501,7 @@ namespace olc
 	}
 
 	// Handler for soundcard request for more data
-	void CALLBACK SOUND::waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwParam1, DWORD dwParam2)
+	void CALLBACK SOUND::waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD_PTR dwInstance, DWORD dwParam1, DWORD dwParam2)
 	{
 		if (uMsg != WOM_DONE) return;
 		m_nBlockFree++;
