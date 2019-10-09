@@ -1,5 +1,7 @@
 # olcPixelGameEngine
-The official distribution of olcPixelGameEngine, a tool used in javidx9's YouTube videos and projects
+The official distribution of olcPixelGameEngine, a tool used in javidx9's YouTube videos and projects.
+
+You only need the one file - olcPixelGameEngine.h - included in your project!
 
 # Documentation
 Please see https://github.com/OneLoneCoder/olcPixelGameEngine/wiki
