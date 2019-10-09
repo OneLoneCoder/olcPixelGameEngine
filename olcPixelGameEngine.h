@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.19              |
+	|           OneLoneCoder Pixel Game Engine v1.20              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -119,9 +119,11 @@
 	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim,
 	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
 	Ralakus, Gorbit99, raoul, joshinils, benedani & MagetzUb for advice, ideas and
-	testing, and I'd like to extend my appreciation to the 96K YouTube followers,
-	47 Patreons and 4.5K Discord server	members who give me the motivation to keep
+	testing, and I'd like to extend my appreciation to the 101K YouTube followers,
+	52 Patreons and 4.6K Discord server	members who give me the motivation to keep
 	going with all this :D
+
+	Significant Contributors: @MaGetzUb, @slavka, @Dragoneye & @Gorbit99
 
 	Special thanks to those who bring gifts!
 	GnarGnarHead.......Domina
@@ -176,7 +178,7 @@
 #ifndef OLC_PGE_DEF
 #define OLC_PGE_DEF
 
-#ifdef _WIN32
+#if defined(_WIN32) // WINDOWS specific includes ==============================================
 	// Link to libraries
 #ifndef __MINGW32__
 	#pragma comment(lib, "user32.lib")		// Visual Studio Only
@@ -202,7 +204,9 @@
 	#include <GL/gl.h>
 	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
 	static wglSwapInterval_t *wglSwapInterval;
-#else
+#endif
+
+#ifdef __linux__ // LINUX specific includes ==============================================
 	#include <GL/gl.h>
 	#include <GL/glx.h>
 	#include <X11/X.h>
@@ -232,6 +236,7 @@
 
 #undef min
 #undef max
+#define UNUSED(x) (void)(x)
 
 namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 {
@@ -301,6 +306,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		inline v2d_generic& operator *= (const T& rhs)           { this->x *= rhs; this->y *= rhs; return *this;        }
 		inline v2d_generic& operator /= (const T& rhs)           { this->x /= rhs; this->y /= rhs; return *this;        }
 		inline T& operator [] (std::size_t i)                    { return *((T*)this + i);	   /* <-- D'oh :( */        }
+		inline operator v2d_generic<int>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
+		inline operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
 	};
 
 	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs) { return v2d_generic<T>(lhs * rhs.x, lhs * rhs.y); }
@@ -332,7 +339,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		ResourcePack();
 		~ResourcePack();
 		struct sEntry : public std::streambuf {
-			uint32_t nID, nFileOffset, nFileSize; uint8_t* data; void _config() { this->setg((char*)data, (char*)data, (char*)(data + nFileSize)); }
+			uint32_t nID = 0, nFileOffset = 0, nFileSize = 0; uint8_t* data = nullptr; void _config() { this->setg((char*)data, (char*)data, (char*)(data + nFileSize)); }
 		};
 
 	public:
@@ -545,10 +552,12 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		bool		pMouseOldState[5]{ 0 };
 		HWButton	pMouseState[5];
 
-#ifdef _WIN32
+#if defined(_WIN32)
 		HDC			glDeviceContext = nullptr;
 		HGLRC		glRenderContext = nullptr;
-#else
+#endif
+
+#if defined(__linux__)
 		GLXContext	glDeviceContext = nullptr;
 		GLXContext	glRenderContext = nullptr;
 #endif
@@ -569,13 +578,15 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		void olc_ConstructFontSheet();
 
 
-#ifdef _WIN32
+#if defined(_WIN32)
 		// Windows specific window handling
 		HWND olc_hWnd = nullptr;
 		HWND olc_WindowCreate();
 		std::wstring wsAppName;
 		static LRESULT CALLBACK olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#else
+#endif
+
+#if defined(__linux__)
 		// Non-Windows specific window handling
 		Display*				olc_Display = nullptr;
 		Window					olc_WindowRoot;
@@ -654,19 +665,23 @@ namespace olc
 
 	//==========================================================
 
+#if defined(_WIN32)
 	std::wstring ConvertS2W(std::string s)
-	{
-#ifdef _WIN32
+	{		
+#ifdef __MINGW32__
+		wchar_t *buffer = new wchar_t[s.length() + 1];
+		mbstowcs(buffer, s.c_str(), s.length());
+		buffer[s.length()] = L'\0';		
+#else
 		int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
 		wchar_t* buffer = new wchar_t[count];
-		MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
+		MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);		
+#endif
 		std::wstring w(buffer);
 		delete[] buffer;
 		return w;
-#else
-		return L"SVN FTW!";
-#endif
 	}
+#endif
 
 	Sprite::Sprite()
 	{
@@ -756,18 +771,10 @@ namespace olc
 
 	olc::rcode Sprite::LoadFromFile(std::string sImageFile, olc::ResourcePack *pack)
 	{
-#ifdef _WIN32
+		UNUSED(pack);
+#if defined(_WIN32)
 		// Use GDI+
-		std::wstring wsImageFile;
-#ifdef __MINGW32__
-        wchar_t *buffer = new wchar_t[sImageFile.length() + 1];
-        mbstowcs(buffer, sImageFile.c_str(), sImageFile.length());
-        buffer[sImageFile.length()] = L'\0';
-        wsImageFile = buffer;
-        delete [] buffer;
-#else
-		wsImageFile = ConvertS2W(sImageFile);
-#endif
+		std::wstring wsImageFile = ConvertS2W(sImageFile);
         Gdiplus::Bitmap *bmp = Gdiplus::Bitmap::FromFile(wsImageFile.c_str());
 		if (bmp == nullptr)
 			return olc::NO_FILE;
@@ -785,7 +792,9 @@ namespace olc
 			}
 		delete bmp;
 		return olc::OK;
-#else
+#endif
+
+#if defined(__linux__)
 		////////////////////////////////////////////////////////////////////////////
 		// Use libpng, Thanks to Guillaume Cottenceau
 		// https://gist.github.com/niw/5963798
@@ -1094,12 +1103,8 @@ namespace olc
 		if (nPixelWidth == 0 || nPixelHeight == 0 || nScreenWidth == 0 || nScreenHeight == 0)
 			return olc::FAIL;
 
-#ifdef _WIN32
-#ifdef UNICODE
-#ifndef __MINGW32__
+#if defined(_WIN32) && defined(UNICODE) && !defined(__MINGW32__)
 		wsAppName = ConvertS2W(sAppName);
-#endif
-#endif
 #endif
 		// Load the default font sheet
 		olc_ConstructFontSheet();
@@ -1119,11 +1124,15 @@ namespace olc
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
 		glClear(GL_COLOR_BUFFER_BIT);
-#ifdef _WIN32
+
+#if defined(_WIN32)
 		SwapBuffers(glDeviceContext);
-#else
+#endif
+
+#if defined(__linux__)
 		glXSwapBuffers(olc_Display, olc_Window);
 #endif
+
 		glClear(GL_COLOR_BUFFER_BIT);
 		olc_UpdateViewport();
 	}
@@ -1134,21 +1143,11 @@ namespace olc
 		if (!olc_WindowCreate())
 			return olc::FAIL;
 
-		// Load libraries required for PNG file interaction
-//#ifdef _WIN32
-//		// Windows use GDI+
-//		Gdiplus::GdiplusStartupInput startupInput;
-//		ULONG_PTR			token;
-//		Gdiplus::GdiplusStartup(&token, &startupInput, NULL);
-//#else
-//		// Linux use libpng
-//
-//#endif
 		// Start the thread
 		bAtomActive = true;
 		std::thread t = std::thread(&PixelGameEngine::EngineThread, this);
 
-#ifdef _WIN32
+#if defined(_WIN32)
 		// Handle Windows Message Loop
 		MSG msg;
 		while (GetMessage(&msg, NULL, 0, 0) > 0)
@@ -1521,8 +1520,10 @@ namespace olc
 				else              t2x += signx2;
 			}
 		next2:
-			if (minx>t1x) minx = t1x; if (minx>t2x) minx = t2x;
-			if (maxx<t1x) maxx = t1x; if (maxx<t2x) maxx = t2x;
+			if (minx>t1x) minx = t1x; 
+			if (minx>t2x) minx = t2x;
+			if (maxx<t1x) maxx = t1x; 
+			if (maxx<t2x) maxx = t2x;
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
 										// Now increase y
 			if (!changed1) t1x += signx1;
@@ -1578,8 +1579,10 @@ namespace olc
 			}
 		next4:
 
-			if (minx>t1x) minx = t1x; if (minx>t2x) minx = t2x;
-			if (maxx<t1x) maxx = t1x; if (maxx<t2x) maxx = t2x;
+			if (minx>t1x) minx = t1x;
+			if (minx>t2x) minx = t2x;
+			if (maxx<t1x) maxx = t1x; 
+			if (maxx<t2x) maxx = t2x;
 			drawline(minx, maxx, y);
 			if (!changed1) t1x += signx1;
 			t1x += t1xp;
@@ -1701,7 +1704,7 @@ namespace olc
 	bool PixelGameEngine::OnUserCreate()
 	{ return false; }
 	bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
-	{ return false; }
+	{ UNUSED(fElapsedTime);  return false; }
 	bool PixelGameEngine::OnUserDestroy()
 	{ return true; }
 	//////////////////////////////////////////////////////////////////
@@ -1743,12 +1746,9 @@ namespace olc
 		// Mouse coords come in screen space
 		// But leave in pixel space
 
-		//if (bFullScreen)
-		{
-			// Full Screen mode may have a weird viewport we must clamp to
-			x -= nViewX;
-			y -= nViewY;
-		}
+		// Full Screen mode may have a weird viewport we must clamp to
+		x -= nViewX;
+		y -= nViewY;
 
 		nMousePosXcache = (int32_t)(((float)x / (float)(nWindowWidth - (nViewX * 2)) * (float)nScreenWidth));
 		nMousePosYcache = (int32_t)(((float)y / (float)(nWindowHeight - (nViewY * 2)) * (float)nScreenHeight));
@@ -1800,7 +1800,7 @@ namespace olc
 				// Our time per frame coefficient
 				float fElapsedTime = elapsedTime.count();
 
-#ifndef _WIN32
+#if defined(__linux__)
 				// Handle Xlib Message Loop - we do this in the
 				// same thread that OpenGL was created so we dont
 				// need to worry too much about multithreading with X11
@@ -1958,9 +1958,11 @@ namespace olc
 				glEnd();
 
 				// Present Graphics to screen
-#ifdef _WIN32
+#if defined(_WIN32)
 				SwapBuffers(glDeviceContext);
-#else
+#endif
+
+#if defined(__linux__)
 				glXSwapBuffers(olc_Display, olc_Window);
 #endif
 
@@ -1972,13 +1974,15 @@ namespace olc
 					fFrameTimer -= 1.0f;
 
 					std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
-#ifdef _WIN32
+#if defined(_WIN32)
 #ifdef UNICODE
 					SetWindowText(olc_hWnd, ConvertS2W(sTitle).c_str());
 #else
 					SetWindowText(olc_hWnd, sTitle.c_str());
 #endif
-#else
+#endif
+
+#if defined (__linux__)
 					XStoreName(olc_Display, olc_Window, sTitle.c_str());
 #endif
 					nFrameCount = 0;
@@ -1997,10 +2001,12 @@ namespace olc
 			}
 		}
 
-#ifdef _WIN32
+#if defined(_WIN32)
 		wglDeleteContext(glRenderContext);
 		PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
-#else
+#endif
+
+#if defined (__linux__)
 		glXMakeCurrent(olc_Display, None, NULL);
 		glXDestroyContext(olc_Display, glDeviceContext);
 		XDestroyWindow(olc_Display, olc_Window);
@@ -2009,7 +2015,7 @@ namespace olc
 
 	}
 
-#ifdef _WIN32
+#if defined (_WIN32)
 	// Thanks @MaGetzUb for this, which allows sprites to be defined
 	// at construction, by initialising the GDI subsystem
 	static class GDIPlusStartup
@@ -2064,7 +2070,7 @@ namespace olc
 		}
 	}
 
-#ifdef _WIN32
+#if defined(_WIN32)
 	HWND PixelGameEngine::olc_WindowCreate()
 	{
 		WNDCLASS wc;
@@ -2228,7 +2234,9 @@ namespace olc
 		}
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
-#else
+#endif
+
+#if defined(__linux__)
 	// Do the Linux stuff!
 	Display* PixelGameEngine::olc_WindowCreate()
 	{
@@ -2325,15 +2333,16 @@ namespace olc
 
 		glSwapIntervalEXT = nullptr;
 		glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
-		if (glSwapIntervalEXT && !bEnableVSYNC)
-			glSwapIntervalEXT(olc_Display, olc_Window, 0);
-		else
+
+		if (glSwapIntervalEXT == nullptr && !bEnableVSYNC)
 		{
 			printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
 			printf("      Don't worry though, things will still work, it's just the\n");
 			printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
 		}
 
+		if (glSwapIntervalEXT != nullptr && !bEnableVSYNC)
+			glSwapIntervalEXT(olc_Display, olc_Window, 0);		
 		return true;
 	}
 
