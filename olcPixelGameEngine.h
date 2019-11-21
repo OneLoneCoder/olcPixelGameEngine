@@ -135,7 +135,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -516,6 +516,8 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		float		fBlendFactor = 1.0f;
 		uint32_t	nScreenWidth = 256;
 		uint32_t	nScreenHeight = 240;
+		uint32_t	nDrawTargetWidth = 256;
+		uint32_t	nDrawTargetHeight = 240;
 		uint32_t	nPixelWidth = 4;
 		uint32_t	nPixelHeight = 4;
 		int32_t		nMousePosX = 0;
@@ -1092,6 +1094,8 @@ namespace olc
 	{
 		nScreenWidth = screen_w;
 		nScreenHeight = screen_h;
+		nDrawTargetWidth = screen_w;
+		nDrawTargetHeight = screen_h;
 		nPixelWidth = pixel_w;
 		nPixelHeight = pixel_h;
 		bFullScreen = full_screen;
@@ -1121,6 +1125,8 @@ namespace olc
 		delete pDefaultDrawTarget;
 		nScreenWidth = w;
 		nScreenHeight = h;
+		nDrawTargetWidth = w;
+		nDrawTargetHeight = h;
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -1165,9 +1171,17 @@ namespace olc
 	void PixelGameEngine::SetDrawTarget(Sprite *target)
 	{
 		if (target)
+		{
 			pDrawTarget = target;
+			nDrawTargetWidth = target->width;
+			nDrawTargetHeight = target->height;
+		}
 		else
+		{
 			pDrawTarget = pDefaultDrawTarget;
+			nDrawTargetWidth = pDefaultDrawTarget->width;
+			nDrawTargetHeight = pDefaultDrawTarget->height;
+		}
 	}
 
 	Sprite* PixelGameEngine::GetDrawTarget()
@@ -1223,12 +1237,12 @@ namespace olc
 
 	int32_t PixelGameEngine::ScreenWidth()
 	{
-		return nScreenWidth;
+		return nDrawTargetWidth;
 	}
 
 	int32_t PixelGameEngine::ScreenHeight()
 	{
-		return nScreenHeight;
+		return nDrawTargetHeight;
 	}
 
 	bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
@@ -1430,14 +1444,14 @@ namespace olc
 		int32_t y2 = y + h;
 
 		if (x < 0) x = 0;
-		if (x >= (int32_t)nScreenWidth) x = (int32_t)nScreenWidth;
+		if (x >= (int32_t)nDrawTargetWidth) x = (int32_t)nDrawTargetWidth;
 		if (y < 0) y = 0;
-		if (y >= (int32_t)nScreenHeight) y = (int32_t)nScreenHeight;
+		if (y >= (int32_t)nDrawTargetHeight) y = (int32_t)nDrawTargetHeight;
 
 		if (x2 < 0) x2 = 0;
-		if (x2 >= (int32_t)nScreenWidth) x2 = (int32_t)nScreenWidth;
+		if (x2 >= (int32_t)nDrawTargetWidth) x2 = (int32_t)nDrawTargetWidth;
 		if (y2 < 0) y2 = 0;
-		if (y2 >= (int32_t)nScreenHeight) y2 = (int32_t)nScreenHeight;
+		if (y2 >= (int32_t)nDrawTargetHeight) y2 = (int32_t)nDrawTargetHeight;
 
 		for (int i = x; i < x2; i++)
 			for (int j = y; j < y2; j++)
