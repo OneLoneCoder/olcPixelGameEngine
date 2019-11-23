@@ -1248,7 +1248,7 @@ namespace olc
 	bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
 	{
 		if (!pDrawTarget) return false;
-
+		if (p.a == 0) return true;
 
 		if (nPixelMode == Pixel::NORMAL)
 		{
@@ -1263,6 +1263,7 @@ namespace olc
 
 		if (nPixelMode == Pixel::ALPHA)
 		{
+			if(p.a == 255) return pDrawTarget->SetPixel(x, y, p);
 			Pixel d = pDrawTarget->GetPixel(x, y);
 			float a = (float)(p.a / 255.0f) * fBlendFactor;
 			float c = 1.0f - a;
