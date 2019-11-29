@@ -144,7 +144,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -190,9 +190,16 @@
 #if defined(_WIN32) // WINDOWS specific includes ==============================================
 	// Link to libraries
 #ifndef __MINGW32__
-	#pragma comment(lib, "user32.lib")		// Visual Studio Only
-	#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
-	#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
+	// Visual Studio Only
+	// For other Windows Compilers please add
+	// these libs to your linker input
+	#pragma comment(lib, "user32.lib")
+	#pragma comment(lib, "gdi32.lib")
+#if defined(OLC_DIRECTX)
+	#pragma comment (lib, "d3d9.lib")
+#else
+	#pragma comment(lib, "opengl32.lib")	
+#endif
 	#pragma comment(lib, "gdiplus.lib")
 	#pragma comment(lib, "Shlwapi.lib")
 #else
@@ -211,10 +218,15 @@
 	#include <gdiplus.h>
 	#include <Shlwapi.h>
 
-	// OpenGL Extension
+#if defined(OLC_DIRECTX)
+#include <d3d9.h>
+#else
+// OpenGL
 	#include <GL/gl.h>
 	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
 	static wglSwapInterval_t *wglSwapInterval;
+#endif
+
 #endif
 
 #ifdef __linux__ // LINUX specific includes ==============================================
@@ -582,6 +594,23 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		bool		pMouseOldState[5]{ 0 };
 		HWButton	pMouseState[5];
 
+#if defined(OLC_DIRECTX)
+
+		LPDIRECT3D9 d3d;
+		LPDIRECT3DDEVICE9 d3ddev;
+		LPDIRECT3DVERTEXBUFFER9 v_buffer = NULL;
+		LPDIRECT3DTEXTURE9 pTexture = NULL;
+
+		void initD3D(HWND hWnd);        // sets up and initializes Direct3D
+		void render_frame_d3d(HWND);    // renders a single frame
+		void cleanD3D(void);            // closes Direct3D and releases memory
+		void init_graphics_d3d(void);   // Initializes graphics objects for d3d
+
+		struct CUSTOMVERTEX { FLOAT X, Y, Z, RHW; DWORD COLOR; FLOAT u, v; };
+#define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
+#else
+
 #if defined(_WIN32)
 		HDC			glDeviceContext = nullptr;
 		HGLRC		glRenderContext = nullptr;
@@ -592,6 +621,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		GLXContext	glRenderContext = nullptr;
 #endif
 		GLuint		glBuffer;
+#endif
 
 		void		EngineThread();
 
@@ -1196,6 +1226,9 @@ namespace olc
 		nScreenHeight = h;
 		pDefaultDrawTarget = new Sprite(nScreenWidth, nScreenHeight);
 		SetDrawTarget(nullptr);
+
+#if defined(OLC_DIRECTX)
+#else
 		glClear(GL_COLOR_BUFFER_BIT);
 
 #if defined(_WIN32)
@@ -1207,6 +1240,8 @@ namespace olc
 #endif
 
 		glClear(GL_COLOR_BUFFER_BIT);
+#endif
+
 		olc_UpdateViewport();
 	}
 
@@ -1871,6 +1906,9 @@ namespace olc
 
 	void PixelGameEngine::EngineThread()
 	{
+#if defined(OLC_DIRECTX)
+		initD3D(olc_hWnd);
+#else
 		// Start OpenGL, the context is owned by the game thread
 		olc_OpenGLCreate();
 
@@ -1882,6 +1920,7 @@ namespace olc
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nScreenWidth, nScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pDefaultDrawTarget->GetData());
+#endif
 
 		// Create user resources as part of this thread
 		if (!OnUserCreate())
@@ -2045,6 +2084,15 @@ namespace olc
 				if (!OnUserUpdate(fElapsedTime))
 					bAtomActive = false;
 
+#if defined(OLC_DIRECTX)
+
+				render_frame_d3d(olc_hWnd);
+
+#else
+				// Clear window to avoid ugly flickering when resizing window
+				glClearColor(0.5, 0.8, 1.0, 1.0);
+				glClear(GL_COLOR_BUFFER_BIT);
+
 				// Display Graphics
 				glViewport(nViewX, nViewY, nViewW, nViewH);
 
@@ -2067,6 +2115,7 @@ namespace olc
 
 #if defined(__linux__)
 				glXSwapBuffers(olc_Display, olc_Window);
+#endif
 #endif
 
 				// Update Title Bar
@@ -2105,7 +2154,11 @@ namespace olc
 		}
 
 #if defined(_WIN32)
+#if defined(OLC_DIRECTX)
+		cleanD3D();
+#else
 		wglDeleteContext(glRenderContext);
+#endif
 		PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
 #endif
 
@@ -2268,6 +2321,7 @@ namespace olc
 		return olc_hWnd;
 	}
 
+#if !defined(OLC_DIRECTX)
 	bool PixelGameEngine::olc_OpenGLCreate()
 	{
 		// Create Device Context
@@ -2294,6 +2348,7 @@ namespace olc
 		if (wglSwapInterval && !bEnableVSYNC) wglSwapInterval(0);
 		return true;
 	}
+#endif
 
 	// Windows Event Handler
 	LRESULT CALLBACK PixelGameEngine::olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -2447,6 +2502,120 @@ namespace olc
 		if (glSwapIntervalEXT != nullptr && !bEnableVSYNC)
 			glSwapIntervalEXT(olc_Display, olc_Window, 0);		
 		return true;
+	}
+
+#endif
+
+#if defined(OLC_DIRECTX)
+	// this function initializes and prepares Direct3D for use
+	void PixelGameEngine::initD3D(HWND hWnd)
+	{
+		d3d = Direct3DCreate9(D3D_SDK_VERSION);
+
+		D3DPRESENT_PARAMETERS d3dpp;
+
+		ZeroMemory(&d3dpp, sizeof(d3dpp));
+		d3dpp.Windowed = TRUE; //FS
+		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		d3dpp.hDeviceWindow = hWnd;
+		d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+		d3dpp.BackBufferWidth = nWindowWidth;
+		d3dpp.BackBufferHeight = nWindowHeight;
+
+		// create a device class using this information and the info from the d3dpp stuct
+		d3d->CreateDevice(D3DADAPTER_DEFAULT,
+			D3DDEVTYPE_HAL,
+			hWnd,
+			D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+			&d3dpp,
+			&d3ddev);
+
+		init_graphics_d3d();    // call the function to initialize the triangle
+	}
+
+
+	int framecounter = 0;
+
+	// this is the function used to render a single frame
+	void PixelGameEngine::render_frame_d3d(HWND hWnd)
+	{
+		framecounter++;
+		framecounter &= 0xffff;
+
+		d3ddev->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+		HRESULT hr;
+		D3DLOCKED_RECT lockedRect;
+		hr = pTexture->LockRect(0, &lockedRect, NULL, 0);
+		olc::Pixel *pSrc = pDefaultDrawTarget->GetData();
+		for (size_t iy = 0; iy < nScreenHeight; iy++)
+		{
+			DWORD *pDest = (DWORD*)((BYTE*)lockedRect.pBits + iy * lockedRect.Pitch);
+			for (size_t ix = 0; ix < nScreenWidth; ix++)
+			{
+				pDest[ix] = D3DCOLOR_XRGB(pSrc->r, pSrc->g, pSrc->b);
+				pSrc++;
+			}
+		}
+		pTexture->UnlockRect(0);
+
+		d3ddev->BeginScene();
+
+		// select which vertex format we are using
+		d3ddev->SetFVF(CUSTOMFVF);
+
+		// select the vertex buffer to display
+		d3ddev->SetStreamSource(0, v_buffer, 0, sizeof(CUSTOMVERTEX));
+
+		d3ddev->SetTexture(0, pTexture);
+
+		// copy the vertex buffer to the back buffer
+		d3ddev->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, 2);
+
+		d3ddev->EndScene();
+
+		d3ddev->Present(NULL, NULL, NULL, NULL);
+	}
+
+
+	// this is the function that cleans up Direct3D and COM
+	void PixelGameEngine::cleanD3D(void)
+	{
+		v_buffer->Release();    // close and release the vertex buffer
+		d3ddev->Release();    // close and release the 3D device
+		d3d->Release();    // close and release Direct3D
+	}
+
+
+	// this is the function that puts the 3D models into video RAM
+	void PixelGameEngine::init_graphics_d3d(void)
+	{
+		// create the vertices using the CUSTOMVERTEX struct
+		CUSTOMVERTEX vertices[] =
+		{
+		{ 0.0f,                0.0f,                 0.5f, 1.0f, D3DCOLOR_XRGB(255, 255, 255), 0.0f, 0.0f },
+		{ (float)nWindowWidth, 0.0f,                 0.5f, 1.0f, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0.0f },
+		{ (float)nWindowWidth, (float)nWindowHeight, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 1.0f },
+		{ 0.0f,                (float)nWindowHeight, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 255, 255), 0.0f, 1.0f },
+		};
+
+		// create a vertex buffer interface called v_buffer
+		d3ddev->CreateVertexBuffer(sizeof(vertices),
+			0,
+			CUSTOMFVF,
+			D3DPOOL_MANAGED,
+			&v_buffer,
+			NULL);
+
+		VOID* pVoid;    // a void pointer
+
+						// lock v_buffer and load the vertices into it
+		v_buffer->Lock(0, 0, (void**)&pVoid, 0);
+		memcpy(pVoid, vertices, sizeof(vertices));
+		v_buffer->Unlock();
+
+		HRESULT hr;
+		hr = d3ddev->CreateTexture(nScreenWidth, nScreenHeight, 1, 0, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &pTexture, NULL);
 	}
 
 #endif
