@@ -144,7 +144,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -251,6 +251,7 @@
 	#include <filesystem>
 	namespace _gfs = std::filesystem;
 #else
+	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 	// Older "Modern" C++ :P
 	#include <experimental/filesystem>
 	namespace _gfs = std::experimental::filesystem::v1;
@@ -407,6 +408,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		Pixel Sample(float x, float y);
 		Pixel SampleBL(float u, float v);
 		Pixel* GetData();
+		olc::rcode Resize(int32_t newWidth, int32_t newHeight);
 
 	private:
 		Pixel *pColData = nullptr;
@@ -991,6 +993,31 @@ namespace olc
 
 	Pixel* Sprite::GetData() { return pColData; }
 
+	olc::rcode Sprite::Resize(int32_t newWidth, int32_t newHeight)
+	{
+		if (newWidth > width || newHeight > height) return olc::FAIL;
+
+		Pixel* pColNewData = new Pixel[newWidth * newHeight];
+		int x_ratio = (int)((width << 16) / newWidth) + 1;
+		int y_ratio = (int)((height << 16) / newHeight) + 1;
+		int x2, y2;
+		for (int i = 0; i < newHeight; i++) 
+		{
+			for (int j = 0; j < newWidth; j++)
+			{
+				x2 = ((j * x_ratio) >> 16);
+				y2 = ((i * y_ratio) >> 16);
+				pColNewData[(i * newWidth) + j] = pColData[(y2 * width) + x2];
+			}
+		}
+		//Assign
+		this->width = newWidth;
+		this->height = newHeight;
+		memcpy(pColData, pColNewData, (width * height) * sizeof(Pixel));
+		delete pColNewData;
+
+		return olc::OK;
+	}
 	//==========================================================
 	// Resource Packs - Allows you to store files in one large 
 	// scrambled file
