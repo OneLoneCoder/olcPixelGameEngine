@@ -995,7 +995,7 @@ namespace olc
 
 	olc::rcode Sprite::Resize(int32_t newWidth, int32_t newHeight)
 	{
-		if (newWidth > width || newHeight > height) return olc::FAIL;
+		if (newWidth > width || newHeight > height || pColData == nullptr) return olc::FAIL;
 
 		Pixel* pColNewData = new Pixel[newWidth * newHeight];
 		int x_ratio = (int)((width << 16) / newWidth) + 1;
