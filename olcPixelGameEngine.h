@@ -262,6 +262,8 @@
     namespace _gfs = std::experimental::filesystem::v1;
 #endif
 
+#undef CPP_17
+
 #undef min
 #undef max
 #define UNUSED(x) (void)(x)
