@@ -246,14 +246,20 @@
 #include <functional>
 #include <algorithm>
 
-#if __cplusplus >= 201703L
-	// C++17 onwards
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+#if _MSC_VER && !__INTEL_COMPILER
+    #define CPP_17 _HAS_CXX17
+#else 
+    #define CPP_17 __cplusplus >= 201703L
+#endif
+
+#if CPP_17
+    // C++17 onwards
+    #include <filesystem>
+    namespace _gfs = std::filesystem;
 #else
-	// Older "Modern" C++ :P
-	#include <experimental/filesystem>
-	namespace _gfs = std::experimental::filesystem::v1;
+    // Older "Modern" C++ :P
+    #include <experimental/filesystem>
+    namespace _gfs = std::experimental::filesystem::v1;
 #endif
 
 #undef min
