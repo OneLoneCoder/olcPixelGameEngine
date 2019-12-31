@@ -217,7 +217,7 @@
 	static wglSwapInterval_t *wglSwapInterval;
 #endif
 
-#ifdef __linux__ // LINUX specific includes ==============================================
+#if defined(__linux__) || defined(__APPLE__) // LINUX and MacOS X specific includes ===========
 	#include <GL/gl.h>
 	#include <GL/glx.h>
 	#include <X11/X.h>
@@ -587,7 +587,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		HGLRC		glRenderContext = nullptr;
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 		GLXContext	glDeviceContext = nullptr;
 		GLXContext	glRenderContext = nullptr;
 #endif
@@ -616,7 +616,7 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		static LRESULT CALLBACK olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 		// Non-Windows specific window handling
 		Display*				olc_Display = nullptr;
 		Window					olc_WindowRoot;
@@ -794,7 +794,7 @@ namespace olc
 		return olc::FAIL;
 	}
 
-#if defined(__linux__)
+#if defined(__linux__) || defined (__APPLE__)
 	void pngReadStream(png_structp pngPtr, png_bytep data, png_size_t length)
 	{
 		png_voidp a = png_get_io_ptr(pngPtr);
@@ -836,7 +836,7 @@ namespace olc
 		return olc::OK;
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 		////////////////////////////////////////////////////////////////////////////
 		// Use libpng, Thanks to Guillaume Cottenceau
 		// https://gist.github.com/niw/5963798
@@ -1202,7 +1202,7 @@ namespace olc
 		SwapBuffers(glDeviceContext);
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 		glXSwapBuffers(olc_Display, olc_Window);
 #endif
 
@@ -1903,7 +1903,7 @@ namespace olc
 				// Our time per frame coefficient
 				float fElapsedTime = elapsedTime.count();
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 				// Handle Xlib Message Loop - we do this in the
 				// same thread that OpenGL was created so we dont
 				// need to worry too much about multithreading with X11
@@ -2065,7 +2065,7 @@ namespace olc
 				SwapBuffers(glDeviceContext);
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__APPLE__)
 				glXSwapBuffers(olc_Display, olc_Window);
 #endif
 
@@ -2085,7 +2085,7 @@ namespace olc
 #endif
 #endif
 
-#if defined (__linux__)
+#if defined (__linux__) || defined(__APPLE__)
 					XStoreName(olc_Display, olc_Window, sTitle.c_str());
 #endif
 					nFrameCount = 0;
@@ -2109,7 +2109,7 @@ namespace olc
 		PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
 #endif
 
-#if defined (__linux__)
+#if defined (__linux__) || defined(__APPLE__)
 		glXMakeCurrent(olc_Display, None, NULL);
 		glXDestroyContext(olc_Display, glDeviceContext);
 		XDestroyWindow(olc_Display, olc_Window);
@@ -2339,8 +2339,8 @@ namespace olc
 	}
 #endif
 
-#if defined(__linux__)
-	// Do the Linux stuff!
+#if defined(__linux__) || defined(__APPLE__)
+	// Do the Linux (and Mac) stuff!
 	Display* PixelGameEngine::olc_WindowCreate()
 	{
 		XInitThreads();
