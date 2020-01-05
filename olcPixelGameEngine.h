@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.21              |
+	|           OneLoneCoder Pixel Game Engine v1.22              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -144,7 +144,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -246,14 +246,28 @@
 #include <functional>
 #include <algorithm>
 
-#if __cplusplus >= 201703L
-	// C++17 onwards
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
-#else
-	// Older "Modern" C++ :P
-	#include <experimental/filesystem>
-	namespace _gfs = std::experimental::filesystem::v1;
+#if defined(_WIN32)
+	#if _MSVC_LANG >= 201703L // Thanks @slavka
+		// C++17 onwards
+		#include <filesystem>
+		namespace _gfs = std::filesystem;
+	#else
+		// Older "Modern" C++ :P
+		#include <experimental/filesystem>
+		namespace _gfs = std::experimental::filesystem::v1;
+	#endif
+#endif
+
+#if defined(_linux_) || defined(__MINGW32__)
+	#if __cplusplus >= 201703L
+		// C++17 onwards
+		#include <filesystem>
+		namespace _gfs = std::filesystem;
+	#else
+		// Older "Modern" C++ :P
+		#include <experimental/filesystem>
+		namespace _gfs = std::experimental::filesystem::v1;
+	#endif
 #endif
 
 #undef min
