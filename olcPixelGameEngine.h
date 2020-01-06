@@ -258,7 +258,7 @@
 	#endif
 #endif
 
-#if defined(_linux_) || defined(__MINGW32__)
+#if defined(__linux__) || defined(__MINGW32__)
 	#if __cplusplus >= 201703L
 		// C++17 onwards
 		#include <filesystem>
