@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.22              |
+	|           OneLoneCoder Pixel Game Engine v1.23              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -258,7 +258,7 @@
 	#endif
 #endif
 
-#if defined(_linux_) || defined(__MINGW32__)
+#if defined(__linux__) || defined(__MINGW32__)
 	#if __cplusplus >= 201703L
 		// C++17 onwards
 		#include <filesystem>
