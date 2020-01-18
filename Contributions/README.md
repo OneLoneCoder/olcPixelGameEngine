@@ -8,7 +8,7 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 * Cross Platform Controller Support
   * https://github.com/gorbit99/olcPGEX_Gamepad
 * Sprite Animation, Sprite State Machine and Sprite Sheet Manipulation
-  https://github.com/matt-hayward/olcPGEX_AnimatedSprite
+  * https://github.com/matt-hayward/olcPGEX_AnimatedSprite
   
 ## MacOS Support
 * These will potentially be absorbed into main build
