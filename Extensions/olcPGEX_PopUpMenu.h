@@ -56,7 +56,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020
 */
 
 
@@ -131,17 +131,17 @@
 	~~~~~~~~~~~~~~~~~~~~~
 
 	// Send key events to menu	
-	if (GetKey(olc::Key::UP).bPressed)    mm.OnUp();
-	if (GetKey(olc::Key::DOWN).bPressed)  mm.OnDown();
-	if (GetKey(olc::Key::LEFT).bPressed)  mm.OnLeft();
-	if (GetKey(olc::Key::RIGHT).bPressed) mm.OnRight();
-	if (GetKey(olc::Key::Z).bPressed)     mm.OnBack();
+	if (GetKey(olc::Key::UP).bPressed)    man.OnUp();
+	if (GetKey(olc::Key::DOWN).bPressed)  man.OnDown();
+	if (GetKey(olc::Key::LEFT).bPressed)  man.OnLeft();
+	if (GetKey(olc::Key::RIGHT).bPressed) man.OnRight();
+	if (GetKey(olc::Key::Z).bPressed)     man.OnBack();
 
 	// "Confirm/Action" Key does something, if it returns non-null
 	// then a menu item has been selected. The specific item will
 	// be returned
 	olc::popup::Menu* command = nullptr;
-	if (GetKey(olc::Key::SPACE).bPressed) command = mm.OnConfirm();
+	if (GetKey(olc::Key::SPACE).bPressed) command = man.OnConfirm();
 	if (command != nullptr)
 	{
 		std::string sLastAction = 
@@ -149,7 +149,7 @@
 		" ID: " + std::to_string(command->GetID());
 
 		// Optionally close menu?
-		mm.Close();
+		man.Close();
 	}
 
 */
