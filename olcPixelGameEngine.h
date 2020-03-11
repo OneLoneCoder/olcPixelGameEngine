@@ -247,7 +247,7 @@
 #include <algorithm>
 
 #if defined(_WIN32)
-	#if _MSVC_LANG >= 201703L // Thanks @slavka
+	#if _MSVC_LANG >= 201703L || __cplusplus >= 201703L// Thanks @slavka
 		// C++17 onwards
 		#include <filesystem>
 		namespace _gfs = std::filesystem;
