@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v1.23              |
+	|           OneLoneCoder Pixel Game Engine v1.24              |
 	| "Like the command prompt console one, but not..." - javidx9 |
 	+-------------------------------------------------------------+
 
@@ -246,28 +246,29 @@
 #include <functional>
 #include <algorithm>
 
+#define USE_EXPERIMENTAL_FS
+
 #if defined(_WIN32)
-	#if _MSVC_LANG >= 201703L // Thanks @slavka
-		// C++17 onwards
-		#include <filesystem>
-		namespace _gfs = std::filesystem;
-	#else
-		// Older "Modern" C++ :P
-		#include <experimental/filesystem>
-		namespace _gfs = std::experimental::filesystem::v1;
+	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
+		#undef USE_EXPERIMENTAL_FS
 	#endif
 #endif
 
-#if defined(__linux__) || defined(__MINGW32__)
+#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__)
 	#if __cplusplus >= 201703L
-		// C++17 onwards
-		#include <filesystem>
-		namespace _gfs = std::filesystem;
-	#else
-		// Older "Modern" C++ :P
-		#include <experimental/filesystem>
-		namespace _gfs = std::experimental::filesystem::v1;
+		#undef USE_EXPERIMENTAL_FS
 	#endif
+#endif
+
+#if defined(USE_EXPERIMENTAL_FS)
+	// C++14
+	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+	#include <experimental/filesystem>
+	namespace _gfs = std::experimental::filesystem::v1;
+#else
+	// C++17
+	#include <filesystem>
+	namespace _gfs = std::filesystem;
 #endif
 
 #undef min
