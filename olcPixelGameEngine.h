@@ -128,7 +128,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -220,10 +220,14 @@ int main()
 	#endif
 #endif
 
-#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
-	#if __cplusplus >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if defined(__MINGW32__) && !defined(__GNUC_PREREQ)
+    #define __GNUC_PREREQ(major, minor) __MINGW_GNUC_PREREQ(major, minor)
+#endif
+
+#if defined(__linux__) || defined (__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
+    #if __cplusplus >= 201703L && __GNUC_PREREQ(8, 0)
+        #undef USE_EXPERIMENTAL_FS
+    #endif
 #endif
 
 #if defined(USE_EXPERIMENTAL_FS)
