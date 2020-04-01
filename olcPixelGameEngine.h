@@ -220,12 +220,16 @@ int main()
 	#endif
 #endif
 
-#if defined(__MINGW32__) && !defined(__GNUC_PREREQ)
-    #define __GNUC_PREREQ(major, minor) __MINGW_GNUC_PREREQ(major, minor)
+#if defined(__MINGW32__)
+    #if defined(__GNUC_PREREQ)
+        #define __GNUC_PREREQ__(major, minor) __GNUC_PREREQ(major, minor)
+    #elif defined(__MINGW_GNUC_PREREQ)
+        #define __GNUC_PREREQ__(major, minor) __MINGW_GNUC_PREREQ(major, minor)
+    #endif
 #endif
 
 #if defined(__linux__) || defined (__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
-    #if __cplusplus >= 201703L && __GNUC_PREREQ(8, 0)
+    #if __cplusplus >= 201703L && __GNUC_PREREQ__(8, 0)
         #undef USE_EXPERIMENTAL_FS
     #endif
 #endif
