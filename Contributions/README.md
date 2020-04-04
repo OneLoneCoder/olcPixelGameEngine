@@ -9,6 +9,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/gorbit99/olcPGEX_Gamepad
 * Sprite Animation, Sprite State Machine and Sprite Sheet Manipulation
   * https://github.com/matt-hayward/olcPGEX_AnimatedSprite
+* Additional colour constants
+  * https://github.com/matt-hayward/olcPGEX_AdditionalColours  
   
 ## MacOS Support
 * These will potentially be absorbed into main build
