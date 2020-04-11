@@ -480,6 +480,10 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		int32_t GetMouseX();
 		// Get Mouse Y coordinate in "pixel" space
 		int32_t GetMouseY();
+		// Get Mouse traveled in X direction in "pixel" space
+		int32_t GetMouseDeltaX();
+		// Get Mouse traveled in Y direction in "pixel" space
+		int32_t GetMouseDeltaY();
 		// Get Mouse Wheel Delta
 		int32_t GetMouseWheel();
 
@@ -565,9 +569,15 @@ namespace olc // All OneLoneCoder stuff will now exist in the "olc" namespace
 		uint32_t	nPixelHeight = 4;
 		int32_t		nMousePosX = 0;
 		int32_t		nMousePosY = 0;
+		int32_t		nMouseDeltaX = 0;
+		int32_t		nMouseDeltaY = 0;
 		int32_t		nMouseWheelDelta = 0;
 		int32_t		nMousePosXcache = 0;
 		int32_t		nMousePosYcache = 0;
+		int32_t		nOldMousePosXcache = 0;
+		int32_t		nOldMousePosYcache = 0;
+		int32_t		nMouseDeltaXcache = 0;
+		int32_t		nMouseDeltaYcache = 0;
 		int32_t		nMouseWheelDeltaCache = 0;
 		int32_t		nWindowWidth = 0;
 		int32_t		nWindowHeight = 0;
@@ -1304,6 +1314,22 @@ namespace olc
 		return nMousePosY;
 	}
 
+	int32_t PixelGameEngine::GetMouseDeltaX()
+	{
+		int32_t mdx = nMouseDeltaX;
+		nMouseDeltaX = 0;
+		nMouseDeltaXcache = 0;
+		return mdx;
+	}
+
+	int32_t PixelGameEngine::GetMouseDeltaY()
+	{
+		int32_t mdy = nMouseDeltaX;
+		nMouseDeltaY = 0;
+		nMouseDeltaYcache = 0;
+		return mdy;
+	}
+
 	int32_t PixelGameEngine::GetMouseWheel()
 	{
 		return nMouseWheelDelta;
@@ -1870,6 +1896,10 @@ namespace olc
 		x -= nViewX;
 		y -= nViewY;
 
+		// Update old mouse position (needed for calculating nMouseDeltaX and nMouseDeltaY
+		nOldMousePosXcache = nMousePosXcache;
+		nOldMousePosYcache = nMousePosYcache;
+
 		nMousePosXcache = (int32_t)(((float)x / (float)(nWindowWidth - (nViewX * 2)) * (float)nScreenWidth));
 		nMousePosYcache = (int32_t)(((float)y / (float)(nWindowHeight - (nViewY * 2)) * (float)nScreenHeight));
 
@@ -1882,6 +1912,10 @@ namespace olc
 			nMousePosXcache = 0;
 		if (nMousePosYcache < 0)
 			nMousePosYcache = 0;
+
+		// Update mouse delta
+		nMouseDeltaXcache = nMousePosXcache - nOldMousePosXcache;
+		nMouseDeltaYcache = nMousePosYcache - nOldMousePosYcache;
 	}
 
 	void PixelGameEngine::EngineThread()
@@ -2048,6 +2082,11 @@ namespace olc
 				// consistent during frame
 				nMousePosX = nMousePosXcache;
 				nMousePosY = nMousePosYcache;
+
+				nMouseDeltaX = nMouseDeltaXcache;
+				nMouseDeltaY = nMouseDeltaYcache;
+				nMouseDeltaXcache = 0;
+				nMouseDeltaYcache = 0;
 
 				nMouseWheelDelta = nMouseWheelDeltaCache;
 				nMouseWheelDeltaCache = 0;
