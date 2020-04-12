@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.0               |
+	|           OneLoneCoder Pixel Game Engine v2.01              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -129,6 +129,8 @@
 	Author
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+
+	2.01: Made renderer and platform static for multifile projects
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -518,9 +520,9 @@ namespace olc
 		static olc::PixelGameEngine* ptrPGE;
 	};
 	
-	std::unique_ptr<Renderer> renderer;
-	std::unique_ptr<Platform> platform;
-	std::map<size_t, uint8_t> mapKeys;
+	static std::unique_ptr<Renderer> renderer;
+	static std::unique_ptr<Platform> platform;
+	static std::map<size_t, uint8_t> mapKeys;
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine - The main BASE class for your application              |
