@@ -128,7 +128,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 */
@@ -217,7 +217,7 @@ int main()
 	#endif
 #endif
 
-#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
 	#if __cplusplus >= 201703L
 		#undef USE_EXPERIMENTAL_FS
 	#endif
@@ -2226,7 +2226,7 @@ namespace olc
 	typedef HGLRC glRenderContext_t;
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 	#include <GL/gl.h>
 	namespace X11
 	{
@@ -2249,7 +2249,7 @@ namespace olc
 		glDeviceContext_t glDeviceContext = 0;
 		glRenderContext_t glRenderContext = 0;
 
-	#if defined(__linux__)
+	#if defined(__linux__) || defined(__FreeBSD__)
 		X11::Display*				 olc_Display = nullptr;
 		X11::Window*				 olc_Window = nullptr;
 		X11::XVisualInfo*            olc_VisualInfo = nullptr;
@@ -2284,7 +2284,7 @@ namespace olc
 			if (wglSwapInterval && !bVSYNC) wglSwapInterval(0);
 		#endif
 
-		#if defined(__linux__)
+		#if defined(__linux__) || defined(__FreeBSD__)
 			using namespace X11;
 			// Linux has tighter coupling between OpenGL and X11, so we store
 			// various "platform" handles in the renderer
@@ -2324,7 +2324,7 @@ namespace olc
 			wglDeleteContext(glRenderContext);
 		#endif
 
-		#if defined(__linux__)
+		#if defined(__linux__) || defined(__FreeBSD__)
 			glXMakeCurrent(olc_Display, None, NULL);
 			glXDestroyContext(olc_Display, glDeviceContext);
 		#endif
@@ -2337,8 +2337,8 @@ namespace olc
 			SwapBuffers(glDeviceContext);
 		#endif	
 
-		#if defined(__linux__)
-			X11::glXSwapBuffers(olc_Display, *olc_Window);
+		#if defined(__linux__) || defined(__FreeBSD__)
+ 			X11::glXSwapBuffers(olc_Display, *olc_Window);
 		#endif		
 		}
 
@@ -2681,7 +2681,7 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: LINUX                                                        |
 // O------------------------------------------------------------------------------O
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 namespace olc
 {
 	class Platform_Linux : public olc::Platform
@@ -3010,7 +3010,7 @@ namespace olc
 		platform = std::make_unique<olc::Platform_Windows>();
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 		platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
