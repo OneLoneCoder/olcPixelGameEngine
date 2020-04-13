@@ -551,6 +551,8 @@ namespace olc
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
 		bool IsFocused();
+		// Returns true if window is currently minimized
+		bool IsMinimized();
 		// Get the state of a specific keyboard button
 		HWButton GetKey(Key k);
 		// Get the state of a specific mouse button
@@ -681,6 +683,7 @@ namespace olc
 		olc::vi2d	vViewPos              = { 0, 0 };
 		olc::vi2d	vViewSize             = { 0,0 };
 		bool		bFullScreen           = false;
+		bool		bMinimized            = false;
 		olc::vf2d	vPixel                = { 1.0f, 1.0f };
 		bool		bHasInputFocus        = false;
 		bool		bHasMouseFocus        = false;
@@ -1321,6 +1324,9 @@ namespace olc
 
 	bool PixelGameEngine::IsFocused()
 	{ return bHasInputFocus; }
+
+	bool PixelGameEngine::IsMinimized()
+	{ return bMinimized; }
 
 	HWButton PixelGameEngine::GetKey(Key k)
 	{ return pKeyboardState[k];	}
@@ -1988,6 +1994,7 @@ namespace olc
 	void PixelGameEngine::olc_UpdateWindowSize(int32_t x, int32_t y)
 	{
 		vWindowSize = { x, y };
+		bMinimized = x == 0 || y == 0;
 		olc_UpdateViewport();
 	}
 
@@ -2546,7 +2553,7 @@ namespace olc
 
 			// Define window furniture
 			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
+			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME | WS_MINIMIZEBOX;
 
 			// Handle Fullscreen
 			if (bFullScreen)
