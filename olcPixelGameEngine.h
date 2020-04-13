@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.01              |
+	|           OneLoneCoder Pixel Game Engine v2.02              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -131,6 +131,7 @@
 	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
+	2.02: Added Decal destructor, optimised Pixel constructor
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -453,6 +454,7 @@ namespace olc
 	{
 	public:
 		Decal(olc::Sprite* spr);
+		virtual ~Decal();
 		void Update();
 
 	public: // But dont touch
@@ -499,6 +501,7 @@ namespace olc
 		virtual void       DrawDecalQuad(const olc::DecalInstance& decal) = 0;
 		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height) = 0;
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) = 0;
+		virtual uint32_t   DeleteTexture(const uint32_t id) = 0;
 		virtual void       ApplyTexture(uint32_t id) = 0;
 		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) = 0;
 		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) = 0;
@@ -789,7 +792,8 @@ namespace olc
 	{ r = 0; g = 0; b = 0; a = nDefaultAlpha; }
 
 	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	{ r = red; g = green; b = blue; a = alpha; }
+	{ n = red | (green << 8) | (blue << 16) | (alpha << 24); } // Thanks jarekpelczar 
+
 
 	Pixel::Pixel(uint32_t p)
 	{ n = p; }
@@ -966,6 +970,15 @@ namespace olc
 		vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
 		renderer->ApplyTexture(id);
 		renderer->UpdateTexture(id, sprite);
+	}
+
+	Decal::~Decal()
+	{
+		if (id != -1)
+		{
+			renderer->DeleteTexture(id);
+			id = -1;
+		}
 	}
 
 
@@ -2383,6 +2396,12 @@ namespace olc
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			return id;
+		}
+
+		uint32_t DeleteTexture(const uint32_t id) override
+		{
+			glDeleteTextures(1, &id);			
 			return id;
 		}
 
