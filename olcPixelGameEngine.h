@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.02              |
+	|           OneLoneCoder Pixel Game Engine v2.03              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -132,6 +132,7 @@
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
+	2.03: Enabled Window minimize button
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
