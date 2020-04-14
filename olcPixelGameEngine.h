@@ -58,25 +58,25 @@
 	Links
 	~~~~~
 	YouTube:	https://www.youtube.com/javidx9
-				https://www.youtube.com/javidx9extra
+			https://www.youtube.com/javidx9extra
 	Discord:	https://discord.gg/WhwHUMV
 	Twitter:	https://www.twitter.com/javidx9
 	Twitch:		https://www.twitch.tv/javidx9
 	GitHub:		https://www.github.com/onelonecoder
 	Homepage:	https://www.onelonecoder.com
 	Patreon:	https://www.patreon.com/javidx9
-	Community:  https://community.onelonecoder.com
+	Community:	https://community.onelonecoder.com
 
 	Compiling in Linux
 	~~~~~~~~~~~~~~~~~~
 	You will need a modern C++ compiler, so update yours!
-	To compile use the command:
+	To compile, use the command:
 
 	g++ -o YourProgName YourSource.cpp -lX11 -lGL -lpthread -lpng -lstdc++fs -std=c++17
 
 	On some Linux configurations, the frame rate is locked to the refresh
 	rate of the monitor. This engine tries to unlock it but may not be
-	able to, in which case try launching your program like this:
+	able to. In that case, try launching your program like this:
 
 	vblank_mode=0 ./YourProgName
 
@@ -89,7 +89,7 @@
 
 	Guide for installing recent GCC for Windows:
 	https://www.msys2.org/
-	Guide for configuring code::blocks:
+	Guide for configuring Code::Blocks:
 	https://solarianprogrammer.com/2019/11/05/install-gcc-windows/
 	https://solarianprogrammer.com/2019/11/16/install-codeblocks-gcc-windows-build-c-cpp-fortran-programs/
 
@@ -128,7 +128,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -151,7 +151,7 @@ class Example : public olc::PixelGameEngine
 public:
 	Example()
 	{
-		// Name you application
+		// Name your application
 		sAppName = "Example";
 	}
 
