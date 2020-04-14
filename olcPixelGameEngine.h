@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.02              |
+	|           OneLoneCoder Pixel Game Engine v2.03              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -132,6 +132,7 @@
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
+	2.03: Added FreeBSD flags, Added DrawStringDecal()
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +219,7 @@ int main()
 	#endif
 #endif
 
-#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__)
+#if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
 	#if __cplusplus >= 201703L
 		#undef USE_EXPERIMENTAL_FS
 	#endif
@@ -653,7 +654,8 @@ namespace olc
 
 		void DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center = { 0.0f, 0.0f }, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
 
-		
+		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+
 		// Draws a single line of text
 		void DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
 		void DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
@@ -688,6 +690,7 @@ namespace olc
 		float		fFrameTimer           = 1.0f;
 		int			nFrameCount           = 0;
 		Sprite*     fontSprite            = nullptr;
+		Decal*		fontDecal			  = nullptr;
 		Sprite*     pDefaultDrawTarget    = nullptr;
 		std::vector<LayerDesc> vLayers;
 		uint8_t		nTargetLayer          = 0;
@@ -1192,8 +1195,7 @@ namespace olc
 		if (vPixelSize.x <= 0 || vPixelSize.y <= 0 || vScreenSize.x <= 0 || vScreenSize.y <= 0)
 			return olc::FAIL;
 
-		// Construct default font sheet
-		olc_ConstructFontSheet();
+		
 		return olc::OK;
 	}
 
@@ -1890,6 +1892,25 @@ namespace olc
 		DrawWarpedDecal(decal, &pos[0], tint);		
 	}
 
+	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
+	{
+		olc::vf2d spos = { 0.0f, 0.0f };
+		for (auto c : sText)
+		{
+			if (c == '\n')
+			{
+				spos.x = 0; spos.y += 8.0f * scale.y;
+			}
+			else
+			{
+				int32_t ox = (c - 32) % 16;
+				int32_t oy = (c - 32) / 16;
+				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+				spos.x += 8.0f * scale.x;
+			}
+		}
+	}
+
 	void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
 	{ DrawString(pos.x, pos.y, sText, col, scale); }
 
@@ -2058,6 +2079,9 @@ namespace olc
 		// Start OpenGL, the context is owned by the game thread
 		if (platform->CreateGraphics(bFullScreen, bEnableVSYNC, vViewPos, vViewSize) == olc::FAIL) return;
 
+		// Construct default font sheet
+		olc_ConstructFontSheet();
+
 		// Create Primary Layer "0"
 		CreateLayer();
 		vLayers[0].bUpdate = true;
@@ -2210,6 +2234,8 @@ namespace olc
 				if (++py == 48) { px++; py = 0; }
 			}
 		}
+
+		fontDecal = new olc::Decal(fontSprite);
 	}
 
 	// Need a couple of statics as these are singleton instances
@@ -2239,7 +2265,7 @@ namespace olc
 	typedef HGLRC glRenderContext_t;
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 	#include <GL/gl.h>
 	namespace X11
 	{
@@ -2262,7 +2288,7 @@ namespace olc
 		glDeviceContext_t glDeviceContext = 0;
 		glRenderContext_t glRenderContext = 0;
 
-	#if defined(__linux__)
+	#if defined(__linux__) || defined(__FreeBSD__)
 		X11::Display*				 olc_Display = nullptr;
 		X11::Window*				 olc_Window = nullptr;
 		X11::XVisualInfo*            olc_VisualInfo = nullptr;
@@ -2297,7 +2323,7 @@ namespace olc
 			if (wglSwapInterval && !bVSYNC) wglSwapInterval(0);
 		#endif
 
-		#if defined(__linux__)
+		#if defined(__linux__) || defined(__FreeBSD__)
 			using namespace X11;
 			// Linux has tighter coupling between OpenGL and X11, so we store
 			// various "platform" handles in the renderer
@@ -2337,7 +2363,7 @@ namespace olc
 			wglDeleteContext(glRenderContext);
 		#endif
 
-		#if defined(__linux__)
+		#if defined(__linux__) || defined(__FreeBSD__)
 			glXMakeCurrent(olc_Display, None, NULL);
 			glXDestroyContext(olc_Display, glDeviceContext);
 		#endif
@@ -2350,7 +2376,7 @@ namespace olc
 			SwapBuffers(glDeviceContext);
 		#endif	
 
-		#if defined(__linux__)
+		#if defined(__linux__) || defined(__FreeBSD__)
 			X11::glXSwapBuffers(olc_Display, *olc_Window);
 		#endif		
 		}
@@ -2700,7 +2726,7 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: LINUX                                                        |
 // O------------------------------------------------------------------------------O
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 namespace olc
 {
 	class Platform_Linux : public olc::Platform
@@ -3029,7 +3055,7 @@ namespace olc
 		platform = std::make_unique<olc::Platform_Windows>();
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 		platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
