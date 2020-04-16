@@ -233,8 +233,8 @@ int main()
 	namespace _gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+	#include <experimental/filesystem>
+	namespace _gfs = std::experimental::filesystem;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
