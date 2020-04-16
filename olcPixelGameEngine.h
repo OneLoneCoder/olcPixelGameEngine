@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.03              |
+	|           OneLoneCoder Pixel Game Engine v2.04              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -133,6 +133,7 @@
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
 	2.03: Added FreeBSD flags, Added DrawStringDecal()
+	2.04: Windows Full-Screen bug fixed
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2367,7 +2368,7 @@ namespace olc
 			glXMakeCurrent(olc_Display, None, NULL);
 			glXDestroyContext(olc_Display, glDeviceContext);
 		#endif
-			return olc::rcode::FAIL;
+			return olc::rcode::OK;
 		}
 
 		void DisplayFrame() override
@@ -2574,6 +2575,8 @@ namespace olc
 			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
 
+			olc::vi2d vTopLeft = vWindowPos;
+
 			// Handle Fullscreen
 			if (bFullScreen)
 			{
@@ -2583,6 +2586,8 @@ namespace olc
 				MONITORINFO mi = { sizeof(mi) };
 				if (!GetMonitorInfo(hmon, &mi)) return olc::rcode::FAIL;
 				vWindowSize = { mi.rcMonitor.right, mi.rcMonitor.bottom };
+				vTopLeft.x = 0;
+				vTopLeft.y = 0;
 			}
 
 			// Keep client size as requested
@@ -2592,7 +2597,7 @@ namespace olc
 			int height = rWndRect.bottom - rWndRect.top;
 
 			olc_hWnd = CreateWindowEx(dwExStyle, olcT("OLC_PIXEL_GAME_ENGINE"), olcT(""), dwStyle,
-				vWindowPos.x, vWindowPos.y, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
+				vTopLeft.x, vTopLeft.y, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
 
 			// Create Keyboard Mapping
 			mapKeys[0x00] = Key::NONE;
