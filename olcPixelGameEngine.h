@@ -2490,7 +2490,11 @@ namespace olc
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <gdiplus.h>
-#include <Shlwapi.h>
+#if defined(__MINGW32__)
+	#include <shlwapi.h>
+#else
+	#include <Shlwapi.h>
+#endif
 
 namespace olc
 {
