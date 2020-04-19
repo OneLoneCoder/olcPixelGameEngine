@@ -453,7 +453,13 @@ public:
 				{
 					tempShape->col = olc::WHITE;
 					listShapes.push_back(tempShape);
+					tempShape = nullptr; // Thanks @howlevergreen /Disord
 				}
+				
+			}
+			else
+			{
+				selectedNode = nullptr;
 			}
 		}
 
@@ -517,7 +523,7 @@ public:
 		DrawCircle(sx, sy, 3, olc::YELLOW);
 
 		// Draw Cursor Position
-		DrawString(10, 10, "X=" + std::to_string(vCursor.x) + ", Y=" + std::to_string(vCursor.y), olc::YELLOW, 2);
+		DrawString(10, 10, "X=" + std::to_string(vCursor.x) + ", Y=" + std::to_string(vCursor.x), olc::YELLOW, 2);
 		return true;
 	}
 };
@@ -526,7 +532,7 @@ public:
 int main()
 {
 	Polymorphism demo;
-	if (demo.Construct(1600, 960, 1, 1))
+	if (demo.Construct(800, 480, 1, 1, false))
 		demo.Start();
 	return 0;
 }
