@@ -73,12 +73,35 @@
 	To compile use the command:
 
 	g++ -o YourProgName YourSource.cpp -lX11 -lGL -lpthread -lpng -lstdc++fs -std=c++17
+	
+		Linux Dependencies
+		~~~~~~~~~~~~~~~~~~
+		Besides gcc/g++, you will possibly need a few other libraries installed on the system:
+		
+		- Ubuntu and derivitaves (eg Mint):
+			## GL/gl.H ##
+			sudo apt-get install freeglut3-dev
+			sudo apt-get install binutils-gold mesa-common-dev build-essential libglew1.5-dev libglm-dev
+			## png.H ##
+			sudo apt-get install libxtst-dev libpng++-dev 
+		
+		
+		Linux Oddities
+		~~~~~~~~~~~~~~
+		
+		- fatal error: filesystem: No such file or directory
+			On some Linux configurations (Mint), one of our dependencies 
+			may be located in a different location than expected.
+			You may need to compile with "FORCE_EXPERIMENTAL_FS" defined:
+		
+			add "-D FORCE_EXPERIMENTAL_FS" to the compilation command.
+		
+		- locked refresh rate?
+			On some Linux configurations, the frame rate is locked to the refresh
+			rate of the monitor. This engine tries to unlock it but may not be
+			able to, in which case try launching your program like this:
 
-	On some Linux configurations, the frame rate is locked to the refresh
-	rate of the monitor. This engine tries to unlock it but may not be
-	able to, in which case try launching your program like this:
-
-	vblank_mode=0 ./YourProgName
+			vblank_mode=0 ./YourProgName
 
 
 	Compiling in Code::Blocks on Windows
@@ -213,6 +236,8 @@ int main()
 // | COMPILER CONFIGURATION ODDITIES                                              |
 // O------------------------------------------------------------------------------O
 #define USE_EXPERIMENTAL_FS
+// Note that this define symbol may be defined, and is related to configuration oddities:
+// #define FORCE_EXPERIMENTAL_FS
 
 #if defined(_WIN32)
 	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
@@ -226,7 +251,7 @@ int main()
 	#endif
 #endif
 
-#if defined(USE_EXPERIMENTAL_FS)
+#if defined(USE_EXPERIMENTAL_FS) || defined(FORCE_EXPERIMENTAL_FS)
 	// C++14
 	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 	#include <experimental/filesystem>
