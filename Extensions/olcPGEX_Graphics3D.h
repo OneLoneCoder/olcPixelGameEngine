@@ -58,7 +58,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 
@@ -940,7 +940,9 @@ namespace olc
 	
 	}
 
+	#ifdef OLC_PGE_GRAPHICS3D
 	float* GFX3D::m_DepthBuffer = nullptr;
+	#endif
 
 	void GFX3D::ConfigureDisplay()
 	{
@@ -953,8 +955,8 @@ namespace olc
 		memset(m_DepthBuffer, 0, pge->ScreenWidth() * pge->ScreenHeight() * sizeof(float));
 	}
 
-	
-
+	#ifdef OLC_PGE_GRAPHICS3D
+	#undef OLC_PGE_GRAPHICS3D
 
 	GFX3D::PipeLine::PipeLine()
 	{
@@ -1169,6 +1171,7 @@ namespace olc
 
 		return nTriangleDrawnCount;
 	}
+	#endif
 }
 
 #endif
