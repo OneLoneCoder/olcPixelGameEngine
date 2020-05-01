@@ -2741,6 +2741,8 @@ namespace olc
 			case WM_RBUTTONUP:	ptrPGE->olc_UpdateMouseState(1, false);                                 return 0;
 			case WM_MBUTTONDOWN:ptrPGE->olc_UpdateMouseState(2, true);                                  return 0;
 			case WM_MBUTTONUP:	ptrPGE->olc_UpdateMouseState(2, false);                                 return 0;
+			case WM_XBUTTONDOWN:ptrPGE->olc_UpdateMouseState(2 + ((wParam & 0xFFFF0000) >> 16), true);  return 0;
+			case WM_XBUTTONUP:	ptrPGE->olc_UpdateMouseState(2 + ((wParam & 0xFFFF0000) >> 16), false);	return 0;
 			case WM_CLOSE:		ptrPGE->olc_Terminate();                                                return 0;
 			case WM_DESTROY:	PostQuitMessage(0);                                                     return 0;
 			}
