@@ -2330,6 +2330,7 @@ namespace olc
 
 #if defined(__linux__) || defined(__FreeBSD__)
 	#include <GL/gl.h>
+	#include <cinttypes>
 	namespace X11
 	{
 		#include <GL/glx.h>
