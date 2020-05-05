@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                       Sound - v0.3                          |
+	|                       Sound - v0.4                          |
 	+-------------------------------------------------------------+
 
 	What is this?
@@ -74,7 +74,7 @@
 #include <istream>
 #include <cstring>
 #include <climits>
-
+#include <condition_variable>
 #include <algorithm>
 #undef min
 #undef max
@@ -293,9 +293,9 @@ namespace olc
 		};
 
 		if (pack != nullptr)
-		{
-			olc::ResourcePack::sEntry entry = pack->GetStreamBuffer(sWavFile);
-			std::istream is(&entry);
+		{			
+			olc::ResourceBuffer rb = pack->GetFileBuffer(sWavFile);
+			std::istream is(&rb);			
 			return ReadWave(is);
 		}
 		else
@@ -496,7 +496,8 @@ namespace olc
 	bool SOUND::DestroyAudio()
 	{
 		m_bAudioThreadActive = false;
-		m_AudioThread.join();
+		if(m_AudioThread.joinable())
+			m_AudioThread.join();
 		return false;
 	}
 
@@ -522,6 +523,9 @@ namespace olc
 		short nMaxSample = (short)pow(2, (sizeof(short) * 8) - 1) - 1;
 		float fMaxSample = (float)nMaxSample;
 		short nPreviousSample = 0;
+
+		auto tp1 = std::chrono::system_clock::now();
+		auto tp2 = std::chrono::system_clock::now();
 
 		while (m_bAudioThreadActive)
 		{
@@ -551,18 +555,25 @@ namespace olc
 					return fmax(fSample, -fMax);
 			};
 
+			tp2 = std::chrono::system_clock::now();
+			std::chrono::duration<float> elapsedTime = tp2 - tp1;
+			tp1 = tp2;
+
+			// Our time per frame coefficient
+			float fElapsedTime = elapsedTime.count();
+
 			for (unsigned int n = 0; n < m_nBlockSamples; n += m_nChannels)
 			{
 				// User Process
 				for (unsigned int c = 0; c < m_nChannels; c++)
 				{
-					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime, fTimeStep), 1.0) * fMaxSample);
+					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime + fTimeStep * (float)n, fTimeStep), 1.0) * fMaxSample);
 					m_pBlockMemory[nCurrentBlock + n + c] = nNewSample;
 					nPreviousSample = nNewSample;
-				}
-
-				m_fGlobalTime = m_fGlobalTime + fTimeStep;
+				}				
 			}
+
+			m_fGlobalTime = m_fGlobalTime + fTimeStep * (float)m_nBlockSamples;
 
 			// Send block to sound device
 			waveOutPrepareHeader(m_hwDevice, &m_pWaveHeaders[m_nBlockCurrent], sizeof(WAVEHDR));
@@ -610,6 +621,7 @@ namespace olc
 		snd_pcm_hw_params_any(m_pPCM, params);
 
 		// Set other parameters
+		snd_pcm_hw_params_set_access(m_pPCM, params, SND_PCM_ACCESS_RW_INTERLEAVED);
 		snd_pcm_hw_params_set_format(m_pPCM, params, SND_PCM_FORMAT_S16_LE);
 		snd_pcm_hw_params_set_rate(m_pPCM, params, m_nSampleRate, 0);
 		snd_pcm_hw_params_set_channels(m_pPCM, params, m_nChannels);
@@ -645,7 +657,8 @@ namespace olc
 	bool SOUND::DestroyAudio()
 	{
 		m_bAudioThreadActive = false;
-		m_AudioThread.join();
+		if(m_AudioThread.joinable())
+			m_AudioThread.join();
 		snd_pcm_drain(m_pPCM);
 		snd_pcm_close(m_pPCM);
 		return false;
@@ -683,13 +696,13 @@ namespace olc
 				// User Process
 				for (unsigned int c = 0; c < m_nChannels; c++)
 				{
-					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime, fTimeStep), 1.0) * fMaxSample);
+					nNewSample = (short)(GetMixerOutput(c, m_fGlobalTime + fTimeStep * (float)n, fTimeStep), 1.0) * fMaxSample;
 					m_pBlockMemory[n + c] = nNewSample;
 					nPreviousSample = nNewSample;
-				}
-
-				m_fGlobalTime = m_fGlobalTime + fTimeStep;
+				}		
 			}
+
+			m_fGlobalTime = m_fGlobalTime + fTimeStep * (float)m_nBlockSamples;
 
 			// Send block to sound device
 			snd_pcm_uframes_t nLeft = m_nBlockSamples;
@@ -766,7 +779,8 @@ namespace olc
 	bool SOUND::DestroyAudio()
 	{
 		m_bAudioThreadActive = false;
-		m_AudioThread.join();
+		if(m_AudioThread.joinable())
+			m_AudioThread.join();
 
 		alDeleteBuffers(m_nBlockCount, m_pBuffers);
 		delete[] m_pBuffers;
