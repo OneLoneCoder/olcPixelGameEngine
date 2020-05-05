@@ -128,7 +128,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -214,11 +214,26 @@ int main()
 // O------------------------------------------------------------------------------O
 #define USE_EXPERIMENTAL_FS
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
 		#undef USE_EXPERIMENTAL_FS
 	#endif
-#endif
+
+	#define PIXEL_ENGINE_DISABLED_WARNINGS \
+			4201 // nonstandard extension used: nameless struct/union
+	#define GDI_PLUS_DISABLED_WARNINGS \
+			4458 // warning C4458: declaration of 'nativeCap' hides class member
+
+	#define PUSH_WARNINGS_IMPL(DISABLED) __pragma(warning(push)) __pragma(warning (disable: DISABLED))
+	#define PUSH_WARNINGS(DISABLED) PUSH_WARNINGS_IMPL(DISABLED)
+	#define POP_WARNINGS() __pragma(warning(pop))
+#else
+	// TODO: clang/gcc disabled warnings.
+	#define PIXEL_ENGINE_DISABLED_WARNINGS
+	#define GDI_PLUS_DISABLED_WARNINGS
+	#define PUSH_WARNINGS(DISABLED)
+	#define POP_WARNINGS()
+#endif // defined(_MSC_VER)
 
 #if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__)
 	#if __cplusplus >= 201703L
@@ -250,6 +265,7 @@ int main()
 	#define OLC_GFX_OPENGL10
 #endif
 
+PUSH_WARNINGS(PIXEL_ENGINE_DISABLED_WARNINGS)
 // O------------------------------------------------------------------------------O
 // | olcPixelGameEngine INTERFACE DECLARATION                                     |
 // O------------------------------------------------------------------------------O
@@ -260,7 +276,7 @@ namespace olc
 	// Pixel Game Engine Advanced Configuration
 	constexpr uint8_t  nMouseButtons = 5;
 	constexpr uint8_t  nDefaultAlpha = 0xFF;
-	constexpr uint32_t nDefaultPixel = (nDefaultAlpha << 24);
+	constexpr uint32_t nDefaultPixel = static_cast<uint32_t>(nDefaultAlpha << 24);
 	enum rcode { FAIL = 0, OK = 1, NO_FILE = -1 };
 
 	
@@ -494,6 +510,7 @@ namespace olc
 	class Renderer
 	{
 	public:
+		virtual ~Renderer() = default;
 		virtual void       PrepareDevice() = 0;
 		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) = 0;
 		virtual olc::rcode DestroyDevice() = 0;
@@ -513,6 +530,7 @@ namespace olc
 	class Platform
 	{
 	public:
+		virtual ~Platform() = default;
 		virtual olc::rcode ApplicationStartUp() = 0;
 		virtual olc::rcode ApplicationCleanUp() = 0;
 		virtual olc::rcode ThreadStartUp() = 0;
@@ -759,6 +777,7 @@ namespace olc
 	};
 }
 
+POP_WARNINGS()
 #endif // OLC_PGE_DEF
 
 
@@ -863,8 +882,6 @@ namespace olc
 				ReadData(ifs);
 				return olc::OK;
 			}
-			else
-				return olc::FAIL;
 		}
 		else
 		{
@@ -1038,7 +1055,7 @@ namespace olc
 
 		std::vector<char> buffer(nIndexSize);
 		for (uint32_t j = 0; j < nIndexSize; j++)
-			buffer[j] = baseFile.get();
+			buffer[j] = static_cast<char>(baseFile.get());
 
 		std::vector<char> decoded = scramble(buffer, sKey);
 		size_t pos = 0;
@@ -1047,7 +1064,7 @@ namespace olc
 			pos += size;
 		};
 
-		auto get = [&read]() -> int {
+		auto get = [&read] {
 			char c;
 			read(&c, 1);
 			return c;
@@ -1392,6 +1409,8 @@ namespace olc
 
 	void PixelGameEngine::SetSubPixelOffset(float ox, float oy)
 	{
+		UNUSED(ox);
+		UNUSED(oy);
 		//vSubPixelOffset.x = ox * vPixel.x;
 		//vSubPixelOffset.y = oy * vPixel.y;
 	}
@@ -2292,7 +2311,7 @@ namespace olc
 
 			for (int i = 0; i < 24; i++)
 			{
-				int k = r & (1 << i) ? 255 : 0;
+				uint8_t k = r & (1 << i) ? 255 : 0;
 				fontSprite->SetPixel(px, py, olc::Pixel(k, k, k, k));
 				if (++py == 48) { px++; py = 0; }
 			}
@@ -2363,6 +2382,7 @@ namespace olc
 
 		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
 		{
+			UNUSED(bFullScreen);
 		#if defined(_WIN32)
 			// Create Device Context
 			glDeviceContext = GetDC((HWND)(params[0]));
@@ -2375,10 +2395,10 @@ namespace olc
 			};
 
 			int pf = 0;
-			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
+			if ((pf = ChoosePixelFormat(glDeviceContext, &pfd)) != 0) return olc::FAIL;
 			SetPixelFormat(glDeviceContext, pf, &pfd);
 
-			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
+			if (((glRenderContext = wglCreateContext(glDeviceContext))) != nullptr) return olc::FAIL;
 			wglMakeCurrent(glDeviceContext, glRenderContext);
 
 			// Remove Frame cap
@@ -2479,6 +2499,8 @@ namespace olc
 
 		uint32_t CreateTexture(const uint32_t width, const uint32_t height) override
 		{
+			UNUSED(width);
+			UNUSED(height);
 			uint32_t id = 0;
 			glGenTextures(1, &id);
 			glBindTexture(GL_TEXTURE_2D, id);
@@ -2496,6 +2518,7 @@ namespace olc
 
 		void UpdateTexture(uint32_t id, olc::Sprite* spr) override
 		{
+			UNUSED(id);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
@@ -2551,7 +2574,10 @@ namespace olc
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+// The GDI+ headers have some code which will trigger warnings at higher warning modes in MSVC (/W4 and above).
+PUSH_WARNINGS(GDI_PLUS_DISABLED_WARNINGS)
 #include <gdiplus.h>
+POP_WARNINGS()
 #include <Shlwapi.h>
 
 namespace olc
