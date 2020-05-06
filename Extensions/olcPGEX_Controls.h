@@ -2,15 +2,14 @@
 	olcPGEX_Controls.h
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                        Controls                             |
+	|                       Controls                              |
 	+-------------------------------------------------------------+
-
+	
 	What is this?
 	~~~~~~~~~~~~~
 	This is an extension to the olcPixelGameEngine, which provides
-	basic controls (For now buttons, progress bars and sliders) and event
+	basic controls and event
 	handling.
-	NOTE: This version may still contain some bugs
 
 	Example
 	~~~~~~~
@@ -36,13 +35,16 @@
 
 		bool OnUserCreate() override
 		{
-			olc::ctrls::CSlider red(this, olc::vf2d(200, 200), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
+		
+			olc::ctrls::Init(this);
+			
+			olc::ctrls::CSlider red(olc::vf2d(200, 200), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
 			this->red = red;
 
-			olc::ctrls::CSlider green(this, olc::vf2d(200, 250), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
+			olc::ctrls::CSlider green(olc::vf2d(200, 250), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
 			this->green = green;
 
-			olc::ctrls::CSlider blue(this, olc::vf2d(200, 300), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
+			olc::ctrls::CSlider blue(olc::vf2d(200, 300), 300, olc::ctrls::HORIZONTAL, olc::GREY, olc::GREEN);
 			this->blue = blue;
 			return true;
 		}
@@ -155,6 +157,26 @@ namespace olc
 				}
 				return false;
 			}
+			void H_CClicked(BasicControl* ctrl)
+			{
+				for (CEventHandler* handler : hndlrs)
+					handler->CClicked(pge, ctrl);
+			}
+			void H_CReleased(BasicControl* ctrl)
+			{
+				for (CEventHandler* handler : hndlrs)
+					handler->CReleased(pge, ctrl);
+			}
+			void H_CHover(BasicControl* ctrl)
+			{
+				for (CEventHandler* handler : hndlrs)
+					handler->CHover(pge, ctrl);
+			}
+			void H_CValueChanged(BasicControl* ctrl, float newValue)
+			{
+				for (CEventHandler* handler : hndlrs)
+					handler->CValueChanged(pge, ctrl, newValue);
+			}
 		};
 
 
@@ -220,10 +242,7 @@ namespace olc
 				if (IsInBounds(x, y, width, height, pge->GetMouseX(), pge->GetMouseY())) {
 					bgc = &bg_color_hover;
 					fgc = &fg_color_hover;
-					for (auto& ev : hndlrs)
-					{
-						ev->CHover(pge, this);
-					}
+					H_CHover(this);
 				}
 				pge->FillRect(x, y, width, height, *bgc);
 				pge->DrawString(x + textPosX, y + textPosY, this->text, *fgc, 2);
@@ -232,17 +251,11 @@ namespace olc
 				{
 					if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
 					{
-						for (auto& ev : hndlrs)
-						{
-							ev->CClicked(pge, this);
-						}
+						H_CClicked(this);
 					}
 					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
 					{
-						for (auto& ev : hndlrs)
-						{
-							ev->CReleased(pge, this);
-						}
+						H_CReleased(this);
 					}
 				}
 			}
@@ -312,10 +325,7 @@ namespace olc
 			void Increment(float v)
 			{
 				value += v;
-				for (auto& e : hndlrs)
-				{
-					e->CValueChanged(pge, this, value);
-				}
+				H_CValueChanged(this, v);
 			}
 			/* Only Increments if value in range */
 			void SafeIncrement(float v)
@@ -325,10 +335,7 @@ namespace olc
 			}
 			void Decrement(float v) {
 				this->value -= v;
-				for (auto& e : hndlrs)
-				{
-					e->CValueChanged(pge, this, this->value);
-				}
+				H_CValueChanged(this, v);
 			}
 			/* Only Decrements if value in range */
 			void SafeDecrement(float v)
@@ -341,10 +348,7 @@ namespace olc
 			{
 				if (v != value)
 				{
-					for (auto& o : hndlrs)
-					{
-						o->CValueChanged(pge, this, v);
-					}
+					H_CValueChanged(this, v);
 				}
 				value = v;
 			}
@@ -364,16 +368,13 @@ namespace olc
 			}
 			void UpdateControl() override
 			{
-				for (auto& e : hndlrs)
+				if (IsInBounds(this->x, this->y, this->width, this->height, pge->GetMouseX(), pge->GetMouseY()))
 				{
-					if (IsInBounds(this->x, this->y, this->width, this->height, pge->GetMouseX(), pge->GetMouseY()))
-					{
-						e->CHover(pge, this);
-						if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
-							e->CClicked(pge, this);
-						if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
-							e->CReleased(pge, this);
-					}
+					H_CHover(this);
+					if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
+						H_CClicked(this);
+					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
+						H_CReleased(this);
 				}
 				float nw = this->width;
 				float nh = this->height;
@@ -455,22 +456,15 @@ namespace olc
 					CBoundingBox* cbb = CreateBoundingBox(this->x + headOffset, this->y - 30/2, 10, 30);
 					if (IsInBounds(cbb->x, cbb->y, cbb->width, cbb->height, pge->GetMouseX(), pge->GetMouseY()))
 					{
-						for (auto& o : hndlrs)
-						{
-							o->CHover(pge, this);
-						}
+						H_CHover(this);
 						if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
 						{
 							bSelected = true;
-							for (auto& o : hndlrs) {
-								o->CClicked(pge, this);
-							}
+							H_CClicked(this);
 						}
 						if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
 						{
-							for (auto& o : hndlrs) {
-								o->CReleased(pge, this);
-							}
+							H_CReleased(this);
 						}
 					}
 					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
@@ -483,10 +477,7 @@ namespace olc
 						if (newOffset >= -1 && newOffset <= (int)this->size + 1)
 						{
 							this->headOffset = newOffset;
-							for (auto& o : hndlrs)
-							{
-								o->CValueChanged(pge, this, headOffset);
-							}
+							H_CValueChanged(this, headOffset);
 						}
 					}
 					pge->FillRect(this->x, this->y, this->size, 5, this->guide_color);
@@ -500,22 +491,15 @@ namespace olc
 					CBoundingBox* cbb = CreateBoundingBox(this->x - 30/2, this->y + headOffset, 30, 10);
 					if (IsInBounds(cbb->x, cbb->y, cbb->width, cbb->height, pge->GetMouseX(), pge->GetMouseY()))
 					{
-						for (auto& o : hndlrs)
-						{
-							o->CHover(pge, this);
-						}
+						H_CHover(this);
 						if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
 						{
 							bSelected = true;
-							for (auto& o : hndlrs) {
-								o->CClicked(pge, this);
-							}
+							H_CClicked(this);
 						}
 						if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
 						{
-							for (auto& o : hndlrs) {
-								o->CReleased(pge, this);
-							}
+							H_CReleased(this);
 						}
 					}
 					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
@@ -528,10 +512,7 @@ namespace olc
 						if (newOffset >= -1 && newOffset <= (int)this->size + 1)
 						{
 							this->headOffset = newOffset;
-							for (auto& o : hndlrs)
-							{
-								o->CValueChanged(pge, this, headOffset);
-							}
+							H_CValueChanged(this, headOffset);
 						}
 					}
 					pge->FillRect(this->x, this->y, 5, this->size, this->guide_color);
@@ -609,15 +590,11 @@ namespace olc
 							nVal = 0;
 							break;
 						}
-						for (auto& o : hndlrs) {
-							o->CClicked(pge, this);
-							o->CValueChanged(pge, this, nVal);
-						}
+						H_CClicked(this);
+						H_CValueChanged(this, nVal);
 					}
 					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased) {
-						for (auto& o : hndlrs) {
-							o->CReleased(pge, this);
-						}
+						H_CReleased(this);
 					}
 				}
 
@@ -683,25 +660,20 @@ namespace olc
 				CBoundingBox* cbb = CreateBoundingBox(x - radius, y - radius, radius * 2, radius * 2);
 				if (IsInBounds(cbb->x, cbb->y, cbb->width, cbb->height, pge->GetMouseX(), pge->GetMouseY()))
 				{
-					for (auto& o : hndlrs)
+					H_CHover(this);
+					if (lastValue != pge->GetMouseWheel())
 					{
-						o->CHover(pge, this);
-						if (lastValue != pge->GetMouseWheel())
-						{
-							o->CValueChanged(pge, this, GetPercent());
-						}
-						lastValue = pge->GetMouseWheel();
+						H_CValueChanged(this, GetPercent());
 					}
+					lastValue = pge->GetMouseWheel();
 					if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
-						for (auto& o : hndlrs)
-						{
-							o->CClicked(pge, this);
-						}
+					{
+						H_CClicked(this);
+					}
 					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
-						for (auto& o : hndlrs)
-						{
-							o->CReleased(pge, this);
-						}
+					{
+						H_CReleased(this);
+					}
 					angle += (float)pge->GetMouseWheel() / 20;
 				}
 				if ((int)GetPercent() > 100)
@@ -720,7 +692,7 @@ namespace olc
 		--------------------------------------------------
 		*/
 
-		/* A CCheckBox pool. Only one CCB can be checked */
+		/* A basic checkbox pool */
 		class CPool_Handler : public CEventHandler
 		{
 		public:
