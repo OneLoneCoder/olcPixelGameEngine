@@ -255,10 +255,10 @@ namespace olc
 				this->textYOffset = 0;
 				this->textScale = textScale;
 			}
-			void PlaceText(float tpx, float tpy)
+			void PlaceText(float textXOffset, float textYOffset)
 			{
-				textXOffset = tpx;
-				textYOffset = tpy;
+				this->textXOffset = textXOffset;
+				this->textYOffset = textYOffset;
 			}
 			float GetX() override
 			{
@@ -313,7 +313,7 @@ namespace olc
 			float width;
 			float height;
 			float value;
-			float targetValue = 0.0f;
+			//float targetValue = 0.0f;
 			olc::Pixel backgroundColor;
 			olc::Pixel foregroundColor;
 			Orientation orientation;
@@ -369,7 +369,7 @@ namespace olc
 			}
 			void Increment(float incrementValue)
 			{
-				targetValue = value + incrementValue;
+				value = value + incrementValue;
 				H_CValueChanged(this, value);
 			}
 			/* Only Increments if value in range */
@@ -379,7 +379,7 @@ namespace olc
 					Increment(incrementValue);
 			}
 			void Decrement(float decrementValue) {
-				targetValue = value - decrementValue;
+				value = value - decrementValue;
 				H_CValueChanged(this, value);
 			}
 			/* Only Decrements if value in range */
@@ -394,7 +394,7 @@ namespace olc
 				{
 					H_CValueChanged(this, value);
 				}
-				targetValue = newValue;
+				value = newValue;
 			}
 			float GetValue()
 			{
@@ -421,19 +421,22 @@ namespace olc
 				}
 
 				// Smooth progress bars
-				if ((int)value != (int)targetValue)
+				/*if ((int)value != (int)targetValue)
 				{
 					if ((int)targetValue < (int)value)
 					{
-						if (!IsEmpty())
-							value -= 0.4f;
+						if (value+1 >= 0)
+							value -= 0.2f;
+						else
+							if (value > targetValue)
+								value = 0;
 					}
 					else if ((int)targetValue > (int)value)
 					{
-						if (!IsFull())
+						if (value <= 100)
 							value += 0.4f;
 					}
-				}
+				}*/
 				float newWidth = width;
 				float newHeight = height;
 				switch (orientation)
@@ -607,8 +610,8 @@ namespace olc
 				this->textScale = textScale;
 			}
 			void PlaceText(float textXOffset, float textYOffset) {
-				textXOffset = textXOffset;
-				textYOffset = textYOffset;
+				this->textXOffset = textXOffset;
+				this->textYOffset = textYOffset;
 			}
 			float GetX() override
 			{
