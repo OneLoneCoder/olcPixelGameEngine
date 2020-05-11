@@ -8,10 +8,13 @@
 	What is this?
 	~~~~~~~~~~~~~
 	This is an extension to the olcPixelGameEngine, which provides
-	some basic controls and event handlers.
+	controls, event handler and other things, that help to design a GUI
+	using the olcPixelGameEngine.
 
 	Example
 	~~~~~~~
+
+	// A basic RGB color picker
 
 	#define OLC_PGE_APPLICATION
 	#include "olcPixelGameEngine.h"
@@ -77,15 +80,17 @@
 		return 0;
 	}
 
-	What's new in 09.05.20
-	~~~~~~~~~~~~~~~~~~~~~~
-	  - Even more names are understandable
-	  - Added the 'AnyEvent' event
-	  - Other stuff.
+	What's new?
+	~~~~~~~~~~~
+	  - Slider looks better
+	  - Box is now sensitive to events
+	  - You can draw the box as well if you want to
 */
 
 #ifdef OLC_PGEX_CONTROLS
 #undef OLC_PGEX_CONTROLS
+
+#define MOUSE_POINT Point(pge->GetMouseX(), pge->GetMouseY())
 
 namespace olc
 {
@@ -104,44 +109,40 @@ namespace olc
 			pge = pixelGameEngine;
 		}
 
-		struct Box
+		class Point
 		{
-			int x;
-			int y;
-			int width;
-			int height;
-			Box(int x, int y, int width, int height);
-			bool Contains(int pointX, int pointY);
+		public:
+			float x;
+			float y;
+			Point(float x = 0, float y = 0)
+			{
+				this->x = x;
+				this->y = y;
+			}
+			float GetX()
+			{
+				return this->x;
+			}
+			float GetY()
+			{
+				return this->y;
+			}
 		};
 
-		Box::Box(int x, int y, int width, int height) {
-			this->x = x;
-			this->y = y;
-			this->width = width;
-			this->height = height;
-		}
-
-		bool Box::Contains(int pointX, int pointY)
-		{
-			if (pointX > x && pointX <= x + width && pointY >= y && pointY <= y + height)
-			{
-				return true;
-			}
-			return false;
-		}
-
-		class BaseControl;
+		class BaseComponent;
 		class EventHandler
 		{
 		public:
-			virtual void MouseClicked(olc::PixelGameEngine* pge, BaseControl* control) {}
-			virtual void MouseReleased(olc::PixelGameEngine* pge, BaseControl* control) {}
-			virtual void MouseHover(olc::PixelGameEngine* pge, BaseControl* control) {}
-			virtual void ValueChanged(olc::PixelGameEngine* pge, BaseControl* control, float newValue) {}
-			virtual void AnyEvent(olc::PixelGameEngine* pge, BaseControl* control) {}
+			virtual void MouseClicked(olc::PixelGameEngine* pge, BaseComponent* control, Point mouse) {}
+			virtual void MouseReleased(olc::PixelGameEngine* pge, BaseComponent* control, Point mouse) {}
+			virtual void MouseHover(olc::PixelGameEngine* pge, BaseComponent* control, Point mouse) {}
+			virtual void ValueChanged(olc::PixelGameEngine* pge, BaseComponent* control, float newValue) {}
+			
+			/* Any event on the component has occured */
+			virtual void AnyEvent(olc::PixelGameEngine* pge, BaseComponent* control) {}
 		};
 
-		class BaseControl
+		class BaseComponent
 		{
 		public:
 			std::vector<EventHandler*> eventHandlers;
@@ -200,34 +201,34 @@ namespace olc
 			{
 				this->eventHandlers.push_back(evh);
 			}
-			void CallMouseClicked(BaseControl* ctrl)
+			void CallMouseClicked(BaseComponent* ctrl)
 			{
 				if (!lockHandlers)
 					for (EventHandler* handler : eventHandlers)
 					{
-						handler->MouseClicked(pge, ctrl);
+						handler->MouseClicked(pge, ctrl, MOUSE_POINT);
 						handler->AnyEvent(pge, ctrl);
 					}
 			}
-			void CallMouseReleased(BaseControl* ctrl)
+			void CallMouseReleased(BaseComponent* ctrl)
 			{
 				if (!lockHandlers)
 					for (EventHandler* handler : eventHandlers)
 					{
-						handler->MouseReleased(pge, ctrl);
+						handler->MouseReleased(pge, ctrl, MOUSE_POINT);
 						handler->AnyEvent(pge, ctrl);
 					}
 			}
-			void CallMouseHover(BaseControl* ctrl)
+			void CallMouseHover(BaseComponent* ctrl)
 			{
 				if (!lockHandlers)
 					for (EventHandler* handler : eventHandlers)
 					{
-						handler->MouseHover(pge, ctrl);
+						handler->MouseHover(pge, ctrl, MOUSE_POINT);
 						handler->AnyEvent(pge, ctrl);
 					}
 			}
-			void CallValueChanged(BaseControl* ctrl, float newValue)
+			void CallValueChanged(BaseComponent* ctrl, float newValue)
 			{
 				if (!lockHandlers)
 					for (EventHandler* handler : eventHandlers)
@@ -238,13 +239,50 @@ namespace olc
 			}
 		};
 
-		/*
-		--------------------------------------------------
-				All controls are registered below
-		--------------------------------------------------
-		*/
+		class Box : public BaseComponent
+		{
+		public:
+			float x;
+			float y;
+			float width;
+			float height;
+			bool draw;
+			olc::Pixel backgroundColor;
+			Box(float x, float y, float width, float height, bool draw = false, olc::Pixel backgroundColor = olc::Pixel(225, 225, 225))
+			{
+				this->x = x;
+				this->y = y;
+				this->width = width;
+				this->height = height;
+				this->backgroundColor = backgroundColor;
+			}
+			float GetX() override { return x; }
+			float GetY() override { return y; }
+			float GetWidth() override { return width; }
+			float GetHeight() override { return height; }
+			bool Contains(float pointX, float pointY)
+			{
+				if ((int)pointX > (int)x && (int)pointX <= (int)x + (int)width && (int)pointY >= (int)y && (int)pointY <= (int)y + (int)height)
+				{
+					return true;
+				}
+				return false;
+			}
+			void UpdateSelf() override
+			{
+				pge->FillRect(x, y, width, height, backgroundColor);
+				if (Contains(pge->GetMouseX(), pge->GetMouseY()))
+				{
+					CallMouseHover(this);
+					if (pge->GetMouse(0).bPressed || pge->GetMouse(1).bPressed || pge->GetMouse(2).bPressed)
+						CallMouseClicked(this);
+					if (pge->GetMouse(0).bReleased || pge->GetMouse(1).bReleased || pge->GetMouse(2).bReleased)
+						CallMouseReleased(this);
+				}
+			}
+		};
 
-		class Button : public BaseControl
+		class Button : public BaseComponent
 		{
 		public:
 			float x;
@@ -322,7 +360,7 @@ namespace olc
 			}
 		};
 
-		class ProgressBar : public BaseControl
+		class ProgressBar : public BaseComponent
 		{
 		public:
 			float x;
@@ -468,7 +506,7 @@ namespace olc
 			}
 		};
 
-		class Slider : public BaseControl
+		class Slider : public BaseComponent
 		{
 		public:
 			float x;
@@ -558,6 +596,7 @@ namespace olc
 					}
 					pge->FillRect(x, y, size, 5, backgroundColor);
 					pge->FillRect(x + headOffset, y - 30 / 2, 10, 30, foregroundColor);
+					pge->FillRect(x, y, headOffset, 5, foregroundColor);
 					delete boundingBox;
 					return;
 				}
@@ -600,7 +639,7 @@ namespace olc
 			}
 		};
 
-		class CheckBox : public BaseControl
+		class CheckBox : public BaseComponent
 		{
 		public:
 			float x;
@@ -674,7 +713,7 @@ namespace olc
 		};
 
 		/* Similar to a slider but in a circle */
-		class Wheel : public BaseControl
+		class Wheel : public BaseComponent
 		{
 		public:
 			olc::Pixel outlineColor;
@@ -758,7 +797,6 @@ namespace olc
 			}
 		};
 
-
 		/* A basic checkbox pool */
 		class CheckBoxPool : public EventHandler
 		{
@@ -776,7 +814,7 @@ namespace olc
 			{
 				this->checkboxVector = checkboxVector;
 			}
-			void ValueChanged(olc::PixelGameEngine* pge, BaseControl* ctrl, float nVal) override
+			void ValueChanged(olc::PixelGameEngine* pge, BaseComponent* ctrl, float nVal) override
 			{
 				for (CheckBox* cb : checkboxVector)
 				{
