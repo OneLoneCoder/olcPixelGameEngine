@@ -2395,10 +2395,10 @@ namespace olc
 			};
 
 			int pf = 0;
-			if ((pf = ChoosePixelFormat(glDeviceContext, &pfd)) != 0) return olc::FAIL;
+			if ((pf = ChoosePixelFormat(glDeviceContext, &pfd)) == 0) return olc::FAIL;
 			SetPixelFormat(glDeviceContext, pf, &pfd);
 
-			if (((glRenderContext = wglCreateContext(glDeviceContext))) != nullptr) return olc::FAIL;
+			if ((glRenderContext = wglCreateContext(glDeviceContext)) == nullptr) return olc::FAIL;
 			wglMakeCurrent(glDeviceContext, glRenderContext);
 
 			// Remove Frame cap
