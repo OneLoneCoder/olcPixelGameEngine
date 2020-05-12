@@ -50,7 +50,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 */
 
 
@@ -177,6 +177,9 @@ private:
 		return (rnd() % (max - min)) + min;
 	}
 	
+	// Modified from this for 64-bit systems:
+	// https://lemire.me/blog/2019/03/19/the-fastest-conventional-random-number-generator-that-can-pass-big-crush/
+	// Now I found the link again - Also, check out his blog, it's a fantastic resource!
 	uint32_t rnd()
 	{
 		nProcGen += 0xe120fc15;
