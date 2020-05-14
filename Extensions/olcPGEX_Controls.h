@@ -82,9 +82,10 @@
 
 	What's new?
 	~~~~~~~~~~~
-	  - Slider looks better
-	  - Box is now sensitive to events
-	  - You can draw the box as well if you want to
+	  - Now there are frames! And more precisely, child frames.
+	    You can stick any component from olcPGEX_Controls you'd like to.
+	  - There's a new class as well. ComponentPositionController. It's not a controller though.
+	    It's just to store the pointer to the component variable and the offset position
 */
 
 #ifdef OLC_PGEX_CONTROLS
@@ -148,6 +149,8 @@ namespace olc
 			std::vector<EventHandler*> eventHandlers;
 			bool lockHandlers = false;
 			bool lockUpdates = false;
+			int x = 0;
+			int y = 0;
 			void LockHandlers()
 			{
 				lockHandlers = true;
@@ -172,14 +175,14 @@ namespace olc
 			{
 				return lockUpdates;
 			}
-			virtual float GetX()
+			float GetX()
 			{
-				return 0.0f;
+				return x;
 			}
 
-			virtual float GetY()
+			float GetY()
 			{
-				return 0.0f;
+				return y;
 			}
 
 			virtual float GetWidth()
@@ -242,13 +245,11 @@ namespace olc
 		class Box : public BaseComponent
 		{
 		public:
-			float x;
-			float y;
 			float width;
 			float height;
 			bool draw;
 			olc::Pixel backgroundColor;
-			Box(float x, float y, float width, float height, bool draw = false, olc::Pixel backgroundColor = olc::Pixel(225, 225, 225))
+			Box(float x = 0.0f, float y = 0.0f, float width = 0.0f, float height = 0.0f, bool draw = false, olc::Pixel backgroundColor = olc::Pixel(225, 225, 225))
 			{
 				this->x = x;
 				this->y = y;
@@ -256,8 +257,6 @@ namespace olc
 				this->height = height;
 				this->backgroundColor = backgroundColor;
 			}
-			float GetX() override { return x; }
-			float GetY() override { return y; }
 			float GetWidth() override { return width; }
 			float GetHeight() override { return height; }
 			bool Contains(float pointX, float pointY)
@@ -285,8 +284,6 @@ namespace olc
 		class Button : public BaseComponent
 		{
 		public:
-			float x;
-			float y;
 			float width;
 			float height;
 			float textXOffset;
@@ -316,14 +313,6 @@ namespace olc
 			{
 				textXOffset = tpx;
 				textYOffset = tpy;
-			}
-			float GetX() override
-			{
-				return x;
-			}
-			float GetY() override
-			{
-				return y;
 			}
 			float GetWidth() override
 			{
@@ -363,8 +352,6 @@ namespace olc
 		class ProgressBar : public BaseComponent
 		{
 		public:
-			float x;
-			float y;
 			float width;
 			float height;
 			float value;
@@ -391,14 +378,6 @@ namespace olc
 						orientation = HORIZONTAL;
 
 				this->orientation = orientation;
-			}
-			float GetX() override
-			{
-				return x;
-			}
-			float GetY() override
-			{
-				return y;
 			}
 			float GetWidth() override
 			{
@@ -509,8 +488,6 @@ namespace olc
 		class Slider : public BaseComponent
 		{
 		public:
-			float x;
-			float y;
 			float size;
 			float headOffset;
 			olc::Pixel backgroundColor;
@@ -530,14 +507,6 @@ namespace olc
 					orientation = HORIZONTAL;
 
 				this->orientation = orientation;
-			}
-			float GetX() override
-			{
-				return x;
-			}
-			float GetY() override
-			{
-				return y;
 			}
 			float GetWidth() override
 			{
@@ -642,8 +611,6 @@ namespace olc
 		class CheckBox : public BaseComponent
 		{
 		public:
-			float x;
-			float y;
 			float textXOffset = 0;
 			float textYOffset = 0;
 			wint_t textScale;
@@ -665,14 +632,6 @@ namespace olc
 			void PlaceText(float textXOffset, float textYOffset) {
 				this->textXOffset = textXOffset;
 				this->textYOffset = textYOffset;
-			}
-			float GetX() override
-			{
-				return x;
-			}
-			float GetY() override
-			{
-				return y;
 			}
 			bool IsChecked() {
 				return Checked;
@@ -719,8 +678,6 @@ namespace olc
 			olc::Pixel outlineColor;
 			olc::Pixel dotColor;
 			olc::Pixel backgroundColor;
-			int x;
-			int y;
 			int width;
 			int height;
 			int dotSize;
@@ -736,14 +693,6 @@ namespace olc
 				this->x = position.x;
 				this->y = position.y;
 				this->dotSize = dotSize;
-			}
-			float GetX() override
-			{
-				return x;
-			}
-			float GetY() override
-			{
-				return y;
 			}
 			float GetPercent()
 			{
@@ -795,6 +744,79 @@ namespace olc
 				pge->FillCircle(x + radius / 2 * sin(angle), y + radius / 2 * cos(angle), dotSize, dotColor);
 				delete boundingBox;
 			}
+		};
+
+		/*
+		Stuff that stores a component pointer and a offset pos 
+		Not really a controller though ...
+		*/
+		class ComponentPositionController
+		{
+		public:
+			BaseComponent* component;
+			olc::vf2d offsetPosition;
+			ComponentPositionController(BaseComponent* component, olc::vf2d offsetPosition)
+			{
+				this->component = component;
+				this->offsetPosition = offsetPosition;
+			}
+		};
+
+		class Frame : public BaseComponent
+		{
+		public:
+			olc::vf2d size;
+			olc::Pixel backgroundColor;
+			olc::Pixel topBarColor;
+			bool selected = false;
+			float topBarHeight = 15.0f;
+			std::vector<ComponentPositionController> components;
+			Frame(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), olc::Pixel backgroundColor = olc::Pixel(225, 225, 225), olc::Pixel topBarColor = olc::Pixel(26, 188, 156))
+			{
+				this->x = position.x;
+				this->y = position.y;
+				this->size = size;
+				this->backgroundColor = backgroundColor;
+				this->topBarColor = topBarColor;
+			}
+			void AddBaseComponent(BaseComponent* basecomp, olc::vf2d offsetPosition = olc::vf2d(0.0f, 0.0f))
+			{
+				this->components.push_back(ComponentPositionController(basecomp, offsetPosition));
+			}
+			void UpdateContents()
+			{
+				for (int i = 0; i < components.size(); i ++)
+				{
+					ComponentPositionController cpc = components[i];
+					BaseComponent* bcomp = cpc.component;
+					bcomp->x = x + cpc.offsetPosition.x;
+					bcomp->y = y + topBarHeight + cpc.offsetPosition.y;
+					cpc.component = bcomp;
+					components[i] = cpc;
+				}
+			}
+			void UpdateSelf() override
+			{
+				Box* boundingBox = new Box(x, y, size.x, topBarHeight);
+				if (pge->GetMouse(0).bPressed)
+				{
+					if (boundingBox->Contains(pge->GetMouseX(), pge->GetMouseY()))
+						selected = true;
+					else
+						selected = false;
+				}
+				if (pge->GetMouse(0).bReleased)
+					selected = false;
+				if (selected)
+				{
+					x = pge->GetMouseX();
+					y = pge->GetMouseY();
+				}
+				pge->FillRect(x, y, size.x, size.y, backgroundColor);
+				pge->FillRect(x, y, size.x, topBarHeight, topBarColor);
+				delete boundingBox;
+			}
+
 		};
 
 		/* A basic checkbox pool */
