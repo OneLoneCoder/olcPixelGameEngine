@@ -82,10 +82,9 @@
 
 	What's new?
 	~~~~~~~~~~~
-	  - Now there are frames! And more precisely, child frames.
-	    You can stick any component from olcPGEX_Controls you'd like to.
-	  - There's a new class as well. ComponentPositionController. It's not a controller though.
-	    It's just to store the pointer to the component variable and the offset position
+	  - Slider looks better
+	  - Box is now sensitive to events
+	  - You can draw the box as well if you want to
 */
 
 #ifdef OLC_PGEX_CONTROLS
@@ -294,7 +293,7 @@ namespace olc
 			olc::Pixel foregroundColorHover;
 			std::string text;
 			int32_t textScale;
-			Button(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), std::string text = "Button", int32_t textScale = 2U, olc::Pixel backgroundColor = olc::Pixel(44, 62, 80), olc::Pixel backgroundColorHover = olc::Pixel(52, 73, 94), olc::Pixel foregroundColor = olc::Pixel(236, 240, 241), olc::Pixel foregroundColorHover = olc::Pixel(236, 240, 241))
+			Button(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), std::string text = "Button", int32_t textScale = 2U, olc::Pixel backgroundColor = olc::Pixel(67, 112, 181), olc::Pixel backgroundColorHover = olc::Pixel(19, 52, 105), olc::Pixel foregroundColor = olc::Pixel(236, 240, 241), olc::Pixel foregroundColorHover = olc::Pixel(236, 240, 241))
 			{
 				this->x = position.x;
 				this->y = position.y;
@@ -359,7 +358,7 @@ namespace olc
 			olc::Pixel backgroundColor;
 			olc::Pixel foregroundColor;
 			Orientation orientation;
-			ProgressBar(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), Orientation orientation = Orientation::HORIZONTAL, olc::Pixel backgroundColor = olc::Pixel(88, 92, 92), olc::Pixel foregroundColor = olc::Pixel(39, 174, 96))
+			ProgressBar(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), Orientation orientation = Orientation::AUTO, olc::Pixel backgroundColor = olc::Pixel(88, 92, 92), olc::Pixel foregroundColor = olc::Pixel(67, 112, 181))
 			{
 				this->x = position.x;
 				this->y = position.y;
@@ -494,7 +493,7 @@ namespace olc
 			olc::Pixel foregroundColor;
 			Orientation orientation;
 			bool IsSelected = false;
-			Slider(olc::vf2d position = olc::vf2d(0.0f, 0.0f), float size = 0.0f, Orientation orientation = AUTO, olc::Pixel backgroundColor = olc::Pixel(88, 92, 92), olc::Pixel foregroundColor = olc::Pixel(39, 174, 96))
+			Slider(olc::vf2d position = olc::vf2d(0.0f, 0.0f), float size = 0.0f, Orientation orientation = AUTO, olc::Pixel backgroundColor = olc::Pixel(88, 92, 92), olc::Pixel foregroundColor = olc::Pixel(67, 112, 181))
 			{
 				this->x = position.x;
 				this->y = position.y;
@@ -684,7 +683,7 @@ namespace olc
 			float angle = 0.0f;
 			float radius = 20;
 			int32_t lastValue = 0;
-			Wheel(olc::vf2d position = olc::vf2d(0, 0), float radius = 0.0f, float dotSize = 0.0f, olc::Pixel outlineColor = olc::Pixel(236, 240, 241), olc::Pixel dotColor = olc::Pixel(46, 204, 113), olc::Pixel bgColor = olc::Pixel(0, 0, 0))
+			Wheel(olc::vf2d position = olc::vf2d(0, 0), float radius = 0.0f, float dotSize = 0.0f, olc::Pixel outlineColor = olc::Pixel(236, 240, 241), olc::Pixel dotColor = olc::Pixel(67, 112, 181), olc::Pixel bgColor = olc::Pixel(0, 0, 0))
 			{
 				this->outlineColor = outlineColor;
 				this->dotColor = dotColor;
@@ -771,7 +770,7 @@ namespace olc
 			bool selected = false;
 			float topBarHeight = 15.0f;
 			std::vector<ComponentPositionController> components;
-			Frame(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), olc::Pixel backgroundColor = olc::Pixel(225, 225, 225), olc::Pixel topBarColor = olc::Pixel(26, 188, 156))
+			Frame(olc::vf2d position = olc::vf2d(0.0f, 0.0f), olc::vf2d size = olc::vf2d(0.0f, 0.0f), olc::Pixel backgroundColor = olc::Pixel(225, 225, 225), olc::Pixel topBarColor = olc::Pixel(67, 112, 181))
 			{
 				this->x = position.x;
 				this->y = position.y;
