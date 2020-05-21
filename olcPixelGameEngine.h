@@ -1473,56 +1473,120 @@ namespace olc
 	void PixelGameEngine::DrawCircle(const olc::vi2d& pos, int32_t radius, Pixel p, uint8_t mask)
 	{ DrawCircle(pos.x, pos.y, radius, p, mask);}
 
-	void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
-	{
-		int x0 = 0;
-		int y0 = radius;
-		int d = 3 - 2 * radius;
-		if (!radius) return;
+    void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
+    {
+        // Trivial elimination - negative radius, or outside the draw area
+        if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+            return;
 
-		while (y0 >= x0) // only formulate 1/8 of circle
-		{
-			if (mask & 0x01) Draw(x + x0, y - y0, p);
-			if (mask & 0x02) Draw(x + y0, y - x0, p);
-			if (mask & 0x04) Draw(x + y0, y + x0, p);
-			if (mask & 0x08) Draw(x + x0, y + y0, p);
-			if (mask & 0x10) Draw(x - x0, y + y0, p);
-			if (mask & 0x20) Draw(x - y0, y + x0, p);
-			if (mask & 0x40) Draw(x - y0, y - x0, p);
-			if (mask & 0x80) Draw(x - x0, y - y0, p);
-			if (d < 0) d += 4 * x0++ + 6;
-			else d += 4 * (x0++ - y0--) + 10;
-		}
-	}
+        if (radius > 0)
+        {
+            /*
+            Circle quadrants:
+                    \0|7/
+                    1\|/6
+                    --+--
+                    2/|\5
+                    /3|4\
+            Will draw the outer edges of 'even' octants unconditionally, but only draw the 'odd' ones where they do not overlap (ie, not when x0 = 0 or x0 = y0).
+            Note: this breaks down on radius = 0, hence special case below.
+            */
+
+            int x0 = 0;
+            int y0 = radius;
+            int d = 3 - 2 * radius;
+
+            while (y0 >= x0) // only formulate 1/8 of circle
+            {
+                // Draw even octants
+                if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
+                if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
+                if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
+                if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
+
+                // Draw odd octants where they do not overlap even octants
+                if (x0 != 0 && x0 != y0)
+                {
+                    if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
+                    if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
+                    if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
+                    if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
+                }
+
+                if (d < 0)
+                    d += 4 * x0++ + 6;
+                else
+                    d += 4 * (x0++ - y0--) + 10;
+            }
+        }
+        else
+        {
+            Draw(x, y, p);
+        }
+    }
 
 	void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
 	{ FillCircle(pos.x, pos.y, radius, p); }
 
-	void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
-	{
-		// Taken from wikipedia
-		int x0 = 0;
-		int y0 = radius;
-		int d = 3 - 2 * radius;
-		if (!radius) return;
+    void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
+    {
+        // Trivial elimination - negative radius, or outside the draw area
+        if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+            return;
 
-		auto drawline = [&](int sx, int ex, int ny)
-		{
-			for (int i = sx; i <= ex; i++)
-				Draw(i, ny, p);
-		};
+        if (radius > 0)
+        {
+            int x0 = 0;
+            int y0 = radius;
+            int d = 3 - 2 * radius;
 
-		while (y0 >= x0)
-		{
-			// Modified to draw scan-lines instead of edges
-			drawline(x - x0, x + x0, y - y0);
-			drawline(x - y0, x + y0, y - x0);
-			drawline(x - x0, x + x0, y + y0);
-			drawline(x - y0, x + y0, y + x0);
-			if (d < 0) d += 4 * x0++ + 6;
-			else d += 4 * (x0++ - y0--) + 10;
-		}
-	}
+            /*
+            Circle octants:
+                    \0|7/
+                    1\|/6
+                    --+--
+                    2/|\5
+                    /3|4\
+
+            Drawing is carried out in horizontal bands, from the edges of one octant to the other:
+              Q1 & Q6 always
+              Q2 & Q5, except where it would overlap Q1 & Q6 (ie when x0 = 0)
+              Q0 & Q7, except where it would overlap Q1 & Q6 (ie when x0 = y0), and only when the y-coord changes
+              Q3 & Q4, except where it would overlap Q2 & Q5 (ie when x0 = y0), and only when the y-coord changes
+            Again, a special case for radius = 0
+            */
+
+            auto drawline = [&](int sx, int ex, int y)
+            {
+                for (int x = sx; x <= ex; x++)
+                    Draw(x, y, p);
+            };
+
+            while (y0 >= x0)
+            {
+                drawline(x - y0, x + y0, y - x0);             // Q1 & Q6
+
+                if (x0 > 0)
+                    drawline(x - y0, x + y0, y + x0);           // Q2 & Q5
+
+                if (d < 0)
+                    d += 4 * x0++ + 6;
+                else
+                {
+                    if (x0 != y0)
+                    {
+                        drawline(x - x0, x + x0, y - y0);         // Q0 & Q7
+                        drawline(x - x0, x + x0, y + y0);         // Q3 & Q4
+                    }
+                    d += 4 * (x0++ - y0--) + 10;
+                }
+            }
+        }
+        else
+        {
+            Draw(x, y, p);
+        }
+    }
 
 	void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
 	{ DrawRect(pos.x, pos.y, size.x, size.y, p); }
