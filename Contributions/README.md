@@ -11,6 +11,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/matt-hayward/olcPGEX_AnimatedSprite
 * Additional colour constants
   * https://github.com/matt-hayward/olcPGEX_AdditionalColours  
+* Various Sprite Handling & Camera Control Utilities
+  * https://github.com/justinrichardsmusic/PGEv2_Extensions
   
 ## MacOS Support
 * These will potentially be absorbed into main build
