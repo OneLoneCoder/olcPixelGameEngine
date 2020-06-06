@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.05              |
+	|           OneLoneCoder Pixel Game Engine v2.06              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -108,13 +108,13 @@
 	Thanks
 	~~~~~~
 	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim, IProgramInCPP
-	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice
+	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice, dandistine
 	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, SaladinAkara & MagetzUb 
 	for advice, ideas and testing, and I'd like to extend my appreciation to the 
-	144K YouTube followers,	70+ Patreons and 6K Discord server members who give me 
+	164K YouTube followers,	70+ Patreons and 8K Discord server members who give me 
 	the motivation to keep going with all this :D
 
-	Significant Contributors: @MaGetzUb, @slavka, @Dragoneye & @Gorbit99
+	Significant Contributors: @Moros1138, @SaladinAkara, @MaGetzUb, @slavka, @Dragoneye & @Gorbit99
 
 	Special thanks to those who bring gifts!
 	GnarGnarHead.......Domina
@@ -122,6 +122,7 @@
 	Marti Morta........Gris
 	Danicron...........Terraria
 	SaladinAkara.......Aseprite
+	AlterEgo...........Final Fantasy XII - The Zodiac Age
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
@@ -135,6 +136,16 @@
 	2.03: Added FreeBSD flags, Added DrawStringDecal()
 	2.04: Windows Full-Screen bug fixed
 	2.05: Added DrawPartialWarpedDecal(), Added DrawPartialRotatedDecal()
+	2.06: +GetTextSize() - returns area occupied by multiline string
+	      +GetWindowSize() - returns actual window size
+		  +GetElapsedTime() - returns last calculated fElapsedTime
+		  +GetWindowMouse() - returns actual mouse location in window
+		  +DrawExplicitDecal() - bow-chikka-bow-bow
+		  +DrawPartialDecal(pos, size) - draws a partial decal to dpecified area
+		  +FillRectDecal() - draws a flat shaded rectangle as a decal
+		  +GradientFillRectDecal() - draws a rectangle, with unique colour corners
+		  +Modified DrawCircle() & FillCircle() - Thanks IanM-Matrix1 (#PR121)
+		  +Gone someway to appeasing pedants
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +237,7 @@ int main()
 	#endif
 #endif
 
-#if defined(USE_EXPERIMENTAL_FS)
+#if defined(USE_EXPERIMENTAL_FS) || defined(FORCE_EXPERIMENTAL_FS)
 	// C++14
 	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 	#include <experimental/filesystem>
@@ -326,28 +337,28 @@ namespace olc
 	{
 		T x = 0;
 		T y = 0;
-		inline v2d_generic() : x(0), y(0)                        {                                                            }
-		inline v2d_generic(T _x, T _y) : x(_x), y(_y)            {                                                            }
-		inline v2d_generic(const v2d_generic& v) : x(v.x), y(v.y){                                                            }
-		inline T mag()                                           { return std::sqrt(x * x + y * y);                           }
-		inline T mag2()					                         { return x * x + y * y;                                      }
-		inline v2d_generic  norm()                               { T r = 1 / mag(); return v2d_generic(x*r, y*r);             }
-		inline v2d_generic  perp()                               { return v2d_generic(-y, x);                                 }
-		inline T dot(const v2d_generic& rhs)                     { return this->x * rhs.x + this->y * rhs.y;                  }
-		inline T cross(const v2d_generic& rhs)                   { return this->x * rhs.y - this->y * rhs.x;                  }
-		inline v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y);}
-		inline v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y);}
-		inline v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs);    }
-		inline v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y);}
-		inline v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs);    }
-		inline v2d_generic  operator /  (const v2d_generic& rhs) const { return v2d_generic(this->x / rhs.x, this->y / rhs.y);}
-		inline v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this;          }
-		inline v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this;          }
-		inline v2d_generic& operator *= (const T& rhs)           { this->x *= rhs; this->y *= rhs; return *this;              }
-		inline v2d_generic& operator /= (const T& rhs)           { this->x /= rhs; this->y /= rhs; return *this;              }
-		inline operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
-		inline operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) };     }
-		inline operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) };  }
+		v2d_generic() : x(0), y(0)                        {                                                            }
+		v2d_generic(T _x, T _y) : x(_x), y(_y)            {                                                            }
+		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y){                                                            }
+		T mag()                                           { return std::sqrt(x * x + y * y);                           }
+		T mag2()					                         { return x * x + y * y;                                      }
+		v2d_generic  norm()                               { T r = 1 / mag(); return v2d_generic(x*r, y*r);             }
+		v2d_generic  perp()                               { return v2d_generic(-y, x);                                 }
+		T dot(const v2d_generic& rhs)                     { return this->x * rhs.x + this->y * rhs.y;                  }
+		T cross(const v2d_generic& rhs)                   { return this->x * rhs.y - this->y * rhs.x;                  }
+		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y);}
+		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y);}
+		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs);    }
+		v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y);}
+		v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs);    }
+		v2d_generic  operator /  (const v2d_generic& rhs) const { return v2d_generic(this->x / rhs.x, this->y / rhs.y);}
+		v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this;          }
+		v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this;          }
+		v2d_generic& operator *= (const T& rhs)           { this->x *= rhs; this->y *= rhs; return *this;              }
+		v2d_generic& operator /= (const T& rhs)           { this->x /= rhs; this->y /= rhs; return *this;              }
+		operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
+		operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) };     }
+		operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) };  }
 	};
 
 	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
@@ -438,12 +449,12 @@ namespace olc
 
 	public:
 		void SetSampleMode(olc::Sprite::Mode mode = olc::Sprite::Mode::NORMAL);
-		Pixel GetPixel(int32_t x, int32_t y);
+		Pixel GetPixel(int32_t x, int32_t y) const;
 		bool  SetPixel(int32_t x, int32_t y, Pixel p);
-		Pixel GetPixel(const olc::vi2d& a);
+		Pixel GetPixel(const olc::vi2d& a) const;
 		bool  SetPixel(const olc::vi2d& a, Pixel p);
-		Pixel Sample(float x, float y);
-		Pixel SampleBL(float u, float v);
+		Pixel Sample(float x, float y) const;
+		Pixel SampleBL(float u, float v) const;
 		Pixel* GetData();
 		Pixel *pColData = nullptr;
 		Mode modeSample = Mode::NORMAL;
@@ -466,6 +477,24 @@ namespace olc
 	};
 
 	// O------------------------------------------------------------------------------O
+	// | olc::Renderable - Convenience class to keep a sprite and decal together      |
+	// O------------------------------------------------------------------------------O
+	class Renderable
+	{
+	public:
+		Renderable() = default;
+		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr);
+		void Create(uint32_t width, uint32_t height);
+		olc::Decal* Decal() const;
+		olc::Sprite* Sprite() const;
+
+	private:
+		std::unique_ptr<olc::Sprite> pSprite = nullptr;
+		std::unique_ptr<olc::Decal> pDecal = nullptr;
+	};
+
+
+	// O------------------------------------------------------------------------------O
 	// | Auxilliary components internal to engine                                     |
 	// O------------------------------------------------------------------------------O
 
@@ -475,7 +504,15 @@ namespace olc
 		olc::vf2d pos[4] = {{ 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
 		olc::vf2d uv[4] = {{ 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
 		float w[4] = { 1, 1, 1, 1 };
-		olc::Pixel tint;
+		olc::Pixel tint[4] = { olc::WHITE, olc::WHITE, olc::WHITE, olc::WHITE };;
+	};
+
+	struct DecalTriangleInstance
+	{
+		olc::vf2d points[3];
+		olc::vf2d texture[3];
+		olc::Pixel colours[3];
+		olc::Decal* decal = nullptr;
 	};
 
 	struct LayerDesc
@@ -563,12 +600,14 @@ namespace olc
 		int32_t GetMouseY();
 		// Get Mouse Wheel Delta
 		int32_t GetMouseWheel();
+		// Get the ouse in window space
+		const olc::vi2d& GetWindowMouse() const;
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
-		const int32_t ScreenWidth();
+		int32_t ScreenWidth();
 		// Returns the height of the screen in "pixels"
-		const int32_t ScreenHeight();
+		int32_t ScreenHeight();
 		// Returns the width of the currently selected drawing target in "pixels"
 		int32_t GetDrawTargetWidth();
 		// Returns the height of the currently selected drawing target in "pixels"
@@ -582,6 +621,10 @@ namespace olc
 		void SetDrawTarget(Sprite *target);
 		// Gets the current Frames Per Second
 		uint32_t GetFPS();
+		// Gets last update of elapsed time
+		const float GetElapsedTime() const;
+		// Gets Actual Window size
+		const olc::vi2d& GetWindowSize() const;
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
@@ -644,28 +687,40 @@ namespace olc
 		// selected area is (ox,oy) to (ox+w,oy+h)
 		void DrawPartialSprite(int32_t x, int32_t y, Sprite *sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 		void DrawPartialSprite(const olc::vi2d& pos, Sprite *sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
+		
+		// Decal Quad functions
+
 		// Draws a whole decal, with optional scale and tinting
 		void DrawDecal(const olc::vf2d& pos, olc::Decal *decal, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
 		// Draws a region of a decal, with optional scale and tinting
 		void DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
-		
+		void DrawPartialDecal(const olc::vf2d& pos, const olc::vf2d& size, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);		
+		// Draws fully user controlled 4 vertices, pos(pixels), uv(pixels), colours
+		void DrawExplicitDecal(olc::Decal* decal, const olc::vf2d *pos, const olc::vf2d *uv, const olc::Pixel *col);
+		// Draws a decal with 4 arbitrary points, warping the texture to look "correct"
 		void DrawWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::Pixel& tint = olc::WHITE);
 		void DrawWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::Pixel& tint = olc::WHITE);
 		void DrawWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::Pixel& tint = olc::WHITE);
-
-		void DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center = { 0.0f, 0.0f }, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
-
-		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
-		void DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f, 1.0f }, const olc::Pixel& tint = olc::WHITE);
-
+		// As above, but you can specify a region of a decal source sprite
 		void DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);
 		void DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);
-		void DrawPartialWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);
+		void DrawPartialWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);		
+		// Draws a decal rotated to specified angle, wit point of rotation offset
+		void DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center = { 0.0f, 0.0f }, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
+		void DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f, 1.0f }, const olc::Pixel& tint = olc::WHITE);
+		// Draws a multiline string as a decal, with tiniting and scaling
+		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+		// Draws a single shaded filled rectangle as a decal
+		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
+		// Draws a corner shaded rectangle as a decal
+		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
 
+		
 
 		// Draws a single line of text
 		void DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
 		void DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		olc::vi2d GetTextSize(const std::string& s);
 		// Clears entire draw target to Pixel
 		void Clear(Pixel p);
 		// Clears the rendering back buffer
@@ -685,6 +740,7 @@ namespace olc
 		olc::vi2d	vMousePos             = { 0, 0 };
 		int32_t		nMouseWheelDelta      = 0;
 		olc::vi2d	vMousePosCache        = { 0, 0 };
+		olc::vi2d   vMouseWindowPos       = { 0, 0 };
 		int32_t		nMouseWheelDeltaCache = 0;
 		olc::vi2d	vWindowSize           = { 0, 0 };
 		olc::vi2d	vViewPos              = { 0, 0 };
@@ -695,6 +751,7 @@ namespace olc
 		bool		bHasMouseFocus        = false;
 		bool		bEnableVSYNC          = false;
 		float		fFrameTimer           = 1.0f;
+		float		fLastElapsed          = 0.0f;
 		int			nFrameCount           = 0;
 		Sprite*     fontSprite            = nullptr;
 		Decal*		fontDecal			  = nullptr;
@@ -744,6 +801,8 @@ namespace olc
 		// NOTE: Items Here are to be deprecated, I have left them in for now
 		// in case you are using them, but they will be removed.
 		// olc::vf2d	vSubPixelOffset = { 0.0f, 0.0f };
+
+		friend class PGEX;
 	};
 
 
@@ -897,13 +956,13 @@ namespace olc
 	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
 	{ modeSample = mode; }
 
-	Pixel Sprite::GetPixel(const olc::vi2d& a)
+	Pixel Sprite::GetPixel(const olc::vi2d& a) const
 	{ return GetPixel(a.x, a.y); }
 
 	bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
 	{ return SetPixel(a.x, a.y, p); }
 
-	Pixel Sprite::GetPixel(int32_t x, int32_t y)
+	Pixel Sprite::GetPixel(int32_t x, int32_t y) const
 	{
 		if (modeSample == olc::Sprite::Mode::NORMAL)
 		{
@@ -929,14 +988,14 @@ namespace olc
 			return false;
 	}
 
-	Pixel Sprite::Sample(float x, float y)
+	Pixel Sprite::Sample(float x, float y) const
 	{
 		int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
 		int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
 		return GetPixel(sx, sy);
 	}
 
-	Pixel Sprite::SampleBL(float u, float v)
+	Pixel Sprite::SampleBL(float u, float v) const
 	{
 		u = u * width - 0.5f;
 		v = v * height - 0.5f;
@@ -991,7 +1050,33 @@ namespace olc
 		}
 	}
 
+	void Renderable::Create(uint32_t width, uint32_t height)
+	{
+		pSprite = std::make_unique<olc::Sprite>(width, height);
+		pDecal = std::make_unique<olc::Decal>(pSprite.get());
+	}
 
+	olc::rcode Renderable::Load(const std::string& sFile, ResourcePack *pack)
+	{
+		pSprite = std::make_unique<olc::Sprite>();
+		if (pSprite->LoadFromFile(sFile, pack))
+		{
+			pDecal = std::make_unique<olc::Decal>(pSprite.get());
+			return olc::rcode::OK;
+		}
+		else
+		{
+			pSprite.release();
+			pSprite = nullptr;
+			return olc::rcode::NO_FILE;
+		}
+	}
+
+	olc::Decal* Renderable::Decal() const
+	{ return pDecal.get(); }
+
+	olc::Sprite* Renderable::Sprite() const
+	{ return pSprite.get(); }
 
 	// O------------------------------------------------------------------------------O
 	// | olc::ResourcePack IMPLEMENTATION                                             |
@@ -1346,11 +1431,31 @@ namespace olc
 	int32_t PixelGameEngine::GetMouseWheel()
 	{ return nMouseWheelDelta; }
 
-	const int32_t PixelGameEngine::ScreenWidth()
+	int32_t PixelGameEngine::ScreenWidth()
 	{ return vScreenSize.x; }
 
-	const int32_t PixelGameEngine::ScreenHeight()
+	int32_t PixelGameEngine::ScreenHeight()
 	{ return vScreenSize.y; }
+
+	const float PixelGameEngine::GetElapsedTime() const
+	{ return fLastElapsed; }
+
+	const olc::vi2d& PixelGameEngine::GetWindowSize() const
+	{ return vWindowSize; }
+
+	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
+	{ return vMouseWindowPos; }
+
+
+
+
+
+
+
+
+
+
+
 
 	bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
 	{ return Draw(pos.x, pos.y, p); }
@@ -1474,54 +1579,81 @@ namespace olc
 	{ DrawCircle(pos.x, pos.y, radius, p, mask);}
 
 	void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
-	{
-		int x0 = 0;
-		int y0 = radius;
-		int d = 3 - 2 * radius;
-		if (!radius) return;
+	{ // Thanks to IanM-Matrix1 #PR121
+		if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+			return;
 
-		while (y0 >= x0) // only formulate 1/8 of circle
+		if (radius > 0)
 		{
-			if (mask & 0x01) Draw(x + x0, y - y0, p);
-			if (mask & 0x02) Draw(x + y0, y - x0, p);
-			if (mask & 0x04) Draw(x + y0, y + x0, p);
-			if (mask & 0x08) Draw(x + x0, y + y0, p);
-			if (mask & 0x10) Draw(x - x0, y + y0, p);
-			if (mask & 0x20) Draw(x - y0, y + x0, p);
-			if (mask & 0x40) Draw(x - y0, y - x0, p);
-			if (mask & 0x80) Draw(x - x0, y - y0, p);
-			if (d < 0) d += 4 * x0++ + 6;
-			else d += 4 * (x0++ - y0--) + 10;
+			int x0 = 0;
+			int y0 = radius;
+			int d = 3 - 2 * radius;
+
+			while (y0 >= x0) // only formulate 1/8 of circle
+			{
+				// Draw even octants
+				if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
+				if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
+				if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
+				if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
+				if (x0 != 0 && x0 != y0)
+				{
+					if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
+					if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
+					if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
+					if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
+				}
+
+				if (d < 0)
+					d += 4 * x0++ + 6;
+				else
+					d += 4 * (x0++ - y0--) + 10;
+			}
 		}
+		else
+			Draw(x, y, p);
 	}
 
 	void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
 	{ FillCircle(pos.x, pos.y, radius, p); }
 
 	void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
-	{
-		// Taken from wikipedia
-		int x0 = 0;
-		int y0 = radius;
-		int d = 3 - 2 * radius;
-		if (!radius) return;
+	{ // Thanks to IanM-Matrix1 #PR121
+		if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+			return;
 
-		auto drawline = [&](int sx, int ex, int ny)
+		if (radius > 0)
 		{
-			for (int i = sx; i <= ex; i++)
-				Draw(i, ny, p);
-		};
+			int x0 = 0;
+			int y0 = radius;
+			int d = 3 - 2 * radius;
 
-		while (y0 >= x0)
-		{
-			// Modified to draw scan-lines instead of edges
-			drawline(x - x0, x + x0, y - y0);
-			drawline(x - y0, x + y0, y - x0);
-			drawline(x - x0, x + x0, y + y0);
-			drawline(x - y0, x + y0, y + x0);
-			if (d < 0) d += 4 * x0++ + 6;
-			else d += 4 * (x0++ - y0--) + 10;
+			auto drawline = [&](int sx, int ex, int y)
+			{
+				for (int x = sx; x <= ex; x++)
+					Draw(x, y, p);
+			};
+
+			while (y0 >= x0)
+			{
+				drawline(x - y0, x + y0, y - x0);
+				if (x0 > 0)	drawline(x - y0, x + y0, y + x0);
+
+				if (d < 0)
+					d += 4 * x0++ + 6;
+				else
+				{
+					if (x0 != y0)
+					{
+						drawline(x - x0, x + x0, y - y0);    
+						drawline(x - x0, x + x0, y + y0);    
+					}
+					d += 4 * (x0++ - y0--) + 10;
+				}
+			}
 		}
+		else
+			Draw(x, y, p);
 	}
 
 	void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
@@ -1806,7 +1938,7 @@ namespace olc
 			vScreenSpacePos.y - (2.0f * source_size.y * vInvScreenSize.y) * scale.y
 		};
 
-		DecalInstance di; di.decal = decal;	di.tint = tint;
+		DecalInstance di; di.decal = decal;	di.tint[0] = tint;
 
 		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
 		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
@@ -1819,6 +1951,35 @@ namespace olc
 		di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };	
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
+
+	void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, const olc::vf2d& size, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
+	{
+		olc::vf2d vScreenSpacePos =
+		{
+			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
+			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+		};
+
+		olc::vf2d vScreenSpaceDim =
+		{
+			vScreenSpacePos.x + (2.0f * size.x * vInvScreenSize.x),
+			vScreenSpacePos.y - (2.0f * size.y * vInvScreenSize.y)
+		};
+
+		DecalInstance di; di.decal = decal;	di.tint[0] = tint;
+
+		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
+		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
+		di.pos[2] = { vScreenSpaceDim.x, vScreenSpaceDim.y };
+		di.pos[3] = { vScreenSpaceDim.x, vScreenSpacePos.y };
+
+		olc::vf2d uvtl = source_pos * decal->vUVScale;
+		olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
+		di.uv[0] = { uvtl.x, uvtl.y }; di.uv[1] = { uvtl.x, uvbr.y };
+		di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+	}
+
 
 	void PixelGameEngine::DrawDecal(const olc::vf2d& pos, olc::Decal *decal, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
@@ -1836,7 +1997,7 @@ namespace olc
 
 		DecalInstance di;
 		di.decal = decal;
-		di.tint = tint;
+		di.tint[0] = tint;
 		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
 		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
 		di.pos[2] = { vScreenSpaceDim.x, vScreenSpaceDim.y };
@@ -1848,7 +2009,7 @@ namespace olc
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.tint = tint;
+		di.tint[0] = tint;
 		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
 		di.pos[1] = (olc::vf2d(0.0f, float(decal->sprite->height)) - center) * scale;
 		di.pos[2] = (olc::vf2d(float(decal->sprite->width), float(decal->sprite->height)) - center) * scale;
@@ -1863,11 +2024,40 @@ namespace olc
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
+	void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col)
+	{
+		DecalInstance di;
+		for (int i = 0; i < 4; i++)
+		{
+			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+			di.uv[i] = uv[i];
+			di.tint[i] = col[i];
+		}
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+	}
+
+	void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
+	{
+		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data());
+	}
+
+	void PixelGameEngine::GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR)
+	{
+		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data());
+	}
+
+
 	void PixelGameEngine::DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.tint = tint;
+		di.tint[0] = tint;
 		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
 		di.pos[1] = (olc::vf2d(0.0f, source_size.y) - center) * scale;
 		di.pos[2] = (olc::vf2d(source_size.x, source_size.y) - center) * scale;
@@ -1892,7 +2082,7 @@ namespace olc
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.tint = tint;
+		di.tint[0] = tint;
 		olc::vf2d center;
 		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
 		if (rd != 0)
@@ -1923,7 +2113,7 @@ namespace olc
 		// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
 		DecalInstance di;
 		di.decal = decal;
-		di.tint = tint;
+		di.tint[0] = tint;
 		olc::vf2d center;
 		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
 		if (rd != 0)
@@ -1972,6 +2162,20 @@ namespace olc
 				spos.x += 8.0f * scale.x;
 			}
 		}
+	}
+
+	olc::vi2d PixelGameEngine::GetTextSize(const std::string& s)
+	{
+		olc::vi2d size = { 0,1 };
+		olc::vi2d pos = { 0,1 };
+		for (auto c : s)
+		{
+			if (c == '\n') { pos.y++;  pos.x = 0; }
+			else pos.x++;
+			size.x = std::max(size.x, pos.x);
+			size.y = std::max(size.y, pos.y);
+		}
+		return size * 8;
 	}
 
 	void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
@@ -2082,7 +2286,8 @@ namespace olc
 	{
 		// Mouse coords come in screen space
 		// But leave in pixel space
-
+		bHasMouseFocus = true;
+		vMouseWindowPos = { x, y };
 		// Full Screen mode may have a weird viewport we must clamp to
 		x -= vViewPos.x;
 		y -= vViewPos.y;
@@ -2165,6 +2370,7 @@ namespace olc
 
 		// Our time per frame coefficient
 		float fElapsedTime = elapsedTime.count();
+		fLastElapsed = fElapsedTime;		
 
 		// Some platforms will need to check for events
 		platform->HandleSystemEvent();
@@ -2282,7 +2488,7 @@ namespace olc
 
 		fontSprite = new olc::Sprite(128, 48);
 		int px = 0, py = 0;
-		for (int b = 0; b < 1024; b += 4)
+		for (size_t b = 0; b < 1024; b += 4)
 		{
 			uint32_t sym1 = (uint32_t)data[b + 0] - 48;
 			uint32_t sym2 = (uint32_t)data[b + 1] - 48;
@@ -2467,14 +2673,31 @@ namespace olc
 
 		void DrawDecalQuad(const olc::DecalInstance& decal) override
 		{
-			glBindTexture(GL_TEXTURE_2D, decal.decal->id);
-			glBegin(GL_QUADS);
-			glColor4ub(decal.tint.r, decal.tint.g, decal.tint.b, decal.tint.a);
-			glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]); glVertex2f(decal.pos[0].x, decal.pos[0].y);
-			glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]); glVertex2f(decal.pos[1].x, decal.pos[1].y);
-			glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]); glVertex2f(decal.pos[2].x, decal.pos[2].y);
-			glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]); glVertex2f(decal.pos[3].x, decal.pos[3].y);
-			glEnd();
+			if (decal.decal == nullptr)
+			{
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glBegin(GL_QUADS);
+				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
+				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]); glVertex2f(decal.pos[0].x, decal.pos[0].y);
+				glColor4ub(decal.tint[1].r, decal.tint[1].g, decal.tint[1].b, decal.tint[1].a);
+				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]); glVertex2f(decal.pos[1].x, decal.pos[1].y);
+				glColor4ub(decal.tint[2].r, decal.tint[2].g, decal.tint[2].b, decal.tint[2].a);
+				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]); glVertex2f(decal.pos[2].x, decal.pos[2].y);
+				glColor4ub(decal.tint[3].r, decal.tint[3].g, decal.tint[3].b, decal.tint[3].a);
+				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]); glVertex2f(decal.pos[3].x, decal.pos[3].y);
+				glEnd();
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+				glBegin(GL_QUADS);
+				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
+				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]); glVertex2f(decal.pos[0].x, decal.pos[0].y);
+				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]); glVertex2f(decal.pos[1].x, decal.pos[1].y);
+				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]); glVertex2f(decal.pos[2].x, decal.pos[2].y);
+				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]); glVertex2f(decal.pos[3].x, decal.pos[3].y);
+				glEnd();
+			}
 		}
 
 		uint32_t CreateTexture(const uint32_t width, const uint32_t height) override
@@ -2730,7 +2953,7 @@ namespace olc
 			}
 			case WM_SIZE:       ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
 			case WM_MOUSEWHEEL:	ptrPGE->olc_UpdateMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));           return 0;			
-			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
+			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;			
 			case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
 			case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
 			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
