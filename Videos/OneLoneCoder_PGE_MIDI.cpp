@@ -393,14 +393,11 @@ public:
 							break;
 						case MetaSetTempo:
 							// Tempo is in microseconds per quarter note	
-							if (m_nTempo == 0)
-							{
-								(m_nTempo |= (ifs.get() << 16));
-								(m_nTempo |= (ifs.get() << 8));
-								(m_nTempo |= (ifs.get() << 0));
-								m_nBPM = (60000000 / m_nTempo);
-								std::cout << "Tempo: " << m_nTempo << " (" << m_nBPM << "bpm)" << std::endl;
-							}
+							(m_nTempo |= (ifs.get() << 16));
+							(m_nTempo |= (ifs.get() << 8));
+							(m_nTempo |= (ifs.get() << 0));
+							m_nBPM = (60000000 / m_nTempo);
+							std::cout << "Tempo: " << m_nTempo << " (" << m_nBPM << "bpm)" << std::endl;
 							break;
 						case MetaSMPTEOffset:
 							std::cout << "SMPTE: H:" << ifs.get() << " M:" << ifs.get() << " S:" << ifs.get() << " FR:" << ifs.get() << " FF:" << ifs.get() << std::endl;
