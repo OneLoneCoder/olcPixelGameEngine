@@ -559,6 +559,7 @@ namespace olc
 		virtual olc::rcode SetWindowTitle(const std::string& s) = 0;
 		virtual olc::rcode StartSystemEventLoop() = 0;
 		virtual olc::rcode HandleSystemEvent() = 0;
+		virtual olc::rcode ShowMouse(bool show) = 0;
 		static olc::PixelGameEngine* ptrPGE;
 	};
 	
@@ -625,6 +626,8 @@ namespace olc
 		const float GetElapsedTime() const;
 		// Gets Actual Window size
 		const olc::vi2d& GetWindowSize() const;
+		// Show the System Mouse Pointer (true/false)
+		void ShowSystemMouseCursor(bool show);
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
@@ -1446,7 +1449,8 @@ namespace olc
 	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
 	{ return vMouseWindowPos; }
 
-
+	void PixelGameEngine::ShowSystemMouseCursor(bool show)
+	{ platform->ShowMouse(show); }
 
 
 
@@ -2539,6 +2543,7 @@ namespace olc
 	namespace X11
 	{
 		#include <GL/glx.h>
+		#include <X11/cursorfont.h>
 		#include <X11/X.h>
 		#include <X11/Xlib.h>
 	}
@@ -2969,6 +2974,13 @@ namespace olc
 			}
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 		}
+
+		virtual olc::rcode ShowMouse(bool show) override
+		{
+			// not yet implemented
+			std::cout << "ShowSytemMouseCursor: not yet implemented for this platform." << std::endl;
+			return olc::OK;
+		}
 	};
 
 	// On Windows load images using GDI+ library
@@ -3028,6 +3040,12 @@ namespace olc
 		X11::XVisualInfo*			 olc_VisualInfo;
 		X11::Colormap                olc_ColourMap;
 		X11::XSetWindowAttributes    olc_SetWindowAttribs;
+		
+		X11::Cursor					 olc_InvisibleCursor;
+		X11::Cursor					 olc_LeftCursor;
+		X11::Pixmap					 olc_BitmapNoData;
+		X11::XColor					 olc_BlackColor;
+		bool						 olc_ShowMouse;
 
 	public:
 		virtual olc::rcode ApplicationStartUp() override
@@ -3086,7 +3104,20 @@ namespace olc
 	
 			XMapWindow(olc_Display, olc_Window);
 			XStoreName(olc_Display, olc_Window, "OneLoneCoder.com - Pixel Game Engine");
-	
+
+			// Create Mouse Cursors
+			olc_ShowMouse = true;
+			static char noData[] = { 0,0,0,0,0,0,0,0 };
+			
+			
+			olc_BlackColor.red = olc_BlackColor.green = olc_BlackColor.blue = 0;
+			olc_BitmapNoData = XCreateBitmapFromData(olc_Display, olc_Window, noData, 8, 8);
+			
+			olc_InvisibleCursor = XCreatePixmapCursor(olc_Display, olc_BitmapNoData, olc_BitmapNoData, 
+												&olc_BlackColor, &olc_BlackColor, 0, 0);
+			
+			olc_LeftCursor = XCreateFontCursor(olc_Display, XC_left_ptr);
+
 			if (bFullScreen) // Thanks DragonEye, again :D
 			{
 				Atom wm_state;
@@ -3229,6 +3260,17 @@ namespace olc
 					ptrPGE->olc_Terminate();
 				}
 			}
+			return olc::OK;
+		}
+
+		virtual olc::rcode ShowMouse(bool show) override
+		{
+			olc_ShowMouse = show;
+			if(olc_ShowMouse)
+					X11::XDefineCursor(olc_Display, olc_Window, olc_LeftCursor);
+				else
+					X11::XDefineCursor(olc_Display, olc_Window, olc_InvisibleCursor);
+
 			return olc::OK;
 		}
 	};
