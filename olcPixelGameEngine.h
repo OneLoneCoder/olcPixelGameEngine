@@ -2526,7 +2526,9 @@ namespace olc
 // O------------------------------------------------------------------------------O
 #if defined(OLC_GFX_OPENGL10)
 #if defined(_WIN32)
+	#define _WINSOCKAPI_
 	#include <windows.h>
+	#undef _WINSOCKAPI_
 	#include <GL/gl.h>
 	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
 	static wglSwapInterval_t* wglSwapInterval = nullptr;
