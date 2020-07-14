@@ -129,7 +129,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -323,7 +323,10 @@ namespace olc
 		SPACE, TAB, SHIFT, CTRL, INS, DEL, HOME, END, PGUP, PGDN,
 		BACK, ESCAPE, RETURN, ENTER, PAUSE, SCROLL,
 		NP0, NP1, NP2, NP3, NP4, NP5, NP6, NP7, NP8, NP9,
-		NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL, PERIOD
+		NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL, PERIOD,
+		EQUALS, COMMA, MINUS,
+		OEM_1, OEM_2, OEM_3, OEM_4, OEM_5, OEM_6, OEM_7, OEM_8,
+		CAPS_LOCK, ENUM_END
 	};
 
 
@@ -2912,6 +2915,21 @@ namespace olc
 			mapKeys[VK_NUMPAD0] = Key::NP0; mapKeys[VK_NUMPAD1] = Key::NP1; mapKeys[VK_NUMPAD2] = Key::NP2; mapKeys[VK_NUMPAD3] = Key::NP3; mapKeys[VK_NUMPAD4] = Key::NP4;
 			mapKeys[VK_NUMPAD5] = Key::NP5; mapKeys[VK_NUMPAD6] = Key::NP6; mapKeys[VK_NUMPAD7] = Key::NP7; mapKeys[VK_NUMPAD8] = Key::NP8; mapKeys[VK_NUMPAD9] = Key::NP9;
 			mapKeys[VK_MULTIPLY] = Key::NP_MUL; mapKeys[VK_ADD] = Key::NP_ADD; mapKeys[VK_DIVIDE] = Key::NP_DIV; mapKeys[VK_SUBTRACT] = Key::NP_SUB; mapKeys[VK_DECIMAL] = Key::NP_DECIMAL;
+			
+			// These keys vary depending on the keyboard. I include comments for US and UK keyboard layouts
+			mapKeys[VK_OEM_1] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
+			mapKeys[VK_OEM_2] = Key::OEM_2;		// On US and UK keyboards this is the '/?' key
+			mapKeys[VK_OEM_3] = Key::OEM_3;		// On US keyboard this is the '~' key
+			mapKeys[VK_OEM_4] = Key::OEM_4;		// On US nad UK keyboards this is the '[{' key
+			mapKeys[VK_OEM_5] = Key::OEM_5;		// On US keyboard this is '\|' key.
+			mapKeys[VK_OEM_6] = Key::OEM_6;		// On US and UK keyboards this is the ']}' key
+			mapKeys[VK_OEM_7] = Key::OEM_7;		// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+			mapKeys[VK_OEM_8] = Key::OEM_8;		// miscellaneous characters. Varies by keyboard
+			mapKeys[VK_OEM_PLUS] = Key::EQUALS;	// the '+' key on any keyboard
+			mapKeys[VK_OEM_COMMA] = Key::COMMA;	// the comma key on any keyboard
+			mapKeys[VK_OEM_MINUS] = Key::MINUS;	// the minus key on any keyboard
+			mapKeys[VK_OEM_PERIOD] = Key::PERIOD;	// the period key on any keyboard
+			mapKeys[VK_CAPITAL] = Key::CAPS_LOCK;
 			return olc::OK;
 		}
 
@@ -3132,7 +3150,7 @@ namespace olc
 			mapKeys[XK_Scroll_Lock] = Key::SCROLL; mapKeys[XK_Tab] = Key::TAB; mapKeys[XK_Delete] = Key::DEL; mapKeys[XK_Home] = Key::HOME;
 			mapKeys[XK_End] = Key::END; mapKeys[XK_Page_Up] = Key::PGUP; mapKeys[XK_Page_Down] = Key::PGDN;	mapKeys[XK_Insert] = Key::INS;
 			mapKeys[XK_Shift_L] = Key::SHIFT; mapKeys[XK_Shift_R] = Key::SHIFT; mapKeys[XK_Control_L] = Key::CTRL; mapKeys[XK_Control_R] = Key::CTRL;
-			mapKeys[XK_space] = Key::SPACE; mapKeys[XK_period] = Key::PERIOD;
+			mapKeys[XK_space] = Key::SPACE;
 	
 			mapKeys[XK_0] = Key::K0; mapKeys[XK_1] = Key::K1; mapKeys[XK_2] = Key::K2; mapKeys[XK_3] = Key::K3; mapKeys[XK_4] = Key::K4;
 			mapKeys[XK_5] = Key::K5; mapKeys[XK_6] = Key::K6; mapKeys[XK_7] = Key::K7; mapKeys[XK_8] = Key::K8; mapKeys[XK_9] = Key::K9;
@@ -3141,6 +3159,23 @@ namespace olc
 			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
 			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
 	
+	
+			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
+			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
+			mapKeys[XK_slash] = Key::OEM_2;		// On US and UK keyboards this is the '/?' key
+			mapKeys[XK_asciitilde] = Key::OEM_3;		// On US keyboard this is the '~' key
+			mapKeys[XK_bracketleft] = Key::OEM_4;		// On US and UK keyboards this is the '[{' key
+			mapKeys[XK_backslash] = Key::OEM_5;	// On US keyboard this is '\|' key.
+			mapKeys[XK_bracketright] = Key::OEM_6;		// On US and UK keyboards this is the ']}' key
+			mapKeys[XK_apostrophe] = Key::OEM_7;		// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+			mapKeys[XK_numbersign] = Key::OEM_8;		// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
+			mapKeys[XK_equal] = Key::EQUALS;	// the '+' key on any keyboard
+			mapKeys[XK_comma] = Key::COMMA;	// the comma key on any keyboard
+			mapKeys[XK_minus] = Key::MINUS;	// the minus key on any keyboard
+			mapKeys[XK_period] = Key::PERIOD;	// the period key on any keyboard
+
+			mapKeys[XK_Caps_Lock] = Key::CAPS_LOCK;  
+
 			return olc::OK;
 		}
 
