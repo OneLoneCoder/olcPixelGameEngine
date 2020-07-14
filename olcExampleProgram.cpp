@@ -18,6 +18,7 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
+		UNUSED(fElapsedTime);
 		// called once per frame
 		for (int x = 0; x < ScreenWidth(); x++)
 			for (int y = 0; y < ScreenHeight(); y++)
