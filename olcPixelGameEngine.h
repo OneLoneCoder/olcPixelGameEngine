@@ -129,7 +129,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -600,7 +600,7 @@ namespace olc
 		int32_t GetMouseY();
 		// Get Mouse Wheel Delta
 		int32_t GetMouseWheel();
-		// Get the ouse in window space
+		// Get the Mouse in window space
 		const olc::vi2d& GetWindowMouse() const;
 
 	public: // Utility
