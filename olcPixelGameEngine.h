@@ -340,6 +340,7 @@ namespace olc
 		v2d_generic() : x(0), y(0)                        {                                                            }
 		v2d_generic(T _x, T _y) : x(_x), y(_y)            {                                                            }
 		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y){                                                            }
+		v2d_generic& operator=(const v2d_generic& v) = default;
 		T mag()                                           { return std::sqrt(x * x + y * y);                           }
 		T mag2()					                         { return x * x + y * y;                                      }
 		v2d_generic  norm()                               { T r = 1 / mag(); return v2d_generic(x*r, y*r);             }
@@ -622,7 +623,7 @@ namespace olc
 		// Gets the current Frames Per Second
 		uint32_t GetFPS();
 		// Gets last update of elapsed time
-		const float GetElapsedTime() const;
+		float GetElapsedTime() const;
 		// Gets Actual Window size
 		const olc::vi2d& GetWindowSize() const;
 
@@ -1437,7 +1438,7 @@ namespace olc
 	int32_t PixelGameEngine::ScreenHeight()
 	{ return vScreenSize.y; }
 
-	const float PixelGameEngine::GetElapsedTime() const
+	float PixelGameEngine::GetElapsedTime() const
 	{ return fLastElapsed; }
 
 	const olc::vi2d& PixelGameEngine::GetWindowSize() const
@@ -1497,6 +1498,8 @@ namespace olc
 
 	void PixelGameEngine::SetSubPixelOffset(float ox, float oy)
 	{
+		UNUSED(ox);
+		UNUSED(oy);
 		//vSubPixelOffset.x = ox * vPixel.x;
 		//vSubPixelOffset.y = oy * vPixel.y;
 	}
@@ -2026,6 +2029,7 @@ namespace olc
 
 	void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col)
 	{
+		UNUSED(decal);
 		DecalInstance di;
 		for (int i = 0; i < 4; i++)
 		{
@@ -2569,6 +2573,7 @@ namespace olc
 
 		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
 		{
+			UNUSED(bFullScreen);
 		#if defined(_WIN32)
 			// Create Device Context
 			glDeviceContext = GetDC((HWND)(params[0]));
@@ -2702,6 +2707,8 @@ namespace olc
 
 		uint32_t CreateTexture(const uint32_t width, const uint32_t height) override
 		{
+			UNUSED(width);
+			UNUSED(height);
 			uint32_t id = 0;
 			glGenTextures(1, &id);
 			glBindTexture(GL_TEXTURE_2D, id);
@@ -2719,6 +2726,7 @@ namespace olc
 
 		void UpdateTexture(uint32_t id, olc::Sprite* spr) override
 		{
+			UNUSED(id);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
