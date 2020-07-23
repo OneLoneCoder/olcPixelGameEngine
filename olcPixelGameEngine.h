@@ -766,12 +766,12 @@ namespace olc
 		// State of keyboard		
 		bool		pKeyNewState[256]{ 0 };
 		bool		pKeyOldState[256]{ 0 };
-		HWButton	pKeyboardState[256]{ 0 };
+		HWButton	pKeyboardState[256]{};
 
 		// State of mouse
 		bool		pMouseNewState[nMouseButtons]{ 0 };
 		bool		pMouseOldState[nMouseButtons]{ 0 };
-		HWButton	pMouseState[nMouseButtons]{ 0 };
+		HWButton	pMouseState[nMouseButtons]{};
 
 		// The main engine thread
 		void		EngineThread();
@@ -1263,6 +1263,8 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	PixelGameEngine::PixelGameEngine()
 	{
+		std::fill_n(pKeyboardState, sizeof(pKeyboardState), { false, false, false });
+		std::fill_n(pMouseState, nMouseButtons, { false, false, false });
 		sAppName = "Undefined";
 		olc::PGEX::pge = this;
 
