@@ -601,8 +601,10 @@ namespace olc
 		int32_t GetMouseY();
 		// Get Mouse Wheel Delta
 		int32_t GetMouseWheel();
-		// Get the ouse in window space
+		// Get the Mouse in window space
 		const olc::vi2d& GetWindowMouse() const;
+		// Get all the keys that have changed state
+		const std::vector<Key>& GetModifiedKeys();
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
@@ -767,6 +769,9 @@ namespace olc
 		bool		pKeyNewState[256]{ 0 };
 		bool		pKeyOldState[256]{ 0 };
 		HWButton	pKeyboardState[256]{};
+
+		// Keys that have been changed
+		std::vector<Key> pKeyboardModified;
 
 		// State of mouse
 		bool		pMouseNewState[nMouseButtons]{ 0 };
@@ -2390,6 +2395,9 @@ namespace olc
 				pKeys[i].bReleased = false;
 				if (pStateNew[i] != pStateOld[i])
 				{
+					if (pKeys == pKeyboardState) {
+						pKeyboardModified.push_back(i);
+					}
 					if (pStateNew[i])
 					{
 						pKeys[i].bPressed = !pKeys[i].bHeld;
