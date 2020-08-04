@@ -129,7 +129,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -268,6 +268,11 @@ namespace _gfs = std::filesystem;
 
 #if !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10)
 #define OLC_GFX_OPENGL10
+#endif
+
+#if defined(OLC_USE_SDL)
+#undef OLC_GFX_OPENGL10
+#undef OLC_GFX_DIRECTX10
 #endif
 
 // O------------------------------------------------------------------------------O
@@ -2944,11 +2949,166 @@ namespace olc
 // | END RENDERER: OpenGL 1.0 (the original, the best...)                         |
 // O------------------------------------------------------------------------------O
 
+// O------------------------------------------------------------------------------O
+// | START RENDERER: SDL 2                                                        |
+// O------------------------------------------------------------------------------O
+#if defined(OLC_USE_SDL)
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_keyboard.h>
+#include <GL/gl.h>
+
+namespace olc
+{
+	class Renderer_SDL : public olc::Renderer
+	{
+	private:
+		SDL_Window *olc_Window = nullptr;
+		SDL_GLContext olc_GL_Context;
+
+		void PrepareDevice() override
+		{
+		}
+
+		olc::rcode CreateDevice(std::vector<void *> params, bool bFullScreen, bool bVSYNC) override
+		{
+			olc_Window = (SDL_Window *)(params[0]);
+
+			olc_GL_Context = SDL_GL_CreateContext(olc_Window);
+
+			if (bVSYNC)
+				SDL_GL_SetSwapInterval(1);
+			else
+				SDL_GL_SetSwapInterval(0);
+
+			glEnable(GL_TEXTURE_2D); // Turn on texturing
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+			return olc::rcode::OK;
+		}
+
+		olc::rcode DestroyDevice() override
+		{
+
+			return olc::rcode::OK;
+		}
+
+		void DisplayFrame() override
+		{
+			SDL_GL_SwapWindow(olc_Window);
+		}
+
+		void PrepareDrawing() override
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		void DrawLayerQuad(const olc::vf2d &offset, const olc::vf2d &scale, const olc::Pixel tint) override
+		{
+			glBegin(GL_QUADS);
+			glColor4ub(tint.r, tint.g, tint.b, tint.a);
+			glTexCoord2f(0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
+			glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+			glTexCoord2f(0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
+			glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+			glTexCoord2f(1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
+			glVertex3f(1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+			glTexCoord2f(1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
+			glVertex3f(1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+			glEnd();
+		}
+
+		void DrawDecalQuad(const olc::DecalInstance &decal) override
+		{
+			if (decal.decal == nullptr)
+			{
+				glBindTexture(GL_TEXTURE_2D, 0);
+				glBegin(GL_QUADS);
+				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
+				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]);
+				glVertex2f(decal.pos[0].x, decal.pos[0].y);
+				glColor4ub(decal.tint[1].r, decal.tint[1].g, decal.tint[1].b, decal.tint[1].a);
+				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]);
+				glVertex2f(decal.pos[1].x, decal.pos[1].y);
+				glColor4ub(decal.tint[2].r, decal.tint[2].g, decal.tint[2].b, decal.tint[2].a);
+				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]);
+				glVertex2f(decal.pos[2].x, decal.pos[2].y);
+				glColor4ub(decal.tint[3].r, decal.tint[3].g, decal.tint[3].b, decal.tint[3].a);
+				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]);
+				glVertex2f(decal.pos[3].x, decal.pos[3].y);
+				glEnd();
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+				glBegin(GL_QUADS);
+				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
+				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]);
+				glVertex2f(decal.pos[0].x, decal.pos[0].y);
+				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]);
+				glVertex2f(decal.pos[1].x, decal.pos[1].y);
+				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]);
+				glVertex2f(decal.pos[2].x, decal.pos[2].y);
+				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]);
+				glVertex2f(decal.pos[3].x, decal.pos[3].y);
+				glEnd();
+			}
+		}
+
+		uint32_t CreateTexture(const uint32_t width, const uint32_t height) override
+		{
+			uint32_t id = 0;
+			glGenTextures(1, &id);
+			glBindTexture(GL_TEXTURE_2D, id);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			return id;
+		}
+
+		void UpdateTexture(uint32_t id, olc::Sprite *spr) override
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+		}
+
+		uint32_t DeleteTexture(const uint32_t id) override
+		{
+			glDeleteTextures(1, &id);
+			return id;
+		}
+
+		void ApplyTexture(uint32_t id) override
+		{
+			glBindTexture(GL_TEXTURE_2D, id);
+		}
+
+		void UpdateViewport(const olc::vi2d &pos, const olc::vi2d &size) override
+		{
+			glViewport(pos.x, pos.y, size.x, size.y);
+		}
+
+		void ClearBuffer(olc::Pixel p, bool bDepth) override
+		{
+			glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			if (bDepth)
+				glClear(GL_DEPTH_BUFFER_BIT);
+		}
+	};
+} // namespace olc
+#endif
+// O------------------------------------------------------------------------------O
+// | END RENDERER: SDL 2                                                          |
+// O------------------------------------------------------------------------------O
+
 
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: MICROSOFT WINDOWS XP, VISTA, 7, 8, 10                        |
 // O------------------------------------------------------------------------------O
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(OLC_USE_SDL)
 #if !defined(__MINGW32__)
 #pragma comment(lib, "user32.lib")		// Visual Studio Only
 #pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
@@ -3217,7 +3377,7 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: LINUX                                                        |
 // O------------------------------------------------------------------------------O
-#if defined(__linux__) || defined(__FreeBSD__)
+#if (defined(__linux__) || defined(__FreeBSD__)) && !defined(OLC_USE_SDL)
 namespace olc
 {
 	class Platform_Linux : public olc::Platform
@@ -3546,27 +3706,286 @@ namespace olc
 // | END PLATFORM: LINUX                                                          |
 // O------------------------------------------------------------------------------O
 
+// O------------------------------------------------------------------------------O
+// | START PLATFORM: SDL                                                          |
+// O------------------------------------------------------------------------------O
+#if defined(OLC_USE_SDL)
+namespace olc
+{
+	class Platform_SDL : public olc::Platform
+	{
+	public:
+		SDL_Window *olc_Window = nullptr;
+
+	public:
+		olc::rcode ApplicationStartUp() override
+		{
+			return olc::rcode::OK;
+		}
+
+		olc::rcode ApplicationCleanUp() override
+		{
+			SDL_DestroyWindow(olc_Window);
+			SDL_Quit();
+			return olc::rcode::OK;
+		}
+
+		olc::rcode ThreadStartUp() override
+		{
+			return olc::rcode::OK;
+		}
+
+		olc::rcode ThreadCleanUp() override
+		{
+			return olc::rcode::OK;
+		}
+
+		olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d &vViewPos, const olc::vi2d &vViewSize) override
+		{
+			if (renderer->CreateDevice({olc_Window}, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
+			{
+				renderer->UpdateViewport(vViewPos, vViewSize);
+				return olc::rcode::OK;
+			}
+			else
+			{
+				return olc::rcode::FAIL;
+			}
+
+			return olc::rcode::OK;
+		}
+
+		olc::rcode CreateWindowPane(const olc::vi2d &vWindowPos, olc::vi2d &vWindowSize, bool bFullScreen) override
+		{
+			olc_Window = SDL_CreateWindow(
+				"",
+				SDL_WINDOWPOS_CENTERED,
+				SDL_WINDOWPOS_CENTERED,
+				vWindowSize.x,
+				vWindowSize.y,
+				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+
+			SDL_SetWindowFullscreen(olc_Window, (bFullScreen) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+
+			// Create Keyboard Mapping
+			mapKeys[SDLK_UNKNOWN] = Key::NONE; mapKeys[SDLK_a] = Key::A; mapKeys[SDLK_b] = Key::B;
+			mapKeys[SDLK_c] = Key::C; mapKeys[SDLK_d] = Key::D; mapKeys[SDLK_e] = Key::E;
+			mapKeys[SDLK_f] = Key::F; mapKeys[SDLK_g] = Key::G; mapKeys[SDLK_h] = Key::H;
+			mapKeys[SDLK_i] = Key::I; mapKeys[SDLK_j] = Key::J; mapKeys[SDLK_k] = Key::K;
+			mapKeys[SDLK_l] = Key::L; mapKeys[SDLK_m] = Key::M; mapKeys[SDLK_n] = Key::N;
+			mapKeys[SDLK_o] = Key::O; mapKeys[SDLK_p] = Key::P; mapKeys[SDLK_q] = Key::Q;
+			mapKeys[SDLK_r] = Key::R; mapKeys[SDLK_s] = Key::S; mapKeys[SDLK_t] = Key::T;
+			mapKeys[SDLK_u] = Key::U; mapKeys[SDLK_v] = Key::V; mapKeys[SDLK_w] = Key::W;
+			mapKeys[SDLK_x] = Key::X; mapKeys[SDLK_y] = Key::Y; mapKeys[SDLK_z] = Key::Z;
+
+			mapKeys[SDLK_F1] = Key::F1; mapKeys[SDLK_F2] = Key::F2; mapKeys[SDLK_F3] = Key::F3;
+			mapKeys[SDLK_F4] = Key::F4; mapKeys[SDLK_F5] = Key::F5; mapKeys[SDLK_F6] = Key::F6;
+			mapKeys[SDLK_F7] = Key::F7; mapKeys[SDLK_F8] = Key::F8; mapKeys[SDLK_F9] = Key::F9;
+			mapKeys[SDLK_F10] = Key::F10; mapKeys[SDLK_F11] = Key::F11; mapKeys[SDLK_F12] = Key::F12;
+
+			mapKeys[SDLK_DOWN] = Key::DOWN; mapKeys[SDLK_LEFT] = Key::LEFT; mapKeys[SDLK_RIGHT] = Key::RIGHT;
+			mapKeys[SDLK_UP] = Key::UP; mapKeys[SDLK_KP_ENTER] = Key::ENTER; mapKeys[SDLK_RETURN] = Key::ENTER;
+
+			mapKeys[SDLK_BACKSPACE] = Key::BACK; mapKeys[SDLK_ESCAPE] = Key::ESCAPE; mapKeys[SDLK_RETURN] = Key::ENTER;
+			mapKeys[SDLK_PAUSE] = Key::PAUSE; mapKeys[SDLK_SCROLLLOCK] = Key::SCROLL; mapKeys[SDLK_TAB] = Key::TAB;
+			mapKeys[SDLK_DELETE] = Key::DEL; mapKeys[SDLK_HOME] = Key::HOME; mapKeys[SDLK_END] = Key::END;
+			mapKeys[SDLK_PAGEUP] = Key::PGUP; mapKeys[SDLK_PAGEDOWN] = Key::PGDN; mapKeys[SDLK_INSERT] = Key::INS;
+			mapKeys[SDLK_LSHIFT] = Key::SHIFT; mapKeys[SDLK_RSHIFT] = Key::SHIFT; mapKeys[SDLK_LCTRL] = Key::CTRL;
+			mapKeys[SDLK_RCTRL] = Key::CTRL; mapKeys[SDLK_SPACE] = Key::SPACE; mapKeys[SDLK_PERIOD] = Key::PERIOD;
+
+			mapKeys[SDLK_0] = Key::K0; mapKeys[SDLK_1] = Key::K1; mapKeys[SDLK_2] = Key::K2;
+			mapKeys[SDLK_3] = Key::K3; mapKeys[SDLK_4] = Key::K4; mapKeys[SDLK_5] = Key::K5;
+			mapKeys[SDLK_6] = Key::K6; mapKeys[SDLK_7] = Key::K7; mapKeys[SDLK_8] = Key::K8;
+			mapKeys[SDLK_9] = Key::K9;
+
+			mapKeys[SDLK_KP_0] = Key::NP0; mapKeys[SDLK_KP_1] = Key::NP1; mapKeys[SDLK_KP_2] = Key::NP2;
+			mapKeys[SDLK_KP_3] = Key::NP3; mapKeys[SDLK_KP_4] = Key::NP4; mapKeys[SDLK_KP_5] = Key::NP5;
+			mapKeys[SDLK_KP_6] = Key::NP6; mapKeys[SDLK_KP_7] = Key::NP7; mapKeys[SDLK_KP_8] = Key::NP8;
+			mapKeys[SDLK_KP_9] = Key::NP9; mapKeys[SDLK_KP_MULTIPLY] = Key::NP_MUL; mapKeys[SDLK_KP_PLUS] = Key::NP_ADD;
+			mapKeys[SDLK_KP_DIVIDE] = Key::NP_DIV; mapKeys[SDLK_KP_MINUS] = Key::NP_SUB; mapKeys[SDLK_KP_PERIOD] = Key::NP_DECIMAL;
+
+			return olc::rcode::OK;
+		}
+
+		olc::rcode SetWindowTitle(const std::string &s) override
+		{
+			SDL_SetWindowTitle(olc_Window, s.c_str());
+			return olc::rcode::OK;
+		}
+
+		olc::rcode StartSystemEventLoop() override
+		{
+			bool bRunning = true;
+
+			while (bRunning)
+			{
+				SDL_Event event;
+				while (SDL_PollEvent(&event) > 0)
+				{
+					if (event.type == SDL_WINDOWEVENT)
+					{
+						if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+						{
+							ptrPGE->olc_UpdateWindowSize(event.window.data1, event.window.data2);
+						}
+						else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+						{
+							ptrPGE->olc_UpdateKeyFocus(true);
+						}
+						else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+						{
+							ptrPGE->olc_UpdateKeyFocus(false);
+						}
+					}
+					else if (event.type == SDL_KEYDOWN)
+					{
+						ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], true);
+					}
+					else if (event.type == SDL_KEYUP)
+					{
+						ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], false);
+					}
+					else if (event.type == SDL_MOUSEBUTTONDOWN)
+					{
+						switch (event.button.button)
+						{
+						case SDL_BUTTON_LEFT:
+							ptrPGE->olc_UpdateMouseState(0, true);
+							break;
+						case SDL_BUTTON_RIGHT:
+							ptrPGE->olc_UpdateMouseState(1, true);
+							break;
+						case SDL_BUTTON_MIDDLE:
+							ptrPGE->olc_UpdateMouseState(2, true);
+							break;
+						}
+					}
+					else if (event.type == SDL_MOUSEBUTTONUP)
+					{
+						switch (event.button.button)
+						{
+						case SDL_BUTTON_LEFT:
+							ptrPGE->olc_UpdateMouseState(0, false);
+							break;
+						case SDL_BUTTON_RIGHT:
+							ptrPGE->olc_UpdateMouseState(1, false);
+							break;
+						case SDL_BUTTON_MIDDLE:
+							ptrPGE->olc_UpdateMouseState(2, false);
+							break;
+						}
+					}
+					else if (event.type == SDL_MOUSEWHEEL)
+					{
+						if (event.wheel.y < 0)
+						{
+							ptrPGE->olc_UpdateMouseWheel(120);
+						}
+						else
+						{
+							ptrPGE->olc_UpdateMouseWheel(-120);
+						}
+					}
+					else if (event.type == SDL_MOUSEMOTION)
+					{
+						ptrPGE->olc_UpdateMouse(event.motion.x, event.motion.y);
+					}
+					else if (event.type == SDL_QUIT)
+					{
+						ptrPGE->olc_Terminate();
+						bRunning = false;
+					}
+				}
+			}
+
+			return olc::rcode::OK;
+		}
+
+		olc::rcode HandleSystemEvent() override
+		{
+			return olc::rcode::OK;
+		}
+	};
+
+	olc::rcode Sprite::LoadFromFile(const std::string &sImageFile, olc::ResourcePack *pack)
+	{
+		SDL_Surface *temp = nullptr;
+
+		if (pack == nullptr)
+		{
+			temp = IMG_Load(sImageFile.c_str());
+		}
+		else
+		{
+			ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+			SDL_RWops *src = SDL_RWFromMem((void *)rb.vMemory.data(), rb.vMemory.size());
+			temp = IMG_LoadPNG_RW(src);
+		}
+
+		if (!temp)
+			return olc::rcode::FAIL;
+
+		SDL_ConvertSurfaceFormat(temp, SDL_PIXELFORMAT_ABGR8888, 0);
+
+		width = temp->w;
+		height = temp->h;
+		pColData = new Pixel[width * height];
+
+		SDL_LockSurface(temp);
+		uint32_t *pixels = reinterpret_cast<uint32_t *>(temp->pixels);
+
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				olc::Pixel pixel = olc::Pixel(pixels[y * width + x]);
+
+				// obey the intent of the alpha channel
+				if (pixel.a == 0)
+					pixel = olc::BLANK;
+
+				SetPixel(x, y, pixel);
+			}
+		}
+
+		SDL_UnlockSurface(temp);
+		SDL_FreeSurface(temp);
+		return olc::rcode::OK;
+	}
+} // namespace olc
+#endif
+// O------------------------------------------------------------------------------O
+// | END PLATFORM: SDL                                                            |
+// O------------------------------------------------------------------------------O
+
+
 namespace olc
 {
 	void PixelGameEngine::olc_ConfigureSystem()
 	{
-#if defined(_WIN32)
+
+#if defined(OLC_USE_SDL)
+		platform = std::make_unique<olc::Platform_SDL>();
+		renderer = std::make_unique<olc::Renderer_SDL>();
+#endif
+
+#if defined(_WIN32) && !defined(OLC_USE_SDL)
 		platform = std::make_unique<olc::Platform_Windows>();
 #endif
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if (defined(__linux__) || defined(__FreeBSD__)) && !defined(OLC_USE_SDL)
 		platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
-#if defined(OLC_GFX_OPENGL10)
+#if defined(OLC_GFX_OPENGL10) && !defined(OLC_USE_SDL)
 		renderer = std::make_unique<olc::Renderer_OGL10>();
 #endif
 
-#if defined(OLC_GFX_OPENGL33)
+#if defined(OLC_GFX_OPENGL33) && !defined(OLC_USE_SDL)
 		renderer = std::make_unique<olc::Renderer_OGL33>();
 #endif
 
-#if defined(OLC_GFX_DIRECTX10)
+#if defined(OLC_GFX_DIRECTX10) && !defined(OLC_USE_SDL)
 		renderer = std::make_unique<olc::Renderer_DX10>();
 #endif
 
