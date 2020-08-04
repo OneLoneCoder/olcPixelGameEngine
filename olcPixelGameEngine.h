@@ -2989,7 +2989,7 @@ namespace olc
 
 		olc::rcode DestroyDevice() override
 		{
-
+			SDL_GL_DeleteContext(olc_GL_Context);
 			return olc::rcode::OK;
 		}
 
