@@ -3813,6 +3813,84 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
+		bool HandleEvents(SDL_Event event)
+		{
+			if (event.type == SDL_WINDOWEVENT)
+			{
+				if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+				{
+					ptrPGE->olc_UpdateWindowSize(event.window.data1, event.window.data2);
+				}
+				else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+				{
+					ptrPGE->olc_UpdateKeyFocus(true);
+				}
+				else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+				{
+					ptrPGE->olc_UpdateKeyFocus(false);
+				}
+			}
+			else if (event.type == SDL_KEYDOWN)
+			{
+				ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], true);
+			}
+			else if (event.type == SDL_KEYUP)
+			{
+				ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], false);
+			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				switch (event.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+					ptrPGE->olc_UpdateMouseState(0, true);
+					break;
+				case SDL_BUTTON_RIGHT:
+					ptrPGE->olc_UpdateMouseState(1, true);
+					break;
+				case SDL_BUTTON_MIDDLE:
+					ptrPGE->olc_UpdateMouseState(2, true);
+					break;
+				}
+			}
+			else if (event.type == SDL_MOUSEBUTTONUP)
+			{
+				switch (event.button.button)
+				{
+				case SDL_BUTTON_LEFT:
+					ptrPGE->olc_UpdateMouseState(0, false);
+					break;
+				case SDL_BUTTON_RIGHT:
+					ptrPGE->olc_UpdateMouseState(1, false);
+					break;
+				case SDL_BUTTON_MIDDLE:
+					ptrPGE->olc_UpdateMouseState(2, false);
+					break;
+				}
+			}
+			else if (event.type == SDL_MOUSEWHEEL)
+			{
+				if (event.wheel.y < 0)
+				{
+					ptrPGE->olc_UpdateMouseWheel(120);
+				}
+				else
+				{
+					ptrPGE->olc_UpdateMouseWheel(-120);
+				}
+			}
+			else if (event.type == SDL_MOUSEMOTION)
+			{
+				ptrPGE->olc_UpdateMouse(event.motion.x, event.motion.y);
+			}
+			else if (event.type == SDL_QUIT)
+			{
+				ptrPGE->olc_Terminate();
+				return false;
+			}
+			return true;
+		}
+
 		olc::rcode StartSystemEventLoop() override
 		{
 			bool bRunning = true;
@@ -3820,80 +3898,12 @@ namespace olc
 			while (bRunning)
 			{
 				SDL_Event event;
-				while (SDL_PollEvent(&event) > 0)
+				if(SDL_WaitEvent(&event))
 				{
-					if (event.type == SDL_WINDOWEVENT)
+					bRunning = HandleEvents(event);
+					while (SDL_PollEvent(&event) > 0)
 					{
-						if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-						{
-							ptrPGE->olc_UpdateWindowSize(event.window.data1, event.window.data2);
-						}
-						else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
-						{
-							ptrPGE->olc_UpdateKeyFocus(true);
-						}
-						else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
-						{
-							ptrPGE->olc_UpdateKeyFocus(false);
-						}
-					}
-					else if (event.type == SDL_KEYDOWN)
-					{
-						ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], true);
-					}
-					else if (event.type == SDL_KEYUP)
-					{
-						ptrPGE->olc_UpdateKeyState(mapKeys[event.key.keysym.sym], false);
-					}
-					else if (event.type == SDL_MOUSEBUTTONDOWN)
-					{
-						switch (event.button.button)
-						{
-						case SDL_BUTTON_LEFT:
-							ptrPGE->olc_UpdateMouseState(0, true);
-							break;
-						case SDL_BUTTON_RIGHT:
-							ptrPGE->olc_UpdateMouseState(1, true);
-							break;
-						case SDL_BUTTON_MIDDLE:
-							ptrPGE->olc_UpdateMouseState(2, true);
-							break;
-						}
-					}
-					else if (event.type == SDL_MOUSEBUTTONUP)
-					{
-						switch (event.button.button)
-						{
-						case SDL_BUTTON_LEFT:
-							ptrPGE->olc_UpdateMouseState(0, false);
-							break;
-						case SDL_BUTTON_RIGHT:
-							ptrPGE->olc_UpdateMouseState(1, false);
-							break;
-						case SDL_BUTTON_MIDDLE:
-							ptrPGE->olc_UpdateMouseState(2, false);
-							break;
-						}
-					}
-					else if (event.type == SDL_MOUSEWHEEL)
-					{
-						if (event.wheel.y < 0)
-						{
-							ptrPGE->olc_UpdateMouseWheel(120);
-						}
-						else
-						{
-							ptrPGE->olc_UpdateMouseWheel(-120);
-						}
-					}
-					else if (event.type == SDL_MOUSEMOTION)
-					{
-						ptrPGE->olc_UpdateMouse(event.motion.x, event.motion.y);
-					}
-					else if (event.type == SDL_QUIT)
-					{
-						ptrPGE->olc_Terminate();
-						bRunning = false;
+						bRunning = HandleEvents(event);
 					}
 				}
 			}
