@@ -3716,6 +3716,7 @@ namespace olc
 	{
 	public:
 		SDL_Window *olc_Window = nullptr;
+		bool bActive = false;
 
 	public:
 		olc::rcode ApplicationStartUp() override
@@ -3737,6 +3738,12 @@ namespace olc
 
 		olc::rcode ThreadCleanUp() override
 		{
+			SDL_Event event;
+			event.type = SDL_QUIT;
+			
+			// Push the quit event
+			SDL_PushEvent(&event);
+			
 			return olc::rcode::OK;
 		}
 
@@ -3813,7 +3820,7 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		bool HandleEvents(SDL_Event event)
+		void HandleEvents(SDL_Event event)
 		{
 			if (event.type == SDL_WINDOWEVENT)
 			{
@@ -3886,28 +3893,27 @@ namespace olc
 			else if (event.type == SDL_QUIT)
 			{
 				ptrPGE->olc_Terminate();
-				return false;
+				bActive = false;
 			}
-			return true;
 		}
 
 		olc::rcode StartSystemEventLoop() override
 		{
-			bool bRunning = true;
-
-			while (bRunning)
+			bActive = true;
+			
+			while (bActive)
 			{
 				SDL_Event event;
-				if(SDL_WaitEvent(&event))
+				if(SDL_WaitEventTimeout(&event, 1000))
 				{
-					bRunning = HandleEvents(event);
+					HandleEvents(event);
 					while (SDL_PollEvent(&event) > 0)
 					{
-						bRunning = HandleEvents(event);
+						HandleEvents(event);
 					}
 				}
 			}
-
+			
 			return olc::rcode::OK;
 		}
 
