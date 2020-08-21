@@ -3008,9 +3008,9 @@ namespace olc
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <gdiplus.h>
-#include <Shlwapi.h>
+#include <shlwapi.h>
 #pragma comment(lib, "gdiplus.lib")
-#pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "shlwapi.lib")
 
 namespace olc
 {
