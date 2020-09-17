@@ -151,7 +151,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -289,8 +289,8 @@ int main()
 	namespace _gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+	#include <experimental/filesystem>
+	namespace _gfs = std::experimental::filesystem;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
