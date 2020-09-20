@@ -278,7 +278,7 @@ int main()
 	#endif
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 	#define PGE_USE_CUSTOM_START
 #endif
 
@@ -1438,9 +1438,9 @@ namespace olc
 
 #if !defined(PGE_USE_CUSTOM_START)
 	olc::rcode PixelGameEngine::Start()
-	{
+	{          
 		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
-
+         
 		// Construct the window
 		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
 		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
@@ -1456,7 +1456,7 @@ namespace olc
 		t.join();
 
 		if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
-
+                
 		return olc::OK;
 	}
 #endif
@@ -2506,14 +2506,20 @@ namespace olc
 		// context of this thread
 		if (platform->ThreadStartUp() == olc::FAIL)	return;
 
+                std::cout << "Start thread done" << std::endl;
+
 		// Do engine context specific initialisation
 		olc_PrepareEngine();
 
+                std::cout << "prep engine done" << std::endl;
+                
 		// Create user resources as part of this thread
 		if (!OnUserCreate()) bAtomActive = false;
 
 		while (bAtomActive)
 		{
+
+                  std::cout << "game loop running" << std::endl;
 			// Run as fast as possible
 			while (bAtomActive) { olc_CoreUpdate(); }
 
@@ -2549,10 +2555,12 @@ namespace olc
 
 	void PixelGameEngine::olc_CoreUpdate()
 	{
+
 		// Handle Timing
 		m_tp2 = std::chrono::system_clock::now();
 		std::chrono::duration<float> elapsedTime = m_tp2 - m_tp1;
 		m_tp1 = m_tp2;
+
 
 		// Our time per frame coefficient
 		float fElapsedTime = elapsedTime.count();
@@ -2588,6 +2596,7 @@ namespace olc
 		ScanHardware(pKeyboardState, pKeyOldState, pKeyNewState, 256);
 		ScanHardware(pMouseState, pMouseOldState, pMouseNewState, nMouseButtons);
 
+                
 		// Cache mouse coordinates so they remain consistent during frame
 		vMousePos = vMousePosCache;
 		nMouseWheelDelta = nMouseWheelDeltaCache;
@@ -2595,19 +2604,23 @@ namespace olc
 
 		//	renderer->ClearBuffer(olc::BLACK, true);
 
+                
 			// Handle Frame Update
 		if (!OnUserUpdate(fElapsedTime))
 			bAtomActive = false;
 
+                
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
 		renderer->ClearBuffer(olc::BLACK, true);
 
+                
 		// Layer 0 must always exist
 		vLayers[0].bUpdate = true;
 		vLayers[0].bShow = true;
 		renderer->PrepareDrawing();
 
+                
 		for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
 		{
 			if (layer->bShow)
@@ -2650,6 +2663,7 @@ namespace olc
 			platform->SetWindowTitle(sTitle);
 			nFrameCount = 0;
 		}
+                
 	}
 
 	void PixelGameEngine::olc_ConstructFontSheet()
@@ -2738,12 +2752,18 @@ namespace olc
 	typedef X11::GLXContext glRenderContext_t;
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 	#define GL_SILENCE_DEPRECATION
 	#include <GLUT/glut.h>
 	#include <OpenGL/OpenGL.h>
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
+#elif defined(__APPLE__) && defined(__GLFW__)
+        #define GL_SILENCE_DEPRECATION
+        #include <GLFW/glfw3.h>
+        #include <OpenGL/OpenGL.h>
+        #include <OpenGL/gl.h>
+//#include <OpenGL/glu.h>
 #endif
 
 namespace olc
@@ -2766,10 +2786,14 @@ namespace olc
 		X11::XVisualInfo* olc_VisualInfo = nullptr;
 #endif
 
+#if defined(__APPLE__) && defined(__GLFW__)
+                GLFWwindow* olc_Window = nullptr;
+#endif
+          
 	public:
 		void PrepareDevice() override
 		{ 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 			//glutInit has to be called with main() arguments, make fake ones
 			int argc = 0;
 			char* argv[1] = { (char*)"" };
@@ -2785,6 +2809,8 @@ namespace olc
 
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#elif defined(__APPLE__) && defined(__GLFW__)
+			// GLFW CODE HERE!!
 #endif
 		}
 
@@ -2843,7 +2869,7 @@ namespace olc
 				glSwapIntervalEXT(olc_Display, *olc_Window, 0);
 #endif		
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 			mFullScreen = bFullScreen;
 			if (!bVSYNC)
 			{
@@ -2851,6 +2877,20 @@ namespace olc
 				CGLContextObj ctx = CGLGetCurrentContext();
 				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
 			}
+#elif defined(__APPLE__) && defined(__GLFW__)
+                        
+                        // GLFW CODE HERE!!!
+                        olc_Window = (GLFWwindow *)(params[0]);
+                        glfwMakeContextCurrent(olc_Window);
+                        
+                        if (bVSYNC)
+                          glfwSwapInterval(1);
+                        else
+                          glfwSwapInterval(0);
+
+                        glEnable(GL_TEXTURE_2D); // Turn on texturing
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+                        
 #else
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -2869,8 +2909,14 @@ namespace olc
 			glXDestroyContext(olc_Display, glDeviceContext);
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 			glutDestroyWindow(glutGetWindow());
+#elif defined(__APPLE__) && defined(__GLFW__)
+                        
+                        // GLFW CODE HERE!!!!
+                        glfwDestroyWindow(olc_Window);
+                        glfwTerminate();
+                        
 #endif
 			return olc::rcode::OK;
 		}
@@ -2886,8 +2932,12 @@ namespace olc
 			X11::glXSwapBuffers(olc_Display, *olc_Window);
 #endif		
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 			glutSwapBuffers();
+#elif defined(__APPLE__) && defined(__GLFW__)
+                        //glfwMakeContextCurrent(olc_Window);
+                        glfwSwapBuffers(olc_Window);
+                        
 #endif
 		}
 
@@ -2982,8 +3032,10 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
+                        //#elif defined(__APPLE__) && defined(__GLFW__)
+                        // GLFW code here
 #else
 			glViewport(pos.x, pos.y, size.x, size.y);
 #endif
@@ -3749,7 +3801,7 @@ namespace olc
 // and support on how to setup your build environment.
 //
 // "MASSIVE MASSIVE THANKS TO MUMFLR" - Javidx9
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 namespace olc {
 
 	class Platform_GLUT : public olc::Platform
@@ -3995,6 +4047,206 @@ namespace olc {
 // | END PLATFORM: GLUT                                                           |
 // O------------------------------------------------------------------------------O
 
+// O------------------------------------------------------------------------------O
+// | START PLATFORM: GLFW                                                         |
+// O------------------------------------------------------------------------------O
+#if defined(__APPLE__) && defined(__GLFW__)
+namespace olc {
+
+  class Platform_GLFW : public olc::Platform
+  {
+
+  private:
+    GLFWwindow * olc_Window;
+    
+  public:
+    static std::atomic<bool>* bActiveRef;
+
+    virtual olc::rcode ApplicationStartUp() override {
+      return olc::rcode::OK;
+    }
+
+    virtual olc::rcode ApplicationCleanUp() override {
+      return olc::rcode::OK;
+    }
+
+    virtual olc::rcode ThreadStartUp() override {
+      return olc::rcode::OK;
+    }
+
+    virtual olc::rcode ThreadCleanUp() override {
+      renderer->DestroyDevice();
+      return olc::OK;
+    }
+
+    virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
+    {
+      if (renderer->CreateDevice({olc_Window}, bFullScreen, bEnableVSYNC) == olc::rcode::OK){
+          renderer->UpdateViewport(vViewPos, vViewSize);
+          return olc::rcode::OK;
+      }
+      else
+        return olc::rcode::FAIL;
+    }
+
+    virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
+    {
+      renderer->PrepareDevice();
+
+      // Initialize GLFW and create our window
+      if (!glfwInit())
+        return olc::rcode::FAIL;
+
+      glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
+      olc_Window = glfwCreateWindow(vWindowSize.x, vWindowSize.y, "OLC - PGE - GLFW", NULL, NULL);
+      if (!olc_Window){
+        glfwTerminate();
+        return olc::rcode::FAIL;
+      }
+
+      glfwMakeContextCurrent(olc_Window);
+      
+      int glfw_screen_width; 
+      int glfw_screen_height;
+      int glfw_x_leftcorner;
+      int glfw_y_leftcorner;
+      glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(),
+                             &glfw_x_leftcorner,
+                             &glfw_y_leftcorner,
+                             &glfw_screen_width,
+                             &glfw_screen_height);
+      
+      if (bFullScreen){
+        vWindowSize.x = glfw_screen_width;
+        vWindowSize.y = glfw_screen_height;
+        glfwSetWindowMonitor(olc_Window,glfwGetWindowMonitor(olc_Window),0,0,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
+      }
+      else{
+        glfwSetWindowMonitor(olc_Window,NULL,0,0,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
+      }
+
+      if (vWindowSize.x > glfw_screen_width || vWindowSize.y > glfw_screen_height) {
+        perror("ERROR: The specified window dimensions do not fit on your screen\n");
+        return olc::FAIL;
+      }
+      
+      // Create Keyboard Mapping
+      mapKeys[0x00] = Key::NONE;
+      mapKeys['A'] = Key::A; mapKeys['B'] = Key::B; mapKeys['C'] = Key::C; mapKeys['D'] = Key::D; mapKeys['E'] = Key::E;
+      mapKeys['F'] = Key::F; mapKeys['G'] = Key::G; mapKeys['H'] = Key::H; mapKeys['I'] = Key::I; mapKeys['J'] = Key::J;
+      mapKeys['K'] = Key::K; mapKeys['L'] = Key::L; mapKeys['M'] = Key::M; mapKeys['N'] = Key::N; mapKeys['O'] = Key::O;
+      mapKeys['P'] = Key::P; mapKeys['Q'] = Key::Q; mapKeys['R'] = Key::R; mapKeys['S'] = Key::S; mapKeys['T'] = Key::T;
+      mapKeys['U'] = Key::U; mapKeys['V'] = Key::V; mapKeys['W'] = Key::W; mapKeys['X'] = Key::X; mapKeys['Y'] = Key::Y;
+      mapKeys['Z'] = Key::Z;
+
+      mapKeys[GLFW_KEY_F1] = Key::F1; mapKeys[GLFW_KEY_F2] = Key::F2; mapKeys[GLFW_KEY_F3] = Key::F3; mapKeys[GLFW_KEY_F4] = Key::F4;
+      mapKeys[GLFW_KEY_F5] = Key::F5; mapKeys[GLFW_KEY_F6] = Key::F6; mapKeys[GLFW_KEY_F7] = Key::F7; mapKeys[GLFW_KEY_F8] = Key::F8;
+      mapKeys[GLFW_KEY_F9] = Key::F9; mapKeys[GLFW_KEY_F10] = Key::F10; mapKeys[GLFW_KEY_F11] = Key::F11; mapKeys[GLFW_KEY_F12] = Key::F12;
+
+      mapKeys[GLFW_KEY_DOWN] = Key::DOWN; mapKeys[GLFW_KEY_LEFT] = Key::LEFT; mapKeys[GLFW_KEY_RIGHT] = Key::RIGHT; mapKeys[GLFW_KEY_UP] = Key::UP;
+      mapKeys[13] = Key::ENTER;
+
+      mapKeys[127] = Key::BACK; mapKeys[27] = Key::ESCAPE;
+      mapKeys[9] = Key::TAB;  mapKeys[GLFW_KEY_HOME] = Key::HOME;
+      mapKeys[GLFW_KEY_END] = Key::END; mapKeys[GLFW_KEY_PAGE_UP] = Key::PGUP; mapKeys[GLFW_KEY_PAGE_DOWN] = Key::PGDN;    mapKeys[GLFW_KEY_INSERT] = Key::INS;
+      mapKeys[32] = Key::SPACE; mapKeys[46] = Key::PERIOD;
+
+      mapKeys[48] = Key::K0; mapKeys[49] = Key::K1; mapKeys[50] = Key::K2; mapKeys[51] = Key::K3; mapKeys[52] = Key::K4;
+      mapKeys[53] = Key::K5; mapKeys[54] = Key::K6; mapKeys[55] = Key::K7; mapKeys[56] = Key::K8; mapKeys[57] = Key::K9;
+
+      // Set event callbacks
+      //void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
+      //  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+      //    popup_menu();
+      //}
+      glfwSetMouseButtonCallback(olc_Window,
+                                 [](GLFWwindow* w, int button, int action, int mods)->void{
+      
+                                   // Map button into OLC indices
+                                   int button_idx;
+                                   if (button == GLFW_MOUSE_BUTTON_LEFT)
+                                     button_idx = 0;
+                                   else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+                                     button_idx = 1;
+                                   else if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+                                     button_idx = 2;
+                                   else
+                                     std::cout << "Unsupported mouse button!" << std::endl;
+
+
+                                   //std::cout << "Mouse button: " << button_idx << std::endl;
+                                   
+                                   // Set internal OLC state
+                                   if (action == GLFW_PRESS)
+                                     ptrPGE->olc_UpdateMouseState(button_idx, true);
+                                   else if (action == GLFW_RELEASE)
+                                     ptrPGE->olc_UpdateMouseState(button_idx, false);
+                                 });
+      
+      //static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+      glfwSetCursorPosCallback(olc_Window,
+                               [](GLFWwindow* window, double xpos, double ypos)->void{
+                                 ptrPGE->olc_UpdateMouse((int)xpos, (int)ypos);
+                                 //std::cout << xpos << "," << ypos << std::endl;
+                               });
+      
+      //void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+      glfwSetKeyCallback(olc_Window,
+                         [](GLFWwindow* window, int key, int scancode, int action, int mods)->void{
+      
+                           //std::cout << "GLFW: Keypress!" << std::endl;
+                           // Handle basic keypress
+                           
+                           // Handle modifiers
+                           
+                         });
+      
+      //void cursor_enter_callback(GLFWwindow* window, int entered)
+      glfwSetCursorEnterCallback(olc_Window, [](GLFWwindow * w, int entered)->void{
+                                           if (entered)
+                                             ptrPGE->olc_UpdateKeyFocus(true);
+                                           else
+                                             ptrPGE->olc_UpdateKeyFocus(false);
+
+                                           //std::cout << "Entered window: " << entered << std::endl;
+                                         });
+
+
+      return olc::OK;
+    }
+
+    virtual olc::rcode SetWindowTitle(const std::string& s) override
+    {
+      //glfwSetWindowTitle(olc_Window, s.c_str());
+      return olc::OK;
+    }
+
+    virtual olc::rcode StartSystemEventLoop() override {
+
+      while (!glfwWindowShouldClose(olc_Window)){
+        /* Poll for and process events */
+        glfwPollEvents();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      }
+
+      ptrPGE->olc_Terminate();
+      
+      return olc::OK;
+    }
+
+    virtual olc::rcode HandleSystemEvent() override
+    {      
+      return olc::OK;
+    }
+  };
+}
+
+#endif
+// O------------------------------------------------------------------------------O
+// | END PLATFORM: GLFW                                                           |
+// O------------------------------------------------------------------------------O
+
+
 
 
 namespace olc
@@ -4025,8 +4277,10 @@ namespace olc
 		platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__GLFW__)
 		platform = std::make_unique<olc::Platform_GLUT>();
+#elif defined(__APPLE__) && defined(__GLFW__)
+                platform = std::make_unique<olc::Platform_GLFW>();
 #endif
 
 
@@ -4046,6 +4300,7 @@ namespace olc
 		// Associate components with PGE instance
 		platform->ptrPGE = this;
 		renderer->ptrPGE = this;
+                
 	}
 }
 
