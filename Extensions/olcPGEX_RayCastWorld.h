@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                   Ray Cast World v1.01                      |
+	|                   Ray Cast World v1.02                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -65,6 +65,11 @@
 	Author
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020
+
+	Revisions:
+	1.00:	Initial Release
+	1.01:	Fix NaN check on overlap distance (Thanks Dandistine)
+	1.02:	Added dynamic step size for collisions
 */
 
 #ifndef OLC_PGEX_RAYCASTWORLD_H
@@ -262,107 +267,124 @@ void olc::rcw::Engine::Update(float fElapsedTime)
 		std::shared_ptr<olc::rcw::Object> object = ob.second;
 		if (!object->bIsActive) continue;
 
-		// Determine where object is trying to be
-		olc::vf2d vPotentialPosition = object->pos + object->vel * fElapsedTime;
+		int nSteps = 1;
+		float fDelta = fElapsedTime;
+		float fTotalTravel = (object->vel * fElapsedTime).mag2();
+		float fTotalRadius = (object->fRadius * object->fRadius);
 
-		// If the object can collide with other objects
-		if (object->bCollideWithObjects)
+		if(fTotalTravel >= fTotalRadius)
 		{
-			// Iterate through all other objects (this can be costly)
-			for (auto& ob2 : mapObjects)
-			{
-				std::shared_ptr<olc::rcw::Object> target = ob2.second;
-				
-				// Ignore if target object cant interact
-				if (!target->bCollideWithObjects) continue;
-
-				// Don't test against self
-				if (target == object) continue;
-
-				// Quick check to see if objects overlap...
-				if ((target->pos - object->pos).mag2() <= (target->fRadius + object->fRadius) * (target->fRadius + object->fRadius))
-				{
-					// ..they do. Calculate displacement required
-					float fDistance = (target->pos - object->pos).mag();
-					float fOverlap = 1.0f * ( fDistance - object->fRadius - target->fRadius);
-
-					// Object will always give way to target
-					vPotentialPosition -= (object->pos - target->pos) / fDistance * fOverlap;
-
-					if(target->bCanBeMoved)
-						target->pos += (object->pos - target->pos) / fDistance * fOverlap;
-
-					if (object->bNotifyObjectCollision)
-						HandleObjectVsObject(object, target);
-				}
-
-
-			}
+			float fSteps = std::ceil(fTotalTravel / fTotalRadius);
+			nSteps = int(fSteps);
+			fDelta = fElapsedTime / fSteps;
 		}
 
-		// If the object can collide with scenery...
-		if (object->bCollideWithScenery)
+		for (int nStep = 0; nStep < nSteps; nStep++)
 		{
-			// ...Determine an area of cells to check for collision. We use a region
-			// to account for diagonal collisions, and corner collisions.
-			olc::vi2d vCurrentCell = object->pos;
-			olc::vi2d vTargetCell = vPotentialPosition;
-			olc::vi2d vAreaTL = { std::min(vCurrentCell.x, vTargetCell.x) - 1, std::min(vCurrentCell.y, vTargetCell.y) - 1 };
-			olc::vi2d vAreaBR = { std::max(vCurrentCell.x, vTargetCell.x) + 1, std::max(vCurrentCell.y, vTargetCell.y) + 1 };
+			// Determine where object is trying to be
+			olc::vf2d vPotentialPosition = object->pos + object->vel * fDelta;
 
-
-			// Iterate through each cell in test area
-			olc::vi2d vCell;
-			for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
+			// If the object can collide with other objects
+			if (object->bCollideWithObjects)
 			{
-				for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
+				// Iterate through all other objects (this can be costly)
+				for (auto& ob2 : mapObjects)
 				{
-					// Check if the cell is actually solid...
-					olc::vf2d vCellMiddle = olc::vf2d(float(vCell.x) + 0.5f, float(vCell.y) + 0.5f);
-					if (IsLocationSolid(vCellMiddle.x, vCellMiddle.y))
+					std::shared_ptr<olc::rcw::Object> target = ob2.second;
+
+					// Ignore if target object cant interact
+					if (!target->bCollideWithObjects) continue;
+
+					// Don't test against self
+					if (target == object) continue;
+
+					// Quick check to see if objects overlap...
+					if ((target->pos - object->pos).mag2() <= (target->fRadius + object->fRadius) * (target->fRadius + object->fRadius))
 					{
-						// ...it is! So work out nearest point to future player position, around perimeter
-						// of cell rectangle. We can test the distance to this point to see if we have
-						// collided.
+						// ..they do. Calculate displacement required
+						float fDistance = (target->pos - object->pos).mag();
+						float fOverlap = 1.0f * (fDistance - object->fRadius - target->fRadius);
 
-						olc::vf2d vNearestPoint;
-						// Inspired by this (very clever btw) 
-						// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
-						vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
-						vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+						// Object will always give way to target
+						vPotentialPosition -= (object->pos - target->pos) / fDistance * fOverlap;
 
-						// But modified to work :P
-						olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
-						float fOverlap = object->fRadius - vRayToNearest.mag();
-						if(std::isnan(fOverlap)) fOverlap = 0;// Thanks Dandistine!
+						if (target->bCanBeMoved)
+							target->pos += (object->pos - target->pos) / fDistance * fOverlap;
 
-						// If overlap is positive, then a collision has occurred, so we displace backwards by the 
-						// overlap amount. The potential position is then tested against other tiles in the area
-						// therefore "statically" resolving the collision
-						if ( fOverlap > 0) 
+						if (object->bNotifyObjectCollision)
+							HandleObjectVsObject(object, target);
+					}
+
+
+				}
+			}
+
+			// If the object can collide with scenery...
+			if (object->bCollideWithScenery)
+			{
+				// ...Determine an area of cells to check for collision. We use a region
+				// to account for diagonal collisions, and corner collisions.
+				olc::vi2d vCurrentCell = object->pos;
+				olc::vi2d vTargetCell = vPotentialPosition;
+				olc::vi2d vAreaTL = { std::min(vCurrentCell.x, vTargetCell.x) - 1, std::min(vCurrentCell.y, vTargetCell.y) - 1 };
+				olc::vi2d vAreaBR = { std::max(vCurrentCell.x, vTargetCell.x) + 1, std::max(vCurrentCell.y, vTargetCell.y) + 1 };
+
+
+
+
+				// Iterate through each cell in test area
+				olc::vi2d vCell;
+				for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
+				{
+					for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
+					{
+						// Check if the cell is actually solid...
+						olc::vf2d vCellMiddle = olc::vf2d(float(vCell.x) + 0.5f, float(vCell.y) + 0.5f);
+						if (IsLocationSolid(vCellMiddle.x, vCellMiddle.y))
 						{
-							// Statically resolve the collision
-							vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
+							// ...it is! So work out nearest point to future player position, around perimeter
+							// of cell rectangle. We can test the distance to this point to see if we have
+							// collided.
 
-							// Notify system that a collision has occurred
-							if (object->bNotifySceneryCollision)
+							olc::vf2d vNearestPoint;
+							// Inspired by this (very clever btw) 
+							// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
+							vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
+							vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+
+							// But modified to work :P
+							olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
+							float fOverlap = object->fRadius - vRayToNearest.mag();
+							if (std::isnan(fOverlap)) fOverlap = 0;// Thanks Dandistine!
+
+							// If overlap is positive, then a collision has occurred, so we displace backwards by the 
+							// overlap amount. The potential position is then tested against other tiles in the area
+							// therefore "statically" resolving the collision
+							if (fOverlap > 0)
 							{
-								olc::rcw::Engine::CellSide side = olc::rcw::Engine::CellSide::Bottom;
-								if (vNearestPoint.x == float(vCell.x)) side = olc::rcw::Engine::CellSide::West;
-								if (vNearestPoint.x == float(vCell.x + 1)) side = olc::rcw::Engine::CellSide::East;
-								if (vNearestPoint.y == float(vCell.y)) side = olc::rcw::Engine::CellSide::North;
-								if (vNearestPoint.y == float(vCell.y + 1)) side = olc::rcw::Engine::CellSide::South;
+								// Statically resolve the collision
+								vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
 
-								HandleObjectVsScenery(object, vCell.x, vCell.y, side, vNearestPoint.x - float(vCell.x), vNearestPoint.y - float(vCell.y));
+								// Notify system that a collision has occurred
+								if (object->bNotifySceneryCollision)
+								{
+									olc::rcw::Engine::CellSide side = olc::rcw::Engine::CellSide::Bottom;
+									if (vNearestPoint.x == float(vCell.x)) side = olc::rcw::Engine::CellSide::West;
+									if (vNearestPoint.x == float(vCell.x + 1)) side = olc::rcw::Engine::CellSide::East;
+									if (vNearestPoint.y == float(vCell.y)) side = olc::rcw::Engine::CellSide::North;
+									if (vNearestPoint.y == float(vCell.y + 1)) side = olc::rcw::Engine::CellSide::South;
+
+									HandleObjectVsScenery(object, vCell.x, vCell.y, side, vNearestPoint.x - float(vCell.x), vNearestPoint.y - float(vCell.y));
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 
-		// Set the objects new position to the allowed potential position
-		object->pos = vPotentialPosition;
+			// Set the objects new position to the allowed potential position
+			object->pos = vPotentialPosition;
+		}
 	}
 }
 
