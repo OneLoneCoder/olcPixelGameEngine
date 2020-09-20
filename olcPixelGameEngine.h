@@ -4131,20 +4131,31 @@ namespace olc {
       mapKeys['U'] = Key::U; mapKeys['V'] = Key::V; mapKeys['W'] = Key::W; mapKeys['X'] = Key::X; mapKeys['Y'] = Key::Y;
       mapKeys['Z'] = Key::Z;
 
-      mapKeys[GLFW_KEY_F1] = Key::F1; mapKeys[GLFW_KEY_F2] = Key::F2; mapKeys[GLFW_KEY_F3] = Key::F3; mapKeys[GLFW_KEY_F4] = Key::F4;
-      mapKeys[GLFW_KEY_F5] = Key::F5; mapKeys[GLFW_KEY_F6] = Key::F6; mapKeys[GLFW_KEY_F7] = Key::F7; mapKeys[GLFW_KEY_F8] = Key::F8;
+      mapKeys[GLFW_KEY_F1] = Key::F1; mapKeys[GLFW_KEY_F2]  = Key::F2;  mapKeys[GLFW_KEY_F3]  = Key::F3;  mapKeys[GLFW_KEY_F4]  = Key::F4;
+      mapKeys[GLFW_KEY_F5] = Key::F5; mapKeys[GLFW_KEY_F6]  = Key::F6;  mapKeys[GLFW_KEY_F7]  = Key::F7;  mapKeys[GLFW_KEY_F8]  = Key::F8;
       mapKeys[GLFW_KEY_F9] = Key::F9; mapKeys[GLFW_KEY_F10] = Key::F10; mapKeys[GLFW_KEY_F11] = Key::F11; mapKeys[GLFW_KEY_F12] = Key::F12;
 
-      mapKeys[GLFW_KEY_DOWN] = Key::DOWN; mapKeys[GLFW_KEY_LEFT] = Key::LEFT; mapKeys[GLFW_KEY_RIGHT] = Key::RIGHT; mapKeys[GLFW_KEY_UP] = Key::UP;
-      mapKeys[13] = Key::ENTER;
+      mapKeys[GLFW_KEY_DOWN]  = Key::DOWN; mapKeys[GLFW_KEY_LEFT] = Key::LEFT; mapKeys[GLFW_KEY_RIGHT] = Key::RIGHT; mapKeys[GLFW_KEY_UP] = Key::UP;
+      
+      mapKeys[GLFW_KEY_ENTER]     = Key::ENTER;
+      mapKeys[GLFW_KEY_BACKSPACE] = Key::BACK;
+      mapKeys[GLFW_KEY_ESCAPE]    = Key::ESCAPE;
+      mapKeys[GLFW_KEY_TAB]       = Key::TAB;
+      mapKeys[GLFW_KEY_HOME]      = Key::HOME;
+      mapKeys[GLFW_KEY_END]       = Key::END;
+      mapKeys[GLFW_KEY_PAGE_UP]   = Key::PGUP;
+      mapKeys[GLFW_KEY_PAGE_DOWN] = Key::PGDN;
+      mapKeys[GLFW_KEY_INSERT]    = Key::INS;
+      mapKeys[GLFW_KEY_SPACE]     = Key::SPACE;
+      mapKeys[GLFW_KEY_PERIOD]    = Key::PERIOD;
 
-      mapKeys[127] = Key::BACK; mapKeys[27] = Key::ESCAPE;
-      mapKeys[9] = Key::TAB;  mapKeys[GLFW_KEY_HOME] = Key::HOME;
-      mapKeys[GLFW_KEY_END] = Key::END; mapKeys[GLFW_KEY_PAGE_UP] = Key::PGUP; mapKeys[GLFW_KEY_PAGE_DOWN] = Key::PGDN;    mapKeys[GLFW_KEY_INSERT] = Key::INS;
-      mapKeys[32] = Key::SPACE; mapKeys[46] = Key::PERIOD;
+      mapKeys[GLFW_KEY_0] = Key::K0; mapKeys[GLFW_KEY_1] = Key::K1; mapKeys[GLFW_KEY_2] = Key::K2; mapKeys[GLFW_KEY_3] = Key::K3; mapKeys[GLFW_KEY_4] = Key::K4;
+      mapKeys[GLFW_KEY_5] = Key::K5; mapKeys[GLFW_KEY_6] = Key::K6; mapKeys[GLFW_KEY_7] = Key::K7; mapKeys[GLFW_KEY_8] = Key::K8; mapKeys[GLFW_KEY_9] = Key::K9;
 
-      mapKeys[48] = Key::K0; mapKeys[49] = Key::K1; mapKeys[50] = Key::K2; mapKeys[51] = Key::K3; mapKeys[52] = Key::K4;
-      mapKeys[53] = Key::K5; mapKeys[54] = Key::K6; mapKeys[55] = Key::K7; mapKeys[56] = Key::K8; mapKeys[57] = Key::K9;
+      mapKeys[GLFW_KEY_LEFT_SHIFT]  = Key::SHIFT;
+      mapKeys[GLFW_KEY_RIGHT_SHIFT] = Key::SHIFT;
+      mapKeys[GLFW_KEY_LEFT_CONTROL]  = Key::CTRL;
+      mapKeys[GLFW_KEY_RIGHT_CONTROL] = Key::CTRL;
 
       // Set event callbacks
       //void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
@@ -4165,9 +4176,6 @@ namespace olc {
                                    else
                                      std::cout << "Unsupported mouse button!" << std::endl;
 
-
-                                   //std::cout << "Mouse button: " << button_idx << std::endl;
-                                   
                                    // Set internal OLC state
                                    if (action == GLFW_PRESS)
                                      ptrPGE->olc_UpdateMouseState(button_idx, true);
@@ -4179,17 +4187,20 @@ namespace olc {
       glfwSetCursorPosCallback(olc_Window,
                                [](GLFWwindow* window, double xpos, double ypos)->void{
                                  ptrPGE->olc_UpdateMouse((int)xpos, (int)ypos);
-                                 //std::cout << xpos << "," << ypos << std::endl;
                                });
       
       //void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
       glfwSetKeyCallback(olc_Window,
                          [](GLFWwindow* window, int key, int scancode, int action, int mods)->void{
-      
-                           //std::cout << "GLFW: Keypress!" << std::endl;
-                           // Handle basic keypress
+                           // With GLFW, we can just handle modifier keys as normal keypresses.
+                           // There may be an advantage to handling them using the modifier
+                           // mask, but in the interest of keeping things simple, we don't do
+                           // anything special.
                            
-                           // Handle modifiers
+                           // Action -> GLFW_PRESS (1) or GLFW_RELEASE (0)
+                           if (mapKeys[key]){
+                             ptrPGE-> olc_UpdateKeyState(mapKeys[key],action);
+                           }
                            
                          });
       
