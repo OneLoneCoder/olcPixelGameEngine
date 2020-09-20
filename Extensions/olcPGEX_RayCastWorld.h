@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                   Ray Cast World v1.0                       |
+	|                   Ray Cast World v1.01                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -310,62 +310,55 @@ void olc::rcw::Engine::Update(float fElapsedTime)
 			olc::vi2d vAreaTL = { std::min(vCurrentCell.x, vTargetCell.x) - 1, std::min(vCurrentCell.y, vTargetCell.y) - 1 };
 			olc::vi2d vAreaBR = { std::max(vCurrentCell.x, vTargetCell.x) + 1, std::max(vCurrentCell.y, vTargetCell.y) + 1 };
 
-			bool bRecheck = false;
-			do
+
+			// Iterate through each cell in test area
+			olc::vi2d vCell;
+			for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
 			{
-				bRecheck = false;
-
-				// Iterate through each cell in test area
-				olc::vi2d vCell;
-				for (vCell.y = vAreaTL.y; vCell.y <= vAreaBR.y; vCell.y++)
+				for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
 				{
-					for (vCell.x = vAreaTL.x; vCell.x <= vAreaBR.x; vCell.x++)
+					// Check if the cell is actually solid...
+					olc::vf2d vCellMiddle = olc::vf2d(float(vCell.x) + 0.5f, float(vCell.y) + 0.5f);
+					if (IsLocationSolid(vCellMiddle.x, vCellMiddle.y))
 					{
-						// Check if the cell is actually solid...
-						olc::vf2d vCellMiddle = olc::vf2d(float(vCell.x) + 0.5f, float(vCell.y) + 0.5f);
-						if (IsLocationSolid(vCellMiddle.x, vCellMiddle.y))
+						// ...it is! So work out nearest point to future player position, around perimeter
+						// of cell rectangle. We can test the distance to this point to see if we have
+						// collided.
+
+						olc::vf2d vNearestPoint;
+						// Inspired by this (very clever btw) 
+						// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
+						vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
+						vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
+
+						// But modified to work :P
+						olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
+						float fOverlap = object->fRadius - vRayToNearest.mag();
+						if(std::isnan(fOverlap)) fOverlap = 0;// Thanks Dandistine!
+
+						// If overlap is positive, then a collision has occurred, so we displace backwards by the 
+						// overlap amount. The potential position is then tested against other tiles in the area
+						// therefore "statically" resolving the collision
+						if ( fOverlap > 0) 
 						{
-							// ...it is! So work out nearest point to future player position, around perimeter
-							// of cell rectangle. We can test the distance to this point to see if we have
-							// collided.
+							// Statically resolve the collision
+							vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
 
-							olc::vf2d vNearestPoint;
-							// Inspired by this (very clever btw) 
-							// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
-							vNearestPoint.x = std::max(float(vCell.x), std::min(vPotentialPosition.x, float(vCell.x + 1)));
-							vNearestPoint.y = std::max(float(vCell.y), std::min(vPotentialPosition.y, float(vCell.y + 1)));
-
-							// But modified to work :P
-							olc::vf2d vRayToNearest = vNearestPoint - vPotentialPosition;
-							float fOverlap = object->fRadius - vRayToNearest.mag();
-
-							// If overlap is positive, then a collision has occurred, so we displace backwards by the 
-							// overlap amount. The potential position is then tested against other tiles in the area
-							// therefore "statically" resolving the collision
-							if (fOverlap > 0)
+							// Notify system that a collision has occurred
+							if (object->bNotifySceneryCollision)
 							{
-								// Statically resolve the collision
-								vPotentialPosition = vPotentialPosition - vRayToNearest.norm() * fOverlap;
+								olc::rcw::Engine::CellSide side = olc::rcw::Engine::CellSide::Bottom;
+								if (vNearestPoint.x == float(vCell.x)) side = olc::rcw::Engine::CellSide::West;
+								if (vNearestPoint.x == float(vCell.x + 1)) side = olc::rcw::Engine::CellSide::East;
+								if (vNearestPoint.y == float(vCell.y)) side = olc::rcw::Engine::CellSide::North;
+								if (vNearestPoint.y == float(vCell.y + 1)) side = olc::rcw::Engine::CellSide::South;
 
-								// Notify system that a collision has occurred
-								if (object->bNotifySceneryCollision)
-								{
-									olc::rcw::Engine::CellSide side = olc::rcw::Engine::CellSide::Bottom;
-									if (vNearestPoint.x == float(vCell.x)) side = olc::rcw::Engine::CellSide::West;
-									if (vNearestPoint.x == float(vCell.x + 1)) side = olc::rcw::Engine::CellSide::East;
-									if (vNearestPoint.y == float(vCell.y)) side = olc::rcw::Engine::CellSide::North;
-									if (vNearestPoint.y == float(vCell.y + 1)) side = olc::rcw::Engine::CellSide::South;
-
-									HandleObjectVsScenery(object, vCell.x, vCell.y, side, vNearestPoint.x - float(vCell.x), vNearestPoint.y - float(vCell.y));
-								}
-
-								bRecheck = true;
+								HandleObjectVsScenery(object, vCell.x, vCell.y, side, vNearestPoint.x - float(vCell.x), vNearestPoint.y - float(vCell.y));
 							}
 						}
 					}
 				}
 			}
-			while (bRecheck);
 		}
 
 		// Set the objects new position to the allowed potential position
