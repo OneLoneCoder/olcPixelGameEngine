@@ -2505,21 +2505,16 @@ namespace olc
 		// Allow platform to do stuff here if needed, since its now in the
 		// context of this thread
 		if (platform->ThreadStartUp() == olc::FAIL)	return;
-
-                std::cout << "Start thread done" << std::endl;
-
+                
 		// Do engine context specific initialisation
 		olc_PrepareEngine();
 
-                std::cout << "prep engine done" << std::endl;
-                
 		// Create user resources as part of this thread
 		if (!OnUserCreate()) bAtomActive = false;
 
 		while (bAtomActive)
 		{
-
-                  std::cout << "game loop running" << std::endl;
+                  
 			// Run as fast as possible
 			while (bAtomActive) { olc_CoreUpdate(); }
 
@@ -2912,11 +2907,7 @@ namespace olc
 #if defined(__APPLE__) && !defined(__GLFW__)
 			glutDestroyWindow(glutGetWindow());
 #elif defined(__APPLE__) && defined(__GLFW__)
-                        
-                        // GLFW CODE HERE!!!!
-                        glfwDestroyWindow(olc_Window);
-                        glfwTerminate();
-                        
+                        // GLFW code here if needed
 #endif
 			return olc::rcode::OK;
 		}
@@ -2935,7 +2926,6 @@ namespace olc
 #if defined(__APPLE__) && !defined(__GLFW__)
 			glutSwapBuffers();
 #elif defined(__APPLE__) && defined(__GLFW__)
-                        //glfwMakeContextCurrent(olc_Window);
                         glfwSwapBuffers(olc_Window);
                         
 #endif
@@ -4058,6 +4048,8 @@ namespace olc {
 
   private:
     GLFWwindow * olc_Window;
+    std::string olc_WindowTitleString;
+    bool bRefreshWindowTitle = false;
     
   public:
     static std::atomic<bool>* bActiveRef;
@@ -4217,7 +4209,8 @@ namespace olc {
 
     virtual olc::rcode SetWindowTitle(const std::string& s) override
     {
-      //glfwSetWindowTitle(olc_Window, s.c_str());
+      olc_WindowTitleString = s;
+      bRefreshWindowTitle = true; 
       return olc::OK;
     }
 
@@ -4226,8 +4219,18 @@ namespace olc {
       while (!glfwWindowShouldClose(olc_Window)){
         /* Poll for and process events */
         glfwPollEvents();
+
+        // Only set the window title if it's been set internally by the engine
+        if (bRefreshWindowTitle){
+          bRefreshWindowTitle = false;
+          glfwSetWindowTitle(olc_Window, olc_WindowTitleString.c_str());
+        }
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
+      
+      glfwDestroyWindow(olc_Window);
+      glfwTerminate();
 
       ptrPGE->olc_Terminate();
       
