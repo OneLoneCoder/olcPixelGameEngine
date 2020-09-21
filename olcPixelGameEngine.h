@@ -691,6 +691,8 @@ namespace olc
 		// Gets the mouse as a vector to keep Tarriest happy
 		const olc::vi2d& GetMousePos() const;
 
+		void SetMousePos(olc::vi2d pos);
+
 	public: // Utility
 		// Returns the width of the screen in "pixels"
 		int32_t ScreenWidth() const;
@@ -889,6 +891,9 @@ namespace olc
 		void olc_UpdateMouseFocus(bool state);
 		void olc_UpdateKeyFocus(bool state);
 		void olc_Terminate();
+		void olc_SetMousePos(int32_t x, int32_t y);
+		vi2d olc_nextMousePos;
+		bool olc_hideCursor = false;
 
 		// NOTE: Items Here are to be deprecated, I have left them in for now
 		// in case you are using them, but they will be removed.
@@ -1595,6 +1600,9 @@ namespace olc
 
 	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
 	{ return vMouseWindowPos; }
+	void PixelGameEngine::SetMousePos(vi2d pos) {
+		olc_SetMousePos(pos.x, pos.y);
+	}
 
 
 	bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
@@ -2499,6 +2507,10 @@ namespace olc
 
 	void PixelGameEngine::olc_Terminate()
 	{ bAtomActive = false; }
+	void PixelGameEngine::olc_SetMousePos(int32_t x, int32_t y) {
+		olc_nextMousePos.x = x;
+		olc_nextMousePos.y = y;
+	}
 
 	void PixelGameEngine::EngineThread()
 	{
@@ -2729,6 +2741,7 @@ namespace olc
 	{
 		#include <GL/glx.h>
 		#include <X11/X.h>
+		#include <X11/cursorfont.h>
 		#include <X11/Xlib.h>
 	}
 
@@ -3539,6 +3552,11 @@ namespace olc
 
 		virtual olc::rcode ThreadCleanUp() override
 		{
+			if (ptrPGE->olc_hideCursor) {
+				X11::Cursor cursor = XCreateFontCursor(olc_Display, XC_left_ptr);
+				XDefineCursor(olc_Display, olc_Window, cursor);
+				XFreeCursor(olc_Display, cursor);
+			}
 			renderer->DestroyDevice();
 			return olc::OK;
 		}
@@ -3548,6 +3566,21 @@ namespace olc
 			if (renderer->CreateDevice({ olc_Display, &olc_Window, olc_VisualInfo }, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
 			{
 				renderer->UpdateViewport(vViewPos, vViewSize);
+
+				if (ptrPGE->olc_hideCursor) {
+					X11::Cursor invisibleCursor;
+					X11::Pixmap bitmapNoData;
+					X11::XColor black;
+					static char noData[] = { 0,0,0,0,0,0,0,0 };
+					black.red = black.green = black.blue = 0;
+
+					bitmapNoData = XCreateBitmapFromData(olc_Display, olc_Window, noData, 8, 8);
+					invisibleCursor = XCreatePixmapCursor(olc_Display, bitmapNoData, bitmapNoData, 
+					                                     &black, &black, 0, 0);
+					XDefineCursor(olc_Display,olc_Window, invisibleCursor);
+					XFreeCursor(olc_Display, invisibleCursor);
+					XFreePixmap(olc_Display, bitmapNoData);
+				}
 				return olc::rcode::OK;
 			}
 			else
@@ -3642,6 +3675,7 @@ namespace olc
 			return olc::OK;
 		}
 
+
 		virtual olc::rcode SetWindowTitle(const std::string& s) override
 		{
 			X11::XStoreName(olc_Display, olc_Window, s.c_str());
@@ -3658,6 +3692,10 @@ namespace olc
 			// same thread that OpenGL was created so we dont
 			// need to worry too much about multithreading with X11
 			XEvent xev;
+			if (ptrPGE->olc_nextMousePos.x != -1) {
+				XWarpPointer(olc_Display, olc_Window, olc_Window, 0, 0, ptrPGE->ScreenWidth(), ptrPGE->ScreenHeight(), ptrPGE->olc_nextMousePos.x, ptrPGE->olc_nextMousePos.y);
+				ptrPGE->olc_nextMousePos.x = -1;
+			}
 			while (XPending(olc_Display))
 			{
 				XNextEvent(olc_Display, &xev);
