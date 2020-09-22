@@ -4251,7 +4251,6 @@ namespace olc {
           mutUpdateString.unlock();
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
 
       ptrPGE->olc_Terminate();
