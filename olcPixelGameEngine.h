@@ -4048,12 +4048,12 @@ namespace olc {
 
   private:
     GLFWwindow * olc_Window;
+    std::mutex mutUpdateString;
     std::string olc_WindowTitleString;
     bool bRefreshWindowTitle = false;
     
   public:
-    static std::atomic<bool>* bActiveRef;
-
+    
     virtual olc::rcode ApplicationStartUp() override {
       return olc::rcode::OK;
     }
@@ -4220,31 +4220,45 @@ namespace olc {
 
     virtual olc::rcode SetWindowTitle(const std::string& s) override
     {
-      olc_WindowTitleString = s;
-      bRefreshWindowTitle = true; 
+      // We use try_lock rather than lock, since title updates are non-critical
+      // and I can't think of a situation where we would actually want to block
+      // either thread if we can't obtain the lock.
+      if (mutUpdateString.try_lock()){
+        olc_WindowTitleString = s;
+        bRefreshWindowTitle = true;
+        glfwPostEmptyEvent();
+        mutUpdateString.unlock();
+      }
+      
       return olc::OK;
     }
 
     virtual olc::rcode StartSystemEventLoop() override {
 
       while (!glfwWindowShouldClose(olc_Window)){
-        /* Poll for and process events */
-        glfwPollEvents();
-
+        
+        /* Hold for events */
+        glfwWaitEvents();
+        
         // Only set the window title if it's been set internally by the engine
-        if (bRefreshWindowTitle){
-          bRefreshWindowTitle = false;
-          glfwSetWindowTitle(olc_Window, olc_WindowTitleString.c_str());
+        // Again try_lock rather than lock since we do not want to actually block
+        // if we cannot lock.
+        if (mutUpdateString.try_lock()){
+          if (bRefreshWindowTitle){
+            bRefreshWindowTitle = false;
+            glfwSetWindowTitle(olc_Window, olc_WindowTitleString.c_str());
+          }
+          mutUpdateString.unlock();
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
+
+      ptrPGE->olc_Terminate();
       
       glfwDestroyWindow(olc_Window);
       glfwTerminate();
 
-      ptrPGE->olc_Terminate();
-      
       return olc::OK;
     }
 
