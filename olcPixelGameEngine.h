@@ -321,12 +321,44 @@ int main()
 	#endif
 #endif
 
+#if __cplusplus > 201703L
+#define olc_cpp20 1
+#define constexpr20 constexpr
+#include <compare>
+#include <type_traits>
+#else
+#define constexpr20
+#endif
+
 
 // O------------------------------------------------------------------------------O
 // | olcPixelGameEngine INTERFACE DECLARATION                                     |
 // O------------------------------------------------------------------------------O
 namespace olc
 {
+#ifdef olc_cpp20
+	namespace math {
+		template<class T>
+		constexpr T abs(T arg) noexcept {
+			if constexpr (std::is_constant_evaluated())
+				return (arg < T{}) ? -arg : arg;
+			else return std::abs(arg);
+		}
+		template<class T>
+		constexpr T sqrt(T arg) noexcept {
+			// https://stackoverflow.com/questions/3581528/how-is-the-square-root-function-implemented
+			if constexpr (std::is_constant_evaluated()) {
+				T z = T{1};
+				for (int i = 0; i < 10; ++i)
+					z -= (z*z - arg) / (2*z);
+				return z;
+			} 
+			else return std::sqrt(arg);
+		}
+	}
+#else
+	namespace math = std;
+#endif
 	class PixelGameEngine;
 	class Sprite;
 
@@ -349,14 +381,18 @@ namespace olc
 
 		enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
 
-		Pixel();
-		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha);
-		Pixel(uint32_t p);
-		bool operator==(const Pixel& p) const;
-		bool operator!=(const Pixel& p) const;
+		constexpr Pixel() noexcept : r(), g(), b(), a(nDefaultAlpha) {}
+		constexpr Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha) noexcept
+			: n(red | (green << 8) | (blue << 16) | (alpha << 24)) {}
+		constexpr Pixel(uint32_t p) noexcept : n(p) {}
+		constexpr bool operator==(const Pixel& p) const noexcept { return n == p.n; }
+		constexpr bool operator!=(const Pixel& p) const noexcept { return n != p.n; }
 	};
 
-	Pixel PixelF(float red, float green, float blue, float alpha = 1.0f);
+	[[nodiscard]]
+	constexpr Pixel PixelF(float red, float green, float blue, float alpha = 1.0f) noexcept {
+		return Pixel{ uint8_t(red * 255.f), uint8_t(green * 255.f), uint8_t(blue * 255.f), uint8_t(alpha * 255.f) };
+	}
 
 
 
@@ -397,50 +433,54 @@ namespace olc
 	{
 		T x = 0;
 		T y = 0;
-		v2d_generic() : x(0), y(0) {}
-		v2d_generic(T _x, T _y) : x(_x), y(_y) {}
-		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y) {}
-		v2d_generic& operator=(const v2d_generic& v) = default;
-		T mag() { return T(std::sqrt(x * x + y * y)); }
-		T mag2() { return x * x + y * y; }
-		v2d_generic  norm() { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
-		v2d_generic  perp() { return v2d_generic(-y, x); }
-		T dot(const v2d_generic& rhs) { return this->x * rhs.x + this->y * rhs.y; }
-		T cross(const v2d_generic& rhs) { return this->x * rhs.y - this->y * rhs.x; }
-		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
-		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
-		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
-		v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y); }
-		v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs); }
-		v2d_generic  operator /  (const v2d_generic& rhs) const { return v2d_generic(this->x / rhs.x, this->y / rhs.y); }
-		v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this; }
-		v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
-		v2d_generic& operator *= (const T& rhs) { this->x *= rhs; this->y *= rhs; return *this; }
-		v2d_generic& operator /= (const T& rhs) { this->x /= rhs; this->y /= rhs; return *this; }
-		v2d_generic  operator +  () const { return { +x, +y }; }
-		v2d_generic  operator -  () const { return { -x, -y }; }
-		bool operator == (const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
-		bool operator != (const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }
+		constexpr v2d_generic() noexcept : x(0), y(0) {}
+		constexpr v2d_generic(T _x, T _y) noexcept : x(_x), y(_y) {}
+		constexpr v2d_generic(const v2d_generic& v) noexcept = default;
+		constexpr v2d_generic& operator=(const v2d_generic& v) noexcept = default;
+		constexpr T mag() const noexcept { return T(math::sqrt(x * x + y * y)); }
+		constexpr T mag2() const noexcept { return x * x + y * y; }
+		constexpr v2d_generic  norm() const noexcept { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
+		constexpr v2d_generic  perp() const noexcept { return v2d_generic(-y, x); }
+		constexpr T dot(const v2d_generic& rhs) const noexcept { return this->x * rhs.x + this->y * rhs.y; }
+		constexpr T cross(const v2d_generic& rhs) const noexcept { return this->x * rhs.y - this->y * rhs.x; }
+		constexpr v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
+		constexpr v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
+		constexpr v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
+		constexpr v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y); }
+		constexpr v2d_generic  operator /  (const T& rhs)           const { return v2d_generic(this->x / rhs, this->y / rhs); }
+		constexpr v2d_generic  operator /  (const v2d_generic& rhs) const { return v2d_generic(this->x / rhs.x, this->y / rhs.y); }
+		constexpr v2d_generic& operator += (const v2d_generic& rhs) { this->x += rhs.x; this->y += rhs.y; return *this; }
+		constexpr v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
+		constexpr v2d_generic& operator *= (const T& rhs) { this->x *= rhs; this->y *= rhs; return *this; }
+		constexpr v2d_generic& operator /= (const T& rhs) { this->x /= rhs; this->y /= rhs; return *this; }
+		constexpr v2d_generic  operator +  () const { return { +x, +y }; }
+		constexpr v2d_generic  operator -  () const { return { -x, -y }; }
+#ifdef olc_cpp20
+		constexpr auto operator<=>(const v2d_generic& rhs) const noexcept = default;
+#else
+		constexpr bool operator == (const v2d_generic& rhs) const noexcept { return (this->x == rhs.x && this->y == rhs.y); }
+		constexpr bool operator != (const v2d_generic& rhs) const noexcept { return (this->x != rhs.x || this->y != rhs.y); }
+#endif
 		const std::string str() const { return std::string("(") + std::to_string(this->x) + "," + std::to_string(this->y) + ")"; }
 		friend std::ostream& operator << (std::ostream& os, const v2d_generic& rhs) { os << rhs.str(); return os; }
-		operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
-		operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
-		operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
+		constexpr operator v2d_generic<int32_t>() const noexcept { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
+		constexpr operator v2d_generic<float>() const noexcept { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
+		constexpr operator v2d_generic<double>() const noexcept { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
 	};
 
 	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
 	// however they will appear in a future version of PGE
-	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs) noexcept
 	{ return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs) noexcept 
 	{ return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs) noexcept
 	{ return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs) noexcept
 	{ return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs) noexcept
 	{ return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
+	template<class T> constexpr v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs) noexcept
 	{ return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y)); }
 
 	typedef v2d_generic<int32_t> vi2d;
@@ -507,16 +547,19 @@ namespace olc
 	class Sprite
 	{
 	public:
-		Sprite();
+		constexpr Sprite() noexcept						// Why should anyone want to evaluate Sprite() at runtime?
+			: pColData(), width(), height() {}
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
-		Sprite(int32_t w, int32_t h);
+		Sprite(int32_t w, int32_t h) : width(w), height(h) { pColData = new Pixel[w*h]; } // new[] initializes the array already
 		Sprite(const olc::Sprite&) = delete;
-		~Sprite();
+		constexpr Sprite(Sprite&& spr) noexcept
+			: width(spr.width), height(spr.height), pColData(spr.pColData) { spr.pColData = nullptr; }
+		~Sprite() noexcept { delete[] pColData; } // delete[] already checks if (ptr == nullptr)
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		olc::rcode LoadFromPGESprFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
-		olc::rcode SaveToPGESprFile(const std::string& sImageFile);
+		olc::rcode SaveToPGESprFile(const std::string& sImageFile) const;
 
 	public:
 		int32_t width = 0;
@@ -525,21 +568,23 @@ namespace olc
 		enum Flip { NONE = 0, HORIZ = 1, VERT = 2 };
 
 	public:
-		void SetSampleMode(olc::Sprite::Mode mode = olc::Sprite::Mode::NORMAL);
-		Pixel GetPixel(int32_t x, int32_t y) const;
-		bool  SetPixel(int32_t x, int32_t y, Pixel p);
-		Pixel GetPixel(const olc::vi2d& a) const;
-		bool  SetPixel(const olc::vi2d& a, Pixel p);
-		Pixel Sample(float x, float y) const;
-		Pixel SampleBL(float u, float v) const;
-		Pixel* GetData();
-		olc::Sprite* Duplicate();
-		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
+		constexpr void SetSampleMode(olc::Sprite::Mode mode = olc::Sprite::Mode::NORMAL) noexcept { modeSample = mode; }
+		constexpr bool  SetPixel(int32_t x, int32_t y, Pixel p) noexcept;
+		constexpr Pixel GetPixel(const olc::vi2d& a) const noexcept { return GetPixel(a.x, a.y); }
+		constexpr bool  SetPixel(const olc::vi2d& a, Pixel p) noexcept { return SetPixel(a.x, a.y, p); }
+		constexpr Pixel Sample(float x, float y) const noexcept;
+		Pixel SampleBL(float u, float v) const noexcept;
+		constexpr const Pixel* GetData() const noexcept { return pColData; }
+		constexpr Pixel* GetData() noexcept { return pColData; }
+		olc::Sprite* Duplicate() const;
+		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize) const;
+		constexpr Pixel GetPixel(int32_t x, int32_t y) const noexcept;
 		Pixel* pColData = nullptr;
 		Mode modeSample = Mode::NORMAL;
 
 		static std::unique_ptr<olc::ImageLoader> loader;
 	};
+
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal - A GPU resident storage of an olc::Sprite                        |
@@ -675,63 +720,63 @@ namespace olc
 
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
-		bool IsFocused() const;
+		bool IsFocused() const noexcept;
 		// Get the state of a specific keyboard button
-		HWButton GetKey(Key k) const;
+		HWButton GetKey(Key k) const noexcept;
 		// Get the state of a specific mouse button
-		HWButton GetMouse(uint32_t b) const;
+		HWButton GetMouse(uint32_t b) const noexcept;
 		// Get Mouse X coordinate in "pixel" space
-		int32_t GetMouseX() const;
+		int32_t GetMouseX() const noexcept;
 		// Get Mouse Y coordinate in "pixel" space
-		int32_t GetMouseY() const;
+		int32_t GetMouseY() const noexcept;
 		// Get Mouse Wheel Delta
-		int32_t GetMouseWheel() const;
+		int32_t GetMouseWheel() const noexcept;
 		// Get the mouse in window space
-		const olc::vi2d& GetWindowMouse() const;
+		const olc::vi2d& GetWindowMouse() const noexcept;
 		// Gets the mouse as a vector to keep Tarriest happy
-		const olc::vi2d& GetMousePos() const;
+		const olc::vi2d& GetMousePos() const noexcept;
 
-		void SetMousePos(olc::vi2d pos);
+		void SetMousePos(olc::vi2d pos) noexcept;
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
-		int32_t ScreenWidth() const;
+		int32_t ScreenWidth() const noexcept;
 		// Returns the height of the screen in "pixels"
-		int32_t ScreenHeight() const;
+		int32_t ScreenHeight() const noexcept;
 		// Returns the width of the currently selected drawing target in "pixels"
-		int32_t GetDrawTargetWidth() const;
+		int32_t GetDrawTargetWidth() const noexcept;
 		// Returns the height of the currently selected drawing target in "pixels"
-		int32_t GetDrawTargetHeight() const;
+		int32_t GetDrawTargetHeight() const noexcept;
 		// Returns the currently active draw target
-		olc::Sprite* GetDrawTarget() const;
+		olc::Sprite* GetDrawTarget() const noexcept;
 		// Resize the primary screen sprite
 		void SetScreenSize(int w, int h);
 		// Specify which Sprite should be the target of drawing functions, use nullptr
 		// to specify the primary screen
-		void SetDrawTarget(Sprite* target);
+		void SetDrawTarget(Sprite* target) noexcept;
 		// Gets the current Frames Per Second
-		uint32_t GetFPS() const;
+		uint32_t GetFPS() const noexcept;
 		// Gets last update of elapsed time
-		float GetElapsedTime() const;
+		float GetElapsedTime() const noexcept;
 		// Gets Actual Window size
-		const olc::vi2d& GetWindowSize() const;
+		const olc::vi2d& GetWindowSize() const noexcept;
 		// Gets pixel scale
-		const olc::vi2d& GetPixelSize() const;
+		const olc::vi2d& GetPixelSize() const noexcept;
 		// Gets actual pixel scale
-		const olc::vi2d& GetScreenPixelSize() const;
+		const olc::vi2d& GetScreenPixelSize() const noexcept;
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
-		void SetDrawTarget(uint8_t layer);
-		void EnableLayer(uint8_t layer, bool b);
-		void SetLayerOffset(uint8_t layer, const olc::vf2d& offset);
-		void SetLayerOffset(uint8_t layer, float x, float y);
-		void SetLayerScale(uint8_t layer, const olc::vf2d& scale);
-		void SetLayerScale(uint8_t layer, float x, float y);
-		void SetLayerTint(uint8_t layer, const olc::Pixel& tint);
-		void SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f);
+		void SetDrawTarget(uint8_t layer) noexcept;
+		void EnableLayer(uint8_t layer, bool b) noexcept;
+		void SetLayerOffset(uint8_t layer, const olc::vf2d& offset) noexcept;
+		void SetLayerOffset(uint8_t layer, float x, float y) noexcept;
+		void SetLayerScale(uint8_t layer, const olc::vf2d& scale) noexcept;
+		void SetLayerScale(uint8_t layer, float x, float y) noexcept;
+		void SetLayerTint(uint8_t layer, const olc::Pixel& tint) noexcept;
+		void SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f) noexcept;
 
-		std::vector<LayerDesc>& GetLayers();
+		std::vector<LayerDesc>& GetLayers()  noexcept;
 		uint32_t CreateLayer();
 
 		// Change the pixel mode for different optimisations
@@ -891,7 +936,7 @@ namespace olc
 		void olc_UpdateMouseFocus(bool state);
 		void olc_UpdateKeyFocus(bool state);
 		void olc_Terminate();
-		void olc_SetMousePos(int32_t x, int32_t y);
+		void olc_SetMousePos(int32_t x, int32_t y) noexcept;
 		vi2d olc_nextMousePos;
 		bool olc_hideCursor = false;
 
@@ -913,6 +958,28 @@ namespace olc
 	protected:
 		static PixelGameEngine* pge;
 	};
+
+// This has to be defined outside of OLC_PGE_APPLICATION because it's constexpr
+	constexpr bool Sprite::SetPixel(int32_t x, int32_t y, Pixel p) noexcept {
+		if (x >= 0 && x < width && y >= 0 && y < height) {
+			pColData[y * width + x] = p;
+			return true;
+		}
+		else return false;
+	}
+	constexpr Pixel Sprite::GetPixel(int32_t x, int32_t y) const noexcept {
+		if (modeSample == Sprite::Mode::NORMAL) {
+			if (x >= 0 && x < width && y >= 0 && y < height)
+				return pColData[y * width + x];
+			else return Pixel{};
+		}
+		else return pColData[math::abs(y % height) * width + math::abs(x % width)];
+	}
+	constexpr Pixel Sprite::Sample(float x, float y) const noexcept {
+		const int32_t sx = std::min(int32_t(x * float(width)), width - 1);
+		const int32_t sy = std::min(int32_t(y * float(height)), height - 1);
+		return GetPixel(sx, sy);
+	}
 }
 
 #endif // OLC_PGE_DEF
@@ -939,6 +1006,8 @@ namespace olc
 */
 
 
+
+
 // O------------------------------------------------------------------------------O
 // | START OF OLC_PGE_APPLICATION                                                 |
 // O------------------------------------------------------------------------------O
@@ -951,57 +1020,14 @@ namespace olc
 // O------------------------------------------------------------------------------O
 namespace olc
 {
-	// O------------------------------------------------------------------------------O
-	// | olc::Pixel IMPLEMENTATION                                                    |
-	// O------------------------------------------------------------------------------O
-	Pixel::Pixel()
-	{ r = 0; g = 0; b = 0; a = nDefaultAlpha; }
-
-	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	{
-		n = red | (green << 8) | (blue << 16) | (alpha << 24);
-	} // Thanks jarekpelczar 
-
-
-	Pixel::Pixel(uint32_t p)
-	{ n = p; }
-
-	bool Pixel::operator==(const Pixel& p) const
-	{ return n == p.n; }
-
-	bool Pixel::operator!=(const Pixel& p) const
-	{ return n != p.n; }
-
-	Pixel PixelF(float red, float green, float blue, float alpha)
-	{
-		return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
-	}
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Sprite IMPLEMENTATION                                                   |
 	// O------------------------------------------------------------------------------O
-	Sprite::Sprite()
-	{
-		pColData = nullptr; width = 0; height = 0;
-	}
 
 	Sprite::Sprite(const std::string& sImageFile, olc::ResourcePack* pack)
 	{
 		LoadFromFile(sImageFile, pack);
-	}
-
-	Sprite::Sprite(int32_t w, int32_t h)
-	{
-		if (pColData) delete[] pColData;
-		width = w;		height = h;
-		pColData = new Pixel[width * height];
-		for (int32_t i = 0; i < width * height; i++)
-			pColData[i] = Pixel();
-	}
-
-	Sprite::~Sprite()
-	{
-		if (pColData) delete[] pColData;
 	}
 
 
@@ -1040,7 +1066,7 @@ namespace olc
 		return olc::FAIL;
 	}
 
-	olc::rcode Sprite::SaveToPGESprFile(const std::string& sImageFile)
+	olc::rcode Sprite::SaveToPGESprFile(const std::string& sImageFile) const
 	{
 		if (pColData == nullptr) return olc::FAIL;
 
@@ -1058,49 +1084,7 @@ namespace olc
 		return olc::FAIL;
 	}
 
-	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
-	{ modeSample = mode; }
-
-	Pixel Sprite::GetPixel(const olc::vi2d& a) const
-	{ return GetPixel(a.x, a.y); }
-
-	bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
-	{ return SetPixel(a.x, a.y, p); }
-
-	Pixel Sprite::GetPixel(int32_t x, int32_t y) const
-	{
-		if (modeSample == olc::Sprite::Mode::NORMAL)
-		{
-			if (x >= 0 && x < width && y >= 0 && y < height)
-				return pColData[y * width + x];
-			else
-				return Pixel(0, 0, 0, 0);
-		}
-		else
-		{
-			return pColData[abs(y % height) * width + abs(x % width)];
-		}
-	}
-
-	bool Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
-	{
-		if (x >= 0 && x < width && y >= 0 && y < height)
-		{
-			pColData[y * width + x] = p;
-			return true;
-		}
-		else
-			return false;
-	}
-
-	Pixel Sprite::Sample(float x, float y) const
-	{
-		int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
-		int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
-		return GetPixel(sx, sy);
-	}
-
-	Pixel Sprite::SampleBL(float u, float v) const
+	Pixel Sprite::SampleBL(float u, float v) const noexcept
 	{
 		u = u * width - 0.5f;
 		v = v * height - 0.5f;
@@ -1122,9 +1106,6 @@ namespace olc
 			(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
 	}
 
-	Pixel* Sprite::GetData()
-	{ return pColData; }
-
 
 	olc::rcode Sprite::LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack)
 	{
@@ -1132,7 +1113,7 @@ namespace olc
 		return loader->LoadImageResource(this, sImageFile, pack);
 	}
 
-	olc::Sprite* Sprite::Duplicate()
+	olc::Sprite* Sprite::Duplicate() const
 	{
 		olc::Sprite* spr = new olc::Sprite(width, height);
 		std::memcpy(spr->GetData(), GetData(), width * height * sizeof(olc::Pixel));
@@ -1140,7 +1121,7 @@ namespace olc
 		return spr;
 	}
 
-	olc::Sprite* Sprite::Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize)
+	olc::Sprite* Sprite::Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize) const
 	{
 		olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
 		for (int y = 0; y < vSize.y; y++)
@@ -1466,7 +1447,7 @@ namespace olc
 	}
 #endif
 
-	void PixelGameEngine::SetDrawTarget(Sprite* target)
+	void PixelGameEngine::SetDrawTarget(Sprite* target) noexcept
 	{
 		if (target)
 		{
@@ -1479,7 +1460,7 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::SetDrawTarget(uint8_t layer)
+	void PixelGameEngine::SetDrawTarget(uint8_t layer) noexcept
 	{
 		if (layer < vLayers.size())
 		{
@@ -1489,42 +1470,42 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::EnableLayer(uint8_t layer, bool b)
+	void PixelGameEngine::EnableLayer(uint8_t layer, bool b) noexcept
 	{
 		if (layer < vLayers.size()) vLayers[layer].bShow = b;
 	}
 
-	void PixelGameEngine::SetLayerOffset(uint8_t layer, const olc::vf2d& offset)
+	void PixelGameEngine::SetLayerOffset(uint8_t layer, const olc::vf2d& offset) noexcept
 	{
 		SetLayerOffset(layer, offset.x, offset.y);
 	}
 
-	void PixelGameEngine::SetLayerOffset(uint8_t layer, float x, float y)
+	void PixelGameEngine::SetLayerOffset(uint8_t layer, float x, float y) noexcept
 	{
 		if (layer < vLayers.size()) vLayers[layer].vOffset = { x, y };
 	}
 
-	void PixelGameEngine::SetLayerScale(uint8_t layer, const olc::vf2d& scale)
+	void PixelGameEngine::SetLayerScale(uint8_t layer, const olc::vf2d& scale) noexcept
 	{
 		SetLayerScale(layer, scale.x, scale.y);
 	}
 
-	void PixelGameEngine::SetLayerScale(uint8_t layer, float x, float y)
+	void PixelGameEngine::SetLayerScale(uint8_t layer, float x, float y) noexcept
 	{
 		if (layer < vLayers.size()) vLayers[layer].vScale = { x, y };
 	}
 
-	void PixelGameEngine::SetLayerTint(uint8_t layer, const olc::Pixel& tint)
+	void PixelGameEngine::SetLayerTint(uint8_t layer, const olc::Pixel& tint) noexcept
 	{
 		if (layer < vLayers.size()) vLayers[layer].tint = tint;
 	}
 
-	void PixelGameEngine::SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f)
+	void PixelGameEngine::SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f) noexcept
 	{
 		if (layer < vLayers.size()) vLayers[layer].funcHook = f;
 	}
 
-	std::vector<LayerDesc>& PixelGameEngine::GetLayers()
+	std::vector<LayerDesc>& PixelGameEngine::GetLayers() noexcept
 	{ return vLayers; }
 
 	uint32_t PixelGameEngine::CreateLayer()
@@ -1537,10 +1518,10 @@ namespace olc
 		return uint32_t(vLayers.size()) - 1;
 	}
 
-	Sprite* PixelGameEngine::GetDrawTarget() const
+	Sprite* PixelGameEngine::GetDrawTarget() const noexcept
 	{ return pDrawTarget; }
 
-	int32_t PixelGameEngine::GetDrawTargetWidth() const
+	int32_t PixelGameEngine::GetDrawTargetWidth() const noexcept
 	{
 		if (pDrawTarget)
 			return pDrawTarget->width;
@@ -1548,7 +1529,7 @@ namespace olc
 			return 0;
 	}
 
-	int32_t PixelGameEngine::GetDrawTargetHeight() const
+	int32_t PixelGameEngine::GetDrawTargetHeight() const noexcept
 	{
 		if (pDrawTarget)
 			return pDrawTarget->height;
@@ -1556,51 +1537,51 @@ namespace olc
 			return 0;
 	}
 
-	uint32_t PixelGameEngine::GetFPS() const
+	uint32_t PixelGameEngine::GetFPS() const noexcept
 	{ return nLastFPS; }
 
-	bool PixelGameEngine::IsFocused() const
+	bool PixelGameEngine::IsFocused() const noexcept
 	{ return bHasInputFocus; }
 
-	HWButton PixelGameEngine::GetKey(Key k) const
+	HWButton PixelGameEngine::GetKey(Key k) const noexcept
 	{ return pKeyboardState[k]; }
 
-	HWButton PixelGameEngine::GetMouse(uint32_t b) const
+	HWButton PixelGameEngine::GetMouse(uint32_t b) const noexcept
 	{ return pMouseState[b]; }
 
-	int32_t PixelGameEngine::GetMouseX() const
+	int32_t PixelGameEngine::GetMouseX() const noexcept
 	{ return vMousePos.x; }
 
-	int32_t PixelGameEngine::GetMouseY() const
+	int32_t PixelGameEngine::GetMouseY() const noexcept
 	{ return vMousePos.y; }
 
-	const olc::vi2d& PixelGameEngine::GetMousePos() const
+	const olc::vi2d& PixelGameEngine::GetMousePos() const noexcept
 	{ return vMousePos; }
 
-	int32_t PixelGameEngine::GetMouseWheel() const
+	int32_t PixelGameEngine::GetMouseWheel() const noexcept
 	{ return nMouseWheelDelta; }
 
-	int32_t PixelGameEngine::ScreenWidth() const
+	int32_t PixelGameEngine::ScreenWidth() const noexcept
 	{ return vScreenSize.x; }
 
-	int32_t PixelGameEngine::ScreenHeight() const
+	int32_t PixelGameEngine::ScreenHeight() const noexcept
 	{ return vScreenSize.y; }
 
-	float PixelGameEngine::GetElapsedTime() const
+	float PixelGameEngine::GetElapsedTime() const noexcept
 	{ return fLastElapsed; }
 
-	const olc::vi2d& PixelGameEngine::GetWindowSize() const
+	const olc::vi2d& PixelGameEngine::GetWindowSize() const noexcept
 	{ return vWindowSize; }
 
-	const olc::vi2d& PixelGameEngine::GetPixelSize() const
+	const olc::vi2d& PixelGameEngine::GetPixelSize() const noexcept
 	{ return vPixelSize; }
 
-	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
+	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const noexcept
 	{ return vScreenPixelSize; }
 
-	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
+	const olc::vi2d& PixelGameEngine::GetWindowMouse() const noexcept
 	{ return vMouseWindowPos; }
-	void PixelGameEngine::SetMousePos(vi2d pos) {
+	void PixelGameEngine::SetMousePos(vi2d pos) noexcept {
 		olc_SetMousePos(pos.x, pos.y);
 	}
 
@@ -2507,7 +2488,7 @@ namespace olc
 
 	void PixelGameEngine::olc_Terminate()
 	{ bAtomActive = false; }
-	void PixelGameEngine::olc_SetMousePos(int32_t x, int32_t y) {
+	void PixelGameEngine::olc_SetMousePos(int32_t x, int32_t y) noexcept {
 		olc_nextMousePos.x = x;
 		olc_nextMousePos.y = y;
 	}
