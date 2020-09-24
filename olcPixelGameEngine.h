@@ -551,11 +551,11 @@ namespace olc
 		constexpr Sprite() noexcept						// Why should anyone want to evaluate Sprite() at runtime?
 			: pColData(), width(), height() {}
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
-		Sprite(int32_t w, int32_t h) : width(w), height(h), pColData{new Pixel[w*h]}{} // new[] calls Pixel() already
+		constexpr20 Sprite(int32_t w, int32_t h) : width(w), height(h), pColData{new Pixel[w*h]}{} // new[] calls Pixel() already
 		Sprite(const olc::Sprite&) = delete;
 		constexpr Sprite(Sprite&& spr) noexcept
 			: width(spr.width), height(spr.height), pColData(spr.pColData) { spr.pColData = nullptr; }
-		~Sprite() noexcept { delete[] pColData; } // delete[] already checks if (ptr == nullptr)
+		constexpr20 ~Sprite() noexcept { delete[] pColData; } // delete[] already checks if (ptr == nullptr)
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
