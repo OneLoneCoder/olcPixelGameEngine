@@ -151,7 +151,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -551,7 +551,7 @@ namespace olc
 		constexpr Sprite() noexcept						// Why should anyone want to evaluate Sprite() at runtime?
 			: pColData(), width(), height() {}
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
-		Sprite(int32_t w, int32_t h) : width(w), height(h) { pColData = new Pixel[w*h]; } // new[] initializes the array already
+		Sprite(int32_t w, int32_t h) : width(w), height(h), pColData{new Pixel[w*h]}{} // new[] calls Pixel() already
 		Sprite(const olc::Sprite&) = delete;
 		constexpr Sprite(Sprite&& spr) noexcept
 			: width(spr.width), height(spr.height), pColData(spr.pColData) { spr.pColData = nullptr; }
@@ -4079,4 +4079,3 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | END OF OLC_PGE_APPLICATION                                                   |
 // O------------------------------------------------------------------------------O
-
