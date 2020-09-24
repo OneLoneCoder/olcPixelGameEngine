@@ -4090,6 +4090,7 @@ namespace olc {
         return olc::rcode::FAIL;
 
       glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
+      glfwWindowHint(GLFW_RESIZABLE,GLFW_FALSE);
       olc_Window = glfwCreateWindow(vWindowSize.x, vWindowSize.y, "OLC - PGE - GLFW", NULL, NULL);
       if (!olc_Window){
         glfwTerminate();
