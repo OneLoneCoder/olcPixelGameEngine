@@ -260,6 +260,7 @@ int main()
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <mutex>
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -2822,7 +2823,7 @@ namespace olc
 
           bool bSync = false;
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__GLFW__)
           glDeviceContext_t glDeviceContext = 0;
           glRenderContext_t glRenderContext = 0;
 #endif
