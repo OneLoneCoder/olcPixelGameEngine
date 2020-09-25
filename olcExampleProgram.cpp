@@ -1,4 +1,5 @@
 #define OLC_PGE_APPLICATION
+#define __GLFW__
 #include "olcPixelGameEngine.h"
 
 class Example : public olc::PixelGameEngine
@@ -30,7 +31,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(256, 240, 4, 4))
+	if (demo.Construct(300, 100, 2, 2))
 		demo.Start();
 
 	return 0;
