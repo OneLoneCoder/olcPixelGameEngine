@@ -2842,7 +2842,7 @@ namespace olc
           X11::Window* olc_Window = nullptr;
           X11::XVisualInfo* olc_VisualInfo = nullptr;
 #else
-#error "NO PLATFORM MATCHED ()"
+          //#error "NO PLATFORM MATCHED ()"
 #endif
 
 
