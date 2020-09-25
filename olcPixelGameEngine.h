@@ -331,6 +331,13 @@ int main()
 #endif
 #endif
 
+#if defined(__GLFW__)
+static void glfwError(int id, const char* description)
+{
+  std::cout << description << std::endl;
+}
+#endif
+
 // O------------------------------------------------------------------------------O
 // | olcPixelGameEngine INTERFACE DECLARATION                                     |
 // O------------------------------------------------------------------------------O
@@ -4274,6 +4281,8 @@ namespace olc {
       renderer->PrepareDevice();
 
       // Initialize GLFW and create our window
+      glfwSetErrorCallback(&glfwError);
+
       if (!glfwInit())
         return olc::rcode::FAIL;
 
