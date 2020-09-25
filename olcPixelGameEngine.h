@@ -2729,17 +2729,22 @@ namespace olc
 // GLFW will take priority over platform specific includes
 #if defined(OLC_GFX_OPENGL10)
 
+#if defined(_WIN32)
+#include <windows.h>
+#pragma comment(lib,"opengl32.lib")
+#endif
+
 #if defined(__GLFW__)
         #define GL_SILENCE_DEPRECATION
         #include <GLFW/glfw3.h>
-#elif defined(_WIN32)
-                #include <windows.h>
-                #include <dwmapi.h>
-                #pragma comment(lib, "Dwmapi.lib")
-                typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
-                static wglSwapInterval_t* wglSwapInterval = nullptr;
-                typedef HDC glDeviceContext_t;
-                typedef HGLRC glRenderContext_t;
+#elif defined(_WIN32) 
+        #include <windows.h>
+        #include <dwmapi.h>
+        #pragma comment(lib, "Dwmapi.lib")
+        typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
+        static wglSwapInterval_t* wglSwapInterval = nullptr;
+        typedef HDC glDeviceContext_t;
+        typedef HGLRC glRenderContext_t;
 #elif defined(__linux__) || defined(__FreeBSD__)
         namespace X11
         {
