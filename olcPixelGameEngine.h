@@ -4238,6 +4238,10 @@ namespace olc {
     }
 
     virtual olc::rcode ApplicationCleanUp() override {
+
+      glfwDestroyWindow(olc_Window);
+      glfwTerminate();
+      
       return olc::rcode::OK;
     }
 
@@ -4435,9 +4439,6 @@ namespace olc {
 
       ptrPGE->olc_Terminate();
       
-      glfwDestroyWindow(olc_Window);
-      glfwTerminate();
-
       return olc::OK;
     }
 
