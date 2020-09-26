@@ -2770,8 +2770,6 @@ namespace olc
         #include <OpenGL/glu.h>
 #else
 #error "NO PLATFORM MATCHED (windowing and input includes)"
-//#include <OpenGL/OpenGL.h>
-//#include <OpenGL/gl.h>
 #endif
 
 /* Handle platform-specific OpenGL includes */
@@ -2783,49 +2781,6 @@ namespace olc
 #else
 #error "NO PLATFORM MATCHED (OpenGL includes)"
 #endif
-
-////////////////////osadifjaoisdfjoi
-///////
-///////#if defined(OLC_GFX_OPENGL10)
-///////	#if defined(_WIN32)
-///////	#include <windows.h>
-///////	#include <dwmapi.h>
-///////	#include <GL/gl.h>
-///////	#pragma comment(lib, "Dwmapi.lib")
-///////	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
-///////	static wglSwapInterval_t* wglSwapInterval = nullptr;
-///////	typedef HDC glDeviceContext_t;
-///////	typedef HGLRC glRenderContext_t;
-///////#endif
-///////
-///////#if defined(__linux__) || defined(__FreeBSD__)
-///////	#include <GL/gl.h>
-///////	namespace X11
-///////	{
-///////		#include <GL/glx.h>
-///////		#include <X11/X.h>
-///////		#include <X11/Xlib.h>
-///////	}
-///////
-///////	typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
-///////	static glSwapInterval_t* glSwapIntervalEXT;
-///////	typedef X11::GLXContext glDeviceContext_t;
-///////	typedef X11::GLXContext glRenderContext_t;
-///////#endif
-///////
-///////#if defined(__APPLE__) && !defined(__GLFW__)
-///////	#define GL_SILENCE_DEPRECATION
-///////	#include <GLUT/glut.h>
-///////	#include <OpenGL/OpenGL.h>
-///////	#include <OpenGL/gl.h>
-///////	#include <OpenGL/glu.h>
-///////#elif defined(__APPLE__) && defined(__GLFW__)
-///////        #define GL_SILENCE_DEPRECATION
-///////        #include <GLFW/glfw3.h>
-///////        #include <OpenGL/OpenGL.h>
-///////        #include <OpenGL/gl.h>
-/////////#include <OpenGL/glu.h>
-///////#endif
 
 namespace olc
 {
@@ -2849,33 +2804,8 @@ namespace olc
           X11::Window* olc_Window = nullptr;
           X11::XVisualInfo* olc_VisualInfo = nullptr;
 #else
-          //#error "NO PLATFORM MATCHED ()"
 #endif
 
-
-
-          /////////////iaosdjfoiasdjf
-          
-///#if defined(__APPLE__)
-///		bool mFullScreen = false;
-///#else
-///		glDeviceContext_t glDeviceContext = 0;
-///		glRenderContext_t glRenderContext = 0;
-///#endif
-///
-///		bool bSync = false;
-///
-///#if defined(__linux__) || defined(__FreeBSD__)
-///		X11::Display* olc_Display = nullptr;
-///		X11::Window* olc_Window = nullptr;
-///		X11::XVisualInfo* olc_VisualInfo = nullptr;
-///#endif
-///
-///#if defined(__APPLE__) && defined(__GLFW__)
-///                GLFWwindow* olc_Window = nullptr;
-///#endif
-          /////////////////////////////
-          
 	public:
 		void PrepareDevice() override
 		{ 
@@ -2978,88 +2908,6 @@ namespace olc
                   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
                   return olc::rcode::OK;
-
-//////////////                  ////////////////aodifjoasidjfoi
-//////////////#if defined(_WIN32)
-//////////////			// Create Device Context
-//////////////			glDeviceContext = GetDC((HWND)(params[0]));
-//////////////			PIXELFORMATDESCRIPTOR pfd =
-//////////////			{
-//////////////				sizeof(PIXELFORMATDESCRIPTOR), 1,
-//////////////				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-//////////////				PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-//////////////				PFD_MAIN_PLANE, 0, 0, 0, 0
-//////////////			};
-//////////////
-//////////////			int pf = 0;
-//////////////			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
-//////////////			SetPixelFormat(glDeviceContext, pf, &pfd);
-//////////////
-//////////////			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
-//////////////			wglMakeCurrent(glDeviceContext, glRenderContext);
-//////////////
-//////////////			// Remove Frame cap
-//////////////			wglSwapInterval = (wglSwapInterval_t*)wglGetProcAddress("wglSwapIntervalEXT");
-//////////////			if (wglSwapInterval && !bVSYNC) wglSwapInterval(0);
-//////////////			bSync = bVSYNC;
-//////////////#endif
-//////////////
-//////////////#if defined(__linux__) || defined(__FreeBSD__)
-//////////////			using namespace X11;
-//////////////			// Linux has tighter coupling between OpenGL and X11, so we store
-//////////////			// various "platform" handles in the renderer
-//////////////			olc_Display = (X11::Display*)(params[0]);
-//////////////			olc_Window = (X11::Window*)(params[1]);
-//////////////			olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
-//////////////
-//////////////			glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
-//////////////			glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
-//////////////
-//////////////			XWindowAttributes gwa;
-//////////////			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
-//////////////			glViewport(0, 0, gwa.width, gwa.height);
-//////////////
-//////////////			glSwapIntervalEXT = nullptr;
-//////////////			glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
-//////////////
-//////////////			if (glSwapIntervalEXT == nullptr && !bVSYNC)
-//////////////			{
-//////////////				printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
-//////////////				printf("      Don't worry though, things will still work, it's just the\n");
-//////////////				printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
-//////////////			}
-//////////////
-//////////////			if (glSwapIntervalEXT != nullptr && !bVSYNC)
-//////////////				glSwapIntervalEXT(olc_Display, *olc_Window, 0);
-//////////////#endif		
-//////////////
-//////////////#if defined(__APPLE__) && !defined(__GLFW__)
-//////////////			mFullScreen = bFullScreen;
-//////////////			if (!bVSYNC)
-//////////////			{
-//////////////				GLint sync = 0;
-//////////////				CGLContextObj ctx = CGLGetCurrentContext();
-//////////////				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
-//////////////			}
-//////////////#elif defined(__APPLE__) && defined(__GLFW__)
-//////////////                        
-//////////////                        olc_Window = (GLFWwindow *)(params[0]);
-//////////////                        glfwMakeContextCurrent(olc_Window);
-//////////////                        
-//////////////                        if (bVSYNC)
-//////////////                          glfwSwapInterval(1);
-//////////////                        else
-//////////////                          glfwSwapInterval(0);
-//////////////
-//////////////                        glEnable(GL_TEXTURE_2D); // Turn on texturing
-//////////////			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-//////////////                        
-//////////////#else
-//////////////			glEnable(GL_TEXTURE_2D); // Turn on texturing
-//////////////			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-//////////////#endif
-                  //return olc::rcode::OK;
-                        /////////////////////asdoijasdoifjaiojfio
 		}
 
 		olc::rcode DestroyDevice() override
@@ -3074,22 +2922,7 @@ namespace olc
 #elif defined(__APPLE__)
                   glutDestroyWindow(glutGetWindow());
 #endif
-                  
-///#if defined(_WIN32)
-///			wglDeleteContext(glRenderContext);
-///#endif
-///
-///#if defined(__linux__) || defined(__FreeBSD__)
-///			glXMakeCurrent(olc_Display, None, NULL);
-///			glXDestroyContext(olc_Display, glDeviceContext);
-///#endif
-///
-///#if defined(__APPLE__) && !defined(__GLFW__)
-///			glutDestroyWindow(glutGetWindow());
-///#elif defined(__APPLE__) && defined(__GLFW__)
-///                        // GLFW code here if needed
-///#endif
-			return olc::rcode::OK;
+                  return olc::rcode::OK;
 		}
 
 		void DisplayFrame() override
@@ -3104,25 +2937,9 @@ namespace olc
                   X11::glXSwapBuffers(olc_Display, *olc_Window);
 #elif defined(__APPLE__)
                   glutSwapBuffers();
-#endif
-                  
-//#if defined(_WIN32)
-//			SwapBuffers(glDeviceContext);
-//			if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
-//#endif	
-//
-//#if defined(__linux__) || defined(__FreeBSD__)
-//			X11::glXSwapBuffers(olc_Display, *olc_Window);
-//#endif		
-//
-//#if defined(__APPLE__) && !defined(__GLFW__)
-//			glutSwapBuffers();
-//#elif defined(__APPLE__) && defined(__GLFW__)
-//                        glfwSwapBuffers(olc_Window);
-//                        
-//#endif
+#endif                  
 		}
-
+          
 		void PrepareDrawing() override
 		{
 			glEnable(GL_BLEND);
@@ -3331,8 +3148,6 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | END IMAGE LOADER: GDI+                                                       |
 // O------------------------------------------------------------------------------O
-
-
 
 
 // O------------------------------------------------------------------------------O
@@ -4230,7 +4045,6 @@ namespace olc {
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: GLFW                                                         |
 // O------------------------------------------------------------------------------O
-//#if defined(__APPLE__) && defined(__GLFW__)
 #if defined(__GLFW__)
 namespace olc {
 
@@ -4295,8 +4109,6 @@ namespace olc {
         return olc::rcode::FAIL;
       }
 
-      glfwMakeContextCurrent(olc_Window);
-      
       int glfw_screen_width; 
       int glfw_screen_height;
       int glfw_x_leftcorner;
@@ -4357,10 +4169,8 @@ namespace olc {
       mapKeys[GLFW_KEY_RIGHT_CONTROL] = Key::CTRL;
 
       // Set event callbacks
-      //void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
-      //  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-      //    popup_menu();
-      //}
+      // Callback signature:
+      //void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
       glfwSetMouseButtonCallback(olc_Window,
                                  [](GLFWwindow* w, int button, int action, int mods)->void{
       
@@ -4382,12 +4192,14 @@ namespace olc {
                                      ptrPGE->olc_UpdateMouseState(button_idx, false);
                                  });
       
+      // Callback signature:
       //static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
       glfwSetCursorPosCallback(olc_Window,
                                [](GLFWwindow* window, double xpos, double ypos)->void{
                                  ptrPGE->olc_UpdateMouse((int)xpos, (int)ypos);
                                });
-      
+
+      // Callback signature:
       //void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
       glfwSetKeyCallback(olc_Window,
                          [](GLFWwindow* window, int key, int scancode, int action, int mods)->void{
@@ -4402,18 +4214,16 @@ namespace olc {
                            }
                            
                          });
-      
+
+      // Callback signature:
       //void cursor_enter_callback(GLFWwindow* window, int entered)
       glfwSetCursorEnterCallback(olc_Window, [](GLFWwindow * w, int entered)->void{
                                            if (entered)
                                              ptrPGE->olc_UpdateKeyFocus(true);
                                            else
                                              ptrPGE->olc_UpdateKeyFocus(false);
-
-                                           //std::cout << "Entered window: " << entered << std::endl;
                                          });
-
-
+      
       return olc::OK;
     }
 
@@ -4500,22 +4310,6 @@ namespace olc
                 platform = std::make_unique<olc::Platform_GLUT>();
 #endif
                 
-/////////#if defined(_WIN32)
-/////////		platform = std::make_unique<olc::Platform_Windows>();
-/////////#endif
-/////////
-/////////#if defined(__linux__) || defined(__FreeBSD__)
-/////////		platform = std::make_unique<olc::Platform_Linux>();
-/////////#endif
-/////////
-/////////#if defined(__APPLE__) && !defined(__GLFW__)
-/////////		platform = std::make_unique<olc::Platform_GLUT>();
-/////////#elif defined(__APPLE__) && defined(__GLFW__)
-/////////                platform = std::make_unique<olc::Platform_GLFW>();
-/////////#endif
-
-
-
 #if defined(OLC_GFX_OPENGL10)
 		renderer = std::make_unique<olc::Renderer_OGL10>();
 #endif
