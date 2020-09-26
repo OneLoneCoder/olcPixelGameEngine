@@ -4246,6 +4246,13 @@ namespace olc {
   public:
     
     virtual olc::rcode ApplicationStartUp() override {
+
+      // Initialize GLFW and create our window
+      glfwSetErrorCallback(&glfwError);
+
+      if (!glfwInit())
+        return olc::rcode::FAIL;
+
       return olc::rcode::OK;
     }
 
@@ -4279,12 +4286,6 @@ namespace olc {
     virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
     {
       renderer->PrepareDevice();
-
-      // Initialize GLFW and create our window
-      glfwSetErrorCallback(&glfwError);
-
-      if (!glfwInit())
-        return olc::rcode::FAIL;
 
       glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
       glfwWindowHint(GLFW_RESIZABLE,GLFW_FALSE);
