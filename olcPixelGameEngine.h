@@ -2732,8 +2732,6 @@ namespace olc
 // | START RENDERER: OpenGL 1.0 (the original, the best...)                       |
 // O------------------------------------------------------------------------------O
 
-/* Handle platform windowing/input-related includes */
-// GLFW will take priority over platform specific includes
 #if defined(OLC_GFX_OPENGL10)
 
 #if defined(_WIN32)
@@ -2741,6 +2739,18 @@ namespace olc
 #pragma comment(lib,"opengl32.lib")
 #endif
 
+/* Handle platform-specific OpenGL includes */
+#if (defined(OLC_GFX_OPENGL10) && defined(_WIN32))  || defined(__linux__) || defined(__FreeBSD__)
+        #include <GL/gl.h>
+#elif defined(__APPLE__)
+        #include <OpenGL/OpenGL.h>
+        #include <OpenGL/gl.h>
+#else
+        #error "NO PLATFORM MATCHED (OpenGL includes)"
+#endif
+
+/* Handle platform windowing/input-related includes */
+// GLFW will take priority over platform specific includes
 #if defined(__GLFW__)
         #define GL_SILENCE_DEPRECATION
         #include <GLFW/glfw3.h>
@@ -2770,16 +2780,6 @@ namespace olc
         #include <OpenGL/glu.h>
 #else
 #error "NO PLATFORM MATCHED (windowing and input includes)"
-#endif
-
-/* Handle platform-specific OpenGL includes */
-#if (defined(OLC_GFX_OPENGL10) && defined(_WIN32))  || defined(__linux__) || defined(__FreeBSD__)
-        #include <GL/gl.h> 
-#elif defined(__APPLE__)
-        #include <OpenGL/OpenGL.h>
-        #include <OpenGL/gl.h>
-#else
-#error "NO PLATFORM MATCHED (OpenGL includes)"
 #endif
 
 namespace olc
