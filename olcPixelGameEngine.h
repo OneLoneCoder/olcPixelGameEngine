@@ -4102,7 +4102,7 @@ namespace olc {
       renderer->PrepareDevice();
 
       glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER,GLFW_FALSE);
-      glfwWindowHint(GLFW_RESIZABLE,GLFW_FALSE);
+      glfwWindowHint(GLFW_RESIZABLE,GLFW_TRUE);
       olc_Window = glfwCreateWindow(vWindowSize.x, vWindowSize.y, "OLC - PGE - GLFW", NULL, NULL);
       if (!olc_Window){
         glfwTerminate();
@@ -4122,17 +4122,18 @@ namespace olc {
       if (bFullScreen){
         vWindowSize.x = glfw_screen_width;
         vWindowSize.y = glfw_screen_height;
-        glfwSetWindowMonitor(olc_Window,glfwGetWindowMonitor(olc_Window),0,0,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
+        glfwSetWindowMonitor(olc_Window,glfwGetWindowMonitor(olc_Window),vWindowPos.x,vWindowPos.y,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
       }
       else{
-        glfwSetWindowMonitor(olc_Window,NULL,0,0,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
+//        glfwSetWindowMonitor(olc_Window,NULL,vWindowPos.x, vWindowPos.y,vWindowSize.x,vWindowSize.y,GLFW_DONT_CARE);
+		glfwSetWindowMonitor(olc_Window, NULL, vWindowPos.x, vWindowPos.y, vWindowSize.x, vWindowSize.y, GLFW_DONT_CARE);
       }
 
       if (vWindowSize.x > glfw_screen_width || vWindowSize.y > glfw_screen_height) {
         perror("ERROR: The specified window dimensions do not fit on your screen\n");
         return olc::FAIL;
       }
-      
+
       // Create Keyboard Mapping
       mapKeys[0x00] = Key::NONE;
       mapKeys['A'] = Key::A; mapKeys['B'] = Key::B; mapKeys['C'] = Key::C; mapKeys['D'] = Key::D; mapKeys['E'] = Key::E;
