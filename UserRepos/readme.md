@@ -7,3 +7,5 @@ Here are links to the repos of people that use olcPixelGameEngine! If you want y
    * https://github.com/Jack-Punter/olcCodeJam2020_TheGreatMachine
  * CodeJam2020 - A very simple dungeon rogue-like with a twist
    * https://github.com/benkyd/OLCCodeJam2020-The-Great-Machine
+ * Altay Tank Game - A top-down shoot-em-all game
+   * https://github.com/gurkanctn/AltayTankGame
