@@ -151,7 +151,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -678,6 +678,8 @@ namespace olc
 		bool IsFocused() const;
 		// Get the state of a specific keyboard button
 		HWButton GetKey(Key k) const;
+		// Get first key in range which matches the condition
+		HWButton GetKey(uint16_t start, uint16_t end, uint16_t step, bool(*condition)(HWButton)) const;
 		// Get the state of a specific mouse button
 		HWButton GetMouse(uint32_t b) const;
 		// Get Mouse X coordinate in "pixel" space
@@ -1559,6 +1561,13 @@ namespace olc
 
 	HWButton PixelGameEngine::GetKey(Key k) const
 	{ return pKeyboardState[k]; }
+
+	HWButton PixelGameEngine::GetKey(uint16_t start, uint16_t end, uint16_t step, bool(*condition)(HWButton)) const
+	{
+		for(uint32_t i = start; i < end; i += step) {
+			if(condition(pKeyboardState[i])) return pKeyboardState[i];
+		}
+	}
 
 	HWButton PixelGameEngine::GetMouse(uint32_t b) const
 	{ return pMouseState[b]; }
