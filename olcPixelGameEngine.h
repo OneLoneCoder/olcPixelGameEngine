@@ -3052,23 +3052,25 @@ namespace olc
 
 		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
 		{
-			// Check file exists
-			if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-
-			// It does, so clear out existing sprite
-			if (spr->pColData != nullptr) delete[] spr->pColData;
-
-			// Open file
-			UNUSED(pack);
 			Gdiplus::Bitmap* bmp = nullptr;
 			if (pack != nullptr)
 			{
 				// Load sprite from input stream
 				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+				//check sprite present in resource pack
+				if (rb.vMemory.size() == 0) return olc::rcode::NO_FILE;
+
+				// It does, so clear out existing sprite
+				if (spr->pColData != nullptr) delete[] spr->pColData;
 				bmp = Gdiplus::Bitmap::FromStream(SHCreateMemStream((BYTE*)rb.vMemory.data(), UINT(rb.vMemory.size())));
 			}
 			else
 			{
+				// Check file exists
+				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+
+				// It does, so clear out existing sprite
+				if (spr->pColData != nullptr) delete[] spr->pColData;
 				// Load sprite from file
 				bmp = Gdiplus::Bitmap::FromFile(ConvertS2W(sImageFile).c_str());
 			}
