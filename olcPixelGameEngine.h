@@ -3084,7 +3084,7 @@ namespace olc
 #endif
 		}
 
-		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
+		olc::rcode CreateDevice(std::vector<void*> params, bool, bool bVSYNC) override
 		{
 #if defined(OLC_PLATFORM_WINAPI)
 			// Create Device Context
@@ -3553,7 +3553,7 @@ namespace olc
 			return olc::rcode::FAIL;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(olc::Sprite*, const std::string&) override
 		{
 			return olc::rcode::OK;
 		}
