@@ -416,7 +416,10 @@ namespace olc
 		union
 		{
 			uint32_t n = nDefaultPixel;
+			#pragma GCC diagnostic push
+			#pragma GCC diagnostic ignored "-Wpedantic"
 			struct { uint8_t r; uint8_t g; uint8_t b; uint8_t a; };
+			#pragma GCC diagnostic pop
 		};
 
 		enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
