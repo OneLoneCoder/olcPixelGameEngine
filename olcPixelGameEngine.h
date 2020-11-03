@@ -1553,14 +1553,14 @@ namespace olc
 		size_t c = 0;
 		for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]);
 		return o;
-	};
+	}
 
 	std::string ResourcePack::makeposix(const std::string& path)
 	{
 		std::string o;
 		for (auto s : path) o += std::string(1, s == '\\' ? '/' : s);
 		return o;
-	};
+	}
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine IMPLEMENTATION                                          |
@@ -2984,7 +2984,7 @@ namespace olc
 	olc::PixelGameEngine* olc::Platform::ptrPGE = nullptr;
 	olc::PixelGameEngine* olc::Renderer::ptrPGE = nullptr;
 	std::unique_ptr<ImageLoader> olc::Sprite::loader = nullptr;
-};
+}
 
 
 
