@@ -598,6 +598,7 @@ namespace olc
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		Sprite(int32_t w, int32_t h);
 		Sprite(const olc::Sprite&) = delete;
+		olc::Sprite& operator=(const olc::Sprite&) = delete;
 		~Sprite();
 
 	public:
@@ -628,6 +629,7 @@ namespace olc
 		static std::unique_ptr<olc::ImageLoader> loader;
 	};
 
+
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal - A GPU resident storage of an olc::Sprite                        |
 	// O------------------------------------------------------------------------------O
@@ -635,6 +637,8 @@ namespace olc
 	{
 	public:
 		Decal(olc::Sprite* spr, bool filter = false);
+		Decal(const Decal&) = delete;
+		Decal& operator=(const Decal&) = delete;
 		virtual ~Decal();
 		void Update();
 
@@ -756,6 +760,8 @@ namespace olc
 	{
 	public:
 		PixelGameEngine();
+		PixelGameEngine(const PixelGameEngine&) = delete;
+		PixelGameEngine& operator=(const PixelGameEngine&) = delete;
 		virtual ~PixelGameEngine();
 	public:
 		olc::rcode Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h,
