@@ -699,6 +699,9 @@ namespace olc
 
 	struct LayerDesc
 	{
+		LayerDesc() : vecDecalInstance{} {}
+		LayerDesc(const LayerDesc&) = default;
+		LayerDesc& operator=(const LayerDesc&) = delete;
 		olc::vf2d vOffset = { 0, 0 };
 		olc::vf2d vScale = { 1, 1 };
 		bool bShow = false;
@@ -1395,14 +1398,14 @@ namespace olc
 	//=============================================================
 	// Resource Packs - Allows you to store files in one large 
 	// scrambled file - Thanks MaGetzUb for debugging a null char in std::stringstream bug
-	ResourceBuffer::ResourceBuffer(std::ifstream& ifs, uint32_t offset, uint32_t size)
+	ResourceBuffer::ResourceBuffer(std::ifstream& ifs, uint32_t offset, uint32_t size) : vMemory{}
 	{
 		vMemory.resize(size);
 		ifs.seekg(offset); ifs.read(vMemory.data(), vMemory.size());
 		setg(vMemory.data(), vMemory.data(), vMemory.data() + size);
 	}
 
-	ResourcePack::ResourcePack() { }
+	ResourcePack::ResourcePack() : mapFiles{}, baseFile{} { }
 	ResourcePack::~ResourcePack() { baseFile.close(); }
 
 	bool ResourcePack::AddFile(const std::string& sFile)
@@ -1571,9 +1574,9 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine IMPLEMENTATION                                          |
 	// O------------------------------------------------------------------------------O
-	PixelGameEngine::PixelGameEngine()
+	PixelGameEngine::PixelGameEngine() : sAppName{"Undefined"}, vLayers{},
+	funcPixelMode{}, m_tp1{}, m_tp2{}, vFontSpacing{}
 	{
-		sAppName = "Undefined";
 		olc::PGEX::pge = this;
 
 		// Bring in relevant Platform & Rendering systems depending
@@ -3857,6 +3860,11 @@ namespace olc
 		X11::XSetWindowAttributes    olc_SetWindowAttribs;
 
 	public:
+		Platform_Linux() : olc_WindowRoot{}, olc_Window{}, olc_VisualInfo{},
+		olc_ColourMap{}, olc_SetWindowAttribs{} {}
+		Platform_Linux(const Platform_Linux&) = delete;
+		Platform_Linux& operator=(const Platform_Linux&) = delete;
+
 		virtual olc::rcode ApplicationStartUp() override
 		{ return olc::rcode::OK; }
 
