@@ -152,7 +152,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -456,7 +456,7 @@ namespace olc
 		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0);
 
 	// Thanks to scripticuk and others for updating the key maps
-	// MOTE: The GLUT platform will need updating, open to contributions ;)
+	// NOTE: The GLUT platform will need updating, open to contributions ;)
 	enum Key
 	{
 		NONE,
