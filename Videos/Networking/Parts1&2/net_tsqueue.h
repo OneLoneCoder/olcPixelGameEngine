@@ -50,7 +50,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020
 
 */
 
@@ -109,7 +109,6 @@ namespace olc
 				std::scoped_lock lock(muxQueue);
 				deqQueue.emplace_back(std::move(item));
 
-				std::unique_lock<std::mutex> ul(muxBlocking);
 				cvBlocking.notify_one();
 			}
 
@@ -118,8 +117,7 @@ namespace olc
 			{
 				std::scoped_lock lock(muxQueue);
 				deqQueue.emplace_front(std::move(item));
-
-				std::unique_lock<std::mutex> ul(muxBlocking);
+				
 				cvBlocking.notify_one();
 			}
 
@@ -146,10 +144,11 @@ namespace olc
 
 			void wait()
 			{
-				while (empty())
+				std::unique_lock<std::mutex> ul(muxQueue);
+
+				while (deqQueue.empty())
 				{
-					std::unique_lock<std::mutex> ul(muxBlocking);
-					cvBlocking.wait(ul);
+				    cvBlocking.wait(ul);
 				}
 			}
 
@@ -157,7 +156,6 @@ namespace olc
 			std::mutex muxQueue;
 			std::deque<T> deqQueue;
 			std::condition_variable cvBlocking;
-			std::mutex muxBlocking;
 		};
 	}
 }
