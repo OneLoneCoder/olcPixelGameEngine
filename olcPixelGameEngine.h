@@ -152,7 +152,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -514,22 +514,19 @@ namespace olc
 		operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
 		operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
 	};
-
-	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
-	// however they will appear in a future version of PGE
-	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y)); }
-	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y)); }
-
+	
+	template<typename T, typename t> inline v2d_generic<T> operator * (const t& lhs, const v2d_generic<T>& rhs)
+	{
+		/* static_assert(std::is_arithmetic<t>::value); */
+		return v2d_generic<T>( static_cast<T>(lhs * rhs.x), static_cast<T>(lhs * rhs.y) );
+	}
+	
+	template<typename T, typename t> inline v2d_generic<T> operator / (const t& lhs, const v2d_generic<T>& rhs)
+	{
+		/* static_assert(std::is_arithmetic<t>::value); */
+		return v2d_generic<T>( static_cast<T>(lhs / rhs.x), static_cast<T>(lhs / rhs.y) );
+	}
+	
 	typedef v2d_generic<int32_t> vi2d;
 	typedef v2d_generic<uint32_t> vu2d;
 	typedef v2d_generic<float> vf2d;
