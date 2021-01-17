@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.11              |
+	|           OneLoneCoder Pixel Game Engine v2.12              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -208,6 +208,7 @@
 		  +PGEX Break-In Hooks - with a push from Dandistine
 		  +Wireframe Decal Mode - For debug overlays
 	2.11: Made PGEX hooks optional - (provide true to super constructor)
+	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
 		  
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -286,7 +287,7 @@ int main()
 #include <array>
 #include <cstring>
 
-#define PGE_VER 211
+#define PGE_VER 212
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -4013,7 +4014,11 @@ namespace olc
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
 #include <gdiplus.h>
+#if defined(__MINGW32__) // Thanks Gusgo & Dandistine, but c'mon mingw!! wtf?!
+#include <gdiplus/gdiplusinit.h>
+#else
 #include <gdiplusinit.h>
+#endif
 #include <shlwapi.h>
 #undef min
 #undef max
