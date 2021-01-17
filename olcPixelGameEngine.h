@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.10              |
+	|           OneLoneCoder Pixel Game Engine v2.11              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -207,6 +207,7 @@
 		  +OpenGL 3.3 Renderer (also supports Raspberry Pi)
 		  +PGEX Break-In Hooks - with a push from Dandistine
 		  +Wireframe Decal Mode - For debug overlays
+	2.11: Made PGEX hooks optional - (provide true to super constructor)
 		  
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -285,7 +286,7 @@ int main()
 #include <array>
 #include <cstring>
 
-#define PGE_VER 210
+#define PGE_VER 211
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -1060,7 +1061,7 @@ namespace olc
 	{
 		friend class olc::PixelGameEngine;
 	public:
-		PGEX();
+		PGEX(bool bHook = false);
 
 	protected:
 		virtual void OnBeforeUserCreate();
@@ -3199,7 +3200,7 @@ namespace olc
 	}
 
 
-	PGEX::PGEX() { pge->pgex_Register(this); }
+	PGEX::PGEX(bool bHook) { if(bHook) pge->pgex_Register(this); }
 	void PGEX::OnBeforeUserCreate() {}
 	void PGEX::OnAfterUserCreate()	{}
 	void PGEX::OnBeforeUserUpdate(float& fElapsedTime) {}
