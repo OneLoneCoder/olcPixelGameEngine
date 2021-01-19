@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.08              |
+	|           OneLoneCoder Pixel Game Engine v2.12              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -28,7 +28,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2020 OneLoneCoder.com
+	Copyright 2018 - 2021 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
@@ -113,7 +113,7 @@
 	However, the excellent "stb_image.h" can be used instead, supporting a variety of
 	image formats, and has no library dependence - something we like at OLC studios ;)
 	To use stb_image.h, make sure it's in your code base, and simply:
-	
+
 	#define OLC_IMAGE_STB
 
 	Before including the olcPixelGameEngine.h header file. stb_image.h works on many systems
@@ -128,30 +128,30 @@
 
 	Thanks
 	~~~~~~
-	I'd like to extend thanks to Eremiell, slavka, gurkanctn, Phantim, IProgramInCPP
+	I'd like to extend thanks to Bispoo, Eremiell, slavka, gurkanctn, Phantim, IProgramInCPP
 	JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice, dandistine
 	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, Alexio, SaladinAkara & MagetzUb
 	for advice, ideas and testing, and I'd like to extend my appreciation to the
-	174K YouTube followers,	70+ Patreons and 8K Discord server members who give me
+	210K YouTube followers,	80+ Patreons and 10K Discord server members who give me
 	the motivation to keep going with all this :D
 
-	Significant Contributors: @Moros1138, @SaladinAkara, @MaGetzUb, @slavka, 
+	Significant Contributors: @Moros1138, @SaladinAkara, @MaGetzUb, @slavka,
 							  @Dragoneye, @Gorbit99 & @Mumflr
 
 	Special thanks to those who bring gifts!
 	GnarGnarHead.......Domina
-	Gorbit99...........Bastion, Ori & The Blind Forest, Terraria
+	Gorbit99...........Bastion, Ori & The Blind Forest, Terraria, Spelunky 2
 	Marti Morta........Gris
 	Danicron...........Terraria
-	SaladinAkara.......Aseprite
+	SaladinAkara.......Aseprite, Inside
 	AlterEgo...........Final Fantasy XII - The Zodiac Age
+	SlicEnDicE.........Noita, Inside
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
 
 	Author
-	~~~~~~
-	David Barr, aka javidx9, �OneLoneCoder 2018, 2019, 2020
+	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -186,7 +186,32 @@
 		  +More pedant mollification - Thanks TheLandfill
 		  +ImageLoader modules - user selectable image handling core, gdi+, libpng, stb_image
 		  +Mac Support via GLUT - thanks Mumflr!
+	2.09: Fix olc::Renderable Image load error - Thanks MaGetzUb & Zij-IT for finding and moaning about it
+		  Fix file rejection in image loaders when using resource packs
+		  Tidied Compiler defines per platform - Thanks slavka
+		  +Pedant fixes, const correctness in parts
+		  +DecalModes - Normal, Additive, Multiplicative blend modes
+		  +Pixel Operators & Lerping
+		  +Filtered Decals - If you hate pixels, then erase this file
+		  +DrawStringProp(), GetTextSizeProp(), DrawStringPropDecal() - Draws non-monospaced font
+	2.10: Fix PixelLerp() - oops my bad, lerped the wrong way :P
+		  Fix "Shader" support for strings - thanks Megarev for crying about it
+		  Fix GetTextSizeProp() - Height was just plain wrong...
+		  +vec2d operator overloads (element wise *=, /=)
+		  +vec2d comparison operators... :| yup... hmmmm...
+		  +vec2d ceil(), floor(), min(), max() functions - surprising how often I do it manually
+		  +DrawExplicitDecal(... uint32_t elements) - complete control over convex polygons and lines
+		  +DrawPolygonDecal() - to keep Bispoo happy, required significant rewrite of EVERYTHING, but hey ho
+		  +Complete rewrite of decal renderer
+		  +OpenGL 3.3 Renderer (also supports Raspberry Pi)
+		  +PGEX Break-In Hooks - with a push from Dandistine
+		  +Wireframe Decal Mode - For debug overlays
+	2.11: Made PGEX hooks optional - (provide true to super constructor)
+	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
 		  
+		  
+    !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
+	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +231,7 @@ class Example : public olc::PixelGameEngine
 public:
 	Example()
 	{
-		// Name you application
+		// Name your application
 		sAppName = "Example";
 	}
 
@@ -219,10 +244,10 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		// called once per frame, draws random coloured pixels
+		// Called once per frame, draws random coloured pixels
 		for (int x = 0; x < ScreenWidth(); x++)
 			for (int y = 0; y < ScreenHeight(); y++)
-				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand()% 256));
+				Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
 		return true;
 	}
 };
@@ -261,64 +286,128 @@ int main()
 #include <array>
 #include <cstring>
 
+#define PGE_VER 212
+
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
 // O------------------------------------------------------------------------------O
 #define USE_EXPERIMENTAL_FS
 
 #if defined(_WIN32)
-	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 
 #if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__) || defined(__APPLE__)
-	#if __cplusplus >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if __cplusplus >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 
 #if defined(__APPLE__)
-	#define PGE_USE_CUSTOM_START
+#define PGE_USE_CUSTOM_START
 #endif
 
 #if defined(USE_EXPERIMENTAL_FS) || defined(FORCE_EXPERIMENTAL_FS)
 	// C++14
-	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#include <experimental/filesystem>
-	namespace _gfs = std::experimental::filesystem::v1;
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+namespace _gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+#include <filesystem>
+namespace _gfs = std::filesystem;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
-		#define olcT(s) L##s
-	#else
-		#define olcT(s) s
+#define olcT(s) L##s
+#else
+#define olcT(s) s
 #endif
 
 #define UNUSED(x) (void)(x)
 
-#if !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10)
-	#define OLC_GFX_OPENGL10
-#endif
+// O------------------------------------------------------------------------------O
+// | PLATFORM SELECTION CODE, Thanks slavka!                                      |
+// O------------------------------------------------------------------------------O
 
+// Platform
+#if !defined(OLC_PLATFORM_WINAPI) && !defined(OLC_PLATFORM_X11) && !defined(OLC_PLATFORM_GLUT)
 #if defined(_WIN32)
-	#if defined(OLC_IMAGE_STB)
-		#define PGE_ILOADER_STB
-	#else
-		#define	PGE_ILOADER_GDI
-	#endif
+#define OLC_PLATFORM_WINAPI
+#endif
+#if defined(__linux__) || defined(__FreeBSD__)
+#define OLC_PLATFORM_X11
+#endif
+#if defined(__APPLE__)
+#define OLC_PLATFORM_GLUT
+#endif
 #endif
 
-#if defined(__linux__) || defined(__APPLE__)
-	#if defined(OLC_IMAGE_STB)
-		#define PGE_ILOADER_STB
-	#else
-		#define	PGE_ILOADER_LIBPNG
-	#endif
+// Renderer
+#if !defined(OLC_GFX_OPENGL10) && !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10)
+#define OLC_GFX_OPENGL10
+#endif
+
+// Image loader
+#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
+#if defined(_WIN32)
+#define	OLC_IMAGE_GDI
+#endif
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+#define	OLC_IMAGE_LIBPNG
+#endif
+#endif
+
+
+// O------------------------------------------------------------------------------O
+// | PLATFORM-SPECIFIC DEPENDENCIES                                               |
+// O------------------------------------------------------------------------------O
+#if defined(OLC_PLATFORM_WINAPI)	
+#define _WINSOCKAPI_ // Thanks Cornchipss
+
+//#if !defined(WIN32_LEAN_AND_MEAN) // Removes something GDI requires
+//	#define WIN32_LEAN_AND_MEAN
+//#endif
+#if !defined(VC_EXTRALEAN)
+#define VC_EXTRALEAN
+#endif
+#if !defined(NOMINMAX)
+#define NOMINMAX
+#endif
+
+// In Code::Blocks
+#if !defined(_WIN32_WINNT)
+#ifdef HAVE_MSMF
+#define _WIN32_WINNT 0x0600 // Windows Vista
+#else
+#define _WIN32_WINNT 0x0500 // Windows 2000
+#endif
+#endif
+
+#include <windows.h>
+
+#undef _WINSOCKAPI_
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+namespace X11
+{
+#include <X11/X.h>
+#include <X11/Xlib.h>
+}
+#endif
+
+#if defined(OLC_PLATFORM_GLUT)
+#define PGE_USE_CUSTOM_START
+#if defined(__linux__)
+#include <GL/glut.h>
+#include <GL/freeglut_ext.h>
+#endif
+#if defined(__APPLE__)
+#include <GLUT/glut.h>
+#endif
 #endif
 
 
@@ -352,12 +441,22 @@ namespace olc
 		Pixel();
 		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha);
 		Pixel(uint32_t p);
-		bool operator==(const Pixel& p) const;
-		bool operator!=(const Pixel& p) const;
+		Pixel& operator = (const Pixel& v) = default;
+		bool   operator ==(const Pixel& p) const;
+		bool   operator !=(const Pixel& p) const;
+		Pixel  operator * (const float i) const;
+		Pixel  operator / (const float i) const;
+		Pixel& operator *=(const float i);
+		Pixel& operator /=(const float i);
+		Pixel  operator + (const Pixel& p) const;
+		Pixel  operator - (const Pixel& p) const;
+		Pixel& operator +=(const Pixel& p);
+		Pixel& operator -=(const Pixel& p);
+		Pixel  inv() const;
 	};
 
 	Pixel PixelF(float red, float green, float blue, float alpha = 1.0f);
-
+	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t);
 
 
 	// O------------------------------------------------------------------------------O
@@ -373,6 +472,8 @@ namespace olc
 		MAGENTA(255, 0, 255), DARK_MAGENTA(128, 0, 128), VERY_DARK_MAGENTA(64, 0, 64),
 		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0);
 
+	// Thanks to scripticuk and others for updating the key maps
+	// NOTE: The GLUT platform will need updating, open to contributions ;)
 	enum Key
 	{
 		NONE,
@@ -383,7 +484,10 @@ namespace olc
 		SPACE, TAB, SHIFT, CTRL, INS, DEL, HOME, END, PGUP, PGDN,
 		BACK, ESCAPE, RETURN, ENTER, PAUSE, SCROLL,
 		NP0, NP1, NP2, NP3, NP4, NP5, NP6, NP7, NP8, NP9,
-		NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL, PERIOD
+		NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL, PERIOD,
+		EQUALS, COMMA, MINUS,
+		OEM_1, OEM_2, OEM_3, OEM_4, OEM_5, OEM_6, OEM_7, OEM_8,
+		CAPS_LOCK, ENUM_END
 	};
 
 
@@ -401,12 +505,16 @@ namespace olc
 		v2d_generic(T _x, T _y) : x(_x), y(_y) {}
 		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y) {}
 		v2d_generic& operator=(const v2d_generic& v) = default;
-		T mag() { return T(std::sqrt(x * x + y * y)); }
-		T mag2() { return x * x + y * y; }
-		v2d_generic  norm() { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
-		v2d_generic  perp() { return v2d_generic(-y, x); }
-		T dot(const v2d_generic& rhs) { return this->x * rhs.x + this->y * rhs.y; }
-		T cross(const v2d_generic& rhs) { return this->x * rhs.y - this->y * rhs.x; }
+		T mag() const { return T(std::sqrt(x * x + y * y)); }
+		T mag2() const { return x * x + y * y; }
+		v2d_generic  norm() const { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
+		v2d_generic  perp() const { return v2d_generic(-y, x); }
+		v2d_generic  floor() const { return v2d_generic(std::floor(x), std::floor(y)); }
+		v2d_generic  ceil() const { return v2d_generic(std::ceil(x), std::ceil(y)); }
+		v2d_generic  max(const v2d_generic& v) const { return v2d_generic(std::max(x, v.x), std::max(y, v.y)); }
+		v2d_generic  min(const v2d_generic& v) const { return v2d_generic(std::min(x, v.x), std::min(y, v.y)); }
+		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
+		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
 		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
 		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
@@ -417,6 +525,8 @@ namespace olc
 		v2d_generic& operator -= (const v2d_generic& rhs) { this->x -= rhs.x; this->y -= rhs.y; return *this; }
 		v2d_generic& operator *= (const T& rhs) { this->x *= rhs; this->y *= rhs; return *this; }
 		v2d_generic& operator /= (const T& rhs) { this->x /= rhs; this->y /= rhs; return *this; }
+		v2d_generic& operator *= (const v2d_generic& rhs) { this->x *= rhs.x; this->y *= rhs.y; return *this; }
+		v2d_generic& operator /= (const v2d_generic& rhs) { this->x /= rhs.x; this->y /= rhs.y; return *this; }
 		v2d_generic  operator +  () const { return { +x, +y }; }
 		v2d_generic  operator -  () const { return { -x, -y }; }
 		bool operator == (const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
@@ -431,17 +541,39 @@ namespace olc
 	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
 	// however they will appear in a future version of PGE
 	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y));
+	}
+
+	// To stop dandistine crying...
+	template<class T, class U> inline bool operator < (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
+	{
+		return lhs.y < rhs.y || (lhs.y == rhs.y && lhs.x < rhs.x);
+	}
+	template<class T, class U> inline bool operator > (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
+	{
+		return lhs.y > rhs.y || (lhs.y == rhs.y && lhs.x > rhs.x);
+	}
 
 	typedef v2d_generic<int32_t> vi2d;
 	typedef v2d_generic<uint32_t> vu2d;
@@ -547,14 +679,26 @@ namespace olc
 	class Decal
 	{
 	public:
-		Decal(olc::Sprite* spr);
+		Decal(olc::Sprite* spr, bool filter = false);
+		Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr);
 		virtual ~Decal();
 		void Update();
+		void UpdateSprite();
 
 	public: // But dont touch
 		int32_t id = -1;
 		olc::Sprite* sprite = nullptr;
 		olc::vf2d vUVScale = { 1.0f, 1.0f };
+	};
+
+	enum class DecalMode
+	{
+		NORMAL,
+		ADDITIVE,
+		MULTIPLICATIVE,
+		STENCIL,
+		ILLUMINATE,
+		WIREFRAME,
 	};
 
 	// O------------------------------------------------------------------------------O
@@ -564,9 +708,8 @@ namespace olc
 	{
 	public:
 		Renderable() = default;
-		virtual ~Renderable() = default;
-		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr);
-		void Create(uint32_t width, uint32_t height);
+		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false);
+		void Create(uint32_t width, uint32_t height, bool filter = false);
 		olc::Decal* Decal() const;
 		olc::Sprite* Sprite() const;
 
@@ -583,18 +726,12 @@ namespace olc
 	struct DecalInstance
 	{
 		olc::Decal* decal = nullptr;
-		olc::vf2d pos[4] = { { 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f} };
-		olc::vf2d uv[4] = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		float w[4] = { 1, 1, 1, 1 };
-		olc::Pixel tint[4] = { olc::WHITE, olc::WHITE, olc::WHITE, olc::WHITE };;
-	};
-
-	struct DecalTriangleInstance
-	{
-		olc::vf2d points[3];
-		olc::vf2d texture[3];
-		olc::Pixel colours[3];
-		olc::Decal* decal = nullptr;
+		std::vector<olc::vf2d> pos;
+		std::vector<olc::vf2d> uv;
+		std::vector<float> w;
+		std::vector<olc::Pixel> tint;
+		olc::DecalMode mode = olc::DecalMode::NORMAL;
+		uint32_t points = 0;
 	};
 
 	struct LayerDesc
@@ -619,10 +756,12 @@ namespace olc
 		virtual olc::rcode DestroyDevice() = 0;
 		virtual void       DisplayFrame() = 0;
 		virtual void       PrepareDrawing() = 0;
+		virtual void	   SetDecalMode(const olc::DecalMode& mode) = 0;
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) = 0;
-		virtual void       DrawDecalQuad(const olc::DecalInstance& decal) = 0;
-		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height) = 0;
+		virtual void       DrawDecal(const olc::DecalInstance& decal) = 0;
+		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false) = 0;
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) = 0;
+		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) = 0;
 		virtual uint32_t   DeleteTexture(const uint32_t id) = 0;
 		virtual void       ApplyTexture(uint32_t id) = 0;
 		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) = 0;
@@ -646,7 +785,9 @@ namespace olc
 		static olc::PixelGameEngine* ptrPGE;
 	};
 
-	
+	class PGEX;
+
+
 
 	static std::unique_ptr<Renderer> renderer;
 	static std::unique_ptr<Platform> platform;
@@ -742,9 +883,9 @@ namespace olc
 		Pixel::Mode GetPixelMode();
 		// Use a custom blend function
 		void SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel& pSource, const olc::Pixel& pDest)> pixelMode);
-		// Change the blend factor form between 0.0f to 1.0f;
+		// Change the blend factor from between 0.0f to 1.0f;
 		void SetPixelBlend(float fBlend);
-		
+
 
 
 	public: // DRAWING ROUTINES
@@ -772,7 +913,7 @@ namespace olc
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		void FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
-		// Draws an entire sprite at well in my defencelocation (x,y)
+		// Draws an entire sprite at location (x,y)
 		void DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 		void DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 		// Draws an area of a sprite at location (x,y), where the
@@ -781,14 +922,14 @@ namespace olc
 		void DrawPartialSprite(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 
 		// Decal Quad functions
-
+		void SetDecalMode(const olc::DecalMode& mode);
 		// Draws a whole decal, with optional scale and tinting
 		void DrawDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
 		// Draws a region of a decal, with optional scale and tinting
 		void DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
 		void DrawPartialDecal(const olc::vf2d& pos, const olc::vf2d& size, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint = olc::WHITE);
 		// Draws fully user controlled 4 vertices, pos(pixels), uv(pixels), colours
-		void DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col);
+		void DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col, uint32_t elements = 4);
 		// Draws a decal with 4 arbitrary points, warping the texture to look "correct"
 		void DrawWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::Pixel& tint = olc::WHITE);
 		void DrawWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::Pixel& tint = olc::WHITE);
@@ -802,22 +943,27 @@ namespace olc
 		void DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f, 1.0f }, const olc::Pixel& tint = olc::WHITE);
 		// Draws a multiline string as a decal, with tiniting and scaling
 		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+		void DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
 		// Draws a single shaded filled rectangle as a decal
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
 		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
-
-
-
-		// Draws a single line of text
+		// Draws an arbitrary convex textured polygon using GPU
+		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
+		// Draws a single line of text - traditional monospaced
 		void DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
 		void DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
 		olc::vi2d GetTextSize(const std::string& s);
+
+		// Draws a single line of text - non-monospaced
+		void DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		void DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		olc::vi2d GetTextSizeProp(const std::string& s);
+
 		// Clears entire draw target to Pixel
 		void Clear(Pixel p);
 		// Clears the rendering back buffer
 		void ClearBuffer(Pixel p, bool bDepth = true);
-
 
 	public: // Branding
 		std::string sAppName;
@@ -846,15 +992,17 @@ namespace olc
 		float		fFrameTimer = 1.0f;
 		float		fLastElapsed = 0.0f;
 		int			nFrameCount = 0;
-		Sprite*     fontSprite = nullptr;
-		Decal*      fontDecal = nullptr;
-		Sprite*     pDefaultDrawTarget = nullptr;
+		Sprite* fontSprite = nullptr;
+		Decal* fontDecal = nullptr;
+		Sprite* pDefaultDrawTarget = nullptr;
 		std::vector<LayerDesc> vLayers;
 		uint8_t		nTargetLayer = 0;
 		uint32_t	nLastFPS = 0;
 		bool        bPixelCohesion = false;
+		DecalMode   nDecalMode = DecalMode::NORMAL;
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 		std::chrono::time_point<std::chrono::system_clock> m_tp1, m_tp2;
+		std::vector<olc::vi2d> vFontSpacing;
 
 		// State of keyboard		
 		bool		pKeyNewState[256] = { 0 };
@@ -896,7 +1044,14 @@ namespace olc
 		// in case you are using them, but they will be removed.
 		// olc::vf2d	vSubPixelOffset = { 0.0f, 0.0f };
 
+	public: // PGEX Stuff
 		friend class PGEX;
+		void pgex_Register(olc::PGEX* pgex);
+
+	private:
+		std::vector<olc::PGEX*> vExtensions;
+
+
 	};
 
 
@@ -907,6 +1062,15 @@ namespace olc
 	class PGEX
 	{
 		friend class olc::PixelGameEngine;
+	public:
+		PGEX(bool bHook = false);
+
+	protected:
+		virtual void OnBeforeUserCreate();
+		virtual void OnAfterUserCreate();
+		virtual void OnBeforeUserUpdate(float &fElapsedTime);
+		virtual void OnAfterUserUpdate(float fElapsedTime);
+
 	protected:
 		static PixelGameEngine* pge;
 	};
@@ -952,7 +1116,9 @@ namespace olc
 	// | olc::Pixel IMPLEMENTATION                                                    |
 	// O------------------------------------------------------------------------------O
 	Pixel::Pixel()
-	{ r = 0; g = 0; b = 0; a = nDefaultAlpha; }
+	{
+		r = 0; g = 0; b = 0; a = nDefaultAlpha;
+	}
 
 	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
 	{
@@ -961,17 +1127,100 @@ namespace olc
 
 
 	Pixel::Pixel(uint32_t p)
-	{ n = p; }
+	{
+		n = p;
+	}
 
 	bool Pixel::operator==(const Pixel& p) const
-	{ return n == p.n; }
+	{
+		return n == p.n;
+	}
 
 	bool Pixel::operator!=(const Pixel& p) const
-	{ return n != p.n; }
+	{
+		return n != p.n;
+	}
+
+	Pixel  Pixel::operator * (const float i) const
+	{
+		float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
+		float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
+		float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
+		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+	}
+
+	Pixel  Pixel::operator / (const float i) const
+	{
+		float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
+		float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
+		float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
+		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+	}
+
+	Pixel& Pixel::operator *=(const float i)
+	{
+		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
+		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
+		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
+		return *this;
+	}
+
+	Pixel& Pixel::operator /=(const float i)
+	{
+		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
+		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
+		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
+		return *this;
+	}
+
+	Pixel  Pixel::operator + (const Pixel& p) const
+	{
+		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+		return Pixel(nR, nG, nB, a);
+	}
+
+	Pixel  Pixel::operator - (const Pixel& p) const
+	{
+		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+		return Pixel(nR, nG, nB, a);
+	}
+
+	Pixel& Pixel::operator += (const Pixel& p)
+	{
+		this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+		this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+		this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+		return *this;
+	}
+
+	Pixel& Pixel::operator -= (const Pixel& p)
+	{
+		this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+		this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+		this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+		return *this;
+	}
+
+	Pixel Pixel::inv() const
+	{
+		uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
+		uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
+		uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
+		return Pixel(nR, nG, nB, a);
+	}
 
 	Pixel PixelF(float red, float green, float blue, float alpha)
 	{
 		return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
+	}
+
+	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t)
+	{
+		return (p2 * t) + p1 * (1.0f - t);
 	}
 
 	// O------------------------------------------------------------------------------O
@@ -1056,13 +1305,19 @@ namespace olc
 	}
 
 	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
-	{ modeSample = mode; }
+	{
+		modeSample = mode;
+	}
 
 	Pixel Sprite::GetPixel(const olc::vi2d& a) const
-	{ return GetPixel(a.x, a.y); }
+	{
+		return GetPixel(a.x, a.y);
+	}
 
 	bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
-	{ return SetPixel(a.x, a.y, p); }
+	{
+		return SetPixel(a.x, a.y, p);
+	}
 
 	Pixel Sprite::GetPixel(int32_t x, int32_t y) const
 	{
@@ -1120,7 +1375,9 @@ namespace olc
 	}
 
 	Pixel* Sprite::GetData()
-	{ return pColData; }
+	{
+		return pColData;
+	}
 
 
 	olc::rcode Sprite::LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack)
@@ -1143,19 +1400,25 @@ namespace olc
 		for (int y = 0; y < vSize.y; y++)
 			for (int x = 0; x < vSize.x; x++)
 				spr->SetPixel(x, y, GetPixel(vPos.x + x, vPos.y + y));
-		return spr;		
+		return spr;
 	}
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal IMPLEMENTATION                                                   |
 	// O------------------------------------------------------------------------------O
-	Decal::Decal(olc::Sprite* spr)
+	Decal::Decal(olc::Sprite* spr, bool filter)
 	{
 		id = -1;
 		if (spr == nullptr) return;
 		sprite = spr;
-		id = renderer->CreateTexture(sprite->width, sprite->height);
+		id = renderer->CreateTexture(sprite->width, sprite->height, filter);
 		Update();
+	}
+
+	Decal::Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr)
+	{
+		if (spr == nullptr) return;
+		id = nExistingTextureResource;
 	}
 
 	void Decal::Update()
@@ -1164,6 +1427,13 @@ namespace olc
 		vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
 		renderer->ApplyTexture(id);
 		renderer->UpdateTexture(id, sprite);
+	}
+
+	void Decal::UpdateSprite()
+	{
+		if (sprite == nullptr) return;
+		renderer->ApplyTexture(id);
+		renderer->ReadTexture(id, sprite);
 	}
 
 	Decal::~Decal()
@@ -1175,18 +1445,18 @@ namespace olc
 		}
 	}
 
-	void Renderable::Create(uint32_t width, uint32_t height)
+	void Renderable::Create(uint32_t width, uint32_t height, bool filter)
 	{
 		pSprite = std::make_unique<olc::Sprite>(width, height);
-		pDecal = std::make_unique<olc::Decal>(pSprite.get());
+		pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter);
 	}
 
-	olc::rcode Renderable::Load(const std::string& sFile, ResourcePack* pack)
+	olc::rcode Renderable::Load(const std::string& sFile, ResourcePack* pack, bool filter)
 	{
 		pSprite = std::make_unique<olc::Sprite>();
-		if (pSprite->LoadFromFile(sFile, pack))
+		if (pSprite->LoadFromFile(sFile, pack) == olc::rcode::OK)
 		{
-			pDecal = std::make_unique<olc::Decal>(pSprite.get());
+			pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter);
 			return olc::rcode::OK;
 		}
 		else
@@ -1198,10 +1468,14 @@ namespace olc
 	}
 
 	olc::Decal* Renderable::Decal() const
-	{ return pDecal.get(); }
+	{
+		return pDecal.get();
+	}
 
 	olc::Sprite* Renderable::Sprite() const
-	{ return pSprite.get(); }
+	{
+		return pSprite.get();
+	}
 
 	// O------------------------------------------------------------------------------O
 	// | olc::ResourcePack IMPLEMENTATION                                             |
@@ -1366,7 +1640,9 @@ namespace olc
 	}
 
 	bool ResourcePack::Loaded()
-	{ return baseFile.is_open(); }
+	{
+		return baseFile.is_open();
+	}
 
 	std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const std::string& key)
 	{
@@ -1522,7 +1798,9 @@ namespace olc
 	}
 
 	std::vector<LayerDesc>& PixelGameEngine::GetLayers()
-	{ return vLayers; }
+	{
+		return vLayers;
+	}
 
 	uint32_t PixelGameEngine::CreateLayer()
 	{
@@ -1535,7 +1813,9 @@ namespace olc
 	}
 
 	Sprite* PixelGameEngine::GetDrawTarget() const
-	{ return pDrawTarget; }
+	{
+		return pDrawTarget;
+	}
 
 	int32_t PixelGameEngine::GetDrawTargetWidth() const
 	{
@@ -1554,13 +1834,19 @@ namespace olc
 	}
 
 	uint32_t PixelGameEngine::GetFPS() const
-	{ return nLastFPS; }
+	{
+		return nLastFPS;
+	}
 
 	bool PixelGameEngine::IsFocused() const
-	{ return bHasInputFocus; }
+	{
+		return bHasInputFocus;
+	}
 
 	HWButton PixelGameEngine::GetKey(Key k) const
-	{ return pKeyboardState[k]; }
+	{
+		return pKeyboardState[k];
+	}
 
 	HWButton PixelGameEngine::GetKey(uint16_t start, uint16_t end, uint16_t step, bool(*condition)(HWButton)) const
 	{
@@ -1570,40 +1856,64 @@ namespace olc
 	}
 
 	HWButton PixelGameEngine::GetMouse(uint32_t b) const
-	{ return pMouseState[b]; }
+	{
+		return pMouseState[b];
+	}
 
 	int32_t PixelGameEngine::GetMouseX() const
-	{ return vMousePos.x; }
+	{
+		return vMousePos.x;
+	}
 
 	int32_t PixelGameEngine::GetMouseY() const
-	{ return vMousePos.y; }
+	{
+		return vMousePos.y;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetMousePos() const
-	{ return vMousePos; }
+	{
+		return vMousePos;
+	}
 
 	int32_t PixelGameEngine::GetMouseWheel() const
-	{ return nMouseWheelDelta; }
+	{
+		return nMouseWheelDelta;
+	}
 
 	int32_t PixelGameEngine::ScreenWidth() const
-	{ return vScreenSize.x; }
+	{
+		return vScreenSize.x;
+	}
 
 	int32_t PixelGameEngine::ScreenHeight() const
-	{ return vScreenSize.y; }
+	{
+		return vScreenSize.y;
+	}
 
 	float PixelGameEngine::GetElapsedTime() const
-	{ return fLastElapsed; }
+	{
+		return fLastElapsed;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowSize() const
-	{ return vWindowSize; }
+	{
+		return vWindowSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetPixelSize() const
-	{ return vPixelSize; }
+	{
+		return vPixelSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
-	{ return vScreenPixelSize; }
+	{
+		return vScreenPixelSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
-	{ return vMouseWindowPos; }
+	{
+		return vMouseWindowPos;
+	}
 
 
 	bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
@@ -2098,31 +2408,35 @@ namespace olc
 		}
 	}
 
+	void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
+	{
+		nDecalMode = mode;
+	}
+
 	void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
 		olc::vf2d vScreenSpacePos =
 		{
-			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+			(std::floor(pos.x) * vInvScreenSize.x) * 2.0f - 1.0f,
+			((std::floor(pos.y) * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
 		};
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * source_size.x * vInvScreenSize.x) * scale.x,
-			vScreenSpacePos.y - (2.0f * source_size.y * vInvScreenSize.y) * scale.y
+			vScreenSpacePos.x + (2.0f * std::ceil(source_size.x) * vInvScreenSize.x) * scale.x,
+			vScreenSpacePos.y - (2.0f * std::ceil(source_size.y) * vInvScreenSize.y) * scale.y
 		};
 
-		DecalInstance di; di.decal = decal;	di.tint[0] = tint;
-
-		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
-		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
-		di.pos[2] = { vScreenSpaceDim.x, vScreenSpaceDim.y };
-		di.pos[3] = { vScreenSpaceDim.x, vScreenSpacePos.y };
-
+		DecalInstance di;
+		di.points = 4;
+		di.decal = decal;
+		di.tint = { tint, tint, tint, tint };
+		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
 		olc::vf2d uvtl = source_pos * decal->vUVScale;
 		olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
-		di.uv[0] = { uvtl.x, uvtl.y }; di.uv[1] = { uvtl.x, uvbr.y };
-		di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };
+		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
+		di.w = { 1,1,1,1 };
+		di.mode = nDecalMode;
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
@@ -2130,27 +2444,26 @@ namespace olc
 	{
 		olc::vf2d vScreenSpacePos =
 		{
-			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+			(std::floor(pos.x) * vInvScreenSize.x) * 2.0f - 1.0f,
+			((std::floor(pos.y) * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
 		};
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * size.x * vInvScreenSize.x),
-			vScreenSpacePos.y - (2.0f * size.y * vInvScreenSize.y)
+			vScreenSpacePos.x + (2.0f * std::ceil(size.x + 0.5f) * vInvScreenSize.x),
+			vScreenSpacePos.y - (2.0f * std::ceil(size.y + 0.5f) * vInvScreenSize.y)
 		};
 
-		DecalInstance di; di.decal = decal;	di.tint[0] = tint;
-
-		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
-		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
-		di.pos[2] = { vScreenSpaceDim.x, vScreenSpaceDim.y };
-		di.pos[3] = { vScreenSpaceDim.x, vScreenSpacePos.y };
-
-		olc::vf2d uvtl = source_pos * decal->vUVScale;
-		olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
-		di.uv[0] = { uvtl.x, uvtl.y }; di.uv[1] = { uvtl.x, uvbr.y };
-		di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };
+		DecalInstance di;
+		di.points = 4;
+		di.decal = decal;
+		di.tint = { tint, tint, tint, tint };
+		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
+		olc::vf2d uvtl = (source_pos) * decal->vUVScale;
+		olc::vf2d uvbr = uvtl + ((source_size) * decal->vUVScale);
+		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
+		di.w = { 1,1,1,1 };
+		di.mode = nDecalMode;
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
@@ -2159,8 +2472,8 @@ namespace olc
 	{
 		olc::vf2d vScreenSpacePos =
 		{
-			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+			(std::floor(pos.x) * vInvScreenSize.x) * 2.0f - 1.0f,
+			((std::floor(pos.y) * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
 		};
 
 		olc::vf2d vScreenSpaceDim =
@@ -2171,19 +2484,100 @@ namespace olc
 
 		DecalInstance di;
 		di.decal = decal;
-		di.tint[0] = tint;
-		di.pos[0] = { vScreenSpacePos.x, vScreenSpacePos.y };
-		di.pos[1] = { vScreenSpacePos.x, vScreenSpaceDim.y };
-		di.pos[2] = { vScreenSpaceDim.x, vScreenSpaceDim.y };
-		di.pos[3] = { vScreenSpaceDim.x, vScreenSpacePos.y };
+		di.points = 4;
+		di.tint = { tint, tint, tint, tint };
+		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
+		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+		di.w = { 1, 1, 1, 1 };
+		di.mode = nDecalMode;
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
+
+	void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col, uint32_t elements)
+	{
+		DecalInstance di;
+		di.decal = decal;
+		di.pos.resize(elements);
+		di.uv.resize(elements);
+		di.w.resize(elements);
+		di.tint.resize(elements);
+		di.points = elements;
+		for (uint32_t i = 0; i < elements; i++)
+		{
+			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+			di.uv[i] = uv[i];
+			di.tint[i] = col[i];
+			di.w[i] = 1.0f;
+		}
+		di.mode = nDecalMode;
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+	}
+
+	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
+	{
+		DecalInstance di;
+		di.decal = decal;
+		di.points = pos.size();
+		di.pos.resize(di.points);
+		di.uv.resize(di.points);
+		di.w.resize(di.points);
+		di.tint.resize(di.points);
+		for (uint32_t i = 0; i < di.points; i++)
+		{
+			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+			di.uv[i] = uv[i];
+			di.tint[i] = tint;
+			di.w[i] = 1.0f;
+		}
+		di.mode = nDecalMode;
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+	}
+
+	void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
+	{
+		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+	}
+
+	void PixelGameEngine::GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR)
+	{
+		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+	}
+
+	//void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const olc::vf2d& pos, const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTexCoords, const float fAngle, const olc::vf2d& scale, const olc::Pixel& tint)
+	//{
+	//	DecalInstance di;
+	//	di.decal = decal;
+	//	di.points = vPoints.size();
+	//	di.pos.resize(di.points);
+	//	di.uv.resize(di.points);
+	//	di.w.resize(di.points);
+	//	di.tint.resize(di.points);
+	//	for (uint32_t i = 0; i < di.points; i++)
+	//	{
+	//		di.pos[i] = { (vPoints[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((vPoints[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+	//		di.uv[i] = vTexCoords[i];
+	//		di.tint[i] = tint;
+	//		di.w[i] = 1.0f;
+	//	}
+	//	di.mode = nDecalMode;
+	//	vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+	//}
 
 	void PixelGameEngine::DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.tint[0] = tint;
+		di.pos.resize(4);
+		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+		di.w = { 1, 1, 1, 1 };
+		di.tint = { tint, tint, tint, tint };
+		di.points = 4;
 		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
 		di.pos[1] = (olc::vf2d(0.0f, float(decal->sprite->height)) - center) * scale;
 		di.pos[2] = (olc::vf2d(float(decal->sprite->width), float(decal->sprite->height)) - center) * scale;
@@ -2194,37 +2588,10 @@ namespace olc
 			di.pos[i] = pos + olc::vf2d(di.pos[i].x * c - di.pos[i].y * s, di.pos[i].x * s + di.pos[i].y * c);
 			di.pos[i] = di.pos[i] * vInvScreenSize * 2.0f - olc::vf2d(1.0f, 1.0f);
 			di.pos[i].y *= -1.0f;
+			di.w[i] = 1;
 		}
+		di.mode = nDecalMode;
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		for (int i = 0; i < 4; i++)
-		{
-			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			di.uv[i] = uv[i];
-			di.tint[i] = col[i];
-		}
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
-	{
-		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
-		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
-		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
-		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data());
-	}
-
-	void PixelGameEngine::GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR)
-	{
-		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
-		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
-		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
-		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data());
 	}
 
 
@@ -2232,7 +2599,10 @@ namespace olc
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.tint[0] = tint;
+		di.points = 4;
+		di.tint = { tint, tint, tint, tint };
+		di.w = { 1, 1, 1, 1 };
+		di.pos.resize(4);
 		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
 		di.pos[1] = (olc::vf2d(0.0f, source_size.y) - center) * scale;
 		di.pos[2] = (olc::vf2d(source_size.x, source_size.y) - center) * scale;
@@ -2247,25 +2617,27 @@ namespace olc
 
 		olc::vf2d uvtl = source_pos * decal->vUVScale;
 		olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
-		di.uv[0] = { uvtl.x, uvtl.y }; di.uv[1] = { uvtl.x, uvbr.y };
-		di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };
-
+		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
+		di.mode = nDecalMode;
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
 	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
 	{
 		DecalInstance di;
+		di.points = 4;
 		di.decal = decal;
-		di.tint[0] = tint;
+		di.tint = { tint, tint, tint, tint };
+		di.w = { 1, 1, 1, 1 };
+		di.pos.resize(4);
+		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
 		olc::vf2d center;
 		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
 		if (rd != 0)
 		{
 			olc::vf2d uvtl = source_pos * decal->vUVScale;
 			olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
-			di.uv[0] = { uvtl.x, uvtl.y }; di.uv[1] = { uvtl.x, uvbr.y };
-			di.uv[2] = { uvbr.x, uvbr.y }; di.uv[3] = { uvbr.x, uvtl.y };
+			di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
 
 			rd = 1.0f / rd;
 			float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
@@ -2278,6 +2650,7 @@ namespace olc
 				di.uv[i] *= q; di.w[i] *= q;
 				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
 			}
+			di.mode = nDecalMode;
 			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
 	}
@@ -2287,8 +2660,12 @@ namespace olc
 		// Thanks Nathan Reed, a brilliant article explaining whats going on here
 		// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
 		DecalInstance di;
+		di.points = 4;
 		di.decal = decal;
-		di.tint[0] = tint;
+		di.tint = { tint, tint, tint, tint };
+		di.w = { 1, 1, 1, 1 };
+		di.pos.resize(4);
+		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
 		olc::vf2d center;
 		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
 		if (rd != 0)
@@ -2304,6 +2681,7 @@ namespace olc
 				di.uv[i] *= q; di.w[i] *= q;
 				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
 			}
+			di.mode = nDecalMode;
 			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
 	}
@@ -2347,6 +2725,25 @@ namespace olc
 		}
 	}
 
+	void PixelGameEngine::DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
+	{
+		olc::vf2d spos = { 0.0f, 0.0f };
+		for (auto c : sText)
+		{
+			if (c == '\n')
+			{
+				spos.x = 0; spos.y += 8.0f * scale.y;
+			}
+			else
+			{
+				int32_t ox = (c - 32) % 16;
+				int32_t oy = (c - 32) / 16;
+				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+				spos.x += float(vFontSpacing[c - 32].y) * scale.x;
+			}
+		}
+	}
+
 	olc::vi2d PixelGameEngine::GetTextSize(const std::string& s)
 	{
 		olc::vi2d size = { 0,1 };
@@ -2372,8 +2769,11 @@ namespace olc
 		int32_t sy = 0;
 		Pixel::Mode m = nPixelMode;
 		// Thanks @tucna, spotted bug with col.ALPHA :P
-		if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
-		else					SetPixelMode(Pixel::MASK);
+		if (m != Pixel::CUSTOM) // Thanks @Megarev, required for "shaders"
+		{
+			if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
+			else					SetPixelMode(Pixel::MASK);
+		}
 		for (auto c : sText)
 		{
 			if (c == '\n')
@@ -2407,11 +2807,80 @@ namespace olc
 		SetPixelMode(m);
 	}
 
+	olc::vi2d PixelGameEngine::GetTextSizeProp(const std::string& s)
+	{
+		olc::vi2d size = { 0,1 };
+		olc::vi2d pos = { 0,1 };
+		for (auto c : s)
+		{
+			if (c == '\n') { pos.y += 1;  pos.x = 0; }
+			else pos.x += vFontSpacing[c - 32].y;
+			size.x = std::max(size.x, pos.x);
+			size.y = std::max(size.y, pos.y);
+		}
+
+		size.y *= 8;
+		return size;
+	}
+
+	void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
+	{
+		DrawStringProp(pos.x, pos.y, sText, col, scale);
+	}
+
+	void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
+	{
+		int32_t sx = 0;
+		int32_t sy = 0;
+		Pixel::Mode m = nPixelMode;
+
+		if (m != Pixel::CUSTOM)
+		{
+			if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
+			else					SetPixelMode(Pixel::MASK);
+		}
+		for (auto c : sText)
+		{
+			if (c == '\n')
+			{
+				sx = 0; sy += 8 * scale;
+			}
+			else
+			{
+				int32_t ox = (c - 32) % 16;
+				int32_t oy = (c - 32) / 16;
+
+				if (scale > 1)
+				{
+					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
+						for (int32_t j = 0; j < 8; j++)
+							if (fontSprite->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+								for (int32_t is = 0; is < int(scale); is++)
+									for (int32_t js = 0; js < int(scale); js++)
+										Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
+				}
+				else
+				{
+					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
+						for (int32_t j = 0; j < 8; j++)
+							if (fontSprite->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+								Draw(x + sx + i, y + sy + j, col);
+				}
+				sx += vFontSpacing[c - 32].y * scale;
+			}
+		}
+		SetPixelMode(m);
+	}
+
 	void PixelGameEngine::SetPixelMode(Pixel::Mode m)
-	{ nPixelMode = m; }
+	{
+		nPixelMode = m;
+	}
 
 	Pixel::Mode PixelGameEngine::GetPixelMode()
-	{ return nPixelMode; }
+	{
+		return nPixelMode;
+	}
 
 	void PixelGameEngine::SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> pixelMode)
 	{
@@ -2431,13 +2900,19 @@ namespace olc
 	// they are not overwritten
 
 	bool PixelGameEngine::OnUserCreate()
-	{ return false; }
+	{
+		return false;
+	}
 
 	bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
-	{ UNUSED(fElapsedTime);  return false; }
+	{
+		UNUSED(fElapsedTime);  return false;
+	}
 
 	bool PixelGameEngine::OnUserDestroy()
-	{ return true; }
+	{
+		return true;
+	}
 	//////////////////////////////////////////////////////////////////
 
 	void PixelGameEngine::olc_UpdateViewport()
@@ -2495,19 +2970,29 @@ namespace olc
 	}
 
 	void PixelGameEngine::olc_UpdateMouseState(int32_t button, bool state)
-	{ pMouseNewState[button] = state; }
+	{
+		pMouseNewState[button] = state;
+	}
 
 	void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
-	{ pKeyNewState[key] = state; }
+	{
+		pKeyNewState[key] = state;
+	}
 
 	void PixelGameEngine::olc_UpdateMouseFocus(bool state)
-	{ bHasMouseFocus = state; }
+	{
+		bHasMouseFocus = state;
+	}
 
 	void PixelGameEngine::olc_UpdateKeyFocus(bool state)
-	{ bHasInputFocus = state; }
+	{
+		bHasInputFocus = state;
+	}
 
 	void PixelGameEngine::olc_Terminate()
-	{ bAtomActive = false; }
+	{
+		bAtomActive = false;
+	}
 
 	void PixelGameEngine::EngineThread()
 	{
@@ -2519,7 +3004,9 @@ namespace olc
 		olc_PrepareEngine();
 
 		// Create user resources as part of this thread
+		for (auto& ext : vExtensions) ext->OnBeforeUserCreate();
 		if (!OnUserCreate()) bAtomActive = false;
+		for (auto& ext : vExtensions) ext->OnAfterUserCreate();
 
 		while (bAtomActive)
 		{
@@ -2604,9 +3091,10 @@ namespace olc
 
 		//	renderer->ClearBuffer(olc::BLACK, true);
 
-			// Handle Frame Update
-		if (!OnUserUpdate(fElapsedTime))
-			bAtomActive = false;
+		// Handle Frame Update
+		for (auto& ext : vExtensions) ext->OnBeforeUserUpdate(fElapsedTime);
+		if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
+		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
 
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
@@ -2615,6 +3103,7 @@ namespace olc
 		// Layer 0 must always exist
 		vLayers[0].bUpdate = true;
 		vLayers[0].bShow = true;
+		SetDecalMode(DecalMode::NORMAL);
 		renderer->PrepareDrawing();
 
 		for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
@@ -2634,7 +3123,7 @@ namespace olc
 
 					// Display Decals in order for this layer
 					for (auto& decal : layer->vecDecalInstance)
-						renderer->DrawDecalQuad(decal);
+						renderer->DrawDecal(decal);
 					layer->vecDecalInstance.clear();
 				}
 				else
@@ -2700,7 +3189,31 @@ namespace olc
 		}
 
 		fontDecal = new olc::Decal(fontSprite);
+
+		constexpr std::array<uint8_t, 96> vSpacing = { {
+			0x03,0x25,0x16,0x08,0x07,0x08,0x08,0x04,0x15,0x15,0x08,0x07,0x15,0x07,0x24,0x08,
+			0x08,0x17,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x24,0x15,0x06,0x07,0x16,0x17,
+			0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x17,0x08,0x08,0x08,
+			0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x08,0x08,0x17,0x08,0x15,0x08,0x15,0x08,0x08,
+			0x24,0x18,0x17,0x17,0x17,0x17,0x17,0x17,0x17,0x33,0x17,0x17,0x33,0x18,0x17,0x17,
+			0x17,0x17,0x17,0x17,0x07,0x17,0x17,0x18,0x18,0x17,0x17,0x07,0x33,0x07,0x08,0x00, } };
+
+		for (auto c : vSpacing) vFontSpacing.push_back({ c >> 4, c & 15 });
+
 	}
+
+	void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
+	{
+		if (std::find(vExtensions.begin(), vExtensions.end(), pgex) == vExtensions.end())
+			vExtensions.push_back(pgex);			
+	}
+
+
+	PGEX::PGEX(bool bHook) { if(bHook) pge->pgex_Register(this); }
+	void PGEX::OnBeforeUserCreate() {}
+	void PGEX::OnAfterUserCreate()	{}
+	void PGEX::OnBeforeUserUpdate(float& fElapsedTime) {}
+	void PGEX::OnAfterUserUpdate(float fElapsedTime) {}
 
 	// Need a couple of statics as these are singleton instances
 	// read from multiple locations
@@ -2721,38 +3234,40 @@ namespace olc
 // | START RENDERER: OpenGL 1.0 (the original, the best...)                       |
 // O------------------------------------------------------------------------------O
 #if defined(OLC_GFX_OPENGL10)
-	#if defined(_WIN32)
-	#include <windows.h>
-	#include <dwmapi.h>
-	#include <GL/gl.h>
-	#pragma comment(lib, "Dwmapi.lib")
-	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
-	static wglSwapInterval_t* wglSwapInterval = nullptr;
-	typedef HDC glDeviceContext_t;
-	typedef HGLRC glRenderContext_t;
+#if defined(OLC_PLATFORM_WINAPI)
+#include <dwmapi.h>
+#include <GL/gl.h>
+
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif
+typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
+static wglSwapInterval_t* wglSwapInterval = nullptr;
+typedef HDC glDeviceContext_t;
+typedef HGLRC glRenderContext_t;
 #endif
 
 #if defined(__linux__) || defined(__FreeBSD__)
-	#include <GL/gl.h>
-	namespace X11
-	{
-		#include <GL/glx.h>
-		#include <X11/X.h>
-		#include <X11/Xlib.h>
-	}
+#include <GL/gl.h>
+#endif
 
-	typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
-	static glSwapInterval_t* glSwapIntervalEXT;
-	typedef X11::GLXContext glDeviceContext_t;
-	typedef X11::GLXContext glRenderContext_t;
+#if defined(OLC_PLATFORM_X11)
+namespace X11
+{
+#include <GL/glx.h>
+}
+
+typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+static glSwapInterval_t* glSwapIntervalEXT;
+typedef X11::GLXContext glDeviceContext_t;
+typedef X11::GLXContext glRenderContext_t;
 #endif
 
 #if defined(__APPLE__)
-	#define GL_SILENCE_DEPRECATION
-	#include <GLUT/glut.h>
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #endif
 
 namespace olc
@@ -2760,7 +3275,7 @@ namespace olc
 	class Renderer_OGL10 : public olc::Renderer
 	{
 	private:
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 		bool mFullScreen = false;
 #else
 		glDeviceContext_t glDeviceContext = 0;
@@ -2768,8 +3283,9 @@ namespace olc
 #endif
 
 		bool bSync = false;
+		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 		X11::Display* olc_Display = nullptr;
 		X11::Window* olc_Window = nullptr;
 		X11::XVisualInfo* olc_VisualInfo = nullptr;
@@ -2777,8 +3293,8 @@ namespace olc
 
 	public:
 		void PrepareDevice() override
-		{ 
-#if defined(__APPLE__)
+		{
+#if defined(OLC_PLATFORM_GLUT)
 			//glutInit has to be called with main() arguments, make fake ones
 			int argc = 0;
 			char* argv[1] = { (char*)"" };
@@ -2799,7 +3315,7 @@ namespace olc
 
 		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
 		{
-#if defined(_WIN32)
+#if defined(OLC_PLATFORM_WINAPI)
 			// Create Device Context
 			glDeviceContext = GetDC((HWND)(params[0]));
 			PIXELFORMATDESCRIPTOR pfd =
@@ -2823,7 +3339,7 @@ namespace olc
 			bSync = bVSYNC;
 #endif
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 			using namespace X11;
 			// Linux has tighter coupling between OpenGL and X11, so we store
 			// various "platform" handles in the renderer
@@ -2852,13 +3368,15 @@ namespace olc
 				glSwapIntervalEXT(olc_Display, *olc_Window, 0);
 #endif		
 
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 			mFullScreen = bFullScreen;
 			if (!bVSYNC)
 			{
+#if defined(__APPLE__)
 				GLint sync = 0;
 				CGLContextObj ctx = CGLGetCurrentContext();
 				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+#endif
 			}
 #else
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
@@ -2869,16 +3387,16 @@ namespace olc
 
 		olc::rcode DestroyDevice() override
 		{
-#if defined(_WIN32)
+#if defined(OLC_PLATFORM_WINAPI)
 			wglDeleteContext(glRenderContext);
 #endif
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 			glXMakeCurrent(olc_Display, None, NULL);
 			glXDestroyContext(olc_Display, glDeviceContext);
 #endif
 
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 			glutDestroyWindow(glutGetWindow());
 #endif
 			return olc::rcode::OK;
@@ -2886,16 +3404,16 @@ namespace olc
 
 		void DisplayFrame() override
 		{
-#if defined(_WIN32)
+#if defined(OLC_PLATFORM_WINAPI)
 			SwapBuffers(glDeviceContext);
 			if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
 #endif	
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 			X11::glXSwapBuffers(olc_Display, *olc_Window);
 #endif		
 
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 			glutSwapBuffers();
 #endif
 		}
@@ -2903,7 +3421,38 @@ namespace olc
 		void PrepareDrawing() override
 		{
 			glEnable(GL_BLEND);
+			nDecalMode = DecalMode::NORMAL;
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		void SetDecalMode(const olc::DecalMode& mode)
+		{
+			if (mode != nDecalMode)
+			{
+				switch (mode)
+				{
+				case olc::DecalMode::NORMAL:
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				case olc::DecalMode::ADDITIVE:
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+					break;
+				case olc::DecalMode::MULTIPLICATIVE:
+					glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				case olc::DecalMode::STENCIL:
+					glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+					break;
+				case olc::DecalMode::ILLUMINATE:
+					glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+					break;
+				case olc::DecalMode::WIREFRAME:
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					break;
+				}
+
+				nDecalMode = mode;
+			}
 		}
 
 		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
@@ -2921,44 +3470,47 @@ namespace olc
 			glEnd();
 		}
 
-		void DrawDecalQuad(const olc::DecalInstance& decal) override
+		void DrawDecal(const olc::DecalInstance& decal) override
 		{
+			SetDecalMode(decal.mode);
+
 			if (decal.decal == nullptr)
-			{
 				glBindTexture(GL_TEXTURE_2D, 0);
-				glBegin(GL_QUADS);
-				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
-				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]); glVertex2f(decal.pos[0].x, decal.pos[0].y);
-				glColor4ub(decal.tint[1].r, decal.tint[1].g, decal.tint[1].b, decal.tint[1].a);
-				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]); glVertex2f(decal.pos[1].x, decal.pos[1].y);
-				glColor4ub(decal.tint[2].r, decal.tint[2].g, decal.tint[2].b, decal.tint[2].a);
-				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]); glVertex2f(decal.pos[2].x, decal.pos[2].y);
-				glColor4ub(decal.tint[3].r, decal.tint[3].g, decal.tint[3].b, decal.tint[3].a);
-				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]); glVertex2f(decal.pos[3].x, decal.pos[3].y);
-				glEnd();
-			}
 			else
-			{
 				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
-				glBegin(GL_QUADS);
-				glColor4ub(decal.tint[0].r, decal.tint[0].g, decal.tint[0].b, decal.tint[0].a);
-				glTexCoord4f(decal.uv[0].x, decal.uv[0].y, 0.0f, decal.w[0]); glVertex2f(decal.pos[0].x, decal.pos[0].y);
-				glTexCoord4f(decal.uv[1].x, decal.uv[1].y, 0.0f, decal.w[1]); glVertex2f(decal.pos[1].x, decal.pos[1].y);
-				glTexCoord4f(decal.uv[2].x, decal.uv[2].y, 0.0f, decal.w[2]); glVertex2f(decal.pos[2].x, decal.pos[2].y);
-				glTexCoord4f(decal.uv[3].x, decal.uv[3].y, 0.0f, decal.w[3]); glVertex2f(decal.pos[3].x, decal.pos[3].y);
-				glEnd();
+
+			if (nDecalMode == DecalMode::WIREFRAME)
+				glBegin(GL_LINE_LOOP);
+			else
+				glBegin(GL_TRIANGLE_FAN);
+
+			for (uint32_t n = 0; n < decal.points; n++)
+			{
+				glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
+				glTexCoord4f(decal.uv[n].x, decal.uv[n].y, 0.0f, decal.w[n]);
+				glVertex2f(decal.pos[n].x, decal.pos[n].y);
 			}
+			glEnd();
 		}
 
-		uint32_t CreateTexture(const uint32_t width, const uint32_t height) override
+		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered) override
 		{
 			UNUSED(width);
 			UNUSED(height);
 			uint32_t id = 0;
 			glGenTextures(1, &id);
 			glBindTexture(GL_TEXTURE_2D, id);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			if (filtered)
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			}
+
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -2977,6 +3529,11 @@ namespace olc
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
+		void ReadTexture(uint32_t id, olc::Sprite* spr) override
+		{
+			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+		}
+
 		void ApplyTexture(uint32_t id) override
 		{
 			glBindTexture(GL_TEXTURE_2D, id);
@@ -2991,7 +3548,7 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
 #else
 			glViewport(pos.x, pos.y, size.x, size.y);
@@ -3004,22 +3561,480 @@ namespace olc
 // | END RENDERER: OpenGL 1.0 (the original, the best...)                         |
 // O------------------------------------------------------------------------------O
 
+// O------------------------------------------------------------------------------O
+// | START RENDERER: OpenGL 3.3 (3.0 es) (sh-sh-sh-shaders....)                   |
+// O------------------------------------------------------------------------------O
+#if defined(OLC_GFX_OPENGL33)
+#if defined(OLC_PLATFORM_WINAPI)
+#include <dwmapi.h>
+#include <gl/GL.h>
 
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif		
+typedef void __stdcall locSwapInterval_t(GLsizei n);
+typedef HDC glDeviceContext_t;
+typedef HGLRC glRenderContext_t;
+#define CALLSTYLE __stdcall
+#define OGL_LOAD(t, n) (t*)wglGetProcAddress(n)
+#endif
+
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <GL/gl.h>
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+namespace X11
+{
+#include <GL/glx.h>
+}
+typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+typedef X11::GLXContext glDeviceContext_t;
+typedef X11::GLXContext glRenderContext_t;
+#define CALLSTYLE 
+#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)n);
+#endif
+
+#if defined(__APPLE__)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#endif
+
+
+namespace olc
+{
+	typedef char GLchar;
+	typedef ptrdiff_t GLsizeiptr;
+	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+	typedef GLuint CALLSTYLE locCreateProgram_t(void);
+	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+	typedef void CALLSTYLE locUseProgram_t(GLuint program);
+	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+
+
+
+	constexpr size_t OLC_MAX_VERTS = 128;
+
+	class Renderer_OGL33 : public olc::Renderer
+	{
+	private:
+#if defined(OLC_PLATFORM_GLUT)
+		bool mFullScreen = false;
+#else
+		glDeviceContext_t glDeviceContext = 0;
+		glRenderContext_t glRenderContext = 0;
+#endif
+
+		bool bSync = false;
+		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
+
+#if defined(OLC_PLATFORM_X11)
+		X11::Display* olc_Display = nullptr;
+		X11::Window* olc_Window = nullptr;
+		X11::XVisualInfo* olc_VisualInfo = nullptr;
+#endif
+
+	private:
+		locCreateShader_t* locCreateShader = nullptr;
+		locShaderSource_t* locShaderSource = nullptr;
+		locCompileShader_t* locCompileShader = nullptr;
+		locDeleteShader_t* locDeleteShader = nullptr;
+		locCreateProgram_t* locCreateProgram = nullptr;
+		locDeleteProgram_t* locDeleteProgram = nullptr;
+		locLinkProgram_t* locLinkProgram = nullptr;
+		locAttachShader_t* locAttachShader = nullptr;
+		locBindBuffer_t* locBindBuffer = nullptr;
+		locBufferData_t* locBufferData = nullptr;
+		locGenBuffers_t* locGenBuffers = nullptr;
+		locVertexAttribPointer_t* locVertexAttribPointer = nullptr;
+		locEnableVertexAttribArray_t* locEnableVertexAttribArray = nullptr;
+		locUseProgram_t* locUseProgram = nullptr;
+		locBindVertexArray_t* locBindVertexArray = nullptr;
+		locGenVertexArrays_t* locGenVertexArrays = nullptr;
+		locSwapInterval_t* locSwapInterval = nullptr;
+		locGetShaderInfoLog_t* locGetShaderInfoLog = nullptr;
+
+		uint32_t m_nFS = 0;
+		uint32_t m_nVS = 0;
+		uint32_t m_nQuadShader = 0;
+		uint32_t m_vbQuad = 0;
+		uint32_t m_vaQuad = 0;
+
+		struct locVertex
+		{
+			float pos[3];
+			olc::vf2d tex;
+			olc::Pixel col;
+		};
+
+		locVertex pVertexMem[OLC_MAX_VERTS];
+
+		olc::Renderable rendBlankQuad;
+
+	public:
+		void PrepareDevice() override
+		{
+#if defined(OLC_PLATFORM_GLUT)
+			//glutInit has to be called with main() arguments, make fake ones
+			int argc = 0;
+			char* argv[1] = { (char*)"" };
+			glutInit(&argc, argv);
+
+			glutInitWindowPosition(0, 0);
+			glutInitWindowSize(512, 512);
+
+			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+
+			// Creates the window and the OpenGL context for it
+			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+
+			glEnable(GL_TEXTURE_2D); // Turn on texturing
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#endif
+		}
+
+		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
+		{
+			// Create OpenGL Context
+
+#if defined(OLC_PLATFORM_WINAPI)
+			// Create Device Context
+			glDeviceContext = GetDC((HWND)(params[0]));
+			PIXELFORMATDESCRIPTOR pfd =
+			{
+				sizeof(PIXELFORMATDESCRIPTOR), 1,
+				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+				PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				PFD_MAIN_PLANE, 0, 0, 0, 0
+			};
+
+			int pf = 0;
+			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
+			SetPixelFormat(glDeviceContext, pf, &pfd);
+
+			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
+			wglMakeCurrent(glDeviceContext, glRenderContext);
+
+			// Set Vertical Sync
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, "wglSwapIntervalEXT");
+			if (locSwapInterval && !bVSYNC) locSwapInterval(0);
+			bSync = bVSYNC;
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+			using namespace X11;
+			// Linux has tighter coupling between OpenGL and X11, so we store
+			// various "platform" handles in the renderer
+			olc_Display = (X11::Display*)(params[0]);
+			olc_Window = (X11::Window*)(params[1]);
+			olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
+
+			glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
+			glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
+
+			XWindowAttributes gwa;
+			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
+			glViewport(0, 0, gwa.width, gwa.height);
+
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, "glXSwapIntervalEXT");
+
+			if (locSwapInterval == nullptr && !bVSYNC)
+			{
+				printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
+				printf("      Don't worry though, things will still work, it's just the\n");
+				printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
+			}
+
+			if (locSwapInterval != nullptr && !bVSYNC)
+				locSwapInterval(olc_Display, *olc_Window, 0);
+#endif		
+
+#if defined(OLC_PLATFORM_GLUT)
+			mFullScreen = bFullScreen;
+			if (!bVSYNC)
+			{
+#if defined(__APPLE__)
+				GLint sync = 0;
+				CGLContextObj ctx = CGLGetCurrentContext();
+				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+#endif
+			}
+#else
+			glEnable(GL_TEXTURE_2D); // Turn on texturing
+			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#endif
+			// Load External OpenGL Functions
+			locCreateShader = OGL_LOAD(locCreateShader_t, "glCreateShader");
+			locCompileShader = OGL_LOAD(locCompileShader_t, "glCompileShader");
+			locShaderSource = OGL_LOAD(locShaderSource_t, "glShaderSource");
+			locDeleteShader = OGL_LOAD(locDeleteShader_t, "glDeleteShader");
+			locCreateProgram = OGL_LOAD(locCreateProgram_t, "glCreateProgram");
+			locDeleteProgram = OGL_LOAD(locDeleteProgram_t, "glDeleteProgram");
+			locLinkProgram = OGL_LOAD(locLinkProgram_t, "glLinkProgram");
+			locAttachShader = OGL_LOAD(locAttachShader_t, "glAttachShader");
+			locBindBuffer = OGL_LOAD(locBindBuffer_t, "glBindBuffer");
+			locBufferData = OGL_LOAD(locBufferData_t, "glBufferData");
+			locGenBuffers = OGL_LOAD(locGenBuffers_t, "glGenBuffers");
+			locVertexAttribPointer = OGL_LOAD(locVertexAttribPointer_t, "glVertexAttribPointer");
+			locEnableVertexAttribArray = OGL_LOAD(locEnableVertexAttribArray_t, "glEnableVertexAttribArray");
+			locUseProgram = OGL_LOAD(locUseProgram_t, "glUseProgram");
+			locBindVertexArray = OGL_LOAD(locBindVertexArray_t, "glBindVertexArray");
+			locGenVertexArrays = OGL_LOAD(locGenVertexArrays_t, "glGenVertexArrays");
+			locGetShaderInfoLog = OGL_LOAD(locGetShaderInfoLog_t, "glGetShaderInfoLog");
+
+			// Load & Compile Quad Shader - assumes no errors
+			m_nFS = locCreateShader(0x8B30);
+			const GLchar* strFS =
+#if defined(__arm__)
+				"#version 300 es\n"
+				"precision mediump float;"
+#else
+				"#version 330 core\n"
+#endif
+				"out vec4 pixel;\n""in vec2 oTex;\n"
+				"in vec4 oCol;\n""uniform sampler2D sprTex;\n""void main(){pixel = texture(sprTex, oTex) * oCol;}";
+			locShaderSource(m_nFS, 1, &strFS, NULL);
+			locCompileShader(m_nFS);
+
+			m_nVS = locCreateShader(0x8B31);
+			const GLchar* strVS =
+#if defined(__arm__)
+				"#version 300 es\n"
+				"precision mediump float;"
+#else
+				"#version 330 core\n"
+#endif
+				"layout(location = 0) in vec3 aPos;\n""layout(location = 1) in vec2 aTex;\n"
+				"layout(location = 2) in vec4 aCol;\n""out vec2 oTex;\n""out vec4 oCol;\n"
+				"void main(){ float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex; oCol = aCol;}";
+			locShaderSource(m_nVS, 1, &strVS, NULL);
+			locCompileShader(m_nVS);
+
+			m_nQuadShader = locCreateProgram();
+			locAttachShader(m_nQuadShader, m_nFS);
+			locAttachShader(m_nQuadShader, m_nVS);
+			locLinkProgram(m_nQuadShader);
+
+			// Create Quad
+			locGenBuffers(1, &m_vbQuad);
+			locGenVertexArrays(1, &m_vaQuad);
+			locBindVertexArray(m_vaQuad);
+			locBindBuffer(0x8892, m_vbQuad);
+
+			locVertex verts[OLC_MAX_VERTS];
+			locBufferData(0x8892, sizeof(locVertex) * OLC_MAX_VERTS, verts, 0x88E0);
+			locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
+			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
+			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
+			locBindBuffer(0x8892, 0);
+			locBindVertexArray(0);
+
+			// Create blank texture for spriteless decals
+			rendBlankQuad.Create(1, 1);
+			rendBlankQuad.Sprite()->GetData()[0] = olc::WHITE;
+			rendBlankQuad.Decal()->Update();
+			return olc::rcode::OK;
+		}
+
+		olc::rcode DestroyDevice() override
+		{
+#if defined(OLC_PLATFORM_WINAPI)
+			wglDeleteContext(glRenderContext);
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+			glXMakeCurrent(olc_Display, None, NULL);
+			glXDestroyContext(olc_Display, glDeviceContext);
+#endif
+
+#if defined(OLC_PLATFORM_GLUT)
+			glutDestroyWindow(glutGetWindow());
+#endif
+			return olc::rcode::OK;
+		}
+
+		void DisplayFrame() override
+		{
+#if defined(OLC_PLATFORM_WINAPI)
+			SwapBuffers(glDeviceContext);
+			if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
+#endif	
+
+#if defined(OLC_PLATFORM_X11)
+			X11::glXSwapBuffers(olc_Display, *olc_Window);
+#endif		
+
+#if defined(OLC_PLATFORM_GLUT)
+			glutSwapBuffers();
+#endif
+		}
+
+		void PrepareDrawing() override
+		{
+			glEnable(GL_BLEND);
+			nDecalMode = DecalMode::NORMAL;
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			locUseProgram(m_nQuadShader);
+			locBindVertexArray(m_vaQuad);
+		}
+
+		void SetDecalMode(const olc::DecalMode& mode)
+		{
+			if (mode != nDecalMode)
+			{
+				switch (mode)
+				{
+				case olc::DecalMode::NORMAL: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
+				case olc::DecalMode::ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
+				case olc::DecalMode::MULTIPLICATIVE: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);	break;
+				case olc::DecalMode::STENCIL: glBlendFunc(GL_ZERO, GL_SRC_ALPHA); break;
+				case olc::DecalMode::ILLUMINATE: glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);	break;
+				case olc::DecalMode::WIREFRAME: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
+				}
+
+				nDecalMode = mode;
+			}
+		}
+
+		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
+		{
+			locBindBuffer(0x8892, m_vbQuad);
+			locVertex verts[4] = {
+				{{-1.0f, -1.0f, 1.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+				{{+1.0f, -1.0f, 1.0}, {1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+				{{-1.0f, +1.0f, 1.0}, {0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+				{{+1.0f, +1.0f, 1.0}, {1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+			};
+
+			locBufferData(0x8892, sizeof(locVertex) * 4, verts, 0x88E0);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
+
+		void DrawDecal(const olc::DecalInstance& decal) override
+		{
+			SetDecalMode(decal.mode);
+			if (decal.decal == nullptr)
+				glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
+			else
+				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+
+			locBindBuffer(0x8892, m_vbQuad);
+
+			for (uint32_t i = 0; i < decal.points; i++)
+				pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i] }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
+
+			locBufferData(0x8892, sizeof(locVertex) * decal.points, pVertexMem, 0x88E0);
+
+			if (nDecalMode == DecalMode::WIREFRAME)
+				glDrawArrays(GL_LINE_LOOP, 0, decal.points);
+			else
+				glDrawArrays(GL_TRIANGLE_FAN, 0, decal.points);
+		}
+
+		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered) override
+		{
+			UNUSED(width);
+			UNUSED(height);
+			uint32_t id = 0;
+			glGenTextures(1, &id);
+			glBindTexture(GL_TEXTURE_2D, id);
+
+			if (filtered)
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			}
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			return id;
+		}
+
+		uint32_t DeleteTexture(const uint32_t id) override
+		{
+			glDeleteTextures(1, &id);
+			return id;
+		}
+
+		void UpdateTexture(uint32_t id, olc::Sprite* spr) override
+		{
+			UNUSED(id);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+		}
+
+		void ReadTexture(uint32_t id, olc::Sprite* spr) override
+		{
+			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+		}
+
+		void ApplyTexture(uint32_t id) override
+		{
+			glBindTexture(GL_TEXTURE_2D, id);
+		}
+
+		void ClearBuffer(olc::Pixel p, bool bDepth) override
+		{
+			glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			if (bDepth) glClear(GL_DEPTH_BUFFER_BIT);
+		}
+
+		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
+		{
+#if defined(OLC_PLATFORM_GLUT)
+			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
+#else
+			glViewport(pos.x, pos.y, size.x, size.y);
+#endif
+		}
+	};
+}
+#endif
+// O------------------------------------------------------------------------------O
+// | END RENDERER: OpenGL 3.3 (3.0 es) (sh-sh-sh-shaders....)                     |
+// O------------------------------------------------------------------------------O
 
 // O------------------------------------------------------------------------------O
 // | START IMAGE LOADER: GDI+, Windows Only, always exists, a little slow         |
 // O------------------------------------------------------------------------------O
-#if defined(PGE_ILOADER_GDI)
-#if !defined(__MINGW32__)
-#define NOMINMAX
-#endif
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#if defined(OLC_IMAGE_GDI)
+
+#define min(a, b) ((a < b) ? a : b)
+#define max(a, b) ((a > b) ? a : b)
 #include <gdiplus.h>
-#include <Shlwapi.h>
+#if defined(__MINGW32__) // Thanks Gusgo & Dandistine, but c'mon mingw!! wtf?!
+#include <gdiplus/gdiplusinit.h>
+#else
+#include <gdiplusinit.h>
+#endif
+#include <shlwapi.h>
+#undef min
+#undef max
+
+#if !defined(__MINGW32__)
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "Shlwapi.lib")
+#endif
 
 namespace olc
 {
@@ -3029,11 +4044,18 @@ namespace olc
 	{
 	public:
 		GDIPlusStartup()
-		{
+		{			
 			Gdiplus::GdiplusStartupInput startupInput;
-			ULONG_PTR	token;
-			Gdiplus::GdiplusStartup(&token, &startupInput, NULL);
-		};
+			GdiplusStartup(&token, &startupInput, NULL);
+		}
+
+		ULONG_PTR	token;
+		
+		~GDIPlusStartup()
+		{
+			// Well, MarcusTU thought this was important :D
+			Gdiplus::GdiplusShutdown(token);
+		}
 	} gdistartup;
 
 	class ImageLoader_GDIPlus : public olc::ImageLoader
@@ -3061,10 +4083,7 @@ namespace olc
 
 		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
 		{
-			// Check file exists
-			if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-
-			// It does, so clear out existing sprite
+			// clear out existing sprite
 			if (spr->pColData != nullptr) delete[] spr->pColData;
 
 			// Open file
@@ -3078,6 +4097,9 @@ namespace olc
 			}
 			else
 			{
+				// Check file exists
+				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+
 				// Load sprite from file
 				bmp = Gdiplus::Bitmap::FromFile(ConvertS2W(sImageFile).c_str());
 			}
@@ -3115,7 +4137,7 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START IMAGE LOADER: libpng, default on linux, requires -lpng  (libpng-dev)   |
 // O------------------------------------------------------------------------------O
-#if defined(PGE_ILOADER_LIBPNG)
+#if defined(OLC_IMAGE_LIBPNG)
 #include <png.h>
 namespace olc
 {
@@ -3135,13 +4157,9 @@ namespace olc
 		{
 			UNUSED(pack);
 
-			// Check file exists
-			if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-
-			// It does, so clear out existing sprite
+			// clear out existing sprite
 			if (spr->pColData != nullptr) delete[] spr->pColData;
-			
-			
+
 			////////////////////////////////////////////////////////////////////////////
 			// Use libpng, Thanks to Guillaume Cottenceau
 			// https://gist.github.com/niw/5963798
@@ -3252,7 +4270,7 @@ namespace olc
 // #define OLC_PGE_APPLICATION
 // #include "olcPixelGameEngine.h"
 
-#if defined(PGE_ILOADER_STB)
+#if defined(OLC_IMAGE_STB)
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 namespace olc
@@ -3266,13 +4284,8 @@ namespace olc
 		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
 		{
 			UNUSED(pack);
-
-			// Check file exists
-			if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-
-			// It does, so clear out existing sprite
+			// clear out existing sprite
 			if (spr->pColData != nullptr) delete[] spr->pColData;
-
 			// Open file
 			stbi_uc* bytes = nullptr;
 			int w = 0, h = 0, cmp = 0;
@@ -3283,6 +4296,8 @@ namespace olc
 			}
 			else
 			{
+				// Check file exists
+				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
 				bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
 			}
 
@@ -3290,7 +4305,7 @@ namespace olc
 			spr->width = w; spr->height = h;
 			spr->pColData = new Pixel[spr->width * spr->height];
 			std::memcpy(spr->pColData, bytes, spr->width * spr->height * 4);
-			delete[] bytes;			
+			delete[] bytes;
 			return olc::rcode::OK;
 		}
 
@@ -3309,30 +4324,13 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: MICROSOFT WINDOWS XP, VISTA, 7, 8, 10                        |
 // O------------------------------------------------------------------------------O
-#if defined(_WIN32)
-#if !defined(__MINGW32__)
+#if defined(OLC_PLATFORM_WINAPI)
+
+#if defined(_WIN32) && !defined(__MINGW32__)
 #pragma comment(lib, "user32.lib")		// Visual Studio Only
 #pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
 #pragma comment(lib, "opengl32.lib")	// these libs to your linker input
-
-#else
-	// In Code::Blocks
-	#if !defined(_WIN32_WINNT)
-		#ifdef HAVE_MSMF
-			#define _WIN32_WINNT 0x0600 // Windows Vista
-		#else
-			#define _WIN32_WINNT 0x0500 // Windows 2000
-		#endif
-	#endif
 #endif
-
-// Include WinAPI
-#if !defined(__MINGW32__)
-#define NOMINMAX
-#endif
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 namespace olc
 {
@@ -3365,7 +4363,7 @@ namespace olc
 
 		virtual olc::rcode ThreadCleanUp() override
 		{
-			renderer->DestroyDevice();			
+			renderer->DestroyDevice();
 			PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
 			return olc::OK;
 		}
@@ -3452,6 +4450,21 @@ namespace olc
 			mapKeys[VK_NUMPAD0] = Key::NP0; mapKeys[VK_NUMPAD1] = Key::NP1; mapKeys[VK_NUMPAD2] = Key::NP2; mapKeys[VK_NUMPAD3] = Key::NP3; mapKeys[VK_NUMPAD4] = Key::NP4;
 			mapKeys[VK_NUMPAD5] = Key::NP5; mapKeys[VK_NUMPAD6] = Key::NP6; mapKeys[VK_NUMPAD7] = Key::NP7; mapKeys[VK_NUMPAD8] = Key::NP8; mapKeys[VK_NUMPAD9] = Key::NP9;
 			mapKeys[VK_MULTIPLY] = Key::NP_MUL; mapKeys[VK_ADD] = Key::NP_ADD; mapKeys[VK_DIVIDE] = Key::NP_DIV; mapKeys[VK_SUBTRACT] = Key::NP_SUB; mapKeys[VK_DECIMAL] = Key::NP_DECIMAL;
+
+			// Thanks scripticuk
+			mapKeys[VK_OEM_1] = Key::OEM_1;			// On US and UK keyboards this is the ';:' key
+			mapKeys[VK_OEM_2] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
+			mapKeys[VK_OEM_3] = Key::OEM_3;			// On US keyboard this is the '~' key
+			mapKeys[VK_OEM_4] = Key::OEM_4;			// On US and UK keyboards this is the '[{' key
+			mapKeys[VK_OEM_5] = Key::OEM_5;			// On US keyboard this is '\|' key.
+			mapKeys[VK_OEM_6] = Key::OEM_6;			// On US and UK keyboards this is the ']}' key
+			mapKeys[VK_OEM_7] = Key::OEM_7;			// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+			mapKeys[VK_OEM_8] = Key::OEM_8;			// miscellaneous characters. Varies by keyboard
+			mapKeys[VK_OEM_PLUS] = Key::EQUALS;		// the '+' key on any keyboard
+			mapKeys[VK_OEM_COMMA] = Key::COMMA;		// the comma key on any keyboard
+			mapKeys[VK_OEM_MINUS] = Key::MINUS;		// the minus key on any keyboard
+			mapKeys[VK_OEM_PERIOD] = Key::PERIOD;	// the period key on any keyboard
+			mapKeys[VK_CAPITAL] = Key::CAPS_LOCK;
 			return olc::OK;
 		}
 
@@ -3498,6 +4511,8 @@ namespace olc
 			case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
 			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
 			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);                     return 0;
+			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);						return 0;
+			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);						return 0;
 			case WM_LBUTTONDOWN:ptrPGE->olc_UpdateMouseState(0, true);                                  return 0;
 			case WM_LBUTTONUP:	ptrPGE->olc_UpdateMouseState(0, false);                                 return 0;
 			case WM_RBUTTONDOWN:ptrPGE->olc_UpdateMouseState(1, true);                                  return 0;
@@ -3523,7 +4538,7 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: LINUX                                                        |
 // O------------------------------------------------------------------------------O
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 namespace olc
 {
 	class Platform_Linux : public olc::Platform
@@ -3538,13 +4553,20 @@ namespace olc
 
 	public:
 		virtual olc::rcode ApplicationStartUp() override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ApplicationCleanUp() override
-		{ return olc::rcode::OK; }
+		{
+			XDestroyWindow(olc_Display, olc_Window);
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ThreadStartUp() override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ThreadCleanUp() override
 		{
@@ -3648,6 +4670,21 @@ namespace olc
 			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
 			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
 
+			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
+			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
+			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
+			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
+			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
+			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
+			mapKeys[XK_apostrophe] = Key::OEM_7;	// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+			mapKeys[XK_numbersign] = Key::OEM_8;	// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
+			mapKeys[XK_equal] = Key::EQUALS;		// the '+' key on any keyboard
+			mapKeys[XK_comma] = Key::COMMA;			// the comma key on any keyboard
+			mapKeys[XK_minus] = Key::MINUS;			// the minus key on any keyboard			
+
+			mapKeys[XK_Caps_Lock] = Key::CAPS_LOCK;
+
 			return olc::OK;
 		}
 
@@ -3658,7 +4695,9 @@ namespace olc
 		}
 
 		virtual olc::rcode StartSystemEventLoop() override
-		{ return olc::OK; }
+		{
+			return olc::OK;
+		}
 
 		virtual olc::rcode HandleSystemEvent() override
 		{
@@ -3758,7 +4797,7 @@ namespace olc
 // and support on how to setup your build environment.
 //
 // "MASSIVE MASSIVE THANKS TO MUMFLR" - Javidx9
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 namespace olc {
 
 	class Platform_GLUT : public olc::Platform
@@ -3859,6 +4898,8 @@ namespace olc {
 
 			mapKeys[48] = Key::K0; mapKeys[49] = Key::K1; mapKeys[50] = Key::K2; mapKeys[51] = Key::K3; mapKeys[52] = Key::K4;
 			mapKeys[53] = Key::K5; mapKeys[54] = Key::K6; mapKeys[55] = Key::K7; mapKeys[56] = Key::K8; mapKeys[57] = Key::K9;
+
+			// NOTE: MISSING KEYS :O
 
 			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
 				switch (glutGetModifiers()) {
@@ -4011,30 +5052,30 @@ namespace olc
 	void PixelGameEngine::olc_ConfigureSystem()
 	{
 
-#if defined(PGE_ILOADER_GDI)
+#if defined(OLC_IMAGE_GDI)
 		olc::Sprite::loader = std::make_unique<olc::ImageLoader_GDIPlus>();
 #endif
 
-#if defined(PGE_ILOADER_LIBPNG)
+#if defined(OLC_IMAGE_LIBPNG)
 		olc::Sprite::loader = std::make_unique<olc::ImageLoader_LibPNG>();
 #endif
 
-#if defined(PGE_ILOADER_STB)
+#if defined(OLC_IMAGE_STB)
 		olc::Sprite::loader = std::make_unique<olc::ImageLoader_STB>();
 #endif
 
 
 
 
-#if defined(_WIN32)
+#if defined(OLC_PLATFORM_WINAPI)
 		platform = std::make_unique<olc::Platform_Windows>();
 #endif
 
-#if defined(__linux__) || defined(__FreeBSD__)
+#if defined(OLC_PLATFORM_X11)
 		platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
-#if defined(__APPLE__)
+#if defined(OLC_PLATFORM_GLUT)
 		platform = std::make_unique<olc::Platform_GLUT>();
 #endif
 
@@ -4048,8 +5089,16 @@ namespace olc
 		renderer = std::make_unique<olc::Renderer_OGL33>();
 #endif
 
+#if defined(OLC_GFX_OPENGLES2)
+		renderer = std::make_unique<olc::Renderer_OGLES2>();
+#endif
+
 #if defined(OLC_GFX_DIRECTX10)
 		renderer = std::make_unique<olc::Renderer_DX10>();
+#endif
+
+#if defined(OLC_GFX_DIRECTX11)
+		renderer = std::make_unique<olc::Renderer_DX11>();
 #endif
 
 		// Associate components with PGE instance
