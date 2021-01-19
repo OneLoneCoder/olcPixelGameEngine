@@ -154,8 +154,6 @@
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
 
-> master
-
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
 	2.03: Added FreeBSD flags, Added DrawStringDecal()
