@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.12              |
+	|           OneLoneCoder Pixel Game Engine v2.13              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -209,7 +209,7 @@
 		  +Wireframe Decal Mode - For debug overlays
 	2.11: Made PGEX hooks optional - (provide true to super constructor)
 	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
-		  
+	2.13: +GetFontSprite() - allows access to font data	  
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -287,7 +287,7 @@ int main()
 #include <array>
 #include <cstring>
 
-#define PGE_VER 212
+#define PGE_VER 213
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -963,6 +963,8 @@ namespace olc
 		void Clear(Pixel p);
 		// Clears the rendering back buffer
 		void ClearBuffer(Pixel p, bool bDepth = true);
+		// Returns the font image
+		olc::Sprite* GetFontSprite();
 
 	public: // Branding
 		std::string sAppName;
@@ -2143,6 +2145,11 @@ namespace olc
 		renderer->ClearBuffer(p, bDepth);
 	}
 
+	olc::Sprite* PixelGameEngine::GetFontSprite()
+	{
+		return fontSprite;
+	}
+
 	void PixelGameEngine::FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
 	{
 		FillRect(pos.x, pos.y, size.x, size.y, p);
@@ -2509,7 +2516,7 @@ namespace olc
 	{
 		DecalInstance di;
 		di.decal = decal;
-		di.points = pos.size();
+		di.points = uint32_t(pos.size());
 		di.pos.resize(di.points);
 		di.uv.resize(di.points);
 		di.w.resize(di.points);
