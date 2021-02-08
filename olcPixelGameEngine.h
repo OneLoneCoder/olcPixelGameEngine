@@ -709,6 +709,8 @@ namespace olc
 	{
 	public:
 		Renderable() = default;
+		Renderable(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false);
+		Renderable(uint32_t width, uint32_t height, bool filter = false);
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false);
 		void Create(uint32_t width, uint32_t height, bool filter = false);
 		olc::Decal* Decal() const;
@@ -1445,6 +1447,17 @@ namespace olc
 			id = -1;
 		}
 	}
+
+
+	Renderable::Renderable(const std::string& sFile, ResourcePack* pack, bool filter)
+	{
+        	Load(sFile, pack, filter);
+    	}
+
+	Renderable::Renderable(uint32_t width, uint32_t height, bool filter)
+    	{
+        	Create(width, height, filter);
+    	}
 
 	void Renderable::Create(uint32_t width, uint32_t height, bool filter)
 	{
@@ -3143,7 +3156,7 @@ namespace olc
 		{
 			nLastFPS = nFrameCount;
 			fFrameTimer -= 1.0f;
-			std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+			std::string sTitle = sAppName + " - FPS: " + std::to_string(nFrameCount);
 			platform->SetWindowTitle(sTitle);
 			nFrameCount = 0;
 		}
