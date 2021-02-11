@@ -2,7 +2,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.13              |
+	|           OneLoneCoder Pixel Game Engine v2.14              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -209,7 +209,10 @@
 		  +Wireframe Decal Mode - For debug overlays
 	2.11: Made PGEX hooks optional - (provide true to super constructor)
 	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
-	2.13: +GetFontSprite() - allows access to font data	  
+	2.13: +GetFontSprite() - allows access to font data	 
+	2.14: Fix WIN32 Definition reshuffle
+		  Fix DrawPartialDecal() - messed up dimension during renderer experiment, didnt remove junk code, thanks Alexio
+		  Fix? Strange error regarding GDI+ Image Loader not knowing about COM, SDK change?
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -287,7 +290,7 @@ int main()
 #include <array>
 #include <cstring>
 
-#define PGE_VER 213
+#define PGE_VER 214
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -2422,8 +2425,8 @@ namespace olc
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * std::ceil(source_size.x) * vInvScreenSize.x) * scale.x,
-			vScreenSpacePos.y - (2.0f * std::ceil(source_size.y) * vInvScreenSize.y) * scale.y
+			vScreenSpacePos.x + (2.0f * source_size.x * vInvScreenSize.x) * scale.x,
+			vScreenSpacePos.y - (2.0f * source_size.y * vInvScreenSize.y) * scale.y
 		};
 
 		DecalInstance di;
@@ -2449,8 +2452,8 @@ namespace olc
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * std::ceil(size.x + 0.5f) * vInvScreenSize.x),
-			vScreenSpacePos.y - (2.0f * std::ceil(size.y + 0.5f) * vInvScreenSize.y)
+			vScreenSpacePos.x + (2.0f * size.x * vInvScreenSize.x),
+			vScreenSpacePos.y - (2.0f * size.y * vInvScreenSize.y)
 		};
 
 		DecalInstance di;
@@ -2547,26 +2550,6 @@ namespace olc
 		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
 		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
 	}
-
-	//void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const olc::vf2d& pos, const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTexCoords, const float fAngle, const olc::vf2d& scale, const olc::Pixel& tint)
-	//{
-	//	DecalInstance di;
-	//	di.decal = decal;
-	//	di.points = vPoints.size();
-	//	di.pos.resize(di.points);
-	//	di.uv.resize(di.points);
-	//	di.w.resize(di.points);
-	//	di.tint.resize(di.points);
-	//	for (uint32_t i = 0; i < di.points; i++)
-	//	{
-	//		di.pos[i] = { (vPoints[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((vPoints[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-	//		di.uv[i] = vTexCoords[i];
-	//		di.tint[i] = tint;
-	//		di.w[i] = 1.0f;
-	//	}
-	//	di.mode = nDecalMode;
-	//	vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	//}
 
 	void PixelGameEngine::DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
@@ -4020,6 +4003,7 @@ namespace olc
 
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
+#include <objidl.h>
 #include <gdiplus.h>
 #if defined(__MINGW32__) // Thanks Gusgo & Dandistine, but c'mon mingw!! wtf?!
 #include <gdiplus/gdiplusinit.h>
