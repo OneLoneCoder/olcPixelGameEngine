@@ -42,7 +42,7 @@ Please see https://github.com/OneLoneCoder/olcPixelGameEngine/wiki
 
 # License (OLC-3)
 
-Copyright 2018, 2019, 2020 OneLoneCoder.com
+Copyright 2018, 2019, 2020, 2021 OneLoneCoder.com
 
 Redistribution and use in source and binary forms, with or without 
 modification, are permitted provided that the following conditions 
