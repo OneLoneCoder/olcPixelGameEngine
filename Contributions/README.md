@@ -17,6 +17,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/dandistine/olcPGEDearImGui
 * General Font Rendering
   * https://github.com/gorbit99/olcPGEX_ttf
+* Pre-loaded Font Rendering
+  * https://github.com/Oso-Grande/olcPGEX_Font
 * Arc Drawing
   * https://github.com/AlterEgoIV/olcPGEX_Arc
   
