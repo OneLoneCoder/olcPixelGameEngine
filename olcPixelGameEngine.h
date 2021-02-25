@@ -152,7 +152,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -4649,9 +4649,9 @@ namespace olc
 			mapKeys[XK_0] = Key::K0; mapKeys[XK_1] = Key::K1; mapKeys[XK_2] = Key::K2; mapKeys[XK_3] = Key::K3; mapKeys[XK_4] = Key::K4;
 			mapKeys[XK_5] = Key::K5; mapKeys[XK_6] = Key::K6; mapKeys[XK_7] = Key::K7; mapKeys[XK_8] = Key::K8; mapKeys[XK_9] = Key::K9;
 
-			mapKeys[XK_KP_0] = Key::NP0; mapKeys[XK_KP_1] = Key::NP1; mapKeys[XK_KP_2] = Key::NP2; mapKeys[XK_KP_3] = Key::NP3; mapKeys[XK_KP_4] = Key::NP4;
-			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
-			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
+			mapKeys[XK_KP_Insert] = Key::NP0; mapKeys[XK_KP_End] = Key::NP1; mapKeys[XK_KP_Down] = Key::NP2; mapKeys[XK_KP_Next] = Key::NP3; mapKeys[XK_KP_Left] = Key::NP4;
+			mapKeys[XK_KP_Begin] = Key::NP5; mapKeys[XK_KP_Right] = Key::NP6; mapKeys[XK_KP_Home] = Key::NP7; mapKeys[XK_KP_Up] = Key::NP8; mapKeys[XK_KP_Prior] = Key::NP9;
+			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Delete] = Key::NP_DECIMAL;
 
 			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
@@ -4707,16 +4707,10 @@ namespace olc
 				{
 					KeySym sym = XLookupKeysym(&xev.xkey, 0);
 					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
-					XKeyEvent* e = (XKeyEvent*)&xev; // Because DragonEye loves numpads
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
 				}
 				else if (xev.type == KeyRelease)
 				{
 					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
-					XKeyEvent* e = (XKeyEvent*)&xev;
-					XLookupString(e, NULL, 0, &sym, NULL);
 					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
 				}
 				else if (xev.type == ButtonPress)
