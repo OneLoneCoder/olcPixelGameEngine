@@ -2344,13 +2344,8 @@ namespace olc
       return;
 
     // Draw every line and close the polygon
-    for (int i=0; i < points.size(); i++)
-    {
-      int32_t x1 = (int32_t)points[i].x;
-      int32_t y1 = (int32_t)points[i].y;
-      int32_t x2 = (int32_t)points[(i+1) % points.size()].x;
-      int32_t y2 = (int32_t)points[(i+1) % points.size()].y;
-      DrawLine(x1, y1, x2, y2, p);
+    for (int i=0; i < points.size(); i++) {
+      DrawLine(points[i], points[(i+1) % points.size()], p);
     }
   }  
 
@@ -2363,7 +2358,7 @@ namespace olc
     // Find the min and max Y-values
     float starty = (float)vScreenSize.y;
     float stopy = 0.f;
-    for (auto p: points)
+    for (auto &p: points)
     {
       if (p.y < starty) starty = p.y;
       if (p.y > stopy)  stopy  = p.y;
@@ -2433,7 +2428,6 @@ namespace olc
       }
     }
   }
-
 
 	void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
 	{
