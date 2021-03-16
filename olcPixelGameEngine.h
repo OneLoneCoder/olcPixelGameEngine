@@ -272,25 +272,28 @@ int main()
 // O------------------------------------------------------------------------------O
 // | STANDARD INCLUDES                                                            |
 // O------------------------------------------------------------------------------O
+#include <map>
+#include <list>
+#include <array>
 #include <cmath>
-#include <cstdint>
+#include <chrono>
+#include <atomic>
+#include <thread>
+#include <vector>
 #include <string>
+#include <cstring>
+#include <sstream>
+#include <fstream>
+#include <cstdint>
 #include <iostream>
 #include <streambuf>
-#include <sstream>
-#include <chrono>
-#include <vector>
-#include <list>
-#include <thread>
-#include <atomic>
-#include <fstream>
-#include <map>
-#include <functional>
 #include <algorithm>
-#include <array>
-#include <cstring>
+#include <functional>
+#include <type_traits>
+#include <utility>
 
 #define PGE_VER 214
+constexpr auto pge_version = 2.14;
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -317,11 +320,12 @@ int main()
 	// C++14
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
-namespace _gfs = std::experimental::filesystem::v1;
+namespace gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
 #include <filesystem>
-namespace _gfs = std::filesystem;
+namespace gfs = std::filesystem;
+#define OLC_CXX_17
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
@@ -331,6 +335,46 @@ namespace _gfs = std::filesystem;
 #endif
 
 #define UNUSED(x) (void)(x)
+
+#if __cplusplus >= 202002L
+	#define OLC_CXX_20
+#endif
+#if defined(OLC_CXX_20)
+	#define OLC_CXX_17
+#else
+	#if __cplusplus >= 201703L
+		#define OLC_CXX_17
+	#endif
+#endif
+
+#if defined(OLC_CXX_17) // @Au-lit I assume everybody is on ISO C++17 but still...
+	#define OLC_IF_CXX_17(x) x
+	#define OLC_IF_NOT_CXX_17(x) 
+	#include <string_view>
+namespace olc {
+	[[maybe_unused]] constexpr bool bhas_cxx_17 = true;
+	using readonly_string = std::string_view;
+#else
+	#define OLC_IF_CXX_17(x)
+	#define OLC_IF_NOT_CXX_17(x) x
+namespace olc {
+	constexpr bool bhas_cxx_17 = false;
+	using readonly_string = std::string;
+#endif
+} // end namespace olc
+
+#if defined(OLC_CXX_20)
+	#define OLC_IF_CXX_20(x) x
+	#define OLC_IF_NOT_CXX_20(x)
+namespace olc {
+	[[maybe_unused]] constexpr bool bhas_cxx_20 = true;
+#else
+	#define OLC_IF_CXX_20(x)
+	#define OLC_IF_NOT_CXX_20(x) x
+namespace olc {
+	constexpr bool bhas_cxx_20 = false;
+#endif // OLC_CXX_20
+} // end namespace olc
 
 // O------------------------------------------------------------------------------O
 // | PLATFORM SELECTION CODE, Thanks slavka!                                      |
@@ -442,13 +486,15 @@ namespace olc
 
 		enum Mode { NORMAL, MASK, ALPHA, CUSTOM };
 
-		Pixel();
-		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha);
-		Pixel(uint32_t p);
+		Pixel() noexcept = default;
+		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha) noexcept : n(red | (green << 8) | (blue << 16) | (alpha << 24)) {}
+		Pixel(uint32_t p) noexcept : n(p) {}
+		Pixel(const Pixel& p) noexcept = default;
+
 		Pixel& operator = (const Pixel& v) = default;
-		bool   operator ==(const Pixel& p) const;
-		bool   operator !=(const Pixel& p) const;
-		Pixel  operator * (const float i) const;
+		bool   operator ==(const Pixel& p) const noexcept;
+		bool   operator !=(const Pixel& p) const noexcept;
+		Pixel  operator * (const float i) const noexcept;
 		Pixel  operator / (const float i) const;
 		Pixel& operator *=(const float i);
 		Pixel& operator /=(const float i);
@@ -456,12 +502,16 @@ namespace olc
 		Pixel  operator - (const Pixel& p) const;
 		Pixel& operator +=(const Pixel& p);
 		Pixel& operator -=(const Pixel& p);
-		Pixel  inv() const;
+		//Pixel  operator ~ (const Pixel& p); // @Au-lit return *this.inv();
+		Pixel  inv() const noexcept;
+		friend Pixel PixelF(float red, float green, float blue, float alpha);
+	private:
+		template<typename T = float, typename = std::enable_if_t<std::is_floating_point_v<T>>> // @Au-lit I agree this is an ugly solution...
+		explicit Pixel(T red, T green, T blue, T alpha = 1.0f) // @Au-lit 1.0f because the default type T is float
+			: n(uint8_t(red * 255.0f) | (uint8_t(green * 255.0f) << 8) | (uint8_t(blue * 255.0f) << 16) | (uint8_t(alpha * 255.0f) << 24)) {}
 	};
 
-	Pixel PixelF(float red, float green, float blue, float alpha = 1.0f);
 	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t);
-
 
 	// O------------------------------------------------------------------------------O
 	// | USEFUL CONSTANTS                                                             |
@@ -479,7 +529,7 @@ namespace olc
 	// Thanks to scripticuk and others for updating the key maps
 	// NOTE: The GLUT platform will need updating, open to contributions ;)
 	enum Key
-	{
+	{ 
 		NONE,
 		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 		K0, K1, K2, K3, K4, K5, K6, K7, K8, K9,
@@ -505,21 +555,23 @@ namespace olc
 	{
 		T x = 0;
 		T y = 0;
-		v2d_generic() : x(0), y(0) {}
-		v2d_generic(T _x, T _y) : x(_x), y(_y) {}
+		v2d_generic() noexcept = default;
+		v2d_generic(T x_, T y_) noexcept : x(x_), y(y_) {}
 		v2d_generic(const v2d_generic& v) : x(v.x), y(v.y) {}
 		v2d_generic& operator=(const v2d_generic& v) = default;
 		T mag() const { return T(std::sqrt(x * x + y * y)); }
-		T mag2() const { return x * x + y * y; }
+		auto mag2() const { return x * x + y * y; }
+		//auto total() const { return x + y; }
 		v2d_generic  norm() const { T r = 1 / mag(); return v2d_generic(x * r, y * r); }
 		v2d_generic  perp() const { return v2d_generic(-y, x); }
 		v2d_generic  floor() const { return v2d_generic(std::floor(x), std::floor(y)); }
 		v2d_generic  ceil() const { return v2d_generic(std::ceil(x), std::ceil(y)); }
 		v2d_generic  max(const v2d_generic& v) const { return v2d_generic(std::max(x, v.x), std::max(y, v.y)); }
 		v2d_generic  min(const v2d_generic& v) const { return v2d_generic(std::min(x, v.x), std::min(y, v.y)); }
-		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
-		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
-		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
+		auto dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
+		//auto dot(const v2d_generic& rhs) const { return v2d_generic(this * rhs).total(); }
+		auto cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
+		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); } 
 		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
 		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
 		v2d_generic  operator *  (const v2d_generic& rhs) const { return v2d_generic(this->x * rhs.x, this->y * rhs.y); }
@@ -533,16 +585,18 @@ namespace olc
 		v2d_generic& operator /= (const v2d_generic& rhs) { this->x /= rhs.x; this->y /= rhs.y; return *this; }
 		v2d_generic  operator +  () const { return { +x, +y }; }
 		v2d_generic  operator -  () const { return { -x, -y }; }
-		bool operator == (const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
-		bool operator != (const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }
-		const std::string str() const { return std::string("(") + std::to_string(this->x) + "," + std::to_string(this->y) + ")"; }
-		friend std::ostream& operator << (std::ostream& os, const v2d_generic& rhs) { os << rhs.str(); return os; }
-		operator v2d_generic<int32_t>() const { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
-		operator v2d_generic<float>() const { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
-		operator v2d_generic<double>() const { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
+		bool operator==(const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
+		OLC_IF_NOT_CXX_20(bool operator!=(const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }) // @Au-lit let the compiler optimise if it want
+		const std::string str() const { return std::string("(") + std::to_string(this->x) + ", " + std::to_string(this->y) + ')'; }
+		operator v2d_generic<int32_t>() const noexcept { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
+		operator v2d_generic<double>() const noexcept { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
+		operator v2d_generic<float>() const noexcept { return { static_cast<float>(this->x), static_cast<float>(this->y) }; }
+		friend std::ostream& operator<<(std::ostream& os, const v2d_generic& rhs) { os << rhs.str(); return os; }
+		operator std::pair<T, T>() const { return std::make_pair<T, T>(x, y); } // @Au-lit Because it's fun...
 	};
 
-	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
+	// Note: joshinils has some good suggestions here, 
+	// but they are complicated to implement at this moment, 
 	// however they will appear in a future version of PGE
 	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
 	{
@@ -579,10 +633,10 @@ namespace olc
 		return lhs.y > rhs.y || (lhs.y == rhs.y && lhs.x > rhs.x);
 	}
 
-	typedef v2d_generic<int32_t> vi2d;
-	typedef v2d_generic<uint32_t> vu2d;
-	typedef v2d_generic<float> vf2d;
-	typedef v2d_generic<double> vd2d;
+	using vi2d = v2d_generic<int32_t>;
+	using vu2d = v2d_generic<uint32_t>;
+	using vf2d = v2d_generic<float>;
+	using vd2d = v2d_generic<double>;
 #endif
 
 
@@ -611,19 +665,19 @@ namespace olc
 	class ResourcePack : public std::streambuf
 	{
 	public:
-		ResourcePack();
+		ResourcePack() = default;
 		~ResourcePack();
 		bool AddFile(const std::string& sFile);
-		bool LoadPack(const std::string& sFile, const std::string& sKey);
-		bool SavePack(const std::string& sFile, const std::string& sKey);
+		bool LoadPack(const std::string& sFile, const olc::readonly_string& sKey);
+		bool SavePack(const std::string& sFile, const olc::readonly_string& sKey);
 		ResourceBuffer GetFileBuffer(const std::string& sFile);
-		bool Loaded();
+		bool Loaded() const;
 	private:
 		struct sResourceFile { uint32_t nSize; uint32_t nOffset; };
 		std::map<std::string, sResourceFile> mapFiles;
 		std::ifstream baseFile;
-		std::vector<char> scramble(const std::vector<char>& data, const std::string& key);
-		std::string makeposix(const std::string& path);
+		std::vector<char> scramble(const std::vector<char>& data, const olc::readonly_string& key);
+		std::string makeposix(std::string path);
 	};
 
 
@@ -640,13 +694,42 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	// | olc::Sprite - An image represented by a 2D array of olc::Pixel               |
 	// O------------------------------------------------------------------------------O
+
+
+
 	class Sprite
 	{
 	public:
-		Sprite();
+		template<typename T> class RowView; // Foward declaring because life
+
+		Sprite() noexcept = default;
+		Sprite(int32_t w, int32_t h, Pixel* imagePixel);
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
-		Sprite(int32_t w, int32_t h);
-		Sprite(const olc::Sprite&) = delete;
+		Sprite(int32_t w, int32_t h) 
+			: width(w),
+			  height(h),
+			  pColData(new Pixel[width * height]) 
+		{
+			std::fill_n(pColData, width * height, Pixel());
+		}
+
+		Sprite(const olc::Sprite& other) 
+			: width(other.width),
+			  height(other.height),
+			  modeSample(other.modeSample),
+			  pColData(new Pixel[width * height]) 
+		{
+			std::copy_n(other.pColData, width * height, pColData); // because it breaks otherwise
+		}
+
+		Sprite(olc::Sprite&& other)
+			: width(other.width),
+			  height(other.height),
+			  modeSample(other.modeSample),
+			  pColData(new Pixel[width * height])
+		{
+			std::move(other.begin(), other.end(), pColData);
+		}
 		~Sprite();
 
 	public:
@@ -655,8 +738,8 @@ namespace olc
 		olc::rcode SaveToPGESprFile(const std::string& sImageFile);
 
 	public:
-		int32_t width = 0;
-		int32_t height = 0;
+		int32_t height = 0; // don't touch
+		int32_t width = 0; // don't touch
 		enum Mode { NORMAL, PERIODIC };
 		enum Flip { NONE = 0, HORIZ = 1, VERT = 2 };
 
@@ -666,16 +749,57 @@ namespace olc
 		bool  SetPixel(int32_t x, int32_t y, Pixel p);
 		Pixel GetPixel(const olc::vi2d& a) const;
 		bool  SetPixel(const olc::vi2d& a, Pixel p);
-		Pixel Sample(float x, float y) const;
+		Pixel& at(int32_t x, int32_t y); // useable like in std::[someContainer]
+		inline Pixel& at(const olc::vi2d& a) { return at(a.x, a.y); }
+		// Needs testing
+		RowView<Pixel> operator[](std::size_t index); // only works with olc::Sprite::Mode::NORMAL
+		Pixel Sample(float x, float y) const noexcept;
 		Pixel SampleBL(float u, float v) const;
 		Pixel* GetData();
 		olc::Sprite* Duplicate();
 		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
 		Pixel* pColData = nullptr;
 		Mode modeSample = Mode::NORMAL;
-
+		
 		static std::unique_ptr<olc::ImageLoader> loader;
+
+	public: // range support
+		auto size() -> decltype(width * height);
+		Pixel* end();
+		Pixel* begin();
+		// Here lightweight span like view of a sprite row
+		template<typename T> class RowView { // Should it be a separate class ?
+		public:
+			using iterator = T*;
+			using reference = T&;
+			using element_type = T;
+			using value_type = std::remove_cv_t<T>;
+			using reverse_iterator = std::reverse_iterator<iterator>;
+
+			constexpr RowView() noexcept : m_data(nullptr), m_size(0) {}
+			constexpr RowView(const RowView& other) noexcept = default;
+			constexpr RowView& operator=(const RowView& other) noexcept = default;
+			template<class It> constexpr RowView(It first, std::size_t count) : m_data(first), m_size(count) {}
+			template<class It, class End> constexpr RowView(It first, End last) : m_data(first), m_size(last - first) {}
+			template<class U, std::size_t N> constexpr RowView(const std::array<U, N>& arr) noexcept : m_data(arr.data()), m_size(N) {}
+			template<class U> constexpr RowView(const RowView<U>& s) noexcept : m_data(s.data()), m_size(s.size()) {}
+
+			constexpr iterator begin() const noexcept { return m_data; }
+			constexpr iterator end() const noexcept { return m_data + m_size; }
+			constexpr reference front() const { return m_data[0]; }
+			constexpr reference back() const { return m_data[m_size - 1]; }
+			constexpr reference operator[](std::size_t idx) const { return m_data[idx]; }
+			constexpr T* data() const noexcept { return m_data; }
+			constexpr std::size_t size() const noexcept { return m_size; }
+			constexpr std::size_t size_bytes() const noexcept { return m_size * sizeof(element_type); }
+			OLC_IF_CXX_17([[nodiscard]]) constexpr bool empty() const noexcept { return m_size == 0; }
+
+		private:
+			T* m_data;
+			std::size_t m_size;
+		};
 	};
+
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal - A GPU resident storage of an olc::Sprite                        |
@@ -789,13 +913,31 @@ namespace olc
 		static olc::PixelGameEngine* ptrPGE;
 	};
 
-	class PGEX;
-
-
-
 	static std::unique_ptr<Renderer> renderer;
 	static std::unique_ptr<Platform> platform;
 	static std::map<size_t, uint8_t> mapKeys;
+
+	// O------------------------------------------------------------------------------O
+	// | PGE EXTENSION BASE CLASS - Permits access to PGE functions from extension    |
+	// O------------------------------------------------------------------------------O
+	
+	class PixelGameEngine;
+	
+	class PGEX
+	{
+		friend class olc::PixelGameEngine;
+	public:
+		PGEX(bool bHook = false);
+
+	protected:
+		virtual void OnBeforeUserCreate();
+		virtual void OnAfterUserCreate();
+		virtual void OnBeforeUserUpdate(float &fElapsedTime);
+		virtual void OnAfterUserUpdate(float fElapsedTime);
+
+	protected:
+		static PixelGameEngine* pge;
+	};
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine - The main BASE class for your application              |
@@ -803,8 +945,13 @@ namespace olc
 	class PixelGameEngine
 	{
 	public:
-		PixelGameEngine();
-		virtual ~PixelGameEngine();
+		PixelGameEngine() noexcept : sAppName("Undefined") {
+			olc::PGEX::pge = this;
+			// Bring in relevant Platform & Rendering systems depending
+			// on compiler parameters
+			olc_ConfigureSystem();
+		}
+		virtual ~PixelGameEngine() = default;
 	public:
 		olc::rcode Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h,
 			bool full_screen = false, bool vsync = false, bool cohesion = false);
@@ -814,7 +961,7 @@ namespace olc
 		// Called once on application startup, use to load your resources
 		virtual bool OnUserCreate();
 		// Called every frame, and provides you with a time per frame value
-		virtual bool OnUserUpdate(float fElapsedTime);
+		virtual bool OnUserUpdate(OLC_IF_CXX_17([[maybe_unused]]) float fElapsedTime);
 		// Called once on application termination, so you can be one clean coder
 		virtual bool OnUserDestroy();
 
@@ -944,8 +1091,8 @@ namespace olc
 		void DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center = { 0.0f, 0.0f }, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
 		void DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f, 1.0f }, const olc::Pixel& tint = olc::WHITE);
 		// Draws a multiline string as a decal, with tiniting and scaling
-		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
-		void DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+		void DrawStringDecal(const olc::vf2d& pos, const olc::readonly_string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
+		void DrawStringPropDecal(const olc::vf2d& pos, const olc::readonly_string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
 		// Draws a single shaded filled rectangle as a decal
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
@@ -953,14 +1100,14 @@ namespace olc
 		// Draws an arbitrary convex textured polygon using GPU
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		// Draws a single line of text - traditional monospaced
-		void DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
-		void DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
-		olc::vi2d GetTextSize(const std::string& s);
+		void DrawString(int32_t x, int32_t y, const olc::readonly_string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		void DrawString(const olc::vi2d& pos, const olc::readonly_string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		olc::vi2d GetTextSize(const olc::readonly_string& s);
 
 		// Draws a single line of text - non-monospaced
-		void DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
-		void DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
-		olc::vi2d GetTextSizeProp(const std::string& s);
+		void DrawStringProp(int32_t x, int32_t y, const olc::readonly_string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		void DrawStringProp(const olc::vi2d& pos, const olc::readonly_string& sText, Pixel col = olc::WHITE, uint32_t scale = 1);
+		olc::vi2d GetTextSizeProp(const olc::readonly_string& s);
 
 		// Clears entire draw target to Pixel
 		void Clear(Pixel p);
@@ -998,7 +1145,7 @@ namespace olc
 		int			nFrameCount = 0;
 		Sprite* fontSprite = nullptr;
 		Decal* fontDecal = nullptr;
-		Sprite* pDefaultDrawTarget = nullptr;
+		//Sprite* pDefaultDrawTarget = nullptr;
 		std::vector<LayerDesc> vLayers;
 		uint8_t		nTargetLayer = 0;
 		uint32_t	nLastFPS = 0;
@@ -1054,30 +1201,9 @@ namespace olc
 
 	private:
 		std::vector<olc::PGEX*> vExtensions;
-
-
 	};
 
 
-
-	// O------------------------------------------------------------------------------O
-	// | PGE EXTENSION BASE CLASS - Permits access to PGE functions from extension    |
-	// O------------------------------------------------------------------------------O
-	class PGEX
-	{
-		friend class olc::PixelGameEngine;
-	public:
-		PGEX(bool bHook = false);
-
-	protected:
-		virtual void OnBeforeUserCreate();
-		virtual void OnAfterUserCreate();
-		virtual void OnBeforeUserUpdate(float &fElapsedTime);
-		virtual void OnAfterUserUpdate(float fElapsedTime);
-
-	protected:
-		static PixelGameEngine* pge;
-	};
 }
 
 #endif // OLC_PGE_DEF
@@ -1119,110 +1245,91 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	// | olc::Pixel IMPLEMENTATION                                                    |
 	// O------------------------------------------------------------------------------O
-	Pixel::Pixel()
-	{
-		r = 0; g = 0; b = 0; a = nDefaultAlpha;
-	}
 
-	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	{
-		n = red | (green << 8) | (blue << 16) | (alpha << 24);
-	} // Thanks jarekpelczar 
-
-
-	Pixel::Pixel(uint32_t p)
-	{
-		n = p;
-	}
-
-	bool Pixel::operator==(const Pixel& p) const
+	bool Pixel::operator==(const Pixel& p) const noexcept
 	{
 		return n == p.n;
 	}
 
-	bool Pixel::operator!=(const Pixel& p) const
+	bool Pixel::operator!=(const Pixel& p) const noexcept
 	{
 		return n != p.n;
 	}
 
-	Pixel  Pixel::operator * (const float i) const
+	Pixel  Pixel::operator * (const float i) const noexcept
 	{
-		float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
-		float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
-		float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
-		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+		return { std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) * i))),
+				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) * i))),
+				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) * i))),
+				 a };
 	}
 
 	Pixel  Pixel::operator / (const float i) const
 	{
-		float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
-		float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
-		float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
-		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+		return { std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) / i))),
+				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) / i))),
+				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) / i))),
+				 a };
 	}
 
 	Pixel& Pixel::operator *=(const float i)
 	{
-		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
-		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
-		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
+		r = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) * i)));
+		g = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) * i)));
+		b = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) * i)));
 		return *this;
 	}
 
 	Pixel& Pixel::operator /=(const float i)
 	{
-		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
-		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
-		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
+		r = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) / i)));
+		g = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) / i)));
+		b = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) / i)));
 		return *this;
 	}
 
 	Pixel  Pixel::operator + (const Pixel& p) const
 	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
-		return Pixel(nR, nG, nB, a);
+		return { uint8_t(std::min(255, int(r) + int(p.r))),
+				 uint8_t(std::min(255, int(g) + int(p.g))),
+				 uint8_t(std::min(255, int(b) + int(p.b))),
+				 a };
 	}
 
 	Pixel  Pixel::operator - (const Pixel& p) const
 	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
-		return Pixel(nR, nG, nB, a);
+		return { uint8_t(std::max(0, int(r) - int(p.r))),
+				 uint8_t(std::max(0, int(g) - int(p.g))),
+				 uint8_t(std::max(0, int(b) - int(p.b))),
+				 a };
 	}
 
 	Pixel& Pixel::operator += (const Pixel& p)
 	{
-		this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
-		this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
-		this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+		r = uint8_t(std::min(255, int(r) + int(p.r)));
+		g = uint8_t(std::min(255, int(g) + int(p.g)));
+		b = uint8_t(std::min(255, int(b) + int(p.b)));
 		return *this;
 	}
 
-	Pixel& Pixel::operator -= (const Pixel& p)
+	Pixel& Pixel::operator -= (const Pixel& p) // @Au-lit This was doing an addition
 	{
-		this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
-		this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
-		this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+		r = uint8_t(std::max(0, int(r) - int(p.r)));
+		g = uint8_t(std::max(0, int(g) - int(p.g)));
+		b = uint8_t(std::max(0, int(b) - int(p.b)));
 		return *this;
 	}
 
-	Pixel Pixel::inv() const
+	Pixel PixelF(float red, float green, float blue, float alpha = 1.0f) { return Pixel(red, green, blue, alpha); }
+
+	Pixel Pixel::inv() const noexcept
 	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
-		return Pixel(nR, nG, nB, a);
+		uint8_t temp = a; // @Au-lit Faster from my benchmarks...
+		Pixel nTemp = ~n;
+		return { nTemp.r, nTemp.g, nTemp.b, temp };
 	}
 
-	Pixel PixelF(float red, float green, float blue, float alpha)
-	{
-		return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
-	}
-
-	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t)
+	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t) // @Au-lit In C++20 std::lerp could be used...
 	{
 		return (p2 * t) + p1 * (1.0f - t);
 	}
@@ -1230,23 +1337,17 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	// | olc::Sprite IMPLEMENTATION                                                   |
 	// O------------------------------------------------------------------------------O
-	Sprite::Sprite()
-	{
-		pColData = nullptr; width = 0; height = 0;
-	}
 
 	Sprite::Sprite(const std::string& sImageFile, olc::ResourcePack* pack)
 	{
 		LoadFromFile(sImageFile, pack);
 	}
 
-	Sprite::Sprite(int32_t w, int32_t h)
+	Sprite::Sprite(int32_t w, int32_t h, Pixel* imagePixel)
 	{
-		if (pColData) delete[] pColData;
 		width = w;		height = h;
 		pColData = new Pixel[width * height];
-		for (int32_t i = 0; i < width * height; i++)
-			pColData[i] = Pixel();
+		std::copy_n(imagePixel, width * height, pColData);
 	}
 
 	Sprite::~Sprite()
@@ -1254,12 +1355,11 @@ namespace olc
 		if (pColData) delete[] pColData;
 	}
 
-
 	olc::rcode Sprite::LoadFromPGESprFile(const std::string& sImageFile, olc::ResourcePack* pack)
 	{
-		if (pColData) delete[] pColData;
 		auto ReadData = [&](std::istream& is)
 		{
+			if (pColData) delete[] pColData;
 			is.read((char*)&width, sizeof(int32_t));
 			is.read((char*)&height, sizeof(int32_t));
 			pColData = new Pixel[width * height];
@@ -1349,36 +1449,47 @@ namespace olc
 			return false;
 	}
 
-	Pixel Sprite::Sample(float x, float y) const
+	Pixel& Sprite::at(int32_t x, int32_t y) { 
+		if (modeSample == olc::Sprite::Mode::NORMAL)
+		{
+			if (x >= 0 && x < width && y >= 0 && y < height) return pColData[y * width + x];
+			else throw std::out_of_range("An out of range exception has occured in { olc::Sprite.at() }.");
+		}
+		else return pColData[abs(y % height) * width + abs(x % width)];
+	}
+
+	// Needs testing
+	Sprite::RowView<Pixel> Sprite::operator[](std::size_t index) { return Sprite::RowView<Pixel>(pColData + (index * height), pColData + (index * height + height)); }
+
+	Pixel Sprite::Sample(float x, float y) const noexcept
 	{
-		int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
-		int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
-		return GetPixel(sx, sy);
+		return GetPixel(std::min(int32_t(x * float(width)), width - 1),
+						std::min(int32_t(y * float(height)), height - 1));
 	}
 
 	Pixel Sprite::SampleBL(float u, float v) const
 	{
 		u = u * width - 0.5f;
 		v = v * height - 0.5f;
-		int x = (int)floor(u); // cast to int rounds toward zero, not downward
-		int y = (int)floor(v); // Thanks @joshinils
-		float u_ratio = u - x;
-		float v_ratio = v - y;
-		float u_opposite = 1 - u_ratio;
-		float v_opposite = 1 - v_ratio;
+		const int x = int(std::floor(u)); // cast to int rounds toward zero, not downward
+		const int y = int(std::floor(v)); // Thanks @joshinils
+		const float u_ratio = u - x;
+		const float v_ratio = v - y;
+		const float u_opposite = 1 - u_ratio;
+		const float v_opposite = 1 - v_ratio;
 
 		olc::Pixel p1 = GetPixel(std::max(x, 0), std::max(y, 0));
 		olc::Pixel p2 = GetPixel(std::min(x + 1, (int)width - 1), std::max(y, 0));
 		olc::Pixel p3 = GetPixel(std::max(x, 0), std::min(y + 1, (int)height - 1));
 		olc::Pixel p4 = GetPixel(std::min(x + 1, (int)width - 1), std::min(y + 1, (int)height - 1));
 
-		return olc::Pixel(
-			(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
-			(uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
-			(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
+		return {
+			uint8_t((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
+			uint8_t((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
+			uint8_t((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio) };
 	}
 
-	Pixel* Sprite::GetData()
+	Pixel* Sprite::GetData() // @Au-lit It's useless but ok
 	{
 		return pColData;
 	}
@@ -1390,12 +1501,9 @@ namespace olc
 		return loader->LoadImageResource(this, sImageFile, pack);
 	}
 
-	olc::Sprite* Sprite::Duplicate()
+	olc::Sprite* Sprite::Duplicate() // @Au-lit I don't think this is a good copy ctor tbh
 	{
-		olc::Sprite* spr = new olc::Sprite(width, height);
-		std::memcpy(spr->GetData(), GetData(), width * height * sizeof(olc::Pixel));
-		spr->modeSample = modeSample;
-		return spr;
+		return new olc::Sprite(*this);
 	}
 
 	olc::Sprite* Sprite::Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize)
@@ -1406,6 +1514,9 @@ namespace olc
 				spr->SetPixel(x, y, GetPixel(vPos.x + x, vPos.y + y));
 		return spr;
 	}
+	auto Sprite::size() -> decltype(width * height) { return width * height; }
+	Pixel* Sprite::end() { return pColData + width * height; }
+	Pixel* Sprite::begin() { return pColData; }
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal IMPLEMENTATION                                                   |
@@ -1486,9 +1597,9 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 
 
-	//=============================================================
-	// Resource Packs - Allows you to store files in one large 
-	// scrambled file - Thanks MaGetzUb for debugging a null char in std::stringstream bug
+	// =======================================================================
+	// Resource Packs - Allows you to store files in one large scrambled file
+	// - Thanks MaGetzUb for debugging a null char in std::stringstream bug.
 	ResourceBuffer::ResourceBuffer(std::ifstream& ifs, uint32_t offset, uint32_t size)
 	{
 		vMemory.resize(size);
@@ -1496,25 +1607,24 @@ namespace olc
 		setg(vMemory.data(), vMemory.data(), vMemory.data() + size);
 	}
 
-	ResourcePack::ResourcePack() { }
 	ResourcePack::~ResourcePack() { baseFile.close(); }
 
 	bool ResourcePack::AddFile(const std::string& sFile)
 	{
 		const std::string file = makeposix(sFile);
 
-		if (_gfs::exists(file))
+		if (gfs::exists(file))
 		{
 			sResourceFile e;
-			e.nSize = (uint32_t)_gfs::file_size(file);
-			e.nOffset = 0; // Unknown at this stage			
+			e.nSize = uint32_t(gfs::file_size(file));
+			e.nOffset = 0; // Unknown at this stage
 			mapFiles[file] = e;
 			return true;
 		}
 		return false;
 	}
 
-	bool ResourcePack::LoadPack(const std::string& sFile, const std::string& sKey)
+	bool ResourcePack::LoadPack(const std::string& sFile, const olc::readonly_string& sKey)
 	{
 		// Open the resource file
 		baseFile.open(sFile, std::ifstream::binary);
@@ -1559,12 +1669,12 @@ namespace olc
 			mapFiles[sFileName] = e;
 		}
 
-		// Don't close base file! we will provide a stream
-		// pointer when the file is requested
+		// Don't close base file! 
+		// We will provide a stream pointer when the file is requested.
 		return true;
 	}
 
-	bool ResourcePack::SavePack(const std::string& sFile, const std::string& sKey)
+	bool ResourcePack::SavePack(const std::string& sFile, const olc::readonly_string& sKey)
 	{
 		// Create/Overwrite the resource file
 		std::ofstream ofs(sFile, std::ofstream::binary);
@@ -1643,46 +1753,35 @@ namespace olc
 		return ResourceBuffer(baseFile, mapFiles[sFile].nOffset, mapFiles[sFile].nSize);
 	}
 
-	bool ResourcePack::Loaded()
+	bool ResourcePack::Loaded() const
 	{
 		return baseFile.is_open();
 	}
 
-	std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const std::string& key)
+	std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const olc::readonly_string& key)
 	{
 		if (key.empty()) return data;
 		std::vector<char> o;
 		size_t c = 0;
-		for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]);
+		for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]); // the new for (;:) syntax could be useful here
 		return o;
 	};
 
-	std::string ResourcePack::makeposix(const std::string& path)
+	// Needs testing...
+	std::string ResourcePack::makeposix(std::string path)
 	{
-		std::string o;
-		for (auto s : path) o += std::string(1, s == '\\' ? '/' : s);
-		return o;
+		std::replace(path.begin(), path.end(), '\\', '/');
+		return path;
 	};
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine IMPLEMENTATION                                          |
 	// O------------------------------------------------------------------------------O
-	PixelGameEngine::PixelGameEngine()
-	{
-		sAppName = "Undefined";
-		olc::PGEX::pge = this;
-
-		// Bring in relevant Platform & Rendering systems depending
-		// on compiler parameters
-		olc_ConfigureSystem();
-	}
-
-	PixelGameEngine::~PixelGameEngine()
-	{}
-
 
 	olc::rcode PixelGameEngine::Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h, bool full_screen, bool vsync, bool cohesion)
 	{
+		if (vPixelSize.x <= 0 || vPixelSize.y <= 0 || vScreenSize.x <= 0 || vScreenSize.y <= 0)
+			return olc::FAIL;
 		bPixelCohesion = cohesion;
 		vScreenSize = { screen_w, screen_h };
 		vInvScreenSize = { 1.0f / float(screen_w), 1.0f / float(screen_h) };
@@ -1691,10 +1790,6 @@ namespace olc
 		bFullScreen = full_screen;
 		bEnableVSYNC = vsync;
 		vPixel = 2.0f / vScreenSize;
-
-		if (vPixelSize.x <= 0 || vPixelSize.y <= 0 || vScreenSize.x <= 0 || vScreenSize.y <= 0)
-			return olc::FAIL;
-
 
 		return olc::OK;
 	}
@@ -1724,12 +1819,13 @@ namespace olc
 		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
 
 		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK)
+			return olc::FAIL;
 		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
 
 		// Start the thread
 		bAtomActive = true;
-		std::thread t = std::thread(&PixelGameEngine::EngineThread, this);
+		std::thread t{ &PixelGameEngine::EngineThread, this };
 
 		// Some implementations may form an event loop here
 		platform->StartSystemEventLoop();
@@ -1813,7 +1909,7 @@ namespace olc
 		ld.nResID = renderer->CreateTexture(vScreenSize.x, vScreenSize.y);
 		renderer->UpdateTexture(ld.nResID, ld.pDrawTarget);
 		vLayers.push_back(ld);
-		return uint32_t(vLayers.size()) - 1;
+		return uint32_t(vLayers.size() - 1);
 	}
 
 	Sprite* PixelGameEngine::GetDrawTarget() const
@@ -1920,37 +2016,27 @@ namespace olc
 
 	// This is it, the critical function that plots a pixel
 	bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
-	{
-		if (!pDrawTarget) return false;
+	{ // @Au-lit this function is really in need for even more optimisation (because it's slow tbh)
+		OLC_IF_CXX_20([[unlikely]])
+			if (!pDrawTarget) return false;
 
-		if (nPixelMode == Pixel::NORMAL)
-		{
+		if (nPixelMode == olc::Pixel::NORMAL)
 			return pDrawTarget->SetPixel(x, y, p);
+
+		if (nPixelMode == olc::Pixel::MASK) {
+			if (p.a == 255) return pDrawTarget->SetPixel(x, y, p);
 		}
 
-		if (nPixelMode == Pixel::MASK)
-		{
-			if (p.a == 255)
-				return pDrawTarget->SetPixel(x, y, p);
+		else if (nPixelMode == olc::Pixel::ALPHA) {
+			const float a = (float(p.a) / 255.0f) * fBlendFactor;
+			return pDrawTarget->SetPixel(x, y, { p * a + (pDrawTarget->GetPixel(x, y) * (1.0f - a)) });
 		}
 
-		if (nPixelMode == Pixel::ALPHA)
-		{
-			Pixel d = pDrawTarget->GetPixel(x, y);
-			float a = (float)(p.a / 255.0f) * fBlendFactor;
-			float c = 1.0f - a;
-			float r = a * (float)p.r + c * (float)d.r;
-			float g = a * (float)p.g + c * (float)d.g;
-			float b = a * (float)p.b + c * (float)d.b;
-			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
-		}
-
-		if (nPixelMode == Pixel::CUSTOM)
-		{
+		if (nPixelMode == olc::Pixel::CUSTOM)
 			return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
-		}
 
-		return false;
+		OLC_IF_CXX_20([[unlikely]]) 
+			return false;
 	}
 
 
@@ -1961,50 +2047,61 @@ namespace olc
 
 	void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p, uint32_t pattern)
 	{
-		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
-		dx = x2 - x1; dy = y2 - y1;
-
+		
 		auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
 
+		int y;
+		const int dx = x2 - x1;
 		// straight lines idea by gurkanctn
 		if (dx == 0) // Line is vertical
 		{
 			if (y2 < y1) std::swap(y1, y2);
-			for (y = y1; y <= y2; y++) if (rol()) Draw(x1, y, p);
+			for (y = y1; y <= y2; ++y) if (rol()) Draw(x1, y, p);
 			return;
 		}
 
+		int x;
+		const int dy = y2 - y1;
 		if (dy == 0) // Line is horizontal
 		{
 			if (x2 < x1) std::swap(x1, x2);
-			for (x = x1; x <= x2; x++) if (rol()) Draw(x, y1, p);
+			for (x = x1; x <= x2; ++x) if (rol()) Draw(x, y1, p);
 			return;
 		}
 
 		// Line is Funk-aye
-		dx1 = abs(dx); dy1 = abs(dy);
-		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
+		const int dx1 = std::abs(dx);
+		const int dy1 = std::abs(dy);
+		int xe;
+		int ye;
+		int px = 2 * dy1 - dx1;
+		int py = 2 * dx1 - dy1;
 		if (dy1 <= dx1)
 		{
 			if (dx >= 0)
 			{
-				x = x1; y = y1; xe = x2;
+				x = x1;
+				y = y1;
+				xe = x2;
 			}
 			else
 			{
-				x = x2; y = y2; xe = x1;
+				x = x2;
+				y = y2;
+				xe = x1;
 			}
 
 			if (rol()) Draw(x, y, p);
 
-			for (i = 0; x < xe; i++)
+			while (x < xe)
 			{
 				x = x + 1;
 				if (px < 0)
 					px = px + 2 * dy1;
 				else
 				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1; else y = y - 1;
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1;
+					else y = y - 1;
 					px = px + 2 * (dy1 - dx1);
 				}
 				if (rol()) Draw(x, y, p);
@@ -2014,23 +2111,28 @@ namespace olc
 		{
 			if (dy >= 0)
 			{
-				x = x1; y = y1; ye = y2;
+				x = x1;
+				y = y1;
+				ye = y2;
 			}
 			else
 			{
-				x = x2; y = y2; ye = y1;
+				x = x2;
+				y = y2;
+				ye = y1;
 			}
 
 			if (rol()) Draw(x, y, p);
 
-			for (i = 0; y < ye; i++)
+			while (y < ye)
 			{
 				y = y + 1;
 				if (py <= 0)
 					py = py + 2 * dx1;
 				else
 				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1; else x = x - 1;
+					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1;
+					else x = x - 1;
 					py = py + 2 * (dx1 - dy1);
 				}
 				if (rol()) Draw(x, y, p);
@@ -2051,28 +2153,27 @@ namespace olc
 		if (radius > 0)
 		{
 			int x0 = 0;
-			int y0 = radius;
 			int d = 3 - 2 * radius;
 
-			while (y0 >= x0) // only formulate 1/8 of circle
+			while (radius >= x0) // only formulate 1/8 of circle
 			{
 				// Draw even octants
-				if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
-				if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
-				if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
-				if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
-				if (x0 != 0 && x0 != y0)
+				if (mask & 0x01) Draw(x + x0, y - radius, p);// Q6 - upper right right
+				if (mask & 0x04) Draw(x + radius, y + x0, p);// Q4 - lower lower right
+				if (mask & 0x10) Draw(x - x0, y + radius, p);// Q2 - lower left left
+				if (mask & 0x40) Draw(x - radius, y - x0, p);// Q0 - upper upper left
+				if (x0 != 0 && x0 != radius)
 				{
-					if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
-					if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
-					if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
-					if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
+					if (mask & 0x02) Draw(x + radius, y - x0, p);// Q7 - upper upper right
+					if (mask & 0x08) Draw(x + x0, y + radius, p);// Q5 - lower right right
+					if (mask & 0x20) Draw(x - radius, y + x0, p);// Q3 - lower lower left
+					if (mask & 0x80) Draw(x - x0, y - radius, p);// Q1 - upper left left
 				}
 
 				if (d < 0)
 					d += 4 * x0++ + 6;
 				else
-					d += 4 * (x0++ - y0--) + 10;
+					d += 4 * (x0++ - radius--) + 10;
 			}
 		}
 		else
@@ -2140,7 +2241,7 @@ namespace olc
 	{
 		int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
 		Pixel* m = GetDrawTarget()->GetData();
-		for (int i = 0; i < pixels; i++) m[i] = p;
+		for (std::int32_t i = 0; i < pixels; ++i) m[i] = p;
 	}
 
 	void PixelGameEngine::ClearBuffer(Pixel p, bool bDepth)
@@ -2160,21 +2261,21 @@ namespace olc
 
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
 	{
-		int32_t x2 = x + w;
-		int32_t y2 = y + h;
-
 		if (x < 0) x = 0;
-		if (x >= (int32_t)GetDrawTargetWidth()) x = (int32_t)GetDrawTargetWidth();
+		else if (x >= GetDrawTargetWidth()) x = GetDrawTargetWidth();
 		if (y < 0) y = 0;
-		if (y >= (int32_t)GetDrawTargetHeight()) y = (int32_t)GetDrawTargetHeight();
+		else if (y >= GetDrawTargetHeight()) y = GetDrawTargetHeight();
 
+		int32_t x2 = x + w;
 		if (x2 < 0) x2 = 0;
-		if (x2 >= (int32_t)GetDrawTargetWidth()) x2 = (int32_t)GetDrawTargetWidth();
+		else if (x2 >= GetDrawTargetWidth()) x2 = GetDrawTargetWidth();
+		
+		int32_t y2 = y + h;
 		if (y2 < 0) y2 = 0;
-		if (y2 >= (int32_t)GetDrawTargetHeight()) y2 = (int32_t)GetDrawTargetHeight();
+		else if (y2 >= GetDrawTargetHeight()) y2 = GetDrawTargetHeight();
 
-		for (int i = x; i < x2; i++)
-			for (int j = y; j < y2; j++)
+		for (int32_t i = x; i < x2; ++i)
+			for (int32_t j = y; j < y2; ++j)
 				Draw(i, j, p);
 	}
 
@@ -2688,7 +2789,7 @@ namespace olc
 		DrawPartialWarpedDecal(decal, &pos[0], source_pos, source_size, tint);
 	}
 
-	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
+	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const olc::readonly_string& sText, const Pixel col, const olc::vf2d& scale)
 	{
 		olc::vf2d spos = { 0.0f, 0.0f };
 		for (auto c : sText)
@@ -2699,15 +2800,15 @@ namespace olc
 			}
 			else
 			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+				DrawPartialDecal(pos + spos, fontDecal,
+								 { float((c - 32) % 16) * 8.0f, float((c - 32) / 16) * 8.0f },
+								 { 8.0f, 8.0f }, scale, col);
 				spos.x += 8.0f * scale.x;
 			}
 		}
 	}
 
-	void PixelGameEngine::DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
+	void PixelGameEngine::DrawStringPropDecal(const olc::vf2d& pos, const olc::readonly_string& sText, const Pixel col, const olc::vf2d& scale)
 	{
 		olc::vf2d spos = { 0.0f, 0.0f };
 		for (auto c : sText)
@@ -2718,15 +2819,15 @@ namespace olc
 			}
 			else
 			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+				DrawPartialDecal(pos + spos, fontDecal, 
+								 { float((c - 32) % 16) * 8.0f + float(vFontSpacing[c - 32].x), float((c - 32) / 16) * 8.0f },
+								 { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
 				spos.x += float(vFontSpacing[c - 32].y) * scale.x;
 			}
 		}
 	}
 
-	olc::vi2d PixelGameEngine::GetTextSize(const std::string& s)
+	olc::vi2d PixelGameEngine::GetTextSize(const olc::readonly_string& s)
 	{
 		olc::vi2d size = { 0,1 };
 		olc::vi2d pos = { 0,1 };
@@ -2740,12 +2841,12 @@ namespace olc
 		return size * 8;
 	}
 
-	void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
+	void PixelGameEngine::DrawString(const olc::vi2d& pos, const olc::readonly_string& sText, Pixel col, uint32_t scale)
 	{
 		DrawString(pos.x, pos.y, sText, col, scale);
 	}
 
-	void PixelGameEngine::DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
+	void PixelGameEngine::DrawString(int32_t x, int32_t y, const olc::readonly_string& sText, Pixel col, uint32_t scale)
 	{
 		int32_t sx = 0;
 		int32_t sy = 0;
@@ -2789,10 +2890,11 @@ namespace olc
 		SetPixelMode(m);
 	}
 
-	olc::vi2d PixelGameEngine::GetTextSizeProp(const std::string& s)
+	olc::vi2d PixelGameEngine::GetTextSizeProp(const olc::readonly_string& s)
 	{
 		olc::vi2d size = { 0,1 };
 		olc::vi2d pos = { 0,1 };
+
 		for (auto c : s)
 		{
 			if (c == '\n') { pos.y += 1;  pos.x = 0; }
@@ -2800,26 +2902,25 @@ namespace olc
 			size.x = std::max(size.x, pos.x);
 			size.y = std::max(size.y, pos.y);
 		}
-
 		size.y *= 8;
 		return size;
 	}
 
-	void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
+	void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const olc::readonly_string& sText, Pixel col, uint32_t scale)
 	{
 		DrawStringProp(pos.x, pos.y, sText, col, scale);
 	}
 
-	void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
+	void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const olc::readonly_string& sText, Pixel col, uint32_t scale)
 	{
 		int32_t sx = 0;
 		int32_t sy = 0;
-		Pixel::Mode m = nPixelMode;
+		const Pixel::Mode m = nPixelMode;
 
 		if (m != Pixel::CUSTOM)
 		{
-			if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
-			else					SetPixelMode(Pixel::MASK);
+			if (col.a != 255) SetPixelMode(Pixel::ALPHA);
+			else			  SetPixelMode(Pixel::MASK);
 		}
 		for (auto c : sText)
 		{
@@ -2873,13 +2974,16 @@ namespace olc
 	void PixelGameEngine::SetPixelBlend(float fBlend)
 	{
 		fBlendFactor = fBlend;
+		// Note : We could use std::clamp (or some equivalent here)
+		// but I don't know if it's gonna be better / faster because I didn't test it...
 		if (fBlendFactor < 0.0f) fBlendFactor = 0.0f;
-		if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
+		else if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
 	}
 
-	// User must override these functions as required. I have not made
-	// them abstract because I do need a default behaviour to occur if
-	// they are not overwritten
+	// User must override these functions as required. 
+	// I have not made them abstract because 
+	// I do need a default behaviour 
+	// to occur if they are not overwritten
 
 	bool PixelGameEngine::OnUserCreate()
 	{
@@ -2888,7 +2992,8 @@ namespace olc
 
 	bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
 	{
-		UNUSED(fElapsedTime);  return false;
+		OLC_IF_NOT_CXX_17(UNUSED(fElapsedTime);)
+		return false;
 	}
 
 	bool PixelGameEngine::OnUserDestroy()
@@ -2899,9 +3004,7 @@ namespace olc
 
 	void PixelGameEngine::olc_UpdateViewport()
 	{
-		int32_t ww = vScreenSize.x * vPixelSize.x;
-		int32_t wh = vScreenSize.y * vPixelSize.y;
-		float wasp = (float)ww / (float)wh;
+		const float wasp = float(vScreenSize.x * vPixelSize.x) / float(vScreenSize.y * vPixelSize.y);
 
 		if (bPixelCohesion)
 		{
@@ -2910,13 +3013,13 @@ namespace olc
 		}
 		else
 		{
-			vViewSize.x = (int32_t)vWindowSize.x;
-			vViewSize.y = (int32_t)((float)vViewSize.x / wasp);
+			vViewSize.x = int32_t(vWindowSize.x);
+			vViewSize.y = int32_t(float(vViewSize.x) / wasp);
 
 			if (vViewSize.y > vWindowSize.y)
 			{
 				vViewSize.y = vWindowSize.y;
-				vViewSize.x = (int32_t)((float)vViewSize.y * wasp);
+				vViewSize.x = int32_t(float(vViewSize.y) * wasp);
 			}
 		}
 
@@ -3407,7 +3510,7 @@ namespace olc
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
-		void SetDecalMode(const olc::DecalMode& mode)
+		void SetDecalMode(const olc::DecalMode& mode) override
 		{
 			if (mode != nDecalMode)
 			{
@@ -4081,7 +4184,7 @@ namespace olc
 			else
 			{
 				// Check file exists
-				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+				if (!gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
 
 				// Load sprite from file
 				bmp = Gdiplus::Bitmap::FromFile(ConvertS2W(sImageFile).c_str());
@@ -4280,7 +4383,7 @@ namespace olc
 			else
 			{
 				// Check file exists
-				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+				if (!gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
 				bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
 			}
 
