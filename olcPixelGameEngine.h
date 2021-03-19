@@ -1460,7 +1460,7 @@ namespace olc
 	}
 
 	// Needs testing
-	Sprite::RowView<Pixel> Sprite::operator[](std::size_t index) { return Sprite::RowView<Pixel>(pColData + (index * height), pColData + (index * (height + 1))); }
+	Sprite::RowView<Pixel> Sprite::operator[](std::size_t index) { return Sprite::RowView<Pixel>(pColData + (index * width), pColData + ((index + 1) * width)); }
 
 	Pixel Sprite::Sample(float x, float y) const noexcept
 	{
