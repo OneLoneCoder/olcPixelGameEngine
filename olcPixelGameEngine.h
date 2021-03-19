@@ -339,6 +339,7 @@ namespace gfs = std::filesystem;
 #if __cplusplus >= 202002L
 	#define OLC_CXX_20
 #endif
+
 #if defined(OLC_CXX_20)
 	#define OLC_CXX_17
 #else
@@ -586,7 +587,7 @@ namespace olc
 		v2d_generic  operator +  () const { return { +x, +y }; }
 		v2d_generic  operator -  () const { return { -x, -y }; }
 		bool operator==(const v2d_generic& rhs) const { return (this->x == rhs.x && this->y == rhs.y); }
-		OLC_IF_NOT_CXX_20(bool operator!=(const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }) // @Au-lit let the compiler optimise if it want
+		bool operator!=(const v2d_generic& rhs) const { return (this->x != rhs.x || this->y != rhs.y); }
 		const std::string str() const { return std::string("(") + std::to_string(this->x) + ", " + std::to_string(this->y) + ')'; }
 		operator v2d_generic<int32_t>() const noexcept { return { static_cast<int32_t>(this->x), static_cast<int32_t>(this->y) }; }
 		operator v2d_generic<double>() const noexcept { return { static_cast<double>(this->x), static_cast<double>(this->y) }; }
@@ -710,7 +711,7 @@ namespace olc
 			  height(h),
 			  pColData(new Pixel[width * height]) 
 		{
-			std::fill_n(pColData, width * height, Pixel());
+			std::fill_n(pColData, width * height, Pixel()); // I don't know if it's useful
 		}
 
 		Sprite(const olc::Sprite& other) 
@@ -722,7 +723,7 @@ namespace olc
 			std::copy_n(other.pColData, width * height, pColData); // because it breaks otherwise
 		}
 
-		Sprite(olc::Sprite&& other)
+		Sprite(olc::Sprite&& other) noexcept
 			: width(other.width),
 			  height(other.height),
 			  modeSample(other.modeSample),
@@ -1258,33 +1259,33 @@ namespace olc
 
 	Pixel  Pixel::operator * (const float i) const noexcept
 	{
-		return { std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) * i))),
-				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) * i))),
-				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) * i))),
+		return { uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i))),
+				 uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i))),
+				 uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i))),
 				 a };
 	}
 
 	Pixel  Pixel::operator / (const float i) const
 	{
-		return { std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) / i))),
-				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) / i))),
-				 std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) / i))),
+		return { uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i))),
+				 uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i))),
+				 uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i))),
 				 a };
 	}
 
 	Pixel& Pixel::operator *=(const float i)
 	{
-		r = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) * i)));
-		g = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) * i)));
-		b = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) * i)));
+		r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
+		g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
+		b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
 		return *this;
 	}
 
 	Pixel& Pixel::operator /=(const float i)
 	{
-		r = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(r) / i)));
-		g = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(g) / i)));
-		b = std::min(uint8_t(255), uint8_t(std::max(0.0f, float(b) / i)));
+		r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
+		g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
+		b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
 		return *this;
 	}
 
@@ -1459,12 +1460,12 @@ namespace olc
 	}
 
 	// Needs testing
-	Sprite::RowView<Pixel> Sprite::operator[](std::size_t index) { return Sprite::RowView<Pixel>(pColData + (index * height), pColData + (index * height + height)); }
+	Sprite::RowView<Pixel> Sprite::operator[](std::size_t index) { return Sprite::RowView<Pixel>(pColData + (index * height), pColData + (index * (height + 1))); }
 
 	Pixel Sprite::Sample(float x, float y) const noexcept
 	{
 		return GetPixel(std::min(int32_t(x * float(width)), width - 1),
-						std::min(int32_t(y * float(height)), height - 1));
+		                std::min(int32_t(y * float(height)), height - 1));
 	}
 
 	Pixel Sprite::SampleBL(float u, float v) const
@@ -2027,7 +2028,7 @@ namespace olc
 			if (p.a == 255) return pDrawTarget->SetPixel(x, y, p);
 		}
 
-		else if (nPixelMode == olc::Pixel::ALPHA) {
+		if (nPixelMode == olc::Pixel::ALPHA) {
 			const float a = (float(p.a) / 255.0f) * fBlendFactor;
 			return pDrawTarget->SetPixel(x, y, { p * a + (pDrawTarget->GetPixel(x, y) * (1.0f - a)) });
 		}
@@ -2262,17 +2263,17 @@ namespace olc
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
 	{
 		if (x < 0) x = 0;
-		else if (x >= GetDrawTargetWidth()) x = GetDrawTargetWidth();
+		if (x >= GetDrawTargetWidth()) x = GetDrawTargetWidth();
 		if (y < 0) y = 0;
-		else if (y >= GetDrawTargetHeight()) y = GetDrawTargetHeight();
+		if (y >= GetDrawTargetHeight()) y = GetDrawTargetHeight();
 
 		int32_t x2 = x + w;
 		if (x2 < 0) x2 = 0;
-		else if (x2 >= GetDrawTargetWidth()) x2 = GetDrawTargetWidth();
+		if (x2 >= GetDrawTargetWidth()) x2 = GetDrawTargetWidth();
 		
 		int32_t y2 = y + h;
 		if (y2 < 0) y2 = 0;
-		else if (y2 >= GetDrawTargetHeight()) y2 = GetDrawTargetHeight();
+		if (y2 >= GetDrawTargetHeight()) y2 = GetDrawTargetHeight();
 
 		for (int32_t i = x; i < x2; ++i)
 			for (int32_t j = y; j < y2; ++j)
@@ -2977,7 +2978,7 @@ namespace olc
 		// Note : We could use std::clamp (or some equivalent here)
 		// but I don't know if it's gonna be better / faster because I didn't test it...
 		if (fBlendFactor < 0.0f) fBlendFactor = 0.0f;
-		else if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
+		if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
 	}
 
 	// User must override these functions as required. 
