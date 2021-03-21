@@ -1,0 +1,77 @@
+
+<!doctype html>
+<html lang="en-us">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Emscripten-Generated Code</title>
+        <style>
+html,body {	width: 100%; height: 100%; }
+body { font-family: arial; margin: 0; padding: 0; background: #000; }
+
+.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+div.emscripten_border { border: none; }
+
+/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+canvas.emscripten { border: 0px none; background-color: black; }
+        </style>
+    </head>
+    <body>
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+        <script type='text/javascript'>
+var Module = {
+    preRun: [],
+    postRun: [],
+    canvas: (function() {
+        var canvas = document.getElementById('canvas');
+
+        // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+        // application robust, you may want to override this behavior before shipping!
+        // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+        canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+
+        return canvas;
+    })(),
+};
+        </script>
+        <script async type="text/javascript" src="./pge.js"></script>
+        <script type="text/javascript">
+Module.canvas.addEventListener("resize", (e) => {
+
+    var viewWidth = e.detail.width;
+    var viewHeight = e.detail.width / Module._olc_WindowAspectRatio;
+
+    if(viewHeight > e.detail.height)
+    {
+        viewHeight = e.detail.height;
+        viewWidth = e.detail.height * Module._olc_WindowAspectRatio;
+    }
+
+    // update dom attributes
+    Module.canvas.setAttribute("width", viewWidth);
+    Module.canvas.setAttribute("height", viewHeight);
+
+    var top = (e.detail.height - viewHeight) / 2;
+    var left = (e.detail.width - viewWidth) / 2;
+
+    // update styles
+    Module.canvas.style.position = "fixed";
+    Module.canvas.style.top = top.toString() + "px";
+    Module.canvas.style.left = left.toString() + "px";
+    Module.canvas.style.width = "";
+    Module.canvas.style.height = "";
+
+    // trigger PGE update
+    Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
+
+    // ensure canvas has focus
+    Module.canvas.focus();
+    e.preventDefault();
+});
+</script>
+
+    </body>
+</html>
+
+
