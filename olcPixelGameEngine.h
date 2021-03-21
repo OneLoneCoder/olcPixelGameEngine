@@ -152,7 +152,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, �OneLoneCoder 2018, 2019, 2020, 2021
+	David Barr, aka javidx9, �OneLoneCoder 2018, 2019, 2020, 2021
 
 	2.01: Made renderer and platform static for multifile projects
 	2.02: Added Decal destructor, optimised Pixel constructor
@@ -915,6 +915,10 @@ namespace olc
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		void FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
+    // Draw a polygon defined by the vector of points
+    void DrawPolygon(const std::vector<olc::vi2d>& points, Pixel p = olc::WHITE);
+    // Flat fills a polygon define by the vector or points
+    void FillPolygon(const std::vector<olc::vi2d>& points, Pixel p = olc::WHITE);
 		// Draws an entire sprite at location (x,y)
 		void DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 		void DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
@@ -2331,6 +2335,99 @@ namespace olc
 			if (y > y3) return;
 		}
 	}
+
+
+  void PixelGameEngine::DrawPolygon(const std::vector<olc::vi2d>& points, olc::Pixel p)
+  {
+    // Maybe nothing to do?
+    if (points.size() <= 0) 
+      return;
+
+    // Draw every line and close the polygon
+    for (int i=0; i < points.size(); i++) {
+      DrawLine(points[i], points[(i+1) % points.size()], p);
+    }
+  }  
+
+  void PixelGameEngine::FillPolygon(const std::vector<olc::vi2d>& points, olc::Pixel p)
+  {
+    // Maybe nothing to do?
+    if (points.size() <= 0) 
+      return;
+
+    // Find the min and max Y-values
+    float starty = (float)vScreenSize.y;
+    float stopy = 0.f;
+    for (auto &p: points)
+    {
+      if (p.y < starty) starty = p.y;
+      if (p.y > stopy)  stopy  = p.y;
+    }
+
+    // Run through every scanline containing the polygon and convert to lines
+    std::vector<int32_t> nodex;
+    for (int32_t y = (int32_t)starty; y < (int32_t)stopy; y++)
+    {
+      //  Build a list of nodes.
+      nodex.clear();
+      int j = points.size() - 1;
+      for (int i=0; i<points.size(); i++)
+      {
+        float pxi = points[i].x; 
+        float pyi = points[i].y; 
+        float pxj = points[j].x; 
+        float pyj = points[j].y; 
+
+        if (  (pyi < (float)y && pyj >= (float)y) || (pyj < (float)y && pyi >= (float)y) )
+        {
+          nodex.push_back((int32_t)(pxi + (y - pyi) / (pyj - pyi) * (pxj - pxi)));
+        }
+        j=i;
+      }
+
+      // Maybe no scanline goes through polygon (should not occur, but just to be sure...)
+      if (nodex.size() <= 0)
+        continue;
+
+      //  Sort the nodes, via a simple “Bubble” sort.
+      int i=0;
+      float swap;
+      while (i < nodex.size() - 1) 
+      {
+        if (nodex[i] > nodex[i+1]) 
+        {
+          swap = nodex[i]; 
+          nodex[i] = nodex[i+1]; 
+          nodex[i+1] = swap; 
+          if (i > 0) 
+            i--; 
+        }
+        else 
+        {
+          i++; 
+        }
+      }
+
+      //  Fill the pixels between node pairs.
+      for (i=0; i < nodex.size(); i+=2) 
+      {
+        if (nodex[i] >= vScreenSize.x) 
+          break;
+
+        if (nodex[i+1] > 0) 
+        {
+          if (nodex[i] < 0) 
+            nodex[i] = 0 ;
+
+          if(nodex[i+1] > vScreenSize.x) 
+            nodex[i+1] = vScreenSize.x;
+
+          for (int32_t x = nodex[i]; x < nodex[i+1]; x++) 
+            PixelGameEngine::Draw(x, y, p);
+        }
+      }
+    }
+  }
 
 	void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
 	{
