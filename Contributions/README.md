@@ -29,6 +29,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 ## Build Systems
 * CMake script 
   * https://github.com/plane000/olcPixelGameEngine/blob/master/CMakeLists.txt 
+* CMake script for all includes Emscripten/WASM/Webby stuff
+  * https://github.com/L0huis/PGE-CMake
 
 ## Utilities
 * Additional fonts and font handling tools 
