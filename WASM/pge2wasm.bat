@@ -55,9 +55,9 @@ goto :error
 	
 :graball	
 	echo Gathering *.cpp files from
-	echo    %CD%
+	echo    "%CD%"
 	set CPP=
-	for %%x in (%CD%\*.cpp) do set CPP=!CPP! %%x
+	for %%x in ("%CD%"\*.cpp) do set CPP=!CPP! %%x
 	set CPP=%CPP:~1%
 
 :embuild	
@@ -65,10 +65,10 @@ goto :error
 echo %CPP%
 	if exist "./assets" (
 		echo Starting Build with assets...
-		call em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 %CPP% -o .\WASM\pge.html -I %OLCPGE% --preload-file .\assets
+		call em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 "%CPP%" -o .\WASM\pge.html -I %OLCPGE% --preload-file .\assets
 	) else (
 		echo Starting Build without assets...
-		call em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 %CPP% -o .\WASM\pge.html -I %OLCPGE%
+		call em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 "%CPP%" -o .\WASM\pge.html -I %OLCPGE%
 	)
 	
 	echo Build Completed
