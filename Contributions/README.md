@@ -27,6 +27,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/MumflrFumperdink/olcPGEMac
 
 ## Build Systems
+* Meson (https://mesonbuild.com/index.html)
+  * https://github.com/jpakkane/pixeldemo
 * CMake script 
   * https://github.com/plane000/olcPixelGameEngine/blob/master/CMakeLists.txt 
 * CMake script for all includes Emscripten/WASM/Webby stuff
