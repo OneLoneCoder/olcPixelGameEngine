@@ -193,7 +193,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021
 */
 #pragma endregion
 
@@ -3417,11 +3417,7 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(OLC_PLATFORM_GLUT)
-			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
-#else
 			glViewport(pos.x, pos.y, size.x, size.y);
-#endif
 		}
 	};
 }
@@ -3942,11 +3938,7 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(OLC_PLATFORM_GLUT)
-			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
-#else
 			glViewport(pos.x, pos.y, size.x, size.y);
-#endif
 		}
 	};
 }
@@ -4753,6 +4745,7 @@ namespace olc {
 	{
 	public:
 		static std::atomic<bool>* bActiveRef;
+		static olc::vi2d vWindowSize;
 
 		virtual olc::rcode ApplicationStartUp() override {
 			return olc::rcode::OK;
@@ -4802,6 +4795,10 @@ namespace olc {
 			}
 			glutPostRedisplay();
 		}
+		
+		static void ResizeFunct(int width, int height) {
+		    glutReshapeWindow(vWindowSize.x, vWindowSize.y);
+		}
 
 		static void DrawFunct() {
 			ptrPGE->olc_CoreUpdate();
@@ -4810,7 +4807,6 @@ namespace olc {
 		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
 		{
 			renderer->PrepareDevice();
-
 
 			if (bFullScreen)
 			{
@@ -4823,6 +4819,8 @@ namespace olc {
 				perror("ERROR: The specified window dimensions do not fit on your screen\n");
 				return olc::FAIL;
 			}
+			
+			Platform_GLUT::vWindowSize = vWindowSize;
 
 			// Create Keyboard Mapping
 			mapKeys[0x00] = Key::NONE;
@@ -4932,6 +4930,8 @@ namespace olc {
 				if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
 				else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
 				});
+			
+			glutReshapeFunc(ResizeFunct);
 
 			glutDisplayFunc(DrawFunct);
 			glutIdleFunc(ThreadFunct);
@@ -4957,6 +4957,7 @@ namespace olc {
 	};
 
 	std::atomic<bool>* Platform_GLUT::bActiveRef{ nullptr };
+	olc::vi2d Platform_GLUT::vWindowSize{ 0, 0 };
 
 	//Custom Start
 	olc::rcode PixelGameEngine::Start()
