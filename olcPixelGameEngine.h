@@ -477,6 +477,8 @@ int main()
 	#endif
 	#if defined(__APPLE__)
 		#include <GLUT/glut.h>
+        	#include <objc/message.h>
+        	#include <objc/NSObjCRuntime.h>
 	#endif
 #endif
 #pragma endregion
@@ -4745,7 +4747,6 @@ namespace olc {
 	{
 	public:
 		static std::atomic<bool>* bActiveRef;
-		static olc::vi2d vWindowSize;
 
 		virtual olc::rcode ApplicationStartUp() override {
 			return olc::rcode::OK;
@@ -4787,17 +4788,49 @@ namespace olc {
 			platform->ApplicationCleanUp();
 			exit(0);
 		}
+		
+#if defined(__APPLE__)
+	        static void scrollWheelUpdate(id selff, SEL _sel, id theEvent) {
+            		static const SEL deltaYSel = sel_registerName("deltaY");
 
+            		double deltaY = ((double (*)(id, SEL))objc_msgSend_fpret)(theEvent, deltaYSel);
+
+            		for(int i = 0; i < abs(deltaY); i++) {
+                		if (deltaY > 0) {
+					ptrPGE->olc_UpdateMouseWheel(-1);
+                		}
+                		else if (deltaY < 0) {
+                    			ptrPGE->olc_UpdateMouseWheel(1);
+                		}
+            		}
+        	}
+#endif
 		static void ThreadFunct() {
+#if defined(__APPLE__)
+            		static bool hasEnabledCocoa = false;
+            		if (!hasEnabledCocoa) {
+                		// Objective-C Wizardry
+                		Class NSApplicationClass = objc_getClass("NSApplication");
+
+                		// NSApp = [NSApplication sharedApplication]
+                		SEL sharedApplicationSel = sel_registerName("sharedApplication");
+                		id NSApp = ((id (*)(Class, SEL))objc_msgSend)(NSApplicationClass, sharedApplicationSel);
+                		// window = [NSApp mainWindow]
+                		SEL mainWindowSel = sel_registerName("mainWindow");
+                		id window = ((id (*)(id, SEL))objc_msgSend)(NSApp, mainWindowSel);
+
+                		// [window setStyleMask: NSWindowStyleMaskClosable | ~NSWindowStyleMaskResizable]
+                		SEL setStyleMaskSel = sel_registerName("setStyleMask:");
+                		((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 7);
+
+                		hasEnabledCocoa = true;
+            		}
+#endif
 			if (!*bActiveRef) {
 				ExitMainLoop();
 				return;
 			}
 			glutPostRedisplay();
-		}
-		
-		static void ResizeFunct(int width, int height) {
-		    glutReshapeWindow(vWindowSize.x, vWindowSize.y);
 		}
 
 		static void DrawFunct() {
@@ -4806,6 +4839,14 @@ namespace olc {
 
 		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
 		{
+#if defined(__APPLE__)
+            		Class GLUTViewClass = objc_getClass("GLUTView");
+
+            		SEL scrollWheelSel = sel_registerName("scrollWheel:");
+            		bool resultAddMethod = class_addMethod(GLUTViewClass, scrollWheelSel, (IMP)scrollWheelUpdate,  "v@:@");
+            		assert(resultAddMethod);
+#endif
+
 			renderer->PrepareDevice();
 
 			if (bFullScreen)
@@ -4814,13 +4855,15 @@ namespace olc {
 				vWindowSize.y = glutGet(GLUT_SCREEN_HEIGHT);
 				glutFullScreen();
 			}
-
-			if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT)) {
-				perror("ERROR: The specified window dimensions do not fit on your screen\n");
-				return olc::FAIL;
+			else
+			{
+                		if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT))
+				{
+                    			perror("ERROR: The specified window dimensions do not fit on your screen\n");
+                    			return olc::FAIL;
+                		}
+				glutReshapeWindow(vWindowSize.x, vWindowSize.y);
 			}
-			
-			Platform_GLUT::vWindowSize = vWindowSize;
 
 			// Create Keyboard Mapping
 			mapKeys[0x00] = Key::NONE;
@@ -4917,7 +4960,7 @@ namespace olc {
 					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
 					break;
 				}
-				});
+			});
 
 			auto mouseMoveCall = [](int x, int y) -> void {
 				ptrPGE->olc_UpdateMouse(x, y);
@@ -4929,9 +4972,7 @@ namespace olc {
 			glutEntryFunc([](int state) -> void {
 				if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
 				else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
-				});
-			
-			glutReshapeFunc(ResizeFunct);
+			});
 
 			glutDisplayFunc(DrawFunct);
 			glutIdleFunc(ThreadFunct);
@@ -4957,7 +4998,6 @@ namespace olc {
 	};
 
 	std::atomic<bool>* Platform_GLUT::bActiveRef{ nullptr };
-	olc::vi2d Platform_GLUT::vWindowSize{ 0, 0 };
 
 	//Custom Start
 	olc::rcode PixelGameEngine::Start()
