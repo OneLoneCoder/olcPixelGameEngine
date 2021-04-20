@@ -111,7 +111,7 @@
 	about Mac, so if you need support, I suggest checking out the instructions
 	here: https://github.com/MumflrFumperdink/olcPGEMac
 
-	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL -framework GLUT -lpng YourSource.cpp -o YourProgName
+	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL -framework GLUT -framework Carbon -lpng YourSource.cpp -o YourProgName
 
 
 
@@ -193,7 +193,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021
 */
 #pragma endregion
 
@@ -477,6 +477,8 @@ int main()
 	#endif
 	#if defined(__APPLE__)
 		#include <GLUT/glut.h>
+        	#include <objc/message.h>
+        	#include <objc/NSObjCRuntime.h>
 	#endif
 #endif
 #pragma endregion
@@ -3417,11 +3419,7 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(OLC_PLATFORM_GLUT)
-			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
-#else
 			glViewport(pos.x, pos.y, size.x, size.y);
-#endif
 		}
 	};
 }
@@ -3942,11 +3940,7 @@ namespace olc
 
 		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
 		{
-#if defined(OLC_PLATFORM_GLUT)
-			if (!mFullScreen) glutReshapeWindow(size.x, size.y);
-#else
 			glViewport(pos.x, pos.y, size.x, size.y);
-#endif
 		}
 	};
 }
@@ -4794,8 +4788,44 @@ namespace olc {
 			platform->ApplicationCleanUp();
 			exit(0);
 		}
+		
+#if defined(__APPLE__)
+	        static void scrollWheelUpdate(id selff, SEL _sel, id theEvent) {
+            		static const SEL deltaYSel = sel_registerName("deltaY");
 
+            		double deltaY = ((double (*)(id, SEL))objc_msgSend_fpret)(theEvent, deltaYSel);
+
+            		for(int i = 0; i < abs(deltaY); i++) {
+                		if (deltaY > 0) {
+					ptrPGE->olc_UpdateMouseWheel(-1);
+                		}
+                		else if (deltaY < 0) {
+                    			ptrPGE->olc_UpdateMouseWheel(1);
+                		}
+            		}
+        	}
+#endif
 		static void ThreadFunct() {
+#if defined(__APPLE__)
+            		static bool hasEnabledCocoa = false;
+            		if (!hasEnabledCocoa) {
+                		// Objective-C Wizardry
+                		Class NSApplicationClass = objc_getClass("NSApplication");
+
+                		// NSApp = [NSApplication sharedApplication]
+                		SEL sharedApplicationSel = sel_registerName("sharedApplication");
+                		id NSApp = ((id (*)(Class, SEL))objc_msgSend)(NSApplicationClass, sharedApplicationSel);
+                		// window = [NSApp mainWindow]
+                		SEL mainWindowSel = sel_registerName("mainWindow");
+                		id window = ((id (*)(id, SEL))objc_msgSend)(NSApp, mainWindowSel);
+
+                		// [window setStyleMask: NSWindowStyleMaskClosable | ~NSWindowStyleMaskResizable]
+                		SEL setStyleMaskSel = sel_registerName("setStyleMask:");
+                		((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 7);
+
+                		hasEnabledCocoa = true;
+            		}
+#endif
 			if (!*bActiveRef) {
 				ExitMainLoop();
 				return;
@@ -4809,8 +4839,15 @@ namespace olc {
 
 		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
 		{
-			renderer->PrepareDevice();
+#if defined(__APPLE__)
+            		Class GLUTViewClass = objc_getClass("GLUTView");
 
+            		SEL scrollWheelSel = sel_registerName("scrollWheel:");
+            		bool resultAddMethod = class_addMethod(GLUTViewClass, scrollWheelSel, (IMP)scrollWheelUpdate,  "v@:@");
+            		assert(resultAddMethod);
+#endif
+
+			renderer->PrepareDevice();
 
 			if (bFullScreen)
 			{
@@ -4818,10 +4855,14 @@ namespace olc {
 				vWindowSize.y = glutGet(GLUT_SCREEN_HEIGHT);
 				glutFullScreen();
 			}
-
-			if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT)) {
-				perror("ERROR: The specified window dimensions do not fit on your screen\n");
-				return olc::FAIL;
+			else
+			{
+                		if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT))
+				{
+                    			perror("ERROR: The specified window dimensions do not fit on your screen\n");
+                    			return olc::FAIL;
+                		}
+				glutReshapeWindow(vWindowSize.x, vWindowSize.y-1);
 			}
 
 			// Create Keyboard Mapping
@@ -4919,7 +4960,7 @@ namespace olc {
 					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
 					break;
 				}
-				});
+			});
 
 			auto mouseMoveCall = [](int x, int y) -> void {
 				ptrPGE->olc_UpdateMouse(x, y);
@@ -4931,7 +4972,7 @@ namespace olc {
 			glutEntryFunc([](int state) -> void {
 				if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
 				else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
-				});
+			});
 
 			glutDisplayFunc(DrawFunct);
 			glutIdleFunc(ThreadFunct);

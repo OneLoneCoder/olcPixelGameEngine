@@ -23,7 +23,7 @@ olcPixelGameEngine is easily extended! for example:
 olcPixelGameEngine is easy to port! Runs on:
  * Windows (all)
  * Linux / Raspberry Pi / ChromeOS
- * MacOS (coming soon to official, but already available in "Contributors")
+ * MacOS
  * PSP & Switch (Not supported by OneLoneCoder)
  
 olcPixelGameEngine has been reimplemented in other languages!
