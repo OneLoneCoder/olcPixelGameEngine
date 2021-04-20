@@ -4862,7 +4862,7 @@ namespace olc {
                     			perror("ERROR: The specified window dimensions do not fit on your screen\n");
                     			return olc::FAIL;
                 		}
-				glutReshapeWindow(vWindowSize.x, vWindowSize.y);
+				glutReshapeWindow(vWindowSize.x, vWindowSize.y-1);
 			}
 
 			// Create Keyboard Mapping
