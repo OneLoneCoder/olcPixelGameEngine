@@ -133,7 +133,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@
 			// called once per frame, draws random coloured pixels
 			for (int x = 0; x < ScreenWidth(); x++)
 				for (int y = 0; y < ScreenHeight(); y++)
-					Draw(x, y, olc::Pixel(rand() % 255, rand() % 255, rand()% 255));
+					Draw(x, y, olc::Pixel(rand() % 256, rand() % 256, rand() % 256));
 			return true;
 		}
 	};
