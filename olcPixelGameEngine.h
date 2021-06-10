@@ -137,7 +137,15 @@
 
 	Before including the olcPixelGameEngine.h header file. stb_image.h works on many systems
 	and can be downloaded here: https://github.com/nothings/stb/blob/master/stb_image.h
+	If you want to write png images, you will also need "stb_image_write.h", which can be
+	downloaded here: https://github.com/nothings/stb/blob/master/stb_image_write.h
 
+	To use stb_image_write.h specify:
+
+	#define OLC_IMAGE_STB_WRITE
+
+	Before including the olcPixelGameEngine.h header file. Note that this only is meaningful
+	if you already use stb_image.h.
 
 
 	Multiple cpp file projects?
@@ -515,7 +523,7 @@ int main()
 		#if defined(_WIN32)
 			#define	OLC_IMAGE_GDI
 		#endif
-		#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+		#if (defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)) && !defined(OLC_IMAGE_STB)
 			#define	OLC_IMAGE_LIBPNG
 		#endif
 	#endif
@@ -4647,7 +4655,19 @@ namespace olc
 
 #if defined(OLC_IMAGE_STB)
 #define STB_IMAGE_IMPLEMENTATION
+#if defined(_WIN32) && defined(UNICODE)
+#define STBI_WINDOWS_UTF8
+#endif
 #include "stb_image.h"
+
+#if defined(OLC_IMAGE_STB_WRITE)
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#if defined(_WIN32) && defined(UNICODE)
+#define STBIW_WINDOWS_UTF8
+#endif
+#include "stb_image_write.h"
+#endif
+
 namespace olc
 {
 	class ImageLoader_STB : public olc::ImageLoader
@@ -4684,9 +4704,16 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
-			return olc::rcode::OK;
+#if !defined(OLC_IMAGE_STB_WRITE)
+			return olc::rcode::FAIL;
+#else
+			if (spr == nullptr)
+				return olc::rcode::FAIL;
+			int res = stbi_write_png(sImageFile.c_str(), spr->width, spr->height, 4, spr->pColData.data(), spr->width * sizeof(olc::Pixel));
+			return res == 0 ? olc::rcode::OK : olc::rcode::FAIL;
+#endif
 		}
 	};
 }
