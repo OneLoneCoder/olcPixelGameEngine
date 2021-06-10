@@ -1036,7 +1036,7 @@ namespace olc
 		ImageLoader() = default;
 		virtual ~ImageLoader() = default;
 		virtual olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) = 0;
-		virtual olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) = 0;
+		virtual olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) = 0;
 	};
 
 
@@ -1054,6 +1054,7 @@ namespace olc
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
+		olc::rcode SaveToFile(const std::string& sImageFile) const;
 
 	public:
 		int32_t width = 0;
@@ -1964,6 +1965,10 @@ namespace olc
 	{
 		UNUSED(pack);
 		return loader->LoadImageResource(this, sImageFile, pack);
+	}
+	olc::rcode Sprite::SaveToFile(const std::string& sImageFile) const
+	{
+		return loader->SaveImageResource(this, sImageFile);
 	}
 
 	olc::Sprite* Sprite::Duplicate()
@@ -5718,9 +5723,42 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
-			return olc::rcode::OK;
+			if (spr == nullptr)
+				return olc::rcode::FAIL;
+
+			UINT numEncoders = 0;
+			UINT byteSize = 0;
+			if (Gdiplus::GetImageEncodersSize(&numEncoders, &byteSize) != Gdiplus::Status::Ok)
+				return olc::rcode::FAIL;
+
+			// Round up or use one more element
+			int requiredSpace = static_cast<int>(byteSize / sizeof(Gdiplus::ImageCodecInfo) + 1);
+			std::vector<Gdiplus::ImageCodecInfo> infos(requiredSpace);
+			if (Gdiplus::GetImageEncoders(numEncoders, byteSize, &infos[0]) != Gdiplus::Status::Ok)
+				return olc::rcode::FAIL;
+			infos.resize(numEncoders);
+
+			// Search for PNG codec
+			auto pngIt = std::find_if(infos.begin(), infos.end(), [](const Gdiplus::ImageCodecInfo& ci) {
+				return wcscmp(ci.MimeType, L"image/png") == 0;
+				});
+
+			if (pngIt == infos.end()) return olc::rcode::FAIL;
+
+			Gdiplus::Bitmap bmp(spr->width, spr->height, PixelFormat32bppARGB);
+
+			for (int y = 0; y < spr->height; y++)
+				for (int x = 0; x < spr->width; x++)
+				{
+					Pixel p = spr->GetPixel(x, y);
+					Gdiplus::Color c(p.a, p.r, p.g, p.b);
+					if (bmp.SetPixel(x, y, c) != Gdiplus::Status::Ok)
+						return olc::rcode::FAIL;
+				}
+
+			return bmp.Save(ConvertS2W(sImageFile).c_str(), &pngIt->Clsid) == Gdiplus::Status::Ok ? olc::rcode::OK : olc::rcode::FAIL;
 		}
 	};
 }
@@ -5842,7 +5880,7 @@ namespace olc
 			return olc::rcode::FAIL;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
 			return olc::rcode::OK;
 		}
