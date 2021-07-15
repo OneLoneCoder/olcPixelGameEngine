@@ -2128,23 +2128,18 @@ namespace olc
     void PixelGameEngine::FillArc(int32_t iterations, int32_t centreX, int32_t centreY, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t radius, olc::Pixel p)
     {
         if (!iterations) return;
-        //Get points
         int32_t midX = (x0 + x1) >> 1;
         int32_t midY = (y0 + y1) >> 1;
         int32_t arcX = radius * cos(atan2(midY - centreY, midX - centreX)) + centreX;
         int32_t arcY = radius * sin(atan2(midY - centreY, midX - centreX)) + centreY;
-        //Fill triangle
         FillTriangle(x0, y0, x1, y1, arcX, arcY, p);
-        //Recur
         FillArc(iterations - 1, centreX, centreY, x0, y0, arcX, arcY, radius, p);
         FillArc(iterations - 1, centreX, centreY, x1, y1, arcX, arcY, radius, p);
-        return;
     }
 	void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
 	{ // Thanks to IanM-Matrix1 #PR121
 		if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
 			return;
-
         if (radius==0)
         {
             Draw(x, y, p);
@@ -2156,95 +2151,66 @@ namespace olc
         if (radius > height || radius > width)
         {
             //This can be modified for higher precision
-            const int32_t ITERATIONS = 4;
-
-            //Currently unprotected against overflow
-            //Check if all four points are within circle
+            const int32_t ITERATIONS = 1;
+            //Check if all four corners are within circle
             const bool topLeft = (x)*(x)+(y)*(y) <= radius * radius;
             const bool topRight = (x - width)*(x - width) + (y)*(y) <= radius * radius;
             const bool bottomLeft = (x)*(x)+(y - height)*(y - height) <= radius * radius;
             const bool bottomRight = (x - width)*(x - width) + (y - height)*(y - height) <= radius * radius;
-
-            //Four Points inside circle
-            if (
-                bottomRight &&
-                topRight &&
-                bottomLeft &&
-                topLeft
-                )
+            int32_t yRight = y + (topLeft?1:-1)*sqrt(radius*radius - (width - x)*(width - x));
+            int32_t yLeft = y + (topLeft?1:-1)*sqrt(radius*radius-x*x);
+            int32_t xTop = x + (topLeft?1:-1)*sqrt(radius*radius - (height - y)*(height - y));
+            int32_t xBottom = x + (topLeft?1:-1)*sqrt(radius*radius - y * y);
+            //Four corners inside circle
+            if (bottomRight && topRight && bottomLeft && topLeft)
             {
                 Clear(p);
                 return;
             }
-            //Three Points inside circle
+            //Three corners inside circle
             else if (topLeft + topRight + bottomRight + bottomLeft == 3)
             {
+                int32_t yIntercept = y + ((topLeft&&topRight)?1:-1)*sqrt(radius*radius - ((topLeft&&bottomLeft)?(width-x)*(width-x):(x*x)));
+                int32_t xIntercept = x + ((topLeft&&bottomLeft)?1:-1)*sqrt(radius*radius - ((topLeft&&topRight)?(height-y)*(height-y):(y*y)));
                 if (!topLeft)
                 {
                     FillTriangle(width, 0, width, height, 0, height, p);
-
-                    int32_t yLeft = y - sqrt(radius*radius - x*x);
-                    int32_t xTop = x - sqrt(radius*radius - y * y);
-
-                    FillTriangle(0, height, 0, yLeft, xTop, 0,p);
-                    FillTriangle(0,height,xTop,0,width,0, p);
-
-                    //Fill arc
-                    FillArc(ITERATIONS, x, y, 0, yLeft, xTop, 0, radius, p);
-
+                    FillTriangle(0, height, 0, yIntercept, xIntercept, 0,p);
+                    FillTriangle(0,height,xIntercept,0,width,0, p);
+                    FillArc(ITERATIONS, x, y, 0, yIntercept, xIntercept, 0, radius, p);
                     return;
                 }
                 else if (!topRight)
                 {
                     FillTriangle(0,0, width, height, 0, height, p);
-
-                    int32_t yRight = y - sqrt(radius*radius - (width-x) * (width - x));
-                    int32_t xTop = x + sqrt(radius*radius - y*y);
-
-                    FillTriangle(0, 0, xTop, 0, width, yRight, p);
-                    FillTriangle(0, 0, width, yRight, width, height, p);
-
-                    FillArc(ITERATIONS, x, y, width, yRight, xTop, 0, radius, p);
-
+                    FillTriangle(0, 0, xIntercept, 0, width, yIntercept, p);
+                    FillTriangle(0, 0, width, yIntercept, width, height, p);
+                    FillArc(ITERATIONS, x, y, width, yIntercept, xIntercept, 0, radius, p);
                     return;
                 }
                 else if (!bottomLeft)
                 {
                     FillTriangle(0, 0, width, 0, width, height, p);
-
-                    int32_t yLeft = y + sqrt(radius*radius - x * x);
-                    int32_t xBottom = x - sqrt(radius*radius - (height - y) * (height - y));
-
-                    FillTriangle(0, yLeft, xBottom, height, width, height, p);
-                    FillTriangle(0, 0, 0, yLeft, width, height, p);
-
-                    FillArc(ITERATIONS, x, y, 0, yLeft, xBottom, height, radius, p);
-
+                    FillTriangle(0, yIntercept, xIntercept, height, width, height, p);
+                    FillTriangle(0, 0, 0, yIntercept, width, height, p);
+                    FillArc(ITERATIONS, x, y, 0, yIntercept, xIntercept, height, radius, p);
                     return;
                 }
                 else  //!bottomRight
                 {
                     FillTriangle(0, 0, width, 0, 0, height, p);
-
-                    int32_t yRight = y + sqrt(radius*radius - (width - x) * (width - x));
-                    int32_t xBottom = x + sqrt(radius*radius - (height - y) * (height - y));
-
-                    FillTriangle(0, height, width, 0, width, yRight,p);
-                    FillTriangle(0, height, xBottom, height, width, yRight, p);
-
-                    FillArc(ITERATIONS, x, y, width, yRight, xBottom, height, radius, p);
-
+                    FillTriangle(0, height, width, 0, width, yIntercept,p);
+                    FillTriangle(0, height, xIntercept, height, width, yIntercept, p);
+                    FillArc(ITERATIONS, x, y, width, yIntercept, xIntercept, height, radius, p);
                     return;
                 }
             }
-            //Two points inside circle
+            //Two corners inside circle
             else if (topLeft + topRight + bottomRight + bottomLeft == 2)
             {
                 if (topLeft && topRight)
                 {
-                    int32_t yRight = y + sqrt(radius*radius - (width - x)*(width - x));
-                    int32_t yLeft = y + sqrt(radius*radius - x * x);
-                    if (x > width / 2)
+                    if (yRight > yLeft)
                     {
                         FillRect(0, 0, width, yLeft, p);
                         FillTriangle(0, yLeft, width, yLeft, width, yRight, p);
@@ -2259,9 +2225,7 @@ namespace olc
                 }
                 else if (topLeft && bottomLeft)
                 {
-                    int32_t xTop = x + sqrt(radius*radius - (height - y)*(height - y));
-                    int32_t xBottom = x + sqrt(radius*radius - y * y);
-                    if (y > height / 2)
+                    if (xTop > xBottom)
                     {
                         FillRect(0, 0, xBottom, height, p);
                         FillTriangle(xBottom, 0, xBottom, height, xTop, height, p);
@@ -2276,9 +2240,7 @@ namespace olc
                 }
                 else if (bottomRight && topRight)
                 {
-                    int32_t xTop = x - sqrt(radius*radius - (height - y)*(height - y));
-                    int32_t xBottom = x - sqrt(radius*radius - y * y);
-                    if (y > height / 2)
+                    if (xBottom > xTop)
                     {
                         FillTriangle(xBottom, 0, xTop, height, xBottom, height, p);
                         FillRect(xBottom, 0, width, height, p);
@@ -2293,9 +2255,7 @@ namespace olc
                 }
                 else //bottomRight && bottomLeft
                 {
-                    int32_t yLeft = y - sqrt(radius*radius - x * x);
-                    int32_t yRight = y - sqrt(radius*radius - (width - x)*(width - x));
-                    if (x > width / 2)
+                    if (yLeft > yRight)
                     {
                         FillRect(0, yLeft, width, height, p);
                         FillTriangle(0, yLeft, width, yLeft, width, yRight, p);
@@ -2309,48 +2269,37 @@ namespace olc
                     return;
                 }
             }
-            //One Point inside circle
+            //One corner inside circle
             else if (topLeft)
             {
-                int32_t yLeft = y + sqrt(radius*radius - x * x);
-                int32_t xTop = x + sqrt(radius*radius - y*y);
-
+                xTop = x + sqrt(radius*radius - y*y);
                 FillTriangle(0, 0, xTop, 0, 0, yLeft, p);
-
                 FillArc(ITERATIONS, x, y, xTop, 0, 0, yLeft, radius, p);
                 return;
             }
             else if (topRight)
             {
-                int32_t yRight = y + sqrt(radius*radius - (width-x) * (width - x));
-                int32_t xTop = x - sqrt(radius*radius - y * y);
-
+                yRight = y + sqrt(radius*radius - (width-x) * (width - x));
+                xTop = x - sqrt(radius*radius - y * y);
                 FillTriangle(xTop, 0, width, 0, width, yRight, p);
-
                 FillArc(ITERATIONS, x, y, xTop, 0, width, yRight, radius, p);
                 return;
             }
             else if (bottomRight)
             {
-                int32_t yRight = y - sqrt(radius*radius - (width - x) * (width - x));
-                int32_t xBottom = x - sqrt(radius*radius - (height-y) * (height - y));
-
+                xBottom = x - sqrt(radius*radius - (height-y) * (height - y));
                 FillTriangle(xBottom, height, width, height, width, yRight, p);
-
                 FillArc(ITERATIONS, x, y, xBottom, height, width, yRight, radius, p);
                 return;
             }
             else if (bottomLeft)
             {
-                int32_t yLeft = y - sqrt(radius*radius - x*x);
-                int32_t xBottom = x + sqrt(radius*radius - (height - y) * (height - y));
-
+                xBottom = x + sqrt(radius*radius - (height - y) * (height - y));
                 FillTriangle(0, yLeft, 0, height, xBottom, height, p);
-
                 FillArc(ITERATIONS, x, y, xBottom, height, 0, yLeft, radius, p);
                 return;
             }
-            //No points inside circle
+            //No corners inside circle
             else
             {
                 //Do extra checks on the y's
@@ -2358,9 +2307,7 @@ namespace olc
                 {
                     int32_t yLeft1 = y - sqrt(radius*radius - x * x);
                     int32_t yLeft2 = y + sqrt(radius*radius - x * x);
-
                     if (yLeft1 < 0 || yLeft2 < 0 || yLeft1 > height || yLeft2 > height) return;
-
                     FillArc(ITERATIONS, x, y, 0, yLeft1, 0, yLeft2, radius, p);
                     return;
                 }
@@ -2368,9 +2315,7 @@ namespace olc
                 {
                     int32_t yRight1 = y - sqrt(radius*radius - (width-x) * (width - x));
                     int32_t yRight2 = y + sqrt(radius*radius - (width - x) * (width - x));
-
                     if (yRight1 < 0 || yRight2 < 0 || yRight1 > height || yRight2 > height) return;
-
                     FillArc(ITERATIONS, x, y, width, yRight1, width, yRight2, radius, p);
                     return;
                 }
@@ -2378,9 +2323,7 @@ namespace olc
                 {
                     int32_t xTop1 = x - sqrt(radius*radius - y * y);
                     int32_t xTop2 = x + sqrt(radius*radius - y * y);
-
                     if (xTop1 < 0 || xTop2 < 0 || xTop1 > width || xTop2 > width) return;
-
                     FillArc(ITERATIONS, x, y, xTop1, 0, xTop2, 0, radius, p);
                     return;
                 }
@@ -2388,18 +2331,12 @@ namespace olc
                 {
                     int32_t xBottom1 = x - sqrt(radius*radius - (height - y)*(height - y));
                     int32_t xBottom2 = x + sqrt(radius*radius - (height - y)*(height - y));
-
                     if (xBottom1 < 0 || xBottom2 < 0 || xBottom1 > width || xBottom2 > width) return;
-
                     FillArc(ITERATIONS, x, y, xBottom1, height, xBottom2, height, radius, p);
                     return;
                 }
-
-                //overflow
                 return;
-
             }
-
             goto standardCircleFill;
         }
         else
