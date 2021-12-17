@@ -194,7 +194,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021
 */
 #pragma endregion
 
@@ -1306,13 +1306,9 @@ namespace olc
 		{
 			if (x >= 0 && x < width && y >= 0 && y < height)
 				return pColData[y * width + x];
-			else
-				return Pixel(0, 0, 0, 0);
+			return Pixel(0, 0, 0, 0);
 		}
-		else
-		{
-			return pColData[abs(y % height) * width + abs(x % width)];
-		}
+		return pColData[abs(y % height) * width + abs(x % width)];
 	}
 
 	bool Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
@@ -1322,8 +1318,7 @@ namespace olc
 			pColData[y * width + x] = p;
 			return true;
 		}
-		else
-			return false;
+		return false;
 	}
 
 	Pixel Sprite::Sample(float x, float y) const
@@ -1438,12 +1433,9 @@ namespace olc
 			pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter, clamp);
 			return olc::rcode::OK;
 		}
-		else
-		{
-			pSprite.release();
-			pSprite = nullptr;
-			return olc::rcode::NO_FILE;
-		}
+		pSprite.release();
+		pSprite = nullptr;
+		return olc::rcode::NO_FILE;
 	}
 
 	olc::Decal* Renderable::Decal() const
@@ -1764,16 +1756,14 @@ namespace olc
 	{
 		if (pDrawTarget)
 			return pDrawTarget->width;
-		else
-			return 0;
+		return 0;
 	}
 
 	int32_t PixelGameEngine::GetDrawTargetHeight() const
 	{
 		if (pDrawTarget)
 			return pDrawTarget->height;
-		else
-			return 0;
+		return 0;
 	}
 
 	uint32_t PixelGameEngine::GetFPS() const
@@ -1830,9 +1820,7 @@ namespace olc
 		if (!pDrawTarget) return false;
 
 		if (nPixelMode == Pixel::NORMAL)
-		{
 			return pDrawTarget->SetPixel(x, y, p);
-		}
 
 		if (nPixelMode == Pixel::MASK)
 		{
@@ -1852,9 +1840,7 @@ namespace olc
 		}
 
 		if (nPixelMode == Pixel::CUSTOM)
-		{
 			return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
-		}
 
 		return false;
 	}
@@ -1952,33 +1938,34 @@ namespace olc
 
 		if (radius > 0)
 		{
-			int x0 = 0;
-			int y0 = radius;
-			int d = 3 - 2 * radius;
-
-			while (y0 >= x0) // only formulate 1/8 of circle
-			{
-				// Draw even octants
-				if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
-				if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
-				if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
-				if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
-				if (x0 != 0 && x0 != y0)
-				{
-					if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
-					if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
-					if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
-					if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
-				}
-
-				if (d < 0)
-					d += 4 * x0++ + 6;
-				else
-					d += 4 * (x0++ - y0--) + 10;
-			}
-		}
-		else
 			Draw(x, y, p);
+			return;
+		}
+
+		int x0 = 0;
+		int y0 = radius;
+		int d = 3 - 2 * radius;
+
+		while (y0 >= x0) // only formulate 1/8 of circle
+		{
+			// Draw even octants
+			if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
+			if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
+			if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
+			if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
+			if (x0 != 0 && x0 != y0)
+			{
+				if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
+				if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
+				if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
+				if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
+			}
+
+			if (d < 0)
+				d += 4 * x0++ + 6;
+			else
+				d += 4 * (x0++ - y0--) + 10;
+		}
 	}
 
 	void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
@@ -1991,36 +1978,37 @@ namespace olc
 
 		if (radius > 0)
 		{
-			int x0 = 0;
-			int y0 = radius;
-			int d = 3 - 2 * radius;
+			Draw(x, y, p);
+			return;
+		}
 
-			auto drawline = [&](int sx, int ex, int y)
+		int x0 = 0;
+		int y0 = radius;
+		int d = 3 - 2 * radius;
+
+		auto drawline = [&](int sx, int ex, int y)
+		{
+			for (int x = sx; x <= ex; x++)
+				Draw(x, y, p);
+		};
+
+		while (y0 >= x0)
+		{
+			drawline(x - y0, x + y0, y - x0);
+			if (x0 > 0)	drawline(x - y0, x + y0, y + x0);
+
+			if (d < 0)
+				d += 4 * x0++ + 6;
+			else
 			{
-				for (int x = sx; x <= ex; x++)
-					Draw(x, y, p);
-			};
-
-			while (y0 >= x0)
-			{
-				drawline(x - y0, x + y0, y - x0);
-				if (x0 > 0)	drawline(x - y0, x + y0, y + x0);
-
-				if (d < 0)
-					d += 4 * x0++ + 6;
-				else
+				if (x0 != y0)
 				{
-					if (x0 != y0)
-					{
-						drawline(x - x0, x + x0, y - y0);
-						drawline(x - x0, x + x0, y + y0);
-					}
-					d += 4 * (x0++ - y0--) + 10;
+					drawline(x - x0, x + x0, y - y0);
+					drawline(x - x0, x + x0, y + y0);
 				}
+				d += 4 * (x0++ - y0--) + 10;
 			}
 		}
-		else
-			Draw(x, y, p);
 	}
 
 	void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
@@ -2552,22 +2540,22 @@ namespace olc
 		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
 		olc::vf2d center;
 		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
-		if (rd != 0)
+
+		if (rd == 0) return;
+
+		rd = 1.0f / rd;
+		float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
+		float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
+		if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
+		float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
+		for (int i = 0; i < 4; i++)
 		{
-			rd = 1.0f / rd;
-			float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
-			float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
-			if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
-			float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
-			for (int i = 0; i < 4; i++)
-			{
-				float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
-				di.uv[i] *= q; di.w[i] *= q;
-				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			}
-			di.mode = nDecalMode;
-			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+			float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
+			di.uv[i] *= q; di.w[i] *= q;
+			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
 		}
+		di.mode = nDecalMode;
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
 	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::Pixel& tint)
