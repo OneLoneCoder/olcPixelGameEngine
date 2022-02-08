@@ -195,7 +195,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021, 2022
 */
 #pragma endregion
 
@@ -548,7 +548,16 @@ namespace olc
 
 	Pixel PixelF(float red, float green, float blue, float alpha = 1.0f);
 	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t);
+	template<typename ...Args>
+	Pixel PixelLerp(float t, const Args& ...args)
+	{
+		std::array<Pixel, sizeof...(args)> pixels{args...};
+		const auto numint = pixels.size() - 1;
+		const auto idxint = static_cast<int>(t * numint);
+		const auto tout = (t - (idxint/numint)) * numint - idxint;
 
+		return PixelLerp(pixels.at(idxint), pixels.at(idxint+1), tout);
+	}
 
 	// O------------------------------------------------------------------------------O
 	// | USEFUL CONSTANTS                                                             |
