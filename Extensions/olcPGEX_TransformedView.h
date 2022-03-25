@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                 Transformed View v1.05                      |
+	|                 Transformed View v1.06                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -70,6 +70,7 @@
 			Removed unused "range" facility in TileTransformView
 	1.04:	Added DrawPolygonDecal() for arbitrary polygons
 	1.05:	Clipped DrawSprite() to visible area, massive performance increase
+	1.06:	Fixed error in DrawLine() - Thanks CraisyDaisyRecords (& Fern)!
 */
 
 #pragma once
@@ -375,7 +376,7 @@ namespace olc
 	
 	void TransformedView::DrawLine(float x1, float y1, float x2, float y2, olc::Pixel p, uint32_t pattern)
 	{
-		DrawLine({ x1, y2 }, { x2, y2 }, p, pattern);
+		DrawLine({ x1, y1 }, { x2, y2 }, p, pattern);
 	}
 
 	void TransformedView::DrawLine(const olc::vf2d & pos1, const olc::vf2d & pos2, olc::Pixel p, uint32_t pattern)
