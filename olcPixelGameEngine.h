@@ -195,7 +195,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2018, 2019, 2020, 2021, 2022
 */
 #pragma endregion
 
@@ -4539,7 +4539,7 @@ namespace olc
 			spr->width = w; spr->height = h;
 			spr->pColData.resize(spr->width * spr->height);
 			std::memcpy(spr->pColData.data(), bytes, spr->width * spr->height * 4);
-			delete[] bytes;
+			stbi_free(bytes);
 			return olc::rcode::OK;
 		}
 
@@ -4551,7 +4551,7 @@ namespace olc
 }
 #endif
 // O------------------------------------------------------------------------------O
-// | START IMAGE LOADER: stb_image.h                                              |
+// | END IMAGE LOADER: stb_image.h                                                |
 // O------------------------------------------------------------------------------O
 #pragma endregion
 
