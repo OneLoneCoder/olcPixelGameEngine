@@ -1907,7 +1907,7 @@ namespace olc
 			float g = (a * (float)p.g + c * (float)d.g) * s;
 			float b = (a * (float)p.b + c * (float)d.b) * s;
 
-			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
+			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)(a3 * 255)));
 		}
 
 		if (nPixelMode == Pixel::CUSTOM)
