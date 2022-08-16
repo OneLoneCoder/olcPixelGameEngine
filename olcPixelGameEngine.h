@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.17              |
+	|           OneLoneCoder Pixel Game Engine v2.19              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -282,7 +282,23 @@
 		  +Reintroduced sub-pixel decals
 		  +Modified DrawPartialDecal() to quantise and correctly sample from tile atlasses
 		  +olc::Sprite::GetPixel() - Clamp Mode
-
+	2.18: +Option to not "dirty" layers with SetDrawTarget() - Thanks TerasKasi!
+		  =Detection for Mac M1, fix for scroll wheel interrogation - Thanks ruarq!
+	2.19: Textual Input(of)course Edition!
+	      =Built in font is now olc::Renderable
+		  +EnablePixelTransfer() - Gate if layer content transfers occur (speedup in decal only apps)
+		  +TextEntryEnable() - Enables/Disables text entry mode
+		  +TextEntryGetString() - Gets the current accumulated string in text entry mode
+		  +TextEntryGetCursor() - Gets the current cursor position in text entry mode
+		  +IsTextEntryEnabled() - Returns true if text entry mode is activated
+		  +OnTextEntryComplete() - Override is called when user presses "ENTER" in text entry mode
+		  +Potential for regional keyboard mappings - needs volunteers to do this
+		  +ConsoleShow() - Opens built in command console
+		  +ConsoleClear() - Clears built in command console output
+		  +ConsoleOut() - Stream strings to command console output
+		  +ConsoleCaptureStdOut() - Capture std::cout by redirecting to built-in console
+		  +IsConsoleShowing() - Returns true if console is currently active
+		  +OnConsoleCommand() - Override is called when command is entered into built in console
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -362,7 +378,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 217
+#define PGE_VER 219
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -378,6 +394,10 @@ int main()
 	#if __cplusplus >= 201703L
 		#undef USE_EXPERIMENTAL_FS
 	#endif
+#endif
+
+#if !defined(OLC_KEYBOARD_UK)
+	#define OLC_KEYBOARD_UK
 #endif
 
 
@@ -909,6 +929,11 @@ namespace olc
 		// Called once on application termination, so you can be one clean coder
 		virtual bool OnUserDestroy();
 
+		// Called when a text entry is confirmed with "enter" key
+		virtual void OnTextEntryComplete(const std::string& sText);
+		// Called when a console command is executed
+		virtual bool OnConsoleCommand(const std::string& sCommand);
+
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
 		bool IsFocused() const;
@@ -958,7 +983,7 @@ namespace olc
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
-		void SetDrawTarget(uint8_t layer);
+		void SetDrawTarget(uint8_t layer, bool bDirty = true);
 		void EnableLayer(uint8_t layer, bool b);
 		void SetLayerOffset(uint8_t layer, const olc::vf2d& offset);
 		void SetLayerOffset(uint8_t layer, float x, float y);
@@ -1071,6 +1096,30 @@ namespace olc
 		// Clip a line segment to visible area
 		bool ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2);
 
+		// Dont allow PGE to mark layers as dirty, so pixel graphics don't update
+		void EnablePixelTransfer(const bool bEnable = true);
+
+		// Command Console Routines
+		void ConsoleShow(const olc::Key &keyExit, bool bSuspendTime = true);
+		bool IsConsoleShowing() const;
+		void ConsoleClear();
+		std::stringstream& ConsoleOut();
+		void ConsoleCaptureStdOut(const bool bCapture);
+
+		// Text Entry Routines
+		void TextEntryEnable(const bool bEnable, const std::string& sText = "");
+		std::string TextEntryGetString() const;
+		int32_t TextEntryGetCursor() const;
+		bool IsTextEntryEnabled() const;
+
+
+
+	private:
+		void UpdateTextEntry();
+		void UpdateConsole();
+
+	public:
+
 		// Experimental Lightweight 3D Routines ================
 #ifdef OLC_ENABLE_EXPERIMENTAL
 		// Set Manual View Matrix
@@ -1123,9 +1172,9 @@ namespace olc
 		bool		bEnableVSYNC = false;
 		float		fFrameTimer = 1.0f;
 		float		fLastElapsed = 0.0f;
-		int			nFrameCount = 0;
-		Sprite*     fontSprite = nullptr;
-		Decal*      fontDecal = nullptr;
+		int			nFrameCount = 0;		
+		bool bSuspendTextureTransfer = false;
+		Renderable  fontRenderable;
 		std::vector<LayerDesc> vLayers;
 		uint8_t		nTargetLayer = 0;
 		uint32_t	nLastFPS = 0;
@@ -1135,6 +1184,27 @@ namespace olc
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 		std::chrono::time_point<std::chrono::system_clock> m_tp1, m_tp2;
 		std::vector<olc::vi2d> vFontSpacing;
+
+		// Command Console Specific
+		bool bConsoleShow = false;
+		bool bConsoleSuspendTime = false;
+		olc::Key keyConsoleExit = olc::Key::F1;
+		std::stringstream ssConsoleOutput;
+		std::streambuf* sbufOldCout = nullptr;
+		olc::vi2d vConsoleSize;
+		olc::vi2d vConsoleCursor = { 0,0 };
+		olc::vf2d vConsoleCharacterScale = { 1.0f, 2.0f };
+		std::vector<std::string> sConsoleLines;
+		std::list<std::string> sCommandHistory;
+		std::list<std::string>::iterator sCommandHistoryIt;
+
+		// Text Entry Specific
+		bool bTextEntryEnable = false;
+		std::string sTextEntryString = "";
+		int32_t nTextEntryCursor = 0;
+		std::vector<std::tuple<olc::Key, std::string, std::string>> vKeyboardMap;
+
+
 
 		// State of keyboard		
 		bool		pKeyNewState[256] = { 0 };
@@ -1769,12 +1839,12 @@ namespace olc
 		}
 	}
 
-	void PixelGameEngine::SetDrawTarget(uint8_t layer)
+	void PixelGameEngine::SetDrawTarget(uint8_t layer, bool bDirty)
 	{
 		if (layer < vLayers.size())
 		{
 			pDrawTarget = vLayers[layer].pDrawTarget.Sprite();
-			vLayers[layer].bUpdate = true;
+			vLayers[layer].bUpdate = bDirty;
 			nTargetLayer = layer;
 		}
 	}
@@ -2105,7 +2175,7 @@ namespace olc
 	{ renderer->ClearBuffer(p, bDepth);	}
 
 	olc::Sprite* PixelGameEngine::GetFontSprite()
-	{ return fontSprite; }
+	{ return fontRenderable.Sprite(); }
 
 	bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
 	{
@@ -2138,6 +2208,11 @@ namespace olc
 			}
 		}
 		return true;
+	}
+
+	void PixelGameEngine::EnablePixelTransfer(const bool bEnable)
+	{
+		bSuspendTextureTransfer = !bEnable;
 	}
 
 
@@ -2776,7 +2851,7 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+				DrawPartialDecal(pos + spos, fontRenderable.Decal(), {float(ox) * 8.0f, float(oy) * 8.0f}, {8.0f, 8.0f}, scale, col);
 				spos.x += 8.0f * scale.x;
 			}
 		}
@@ -2799,7 +2874,7 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontDecal, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+				DrawPartialDecal(pos + spos, fontRenderable.Decal(), { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
 				spos.x += float(vFontSpacing[c - 32].y) * scale.x;
 			}
 		}
@@ -2822,7 +2897,7 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialRotatedDecal(pos, fontDecal, fAngle, spos, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+				DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
 				spos.x -= 8.0f;
 			}
 		}
@@ -2845,7 +2920,7 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialRotatedDecal(pos, fontDecal, fAngle, spos, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+				DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
 				spos.x -= float(vFontSpacing[c - 32].y);
 			}
 		}
@@ -2899,7 +2974,7 @@ namespace olc
 				{
 					for (uint32_t i = 0; i < 8; i++)
 						for (uint32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+							if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
 								for (uint32_t is = 0; is < scale; is++)
 									for (uint32_t js = 0; js < scale; js++)
 										Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
@@ -2908,7 +2983,7 @@ namespace olc
 				{
 					for (uint32_t i = 0; i < 8; i++)
 						for (uint32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+							if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
 								Draw(x + sx + i, y + sy + j, col);
 				}
 				sx += 8 * scale;
@@ -2967,7 +3042,7 @@ namespace olc
 				{
 					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
 						for (int32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+							if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
 								for (int32_t is = 0; is < int(scale); is++)
 									for (int32_t js = 0; js < int(scale); js++)
 										Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
@@ -2976,7 +3051,7 @@ namespace olc
 				{
 					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
 						for (int32_t j = 0; j < 8; j++)
-							if (fontSprite->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+							if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
 								Draw(x + sx + i, y + sy + j, col);
 				}
 				sx += vFontSpacing[c - 32].y * scale;
@@ -3004,6 +3079,204 @@ namespace olc
 		if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
 	}
 
+	std::stringstream& PixelGameEngine::ConsoleOut()
+	{ return ssConsoleOutput; }
+
+	bool PixelGameEngine::IsConsoleShowing() const
+	{ return bConsoleShow; }
+
+	void PixelGameEngine::ConsoleShow(const olc::Key& keyExit, bool bSuspendTime)
+	{
+		if (bConsoleShow)
+			return;
+
+		bConsoleShow = true;		
+		bConsoleSuspendTime = bSuspendTime;
+		TextEntryEnable(true);
+		keyConsoleExit = keyExit;
+		pKeyboardState[keyConsoleExit].bHeld = false;
+		pKeyboardState[keyConsoleExit].bPressed = false;
+		pKeyboardState[keyConsoleExit].bReleased = true;
+	}
+	
+	void PixelGameEngine::ConsoleClear()
+	{ sConsoleLines.clear(); }
+
+	void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
+	{
+		if(bCapture)
+			sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
+		else
+			std::cout.rdbuf(sbufOldCout);
+	}
+
+	void PixelGameEngine::UpdateConsole()
+	{
+		if (GetKey(keyConsoleExit).bPressed)
+		{
+			TextEntryEnable(false);
+			bConsoleSuspendTime = false;
+			bConsoleShow = false;
+			return;
+		}
+
+		// Keep Console sizes based in real screen dimensions
+		vConsoleCharacterScale = olc::vf2d(1.0f, 2.0f) / (olc::vf2d(vViewSize) * vInvScreenSize);
+		vConsoleSize = (vViewSize / olc::vi2d(8, 16)) - olc::vi2d(2, 4);
+
+		// If console has changed size, simply reset it
+		if (vConsoleSize.y != sConsoleLines.size())
+		{
+			vConsoleCursor = { 0,0 };
+			sConsoleLines.clear();
+			sConsoleLines.resize(vConsoleSize.y);
+		}
+
+		auto TypeCharacter = [&](const char c)
+		{
+			if (c >= 32 && c < 127)
+			{
+				sConsoleLines[vConsoleCursor.y].append(1, c);
+				vConsoleCursor.x++;
+			}
+
+			if( c == '\n' || vConsoleCursor.x >= vConsoleSize.x)
+			{
+				vConsoleCursor.y++; vConsoleCursor.x = 0;				
+			}			
+
+			if (vConsoleCursor.y >= vConsoleSize.y)
+			{
+				vConsoleCursor.y = vConsoleSize.y - 1;
+				for (size_t i = 1; i < vConsoleSize.y; i++)
+					sConsoleLines[i - 1] = sConsoleLines[i];
+				sConsoleLines[vConsoleCursor.y].clear();
+			}
+		};
+
+		// Empty out "std::cout", parsing as we go
+		while (ssConsoleOutput.rdbuf()->sgetc() != -1)
+		{
+			char c = ssConsoleOutput.rdbuf()->sbumpc();
+			TypeCharacter(c);
+		}
+
+		// Draw Shadow
+		GradientFillRectDecal({ 0,0 }, olc::vf2d(vScreenSize), olc::PixelF(0, 0, 0.5f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f));
+				
+		// Draw the console buffer
+		SetDecalMode(olc::DecalMode::NORMAL);
+		for (int32_t nLine = 0; nLine < vConsoleSize.y; nLine++)
+			DrawStringDecal(olc::vf2d( 1, 1 + float(nLine) ) * vConsoleCharacterScale * 8.0f, sConsoleLines[nLine], olc::WHITE, vConsoleCharacterScale);
+
+		// Draw Input State
+		FillRectDecal(olc::vf2d(1 + float((TextEntryGetCursor() + 1)), 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, olc::vf2d(8, 8) * vConsoleCharacterScale, olc::DARK_CYAN);
+		DrawStringDecal(olc::vf2d(1, 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, std::string(">") + TextEntryGetString(), olc::YELLOW, vConsoleCharacterScale);		
+	}
+
+
+
+	void PixelGameEngine::TextEntryEnable(const bool bEnable, const std::string& sText)
+	{
+		if (bEnable)
+		{
+			nTextEntryCursor = int32_t(sText.size());
+			sTextEntryString = sText;
+			bTextEntryEnable = true;
+		}
+		else
+		{
+			bTextEntryEnable = false;
+		}
+	}
+
+	std::string PixelGameEngine::TextEntryGetString() const
+	{ return sTextEntryString; }
+
+	int32_t PixelGameEngine::TextEntryGetCursor() const
+	{ return nTextEntryCursor; }
+
+	bool PixelGameEngine::IsTextEntryEnabled() const
+	{ return bTextEntryEnable; }
+
+
+	void PixelGameEngine::UpdateTextEntry()
+	{
+		// Check for typed characters
+		for (const auto& key : vKeyboardMap)
+			if (GetKey(std::get<0>(key)).bPressed)
+			{
+				sTextEntryString.insert(nTextEntryCursor, GetKey(olc::Key::SHIFT).bHeld ? std::get<2>(key) : std::get<1>(key));
+				nTextEntryCursor++;
+			}
+
+		// Check for command characters
+		if (GetKey(olc::Key::LEFT).bPressed)
+			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+		if (GetKey(olc::Key::RIGHT).bPressed)
+			nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
+		if (GetKey(olc::Key::BACK).bPressed && nTextEntryCursor > 0)
+		{
+			sTextEntryString.erase(nTextEntryCursor-1, 1);
+			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+		}
+		if (GetKey(olc::Key::DEL).bPressed && nTextEntryCursor < sTextEntryString.size())
+			sTextEntryString.erase(nTextEntryCursor, 1);	
+
+		if (GetKey(olc::Key::UP).bPressed)
+		{
+			if (!sCommandHistory.empty())
+			{
+				if (sCommandHistoryIt != sCommandHistory.begin())
+					sCommandHistoryIt--;
+
+				nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+				sTextEntryString = *sCommandHistoryIt;
+			}
+		}
+
+		if (GetKey(olc::Key::DOWN).bPressed)
+		{	
+			if (!sCommandHistory.empty())
+			{
+				if (sCommandHistoryIt != sCommandHistory.end())
+				{
+					sCommandHistoryIt++;
+					if (sCommandHistoryIt != sCommandHistory.end())
+					{
+						nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+						sTextEntryString = *sCommandHistoryIt;
+					}
+					else
+					{
+						nTextEntryCursor = 0;
+						sTextEntryString = "";
+					}
+				}
+			}
+		}
+
+		if (GetKey(olc::Key::ENTER).bPressed)
+		{
+			if (bConsoleShow)
+			{
+				std::cout << ">" + sTextEntryString + "\n";
+				if (OnConsoleCommand(sTextEntryString))
+				{
+					sCommandHistory.push_back(sTextEntryString);
+					sCommandHistoryIt = sCommandHistory.end();
+				}
+				sTextEntryString.clear();
+				nTextEntryCursor = 0;
+			}
+			else
+			{
+				OnTextEntryComplete(sTextEntryString);
+				TextEntryEnable(false);
+			}
+		}
+	}
+
 	// User must override these functions as required. I have not made
 	// them abstract because I do need a default behaviour to occur if
 	// they are not overwritten
@@ -3016,7 +3289,12 @@ namespace olc
 
 	bool PixelGameEngine::OnUserDestroy()
 	{ return true; }
+
+	void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
+	bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
 	
+
+	// Externalised API
 	void PixelGameEngine::olc_UpdateViewport()
 	{
 		int32_t ww = vScreenSize.x * vPixelSize.x;
@@ -3150,6 +3428,9 @@ namespace olc
 		float fElapsedTime = elapsedTime.count();
 		fLastElapsed = fElapsedTime;
 
+		if (bConsoleSuspendTime)
+			fElapsedTime = 0.0f;
+
 		// Some platforms will need to check for events
 		platform->HandleSystemEvent();
 
@@ -3185,7 +3466,10 @@ namespace olc
 		nMouseWheelDelta = nMouseWheelDeltaCache;
 		nMouseWheelDeltaCache = 0;
 
-		//	renderer->ClearBuffer(olc::BLACK, true);
+		if (bTextEntryEnable)
+		{
+			UpdateTextEntry();
+		}
 
 		// Handle Frame Update
 		bool bExtensionBlockFrame = false;
@@ -3195,6 +3479,12 @@ namespace olc
 			if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
 		}
 		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
+
+		if (bConsoleShow)
+		{
+			SetDrawTarget((uint8_t)0);
+			UpdateConsole();
+		}
 
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
@@ -3213,7 +3503,7 @@ namespace olc
 				if (layer->funcHook == nullptr)
 				{
 					renderer->ApplyTexture(layer->pDrawTarget.Decal()->id);
-					if (layer->bUpdate)
+					if (!bSuspendTextureTransfer && layer->bUpdate)
 					{
 						layer->pDrawTarget.Decal()->Update();
 						layer->bUpdate = false;
@@ -3233,6 +3523,8 @@ namespace olc
 				}
 			}
 		}
+
+		
 
 		// Present Graphics to screen
 		renderer->DisplayFrame();
@@ -3270,7 +3562,8 @@ namespace olc
 		data += "O`000P08Od400g`<3V=P0G`673IP0`@3>1`00P@6O`P00g`<O`000GP800000000";
 		data += "?P9PL020O`<`N3R0@E4HC7b0@ET<ATB0@@l6C4B0O`H3N7b0?P01L3R000000020";
 
-		fontSprite = new olc::Sprite(128, 48);
+		fontRenderable.Create(128, 48);
+
 		int px = 0, py = 0;
 		for (size_t b = 0; b < 1024; b += 4)
 		{
@@ -3283,12 +3576,12 @@ namespace olc
 			for (int i = 0; i < 24; i++)
 			{
 				int k = r & (1 << i) ? 255 : 0;
-				fontSprite->SetPixel(px, py, olc::Pixel(k, k, k, k));
+				fontRenderable.Sprite()->SetPixel(px, py, olc::Pixel(k, k, k, k));
 				if (++py == 48) { px++; py = 0; }
 			}
 		}
 
-		fontDecal = new olc::Decal(fontSprite);
+		fontRenderable.Decal()->Update();
 
 		constexpr std::array<uint8_t, 96> vSpacing = { {
 			0x03,0x25,0x16,0x08,0x07,0x08,0x08,0x04,0x15,0x15,0x08,0x07,0x15,0x07,0x24,0x08,
@@ -3300,6 +3593,32 @@ namespace olc
 
 		for (auto c : vSpacing) vFontSpacing.push_back({ c >> 4, c & 15 });
 
+		// UK Standard Layout
+#ifdef OLC_KEYBOARD_UK
+		vKeyboardMap =
+		{
+			{olc::Key::A, "a", "A"}, {olc::Key::B, "b", "B"}, {olc::Key::C, "c", "C"}, {olc::Key::D, "d", "D"}, {olc::Key::E, "e", "E"},
+			{olc::Key::F, "f", "F"}, {olc::Key::G, "g", "G"}, {olc::Key::H, "h", "H"}, {olc::Key::I, "i", "I"}, {olc::Key::J, "j", "J"},
+			{olc::Key::K, "k", "K"}, {olc::Key::L, "l", "L"}, {olc::Key::M, "m", "M"}, {olc::Key::N, "n", "N"}, {olc::Key::O, "o", "O"},
+			{olc::Key::P, "p", "P"}, {olc::Key::Q, "q", "Q"}, {olc::Key::R, "r", "R"}, {olc::Key::S, "s", "S"}, {olc::Key::T, "t", "T"},
+			{olc::Key::U, "u", "U"}, {olc::Key::V, "v", "V"}, {olc::Key::W, "w", "W"}, {olc::Key::X, "x", "X"}, {olc::Key::Y, "y", "Y"},
+			{olc::Key::Z, "z", "Z"},
+
+			{olc::Key::K0, "0", ")"}, {olc::Key::K1, "1", "!"}, {olc::Key::K2, "2", "\""}, {olc::Key::K3, "3", "#"},	{olc::Key::K4, "4", "$"},
+			{olc::Key::K5, "5", "%"}, {olc::Key::K6, "6", "^"}, {olc::Key::K7, "7", "&"}, {olc::Key::K8, "8", "*"},	{olc::Key::K9, "9", "("},
+
+			{olc::Key::NP0, "0", "0"}, {olc::Key::NP1, "1", "1"}, {olc::Key::NP2, "2", "2"}, {olc::Key::NP3, "3", "3"},	{olc::Key::NP4, "4", "4"},
+			{olc::Key::NP5, "5", "5"}, {olc::Key::NP6, "6", "6"}, {olc::Key::NP7, "7", "7"}, {olc::Key::NP8, "8", "8"},	{olc::Key::NP9, "9", "9"},
+			{olc::Key::NP_MUL, "*", "*"}, {olc::Key::NP_DIV, "/", "/"}, {olc::Key::NP_ADD, "+", "+"}, {olc::Key::NP_SUB, "-", "-"},	{olc::Key::NP_DECIMAL, ".", "."},
+
+			{olc::Key::PERIOD, ".", ">"}, {olc::Key::EQUALS, "=", "+"}, {olc::Key::COMMA, ",", "<"}, {olc::Key::MINUS, "-", "_"}, {olc::Key::SPACE, " ", " "},
+
+			{olc::Key::OEM_1, ";", ":"}, {olc::Key::OEM_2, "/", "?"}, {olc::Key::OEM_3, "\'", "@"}, {olc::Key::OEM_4, "[", "{"},
+			{olc::Key::OEM_5, "\\", "|"}, {olc::Key::OEM_6, "]", "}"}, {olc::Key::OEM_7, "#", "~"}, 
+			
+			// {olc::Key::TAB, "\t", "\t"}
+		};
+#endif
 	}
 
 	void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
@@ -5086,7 +5405,11 @@ namespace olc {
 		static void scrollWheelUpdate(id selff, SEL _sel, id theEvent) {
 			static const SEL deltaYSel = sel_registerName("deltaY");
 
+#if defined(__aarch64__) // Thanks ruarq!
+			double deltaY = ((double (*)(id, SEL))objc_msgSend)(theEvent, deltaYSel);
+#else
 			double deltaY = ((double (*)(id, SEL))objc_msgSend_fpret)(theEvent, deltaYSel);
+#endif
 
 			for (int i = 0; i < abs(deltaY); i++) {
 				if (deltaY > 0) {
