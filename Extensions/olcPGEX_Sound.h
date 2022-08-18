@@ -64,7 +64,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2019
 */
 
 
@@ -696,7 +696,7 @@ namespace olc
 				// User Process
 				for (unsigned int c = 0; c < m_nChannels; c++)
 				{
-					nNewSample = (short)(GetMixerOutput(c, m_fGlobalTime + fTimeStep * (float)n, fTimeStep), 1.0) * fMaxSample;
+					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime + fTimeStep * (float)n, fTimeStep), 1.0) * fMaxSample);
 					m_pBlockMemory[n + c] = nNewSample;
 					nPreviousSample = nNewSample;
 				}		
@@ -838,13 +838,13 @@ namespace olc
 				// User Process
 				for (unsigned int c = 0; c < m_nChannels; c++)
 				{
-					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime, fTimeStep), 1.0) * fMaxSample);
+					nNewSample = (short)(clip(GetMixerOutput(c, m_fGlobalTime + fTimeStep * (float)n, fTimeStep), 1.0) * fMaxSample);
 					m_pBlockMemory[n + c] = nNewSample;
 					nPreviousSample = nNewSample;
-				}
-
-				m_fGlobalTime = m_fGlobalTime + fTimeStep;
+				}		
 			}
+
+			m_fGlobalTime = m_fGlobalTime + fTimeStep * (float)m_nBlockSamples;
 
 			// Fill OpenAL data buffer
 			alBufferData(
