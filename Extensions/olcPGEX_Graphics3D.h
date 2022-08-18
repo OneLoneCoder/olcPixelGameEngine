@@ -61,7 +61,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 
@@ -259,7 +259,7 @@ namespace olc
 		//inline static void DrawSprite(olc::Sprite *sprite, olc::GFX2D::Transform2D &transform);
 
 	private:
-		static float* m_DepthBuffer;
+		static std::vector<float> m_DepthBuffer;
 	};
 }
 
@@ -845,17 +845,17 @@ namespace olc
 	
 	}
 
-	float* GFX3D::m_DepthBuffer = nullptr;
+	std::vector<float> GFX3D::m_DepthBuffer;
 
 	void GFX3D::ConfigureDisplay()
 	{
-		m_DepthBuffer = new float[pge->ScreenWidth() * pge->ScreenHeight()]{ 0 };
+		m_DepthBuffer.resize(pge->ScreenWidth() * pge->ScreenHeight());
 	}
 
 
 	void GFX3D::ClearDepth()
 	{
-		memset(m_DepthBuffer, 0, pge->ScreenWidth() * pge->ScreenHeight() * sizeof(float));
+		std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), 0);
 	}
 
 	bool GFX3D::mesh::LoadOBJFile(std::string sFilename, bool bHasTexture)
@@ -1525,7 +1525,9 @@ namespace olc
 
 					if (nFlags & GFX3D::RENDER_DEPTH)
 					{
-						if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						if (m_DepthBuffer.size() <= i * pge->ScreenWidth() + j)
+							pge->Draw(j, i, olc::BLACK); 
+						else if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
 							if (pge->Draw(j, i, olc::Pixel(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
 								m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
 					}
@@ -1640,7 +1642,9 @@ namespace olc
 
 					if (nFlags & GFX3D::RENDER_DEPTH)
 					{
-						if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
+						if (m_DepthBuffer.size() <= i * pge->ScreenWidth() + j)
+							pge->Draw(j, i, olc::BLACK); 
+						else if (tex_w > m_DepthBuffer[i*pge->ScreenWidth() + j])
 							if (pge->Draw(j, i, olc::Pixel(uint8_t(pixel_r * 1.0f), uint8_t(pixel_g * 1.0f), uint8_t(pixel_b * 1.0f), uint8_t(pixel_a * 1.0f))))
 								m_DepthBuffer[i*pge->ScreenWidth() + j] = tex_w;
 					}
