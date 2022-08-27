@@ -64,7 +64,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2019
 */
 
 
@@ -120,10 +120,8 @@ typedef struct {
 
 namespace olc
 {
-	// Container class for Advanced 2D Drawing functions
 	class SOUND : public olc::PGEX
 	{
-		// A representation of an affine transform, used to rotate, scale, offset & shear space
 	public:
 		class AudioSample
 		{
