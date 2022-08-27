@@ -149,7 +149,7 @@ public:
 		olc::vi2d vCurrentCell = object.vPos.floor();
 		olc::vi2d vTargetCell = vPotentialPosition;
 		olc::vi2d vAreaTL = (vCurrentCell.min(vTargetCell) - olc::vi2d(1, 1)).max({ 0,0 });
-		olc::vi2d vAreaBR = (vCurrentCell.max(vTargetCell) + olc::vi2d(1, 1)).min(vWorldSize);
+		olc::vi2d vAreaBR = (vCurrentCell.max(vTargetCell) + olc::vi2d(1, 1)).min(vWorldSize - olc::vi2d(1, 1));
 
 		olc::vf2d vRayToNearest;
 		 
