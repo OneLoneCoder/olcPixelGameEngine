@@ -60,7 +60,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019
+	David Barr, aka javidx9, Â©OneLoneCoder 2019
 */
 
 #define OLC_PGE_APPLICATION
@@ -523,7 +523,7 @@ public:
 		DrawCircle(sx, sy, 3, olc::YELLOW);
 
 		// Draw Cursor Position
-		DrawString(10, 10, "X=" + std::to_string(vCursor.x) + ", Y=" + std::to_string(vCursor.x), olc::YELLOW, 2);
+		DrawString(10, 10, "X=" + std::to_string(vCursor.x) + ", Y=" + std::to_string(vCursor.y), olc::YELLOW, 2);
 		return true;
 	}
 };
