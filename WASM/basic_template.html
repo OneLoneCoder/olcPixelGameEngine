@@ -20,21 +20,39 @@ canvas.emscripten { border: 0px none; background-color: black; }
     <body>
         <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
         <script type='text/javascript'>
-var Module = {
-    preRun: [],
-    postRun: [],
-    canvas: (function() {
-        var canvas = document.getElementById('canvas');
+        function openFullscreen(elem) {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+        var Module = {
+            preRun: [],
+            postRun: [],
+            canvas: (function () {
+                const canvas = document.querySelector('canvas');
 
-        // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-        // application robust, you may want to override this behavior before shipping!
-        // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
-        canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+                // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+                // application robust, you may want to override this behavior before shipping!
+                // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+                canvas.addEventListener("webglcontextlost", function (e) {
+                    alert('WebGL context lost. You will need to reload the page.');
+                    e.preventDefault();
+                }, false);
 
-        return canvas;
-    })(),
-};
-        </script>
+                canvas.addEventListener("keydown", (e) => {
+                    if (e.key === "F11") {
+                        openFullscreen(canvas);
+                    }
+                });
+
+                return canvas;
+            })(),
+        };
+    </script>
         <script async type="text/javascript" src="./pge.js"></script>
         <script type="text/javascript">
 Module.canvas.addEventListener("resize", (e) => {
