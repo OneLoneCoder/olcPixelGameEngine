@@ -3,10 +3,14 @@
 These source code contributions enhance the functionality of the olcPixelGameEngine header file. They are not supported by OneLoneCoder.com or javidx9 so use them at your own risk! Though this is a nice community and to get listed here you have to be trusted...
 
 ## PixelGameEngine Extensions (PGEX)
-* Widens support for audio files into olcPGEX_Sound.h
-  * https://github.com/gorbit99/olcPGEX_AudioConvert
+* Adds a "stencil buffer" like viewport to drawing functions
+  * https://github.com/gorbit99/olcPGEX_ViewPort
 * Cross Platform Controller Support
   * https://github.com/gorbit99/olcPGEX_Gamepad
+* General Font Rendering
+  * https://github.com/gorbit99/olcPGEX_TTF
+* Widens support for audio files into olcPGEX_Sound.h
+  * https://github.com/gorbit99/olcPGEX_AudioConvert
 * Sprite Animation, Sprite State Machine and Sprite Sheet Manipulation
   * https://github.com/matt-hayward/olcPGEX_AnimatedSprite
 * Additional colour constants
@@ -15,8 +19,6 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/justinrichardsmusic/PGEv2_Extensions
 * DearImGUI Integration
   * https://github.com/dandistine/olcPGEDearImGui
-* General Font Rendering
-  * https://github.com/gorbit99/olcPGEX_ttf
 * Pre-loaded Font Rendering
   * https://github.com/Oso-Grande/olcPGEX_Font
 * Arc Drawing
