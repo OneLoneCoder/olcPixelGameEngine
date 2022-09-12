@@ -1,6 +1,7 @@
 <p align="center">
   <a href="https://discord.gg/WhwHUMV"> <img src="https://img.shields.io/discord/380484403458998276?logo=discord"> </a>
 </p>
+Hang on! I'm looking for Javidx9's video source code! It's moved here: https://github.com/OneLoneCoder/Javidx9
 
 # olcPixelGameEngine
 The official distribution of olcPixelGameEngine, a tool used in javidx9's YouTube videos and projects.
