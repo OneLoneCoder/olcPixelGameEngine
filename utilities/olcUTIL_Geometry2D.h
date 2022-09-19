@@ -149,7 +149,7 @@ namespace olc::utils::geom2d
 		// Get line segment from top side of rectangle
 		inline line<T> top() const
 		{
-			return { pos, {pos + size.x, pos.y } };
+			return { pos, {pos.x + size.x, pos.y } };
 		}
 
 		// Get line segment from bottom side of rectangle
@@ -167,7 +167,7 @@ namespace olc::utils::geom2d
 		// Get line segment from right side of rectangle
 		inline line<T> right() const
 		{
-			return { {pos + size.x, pos.y }, pos + size };
+			return { {pos.x + size.x, pos.y }, pos + size };
 		}
 
 		// Get a line from an indexed side, starting top, going clockwise
@@ -342,7 +342,7 @@ namespace olc::utils::geom2d
 	inline constexpr bool contains(const rect<T1>& r, const olc::v2d_generic<T2>& p)
 	{
 		return !(p.x < r.pos.x || p.y < r.pos.y ||
-			p.x >= (r.pos.x + r.size.x) || p.y >= (r.pos.y + r.size.y));
+			p.x > (r.pos.x + r.size.x) || p.y > (r.pos.y + r.size.y));
 	}
 
 	// Checks if circle contains a point
@@ -426,10 +426,10 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const rect<T1>& r, const olc::v2d_generic<T2>& p)
 	{
 		std::vector<olc::v2d_generic<T2>> vPoints;
-		if (contains(r.top())) vPoints.push_back(p);
-		if (contains(r.bottom())) vPoints.push_back(p);
-		if (contains(r.left())) vPoints.push_back(p);
-		if (contains(r.right())) vPoints.push_back(p);
+		if (contains(r.top(), p)) vPoints.push_back(p);
+		if (contains(r.bottom(), p)) vPoints.push_back(p);
+		if (contains(r.left(), p)) vPoints.push_back(p);
+		if (contains(r.right(), p)) vPoints.push_back(p);
 		return vPoints;
 	}
 
@@ -448,7 +448,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const triangle<T1>& r, const olc::v2d_generic<T2>& p)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 
