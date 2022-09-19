@@ -61,7 +61,7 @@ namespace olc::utils::geom2d
 	const double pi = 3.141592653589793238462643383279502884;
 
 	// Floating point error margin
-	const double epsilon = 0.0001;
+	const double epsilon = 0.001;
 
 	//https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	template <typename T>
@@ -228,7 +228,8 @@ namespace olc::utils::geom2d
 	{
 		std::array<olc::v2d_generic<T>, 3> pos;
 
-		inline triangle(const olc::v2d_generic<T>& p0 = { T(0), T(0) },
+		inline triangle(
+			const olc::v2d_generic<T>& p0 = { T(0), T(0) },
 			const olc::v2d_generic<T>& p1 = { T(0), T(0) },
 			const olc::v2d_generic<T>& p2 = { T(0), T(0) })
 			: pos{ p0,p1,p2 }
@@ -530,6 +531,9 @@ namespace olc::utils::geom2d
 	{
 		return contains(r, l.start)
 			|| contains(r, l.end);
+
+		// TODO: This method is no good, it cant detect lines whose start and end
+		// points are outside the rectangle
 	}
 
 	// Check if circle overlaps line segment
@@ -545,6 +549,9 @@ namespace olc::utils::geom2d
 	inline constexpr bool overlaps(const triangle<T1>& t, const line<T2>& l)
 	{
 		return overlaps(t, l.start) || overlaps(t, l.end);
+
+		// TODO: This method is no good, it cant detect lines whose start and end
+		// points are outside the triangle
 	}
 
 
@@ -773,7 +780,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool contains(const circle<T1>& c1, const circle<T2>& c2)
 	{
-		return (c1.pos - c2.pos).mag2() <= (c1.radius * c1.radius) - (c2.radius * c2.radius);
+		return (c1.pos - c2.pos).mag2() <= (c1.radius - c2.radius) * (c1.radius - c2.radius);
 	}
 
 	// Check if triangle contains circle
@@ -812,7 +819,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool overlaps(const circle<T1>& c1, const circle<T2>& c2)
 	{
-		return (c1.pos - c2.pos).mag2() <= (c1.radius * c1.radius) + (c2.radius * c2.radius);
+		return (c1.pos - c2.pos).mag2() <= (c1.radius + c2.radius) * (c1.radius + c2.radius);
 	}
 
 	// Check if triangle overlaps circle
