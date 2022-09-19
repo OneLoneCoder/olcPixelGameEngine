@@ -354,10 +354,14 @@ namespace olc::utils::geom2d
 
 	// Checks if triangle contains a point
 	template<typename T1, typename T2>
-	inline constexpr bool contains(const triangle<T1>& c, const olc::v2d_generic<T2>& p)
+	inline constexpr bool contains(const triangle<T1>& t, const olc::v2d_generic<T2>& p)
 	{
-		// TODO:
-		return false;
+		// http://jsfiddle.net/PerroAZUL/zdaY8/1/
+		T2 A = T2(0.5) * (-t.pos[1].y * t.pos[2].x + t.pos[0].y * (-t.pos[1].x + t.pos[2].x) + t.pos[0].x * (t.pos[1].y - t.pos[2].y) + t.pos[1].x * t.pos[2].y);
+		T2 sign = A < T2(0) ? T2(-1) : T2(1);
+		T2 s = (t.pos[0].y * t.pos[2].x - t.pos[0].x * t.pos[2].y + (t.pos[2].y - t.pos[0].y) * p.x + (t.pos[0].x - t.pos[2].x) * p.y) * sign;
+		T2 v = (t.pos[0].x * t.pos[1].y - t.pos[0].y * t.pos[1].x + (t.pos[0].y - t.pos[1].y) * p.x + (t.pos[1].x - t.pos[0].x) * p.y) * sign;
+		return s > T2(0) && v > T2(0) && (s + v) < T2(2) * A * sign;
 	}
 
 
@@ -499,8 +503,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool contains(const triangle<T1>& t, const line<T2>& l)
 	{
-		// TODO:
-		return false;
+		return contains(t, l.start) && contains(t, l.end);
 	}
 
 
@@ -525,8 +528,8 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool overlaps(const rect<T1>& r, const line<T2>& l)
 	{
-		return overlaps(r.top(), l) || overlaps(r.bottom(), l)
-			|| overlaps(r.left(), l) || overlaps(r.right(), l);
+		return contains(r, l.start)
+			|| contains(r, l.end);
 	}
 
 	// Check if circle overlaps line segment
@@ -541,8 +544,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool overlaps(const triangle<T1>& t, const line<T2>& l)
 	{
-		// TODO:
-		return false;
+		return overlaps(t, l.start) || overlaps(t, l.end);
 	}
 
 
@@ -553,7 +555,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const olc::v2d_generic<T1>& p, const line<T2>& l)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where line segment intersects with line segment
@@ -561,7 +563,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const line<T1>& l1, const line<T2>& l2)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where rectangle intersects with line segment
@@ -569,7 +571,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const rect<T1>& r, const line<T2>& l)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where circle intersects with line segment
@@ -577,7 +579,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const circle<T1>& c, const line<T2>& l)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where triangle intersects with line segment
@@ -585,7 +587,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const triangle<T1>& t, const line<T2>& l)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 
@@ -636,8 +638,10 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool contains(const triangle<T1>& t, const rect<T2>& r)
 	{
-		// TODO:
-		return false;
+		return contains(t, r.pos) 
+			&& contains(t, r.pos + r.size)
+			&& contains(t, olc::v2d_generic<T2>{ r.pos.x + r.size.x,r.pos.y })
+			&& contains(t, olc::v2d_generic<T2>{ r.pos.x, r.pos.y + r.size.y });
 	}
 
 
@@ -677,8 +681,13 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool overlaps(const triangle<T1>& t, const rect<T2>& r)
 	{
-		// TODO:
-		return false;
+		return contains(t, r.pos) 
+			|| contains(t, r.pos + r.size)
+			|| contains(t, olc::v2d_generic<T2>{ r.pos.x + r.size.x, r.pos.y }) 
+			|| contains(t, olc::v2d_generic<T2>{ r.pos.x, r.pos.y + r.size.y });
+
+		// TODO: This method is no good, consider rectangle with all vertices
+		// outside of triangle, but edges still crossing
 	}
 
 
@@ -688,8 +697,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline std::vector<olc::v2d_generic<T2>> intersects(const olc::v2d_generic<T1>& p, const rect<T2>& r)
 	{
-		// TODO:
-		return false;
+		return intersects(r, p);
 	}
 
 	// Get intersection points where line segment intersects with rectangle
@@ -697,7 +705,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const line<T1>& l, const rect<T2>& r)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where rectangle intersects with rectangle
@@ -705,7 +713,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const rect<T1>& r1, const rect<T2>& r2)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where circle intersects with rectangle
@@ -713,7 +721,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const circle<T1>& c, const rect<T2>& r)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where triangle intersects with rectangle
@@ -721,7 +729,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const triangle<T1>& t, const rect<T2>& r)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 
@@ -823,7 +831,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const olc::v2d_generic<T1>& p, const circle<T2>& c)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where line segment intersects with circle
@@ -831,7 +839,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const line<T1>& l, const circle<T2>& c)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where rectangle intersects with circle
@@ -839,7 +847,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const rect<T1>& r, const circle<T2>& c)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where circle intersects with circle
@@ -847,7 +855,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const circle<T1>& c1, const circle<T2>& c2)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where triangle intersects with circle
@@ -855,7 +863,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const triangle<T1>& t, const circle<T2>& c)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 
@@ -958,7 +966,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const olc::v2d_generic<T1>& p, const triangle<T2>& t)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where line segment intersects with triangle
@@ -966,7 +974,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const line<T1>& l, const triangle<T2>& t)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where rectangle intersects with triangle
@@ -974,7 +982,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const rect<T1>& r, const triangle<T2>& t)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where circle intersects with triangle
@@ -982,7 +990,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const circle<T1>& c, const triangle<T2>& t)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 	// Get intersection points where triangle intersects with triangle
@@ -990,7 +998,7 @@ namespace olc::utils::geom2d
 	inline std::vector<olc::v2d_generic<T2>> intersects(const triangle<T1>& t1, const triangle<T2>& t2)
 	{
 		// TODO:
-		return false;
+		return {};
 	}
 
 }
