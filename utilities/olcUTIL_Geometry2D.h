@@ -393,7 +393,7 @@ namespace olc::utils::geom2d
 
 	// Checks if triangle overlaps with point
 	template<typename T1, typename T2>
-	inline constexpr bool overlaps(const circle<T1>& c, const olc::v2d_generic<T2>& p)
+	inline constexpr bool overlaps(const triangle<T1>& t, const olc::v2d_generic<T2>& p)
 	{
 		return contains(t, p);
 	}
@@ -659,7 +659,7 @@ namespace olc::utils::geom2d
 
 	// Check if rectangle overlaps rectangle
 	template<typename T1, typename T2>
-	inline constexpr bool overlaps(const rect<T1>& l, const rect<T2>& r)
+	inline constexpr bool overlaps(const rect<T1>& r1, const rect<T2>& r2)
 	{
 		return (r1.pos.x < r2.pos.x + r2.size.x && r1.pos.x + r1.size.x >= r2.pos.x &&
 			r1.pos.y < r2.pos.y + r2.size.y && r1.pos.y + r1.size.y >= r2.pos.y);
@@ -795,7 +795,7 @@ namespace olc::utils::geom2d
 
 	// Check if rectangle overlaps circle
 	template<typename T1, typename T2>
-	inline constexpr bool overlaps(const rect<T1>& l, const circle<T2>& c)
+	inline constexpr bool overlaps(const rect<T1>& r, const circle<T2>& c)
 	{
 		return overlaps(c, r);
 	}
