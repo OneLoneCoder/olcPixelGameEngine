@@ -496,8 +496,7 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool contains(const circle<T1>& c1, const line<T2>& l)
 	{
-		// TODO:
-		return false;
+		return contains(c1, l.start) && contains(c1, l.end);
 	}
 
 	// Check if triangle contains line segment
@@ -637,8 +636,10 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool contains(const circle<T1>& c, const rect<T2>& r)
 	{
-		// TODO:
-		return false;
+		return contains(c, r.pos) 
+			&& contains(c, olc::v2d_generic<T2>{ r.pos.x + r.size.x, r.pos.y })
+			&& contains(c, olc::v2d_generic<T2>{ r.pos.x, r.pos.y + r.size.y })
+			&& contains(c, r.pos + r.size);
 	}
 
 	// Check if triangle contains rectangle
@@ -680,8 +681,12 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline constexpr bool overlaps(const circle<T1>& c, const rect<T2>& r)
 	{
-		// TODO:
-		return false;
+		// Inspired by this (very clever btw) 
+		// https://stackoverflow.com/questions/45370692/circle-rectangle-collision-response
+		// But modified to work :P
+		T2 overlap = (olc::v2d_generic<T2>{ std::clamp(c.pos.x, r.pos.x, r.pos.x + r.size.x), std::clamp(c.pos.y, r.pos.y, r.pos.y + r.size.y) } - c.pos).mag2();
+		if (std::isnan(overlap)) overlap = T2(0);
+		return (overlap - (c.radius * c.radius)) < T2(0);
 	}
 
 	// Check if triangle overlaps rectangle
