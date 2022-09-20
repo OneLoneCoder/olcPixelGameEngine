@@ -58,7 +58,7 @@
 #include "olcPixelGameEngine.h"
 #include "olcUTIL_Geometry2D.h"
 
-constexpr size_t MAX_DEPTH = 8;
+
 
 namespace olc::utils
 {
@@ -73,10 +73,11 @@ namespace olc::utils
 	class DynamicQuadTree
 	{
 	public:
-		DynamicQuadTree(const geom2d::rect<CTYPE>& size, const size_t nDepth = 0)
+		DynamicQuadTree(const geom2d::rect<CTYPE>& size, const size_t nDepth = 0, const size_t nMaxDepth = 8)
 		{
 			m_depth = nDepth;
 			m_rect = size;
+			m_maxdepth = nMaxDepth;
 			resize(m_rect);
 		}
 
@@ -88,13 +89,13 @@ namespace olc::utils
 				if (geom2d::contains(m_rChild[i], itemsize))
 				{
 					// Have we reached depth limit?
-					if (m_depth + 1 < MAX_DEPTH)
+					if (m_depth + 1 < m_maxdepth)
 					{
 						// No, so does child exist?
 						if (!m_pChild[i])
 						{
 							// No, so create it
-							m_pChild[i] = std::make_shared<DynamicQuadTree<pT>>(m_rChild[i], m_depth + 1);
+							m_pChild[i] = std::make_shared<DynamicQuadTree<pT>>(m_rChild[i], m_depth + 1, m_maxdepth);
 						}
 
 						// Yes, so add item to it
@@ -183,7 +184,7 @@ namespace olc::utils
 		{
 			clear();
 			m_rect = rArea;
-			olc::vf2d vChildSize = m_rect.size / 2.0f;
+			olc::v2d_generic<CTYPE> vChildSize = m_rect.size / CTYPE(2);
 			m_rChild =
 			{
 				geom2d::rect<CTYPE>(m_rect.pos, vChildSize),
@@ -201,6 +202,7 @@ namespace olc::utils
 
 	protected:
 		size_t m_depth = 0;
+		size_t m_maxdepth = 8;
 
 		// Area of this quadnode
 		geom2d::rect<CTYPE> m_rect;
@@ -233,7 +235,7 @@ namespace olc::utils
 		using IQuadtreeContainer = std::list<QuadTreeItem<T, CTYPE>>;
 
 	public:
-		QuadTreeContainer(const geom2d::rect<CTYPE>& size = { {0.0f, 0.0f}, { 100.0f, 100.0f } }, const size_t nDepth = 0) : root(size, nDepth)
+		QuadTreeContainer(const geom2d::rect<CTYPE>& size = { {0.0f, 0.0f}, { 100.0f, 100.0f } }, const size_t nDepth = 0, const size_t nMaxDepth = 8) : root(size, nDepth, nMaxDepth)
 		{
 
 		}
