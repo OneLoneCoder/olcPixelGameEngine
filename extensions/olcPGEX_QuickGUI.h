@@ -649,7 +649,7 @@ namespace olc::QuickGUI
 		Button::Draw(pge);
 
 		if (bChecked)
-			pge->DrawRect(vPos + olc::vf2d(2, 2), vSize - olc::vi2d(4, 4), m_manager.colBorder);
+			pge->DrawRect(vPos + olc::vf2d(2, 2), vSize - olc::vi2d(5, 5), m_manager.colBorder);
 	}
 
 	void CheckBox::DrawDecal(olc::PixelGameEngine* pge)
