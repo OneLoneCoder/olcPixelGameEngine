@@ -1,7 +1,7 @@
 /*
 	OneLoneCoder - QuadTree v1.00
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	A Dynamic geom2d::rect<CTYPE>-Tree implementation to store objects in a 2D space
+	A Dynamic Quad-Tree implementation to store objects in a 2D space
 	with a fast retrieval.
 
 	License (OLC-3)
@@ -62,33 +62,6 @@ constexpr size_t MAX_DEPTH = 8;
 
 namespace olc::utils
 {
-	//struct geom2d::rect<CTYPE>
-	//{
-	//	olc::vf2d pos;
-	//	olc::vf2d size;
-
-	//	geom2d::rect<CTYPE>(const olc::vf2d& p = { 0.0f, 0.0f }, const olc::vf2d& s = { 1.0f, 1.0f }) : pos(p), size(s)
-	//	{
-
-	//	}
-
-	//	constexpr bool contains(const olc::vf2d& p) const
-	//	{
-	//		return !(p.x < pos.x || p.y < pos.y || p.x >= (pos.x + size.x) || p.y >= (pos.y + size.y));
-	//	}
-
-	//	constexpr bool contains(const geom2d::rect<CTYPE>& r) const
-	//	{
-	//		return (r.pos.x >= pos.x) && (r.pos.x + r.size.x < pos.x + size.x) &&
-	//			(r.pos.y >= pos.y) && (r.pos.y + r.size.y < pos.y + size.y);
-	//	}
-
-	//	constexpr bool overlaps(const geom2d::rect<CTYPE>& r) const
-	//	{
-	//		return (pos.x < r.pos.x + r.size.x && pos.x + size.x >= r.pos.x && pos.y < r.pos.y + r.size.y && pos.y + size.y >= r.pos.y);
-	//	}
-	//};
-
 	template <typename T, typename CTYPE = float>
 	struct QuadTreeItemLocation
 	{
