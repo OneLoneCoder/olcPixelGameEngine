@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.20              |
+	|           OneLoneCoder Pixel Game Engine v2.21              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -303,6 +303,7 @@
 	2.20: +DrawRectDecal() - Keeps OneSketchyGuy quiet
 	      +GetScreenSize()
 		  +olc::Sprite::Size() - returns size of sprite in vector format
+	2.21: Emscripten Overhaul - Thanks Moros!
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -382,7 +383,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 220
+#define PGE_VER 221
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
