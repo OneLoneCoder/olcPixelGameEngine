@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - QuickGUI v1.00
+	OneLoneCoder - QuickGUI v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A semi-immediate mode GUI for very simple GUI stuff. 
 	Includes:
@@ -54,6 +54,12 @@
 	Author
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+
+	Changes
+	~~~~~~~
+	v1.01	+Moved Slider::fGrabRad into "theme"
+			+Manager::CopyThemeFrom() - copies theme attributes from a different manager
+			+ListBox - Displays a vector of strings
 
 */
 
@@ -143,6 +149,10 @@ namespace olc::QuickGUI
 		float fHoverSpeedOn = 10.0f;
 		// Speed to transiton from Hover -> Normal
 		float fHoverSpeedOff = 4.0f;
+		// Size of grab handle
+		float fGrabRad = 8.0f;
+		// Copy all theme attributes into a different manager object
+		void CopyThemeFrom(const Manager& manager);
 
 	private:
 		// Should this manager call delete on the controls it opeerates?
@@ -261,8 +271,7 @@ namespace olc::QuickGUI
 		float fMax = +100.0f;
 		// Current value
 		float fValue = 0.0f;
-		// Size of grab handle
-		float fGrabRad = 8.0f;
+
 		// Location of minimum/start
 		olc::vf2d vPosMin;
 		// Location of maximum/end
@@ -274,6 +283,38 @@ namespace olc::QuickGUI
 		void DrawDecal(olc::PixelGameEngine* pge) override;
 	};
 
+
+	class ListBox : public BaseControl
+	{
+	public:
+		ListBox(olc::QuickGUI::Manager& manager,	// Associate with a Manager
+			std::vector<std::string>& vList,			
+			const olc::vf2d& pos,					// Location of list top-left
+			const olc::vf2d& size);					// Size of list
+
+		// Position of list
+		olc::vf2d vPos;
+		// Size of list
+		olc::vf2d vSize;
+		// Show a border?
+		bool bHasBorder = true;
+		// Show a background?
+		bool bHasBackground = true;
+
+	public:
+		Slider *m_pSlider = nullptr;
+		Manager m_group;
+		size_t  m_nVisibleItems = 0;
+		std::vector<std::string>& m_vList;
+
+	public:
+		size_t nSelectedItem = 0;
+
+	public: // BaseControl overrides
+		void Update(olc::PixelGameEngine* pge) override;
+		void Draw(olc::PixelGameEngine* pge) override;
+		void DrawDecal(olc::PixelGameEngine* pge) override;
+	};
 }
 
 
@@ -332,6 +373,19 @@ namespace olc::QuickGUI
 	void Manager::DrawDecal(olc::PixelGameEngine* pge)
 	{
 		for (auto& p : m_vControls) p->DrawDecal(pge);
+	}
+
+	void Manager::CopyThemeFrom(const Manager& manager)
+	{
+		this->colBorder = manager.colBorder;
+		this->colClick = manager.colClick;
+		this->colDisable = manager.colDisable;
+		this->colHover = manager.colHover;
+		this->colNormal = manager.colNormal;
+		this->colText = manager.colText;
+		this->fGrabRad = manager.fGrabRad;
+		this->fHoverSpeedOff = manager.fHoverSpeedOff;
+		this->fHoverSpeedOn = manager.fHoverSpeedOn;		
 	}
 #pragma endregion
 
@@ -694,7 +748,7 @@ namespace olc::QuickGUI
 		else
 		{
 			olc::vf2d vSliderPos = vPosMin + (vPosMax - vPosMin) * ((fValue - fMin) / (fMax - fMin));
-			if ((vMouse - vSliderPos).mag2() <= int32_t(fGrabRad) * int32_t(fGrabRad))
+			if ((vMouse - vSliderPos).mag2() <= int32_t(m_manager.fGrabRad) * int32_t(m_manager.fGrabRad))
 			{
 				m_fTransition += fElapsedTime * m_manager.fHoverSpeedOn;
 				m_state = State::Hover;
@@ -736,19 +790,19 @@ namespace olc::QuickGUI
 		switch (m_state)
 		{
 		case State::Disabled:
-			pge->FillCircle(vSliderPos, int32_t(fGrabRad), m_manager.colDisable);
+			pge->FillCircle(vSliderPos, int32_t(m_manager.fGrabRad), m_manager.colDisable);
 			break;
 		case State::Normal:
 		case State::Hover:
-			pge->FillCircle(vSliderPos, int32_t(fGrabRad), olc::PixelLerp(m_manager.colNormal, m_manager.colHover, m_fTransition));
+			pge->FillCircle(vSliderPos, int32_t(m_manager.fGrabRad), olc::PixelLerp(m_manager.colNormal, m_manager.colHover, m_fTransition));
 			break;
 		case State::Click:
-			pge->FillCircle(vSliderPos, int32_t(fGrabRad), m_manager.colClick);
+			pge->FillCircle(vSliderPos, int32_t(m_manager.fGrabRad), m_manager.colClick);
 			break;
 		}
 
 
-		pge->DrawCircle(vSliderPos, int32_t(fGrabRad), m_manager.colBorder);
+		pge->DrawCircle(vSliderPos, int32_t(m_manager.fGrabRad), m_manager.colBorder);
 	}
 
 	void Slider::DrawDecal(olc::PixelGameEngine* pge)
@@ -762,24 +816,116 @@ namespace olc::QuickGUI
 		switch (m_state)
 		{
 		case State::Disabled:
-			pge->FillRectDecal(vSliderPos - olc::vf2d(fGrabRad, fGrabRad), olc::vf2d(fGrabRad, fGrabRad) * 2.0f, m_manager.colDisable);
+			pge->FillRectDecal(vSliderPos - olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad), olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad) * 2.0f, m_manager.colDisable);
 			break;
 		case State::Normal:
 		case State::Hover:
-			pge->FillRectDecal(vSliderPos - olc::vf2d(fGrabRad, fGrabRad), olc::vf2d(fGrabRad, fGrabRad) * 2.0f, olc::PixelLerp(m_manager.colNormal, m_manager.colHover, m_fTransition));
+			pge->FillRectDecal(vSliderPos - olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad), olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad) * 2.0f, olc::PixelLerp(m_manager.colNormal, m_manager.colHover, m_fTransition));
 			break;
 		case State::Click:
-			pge->FillRectDecal(vSliderPos - olc::vf2d(fGrabRad, fGrabRad), olc::vf2d(fGrabRad, fGrabRad) * 2.0f, m_manager.colClick);
+			pge->FillRectDecal(vSliderPos - olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad), olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad) * 2.0f, m_manager.colClick);
 			break;
 		}
 
 		pge->SetDecalMode(olc::DecalMode::WIREFRAME);
-		pge->FillRectDecal(vSliderPos - olc::vf2d(fGrabRad, fGrabRad), olc::vf2d(fGrabRad, fGrabRad) * 2.0f, m_manager.colBorder);
+		pge->FillRectDecal(vSliderPos - olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad), olc::vf2d(m_manager.fGrabRad, m_manager.fGrabRad) * 2.0f, m_manager.colBorder);
 		pge->SetDecalMode(olc::DecalMode::NORMAL);
 	}
 
 
 #pragma endregion
+
+#pragma region ListBox
+	ListBox::ListBox(olc::QuickGUI::Manager& manager, std::vector<std::string>& vList, const olc::vf2d& pos, const olc::vf2d& size)
+		: BaseControl(manager), m_vList(vList)
+	{
+		m_group.CopyThemeFrom(m_manager);
+		vPos = pos;
+		vSize = size;
+		m_pSlider = new Slider(m_group, { pos.x + size.x - m_manager.fGrabRad - 1, pos.y + m_manager.fGrabRad + 1 },
+			{ pos.x + size.x - m_manager.fGrabRad - 1, pos.y + size.y - m_manager.fGrabRad - 1 }, 0, float(m_vList.size()), 0);		
+	}
+
+	void ListBox::Update(olc::PixelGameEngine* pge)
+	{
+		if (m_state == State::Disabled || !bVisible)
+			return;
+
+		olc::vf2d vMouse = pge->GetMousePos() - vPos + olc::vi2d(2,0);
+		if (pge->GetMouse(olc::Mouse::LEFT).bPressed)
+		{
+			if (vMouse.x >= 0 && vMouse.x < vSize.x - (m_group.fGrabRad * 2) && vMouse.y >= 0 && vMouse.y < vSize.y)
+			{
+				nSelectedItem = size_t(m_pSlider->fValue + vMouse.y / 10);
+			}
+		}
+
+		nSelectedItem = std::clamp(nSelectedItem, size_t(0), m_vList.size()-1);
+
+		m_pSlider->fMax = float(m_vList.size());
+		m_group.Update(pge);		
+	}
+
+	void ListBox::Draw(olc::PixelGameEngine* pge)
+	{
+		if (!bVisible)
+			return;
+
+		if (bHasBackground)
+		{
+			pge->FillRect(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colNormal);
+		}
+
+		if (bHasBorder)
+			pge->DrawRect(vPos, vSize - olc::vf2d(1, 1), m_manager.colBorder);
+
+
+		size_t idx0 = size_t(m_pSlider->fValue);
+		size_t idx1 = std::min(idx0 + size_t((vSize.y - 4) / 10), m_vList.size());
+
+		olc::vf2d vTextPos = vPos + olc::vf2d(2,2);
+		for (size_t idx = idx0; idx < idx1; idx++)
+		{
+			if (idx == nSelectedItem)
+				pge->FillRect(vTextPos - olc::vi2d(1,1), {int32_t(vSize.x - m_group.fGrabRad * 2), 10}, m_group.colHover);
+			pge->DrawStringProp(vTextPos, m_vList[idx]);
+			vTextPos.y += 10;
+		}
+
+		m_group.Draw(pge);
+	}
+
+	void ListBox::DrawDecal(olc::PixelGameEngine* pge)
+	{
+		if (!bVisible)
+			return;
+
+		if (bHasBackground)
+			pge->FillRectDecal(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colNormal);
+
+		size_t idx0 = size_t(m_pSlider->fValue);
+		size_t idx1 = std::min(idx0 + size_t((vSize.y - 4) / 10), m_vList.size());
+
+		olc::vf2d vTextPos = vPos + olc::vf2d(2, 2);
+		for (size_t idx = idx0; idx < idx1; idx++)
+		{
+			if (idx == nSelectedItem)
+				pge->FillRectDecal(vTextPos - olc::vi2d(1, 1), { vSize.x - m_group.fGrabRad * 2.0f, 10.0f }, m_group.colHover);
+			pge->DrawStringPropDecal(vTextPos, m_vList[idx]);
+			vTextPos.y += 10;
+		}
+
+		if (bHasBorder)
+		{
+			pge->SetDecalMode(olc::DecalMode::WIREFRAME);
+			pge->FillRectDecal(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colBorder);
+			pge->SetDecalMode(olc::DecalMode::NORMAL);
+		}
+
+		m_group.DrawDecal(pge);
+	}
+#pragma endregion
+
 
 }
 #endif // OLC_PGEX_QUICKGUI

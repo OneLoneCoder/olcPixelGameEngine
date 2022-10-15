@@ -260,6 +260,12 @@ namespace olc::utils::geom2d
 	};
 
 
+	template<typename T>
+	struct polygon
+	{
+		std::vector<olc::v2d_generic<T>> vPoints;
+	};
+
 
 	// =========================================================================================================================
 	// Closest(shape, point) ===================================================================================================
@@ -274,25 +280,27 @@ namespace olc::utils::geom2d
 	// Returns closest point on line to point
 	template<typename T1, typename T2>
 	inline olc::v2d_generic<T2> closest(const line<T1>& l, const olc::v2d_generic<T2>& p)
-	{
-		// TODO:
-		return olc::v2d_generic<T2>();
+	{		
+		auto d = l.vector();
+		double u = std::clamp(double(d.dot(p - l.start) / d.mag2()), 0.0, 1.0);
+		return l.start + d * u;
 	}
 
 	// Returns closest point on circle to point
 	template<typename T1, typename T2>
 	inline olc::v2d_generic<T2> closest(const circle<T1>& c, const olc::v2d_generic<T2>& p)
-	{
-		// TODO:
-		return olc::v2d_generic<T2>();
+	{		
+		return c.pos + (p - c.pos).norm() * c.radius;
 	}
 
 	// Returns closest point on rectangle to point
 	template<typename T1, typename T2>
 	inline olc::v2d_generic<T2> closest(const rect<T1>& r, const olc::v2d_generic<T2>& p)
 	{
-		// TODO:
-		return olc::v2d_generic<T2>();
+		// This could be a "constrain" function hmmmm
+		// TODO: Not quite what i wanted, should restrain to boundary
+		return olc::v2d_generic<T2>{ std::clamp(p.x, r.pos.x, r.pos.x + r.size.x), std::clamp(p.y, r.pos.y, r.pos.y + r.size.y) };
+		
 	}
 
 	// Returns closest point on triangle to point
