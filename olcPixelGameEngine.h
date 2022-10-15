@@ -197,7 +197,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018, 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018, 2019, 2020, 2021, 2022
 */
 #pragma endregion
 
@@ -5817,118 +5817,100 @@ namespace olc
 			//	the giant web baby.
 			
 
-			// Fullscreen and Resize Observers
 			EM_ASM({
 
-			// cache for reuse
-			Module._olc_EmscriptenShellCss = "width: 100%; height: 70vh; margin-left: auto; margin-right: auto;";
+			// olc_ApsectRatio
+			// 
+			// Used by olc_ResizeHandler to calculate the viewport from the
+			// dimensions of the canvas container's element.
+			Module.olc_AspectRatio = $0 / $1;
 
-			// width / height = aspect ratio
-			Module._olc_WindowAspectRatio = $0 / $1;
-			Module.canvas.parentNode.addEventListener("resize", function(e) {
-				
-				if (e.defaultPrevented) { e.stopPropagation(); 	return;	}
-				var viewWidth = e.detail.width;
-				var viewHeight = e.detail.width / Module._olc_WindowAspectRatio;
-				if (viewHeight > e.detail.height)
-				{
-					viewHeight = e.detail.height;
-					viewWidth = e.detail.height * Module._olc_WindowAspectRatio;
-				}
-					
-				if (Module.canvas.parentNode.className == 'emscripten_border')
-					Module.canvas.parentNode.style.cssText = Module._olc_EmscriptenShellCss + " width: " + viewWidth.toString() + "px; height: " + viewHeight.toString() + "px;";
+			// HACK ALERT!
+			// 
+			// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
+			// is using one of the default or minimal emscripten page layouts
+			Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false;
 
-				Module.canvas.setAttribute("width", viewWidth);
-				Module.canvas.setAttribute("height", viewHeight);
-
-				if (document.fullscreenElement != null)
-				{						
-					var top = (e.detail.height - viewHeight) / 2;
-					var left = (e.detail.width - viewWidth) / 2;
-					Module.canvas.style.position = "fixed";
-					Module.canvas.style.top = top.toString() + "px";
-					Module.canvas.style.left = left.toString() + "px";
-					Module.canvas.style.width = "";
-					Module.canvas.style.height = "";
-				}
-
-				// trigger PGE update
-				Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
-				// this is really only needed when enter/exiting fullscreen
-				Module.canvas.focus();
-				// prevent this event from ever affecting the document beyond this element
-				e.stopPropagation();
-			});
-
-			// helper function to prevent repeating the same code everywhere
-			Module._olc_ResizeCanvas = function()
+			// olc_ResizeHandler
+			// 
+			// Used by olc_Init, and is called when a resize observer and fullscreenchange event is triggered.
+			var olc_ResizeHandler = function()
 			{
-				// yes, we still have to wait, sigh..
+				// are we in fullscreen mode?
+				let isFullscreen = (document.fullscreenElement != null);
+
+				// get the width of the containing element
+				let width  = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
+				let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+
+				// calculate the expected viewport size
+				let viewWidth  = width;
+				let viewHeight = width / Module.olc_AspectRatio;
+
+				// if we're taller than the containing element, recalculate based on height
+				if(viewHeight > height)
+				{
+					viewWidth  = height * Module.olc_AspectRatio;
+					viewHeight = height;
+				}
+    
+				// ensure resulting viewport is in integer space
+				viewWidth  = parseInt(viewWidth);
+				viewHeight = parseInt(viewHeight);
+
 				setTimeout(function()
 				{
-					// if default template, stretch width as well
-					if (Module.canvas.parentNode.className == 'emscripten_border')
-						Module.canvas.parentNode.style.cssText = Module._olc_EmscriptenShellCss;
-
-					// override it's styling so we can get it's stretched size
-					Module.canvas.style.cssText = "width: 100%; height: 100%; outline: none;";
-
-					// setup custom resize event
-					var resizeEvent = new CustomEvent('resize', 
-					{
-						detail: {
-							width: Module.canvas.clientWidth,
-							height : Module.canvas.clientHeight
-						},
-						bubbles : true,
-						cancelable : true
-					});
-
-					// trigger custom resize event on canvas element
-					Module.canvas.dispatchEvent(resizeEvent);
-				}, 50);
+					// if default shells, apply default styles
+					if(Module.olc_AssumeDefaultShells)
+						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
+				
+					// apply viewport dimensions to teh canvas
+					Module.canvas.setAttribute('width', viewWidth);
+					Module.canvas.setAttribute('height', viewHeight);
+					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
+					
+					// update the PGE window size
+					Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
+					
+					// force focus on our PGE canvas
+					Module.canvas.focus();
+				}, 200);
 			};
 
-
-			// Disable Refresh Gesture on mobile
-			document.body.style.cssText += " overscroll-behavior-y: contain;";
-
-			if (Module.canvas.parentNode.className == 'emscripten_border')
+			
+			// olc_Init
+			// 
+			// set up resize observer and fullscreenchange event handler
+			var olc_Init = function()
 			{
-				// force body to have no margin in emscripten's minimal shell
-				document.body.style.margin = "0";
-				Module.canvas.parentNode.style.cssText = Module._olc_EmscriptenShellCss;
-			}
-
-			Module._olc_ResizeCanvas();
-
-			// observe and react to resizing of the container element
-			var resizeObserver = new ResizeObserver(function(entries) {Module._olc_ResizeCanvas();}).observe(Module.canvas.parentNode);
-
-			// observe and react to changes that occur when entering/exiting fullscreen
-			var mutationObserver = new MutationObserver(function(mutationsList, observer)
-			{
-				// a change has occurred, let's check them out!
-				for (var i = 0; i < mutationsList.length; i++)
+				if(Module.olc_AspectRatio === undefined)
 				{
-					// cycle through all of the newly added elements
-					for (var j = 0; j < mutationsList[i].addedNodes.length; j++)
-					{
-						// if this element is a our canvas, trigger resize
-						if (mutationsList[i].addedNodes[j].id == 'canvas')
-							Module._olc_ResizeCanvas();
-					}
+					setTimeout(function() { Module.olc_Init(); }, 50);
+					return;
 				}
-			}).observe(Module.canvas.parentNode, 
-			{
-				attributes: false,
-				childList : true,
-				subtree : false
-			});
+					
+				let resizeObserver = new ResizeObserver(function(entries)
+				{
+					Module.olc_ResizeHandler();
+				}).observe(Module.canvas.parentNode);
 
-			// add resize listener on window
-			window.addEventListener("resize", function(e) { Module._olc_ResizeCanvas(); });
+				let mutationObserver = new MutationObserver(function(mutationsList, observer)
+				{
+					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
+				}).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false });
+
+				window.addEventListener('fullscreenchange', function(e)
+				{
+					setTimeout(function() { Module.olc_ResizeHandler();},  200);
+				});
+			};
+			
+			// set up hooks
+			Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
+			Module.olc_Init          = (Module.olc_Init          != undefined) ? Module.olc_Init : olc_Init;
+
+			// run everything!
+			Module.olc_Init();
 
 			}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
 #pragma warning restore format
