@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.19              |
+	|           OneLoneCoder Pixel Game Engine v2.20              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -187,6 +187,8 @@
 	AlterEgo...........Final Fantasy XII - The Zodiac Age
 	SlicEnDicE.........Noita, Inside
 	TGD................Voucher Gift
+	Dragoneye..........Lucas Arts Adventure Game Pack
+	Anonymous Pirate...Return To Monkey Island
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
@@ -297,8 +299,10 @@
 		  +ConsoleClear() - Clears built in command console output
 		  +ConsoleOut() - Stream strings to command console output
 		  +ConsoleCaptureStdOut() - Capture std::cout by redirecting to built-in console
-		  +IsConsoleShowing() - Returns true if console is currently active
 		  +OnConsoleCommand() - Override is called when command is entered into built in console
+	2.20: +DrawRectDecal() - Keeps OneSketchyGuy quiet
+	      +GetScreenSize()
+		  +olc::Sprite::Size() - returns size of sprite in vector format
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -378,7 +382,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 219
+#define PGE_VER 220
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -771,6 +775,7 @@ namespace olc
 		Pixel* GetData();
 		olc::Sprite* Duplicate();
 		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
+		olc::vi2d Size() const;
 		std::vector<olc::Pixel> pColData;
 		Mode modeSample = Mode::NORMAL;
 
@@ -980,6 +985,8 @@ namespace olc
 		const olc::vi2d& GetPixelSize() const;
 		// Gets actual pixel scale
 		const olc::vi2d& GetScreenPixelSize() const;
+		// Gets "screen" size
+		const olc::vi2d& GetScreenSize() const;
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
@@ -1074,6 +1081,7 @@ namespace olc
 		void DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
 		void DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
 		// Draws a single shaded filled rectangle as a decal
+		void DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
 		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
@@ -1504,6 +1512,11 @@ namespace olc
 			for (int x = 0; x < vSize.x; x++)
 				spr->SetPixel(x, y, GetPixel(vPos.x + x, vPos.y + y));
 		return spr;
+	}
+
+	olc::vi2d olc::Sprite::Size() const
+	{
+		return { width, height };
 	}
 
 	// O------------------------------------------------------------------------------O
@@ -1941,6 +1954,9 @@ namespace olc
 
 	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
 	{ return vScreenPixelSize; }
+
+	const olc::vi2d& PixelGameEngine::GetScreenSize() const
+	{ return vScreenSize;	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
 	{ return vMouseWindowPos; }
@@ -2665,7 +2681,12 @@ namespace olc
 
 	void PixelGameEngine::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
 	{
-		DecalInstance di;
+		auto m = nDecalMode;
+		nDecalMode = olc::DecalMode::WIREFRAME;
+		DrawPolygonDecal(nullptr, { pos1, pos2 }, { {0, 0}, {0,0} }, p);
+		nDecalMode = m;
+
+		/*DecalInstance di;
 		di.decal = nullptr;
 		di.points = uint32_t(2);
 		di.pos.resize(di.points);
@@ -2681,12 +2702,26 @@ namespace olc
 		di.tint[1] = p;
 		di.w[1] = 1.0f;
 		di.mode = olc::DecalMode::WIREFRAME;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		di.structure = nDecalStructure;
+		vLayers[nTargetLayer].vecDecalInstance.push_back(di);*/
+	}
+
+	void PixelGameEngine::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
+	{
+		auto m = nDecalMode;
+		SetDecalMode(olc::DecalMode::WIREFRAME);
+		olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
+		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+		SetDecalMode(m);
+
 	}
 
 	void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
 	{
-		olc::vf2d vNewSize = (size - olc::vf2d(0.375f, 0.375f)).ceil();
+		olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
 		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
 		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
 		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };

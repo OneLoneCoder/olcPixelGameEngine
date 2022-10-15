@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                 Transformed View v1.06                      |
+	|                 Transformed View v1.07                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -71,6 +71,8 @@
 	1.04:	Added DrawPolygonDecal() for arbitrary polygons
 	1.05:	Clipped DrawSprite() to visible area, massive performance increase
 	1.06:	Fixed error in DrawLine() - Thanks CraisyDaisyRecords (& Fern)!
+	1.07:   +DrawRectDecal()
+			+GetPGE()
 */
 
 #pragma once
@@ -88,6 +90,8 @@ namespace olc
 	public:
 		TransformedView() = default;
 		virtual void Initialise(const olc::vi2d& vViewArea, const olc::vf2d& vPixelScale = { 1.0f, 1.0f });
+
+		olc::PixelGameEngine* GetPGE();
 
 	public:
 		void SetWorldOffset(const olc::vf2d& vOffset);
@@ -179,6 +183,8 @@ namespace olc
 		void DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const olc::Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
 		// Draws a single shaded filled rectangle as a decal
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
+		void DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
+
 		// Draws a corner shaded rectangle as a decal
 		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
 		// Draws an arbitrary convex textured polygon using GPU
@@ -219,6 +225,10 @@ namespace olc
 
 namespace olc
 {
+	olc::PixelGameEngine* TransformedView::GetPGE()
+	{
+		return pge;
+	}
 
 	void TransformedView::Initialise(const olc::vi2d& vViewArea, const olc::vf2d& vPixelScale)
 	{
@@ -625,6 +635,11 @@ namespace olc
 	void TransformedView::FillRectDecal(const olc::vf2d & pos, const olc::vf2d & size, const olc::Pixel col)
 	{
 		pge->FillRectDecal(WorldToScreen(pos), (size * m_vWorldScale).ceil(), col);
+	}
+
+	void TransformedView::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
+	{
+		pge->DrawRectDecal(WorldToScreen(pos), (size * m_vWorldScale).ceil(), col);
 	}
 
 	void TransformedView::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
