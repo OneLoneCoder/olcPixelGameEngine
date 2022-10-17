@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - QuadTree v1.00
+	OneLoneCoder - QuadTree v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A Dynamic Quad-Tree implementation to store objects in a 2D space
 	with a fast retrieval.
@@ -49,6 +49,11 @@
 	Author
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+
+
+	Changes
+	~~~~~~~
+	v1.01:		Bug fix clear() function
 
 */
 
@@ -313,6 +318,7 @@ namespace olc::utils
 
 		void clear()
 		{
+			m_allItems.clear();
 			root.clear();
 		}
 
