@@ -312,8 +312,25 @@ namespace olc::utils::geom2d
 	template<typename T1, typename T2>
 	inline olc::v2d_generic<T2> closest(const triangle<T1>& t, const olc::v2d_generic<T2>& p)
 	{
-		// TODO:
-		return olc::v2d_generic<T2>();
+		olc::utils::geom2d::line<T1> l{t.pos[0], t.pos[1]};
+		auto p0 = closest(l, p);
+		auto d0 = (p0 - p).mag2();
+
+		l.end = t.pos[2];
+		auto p1 = closest(l, p);
+		auto d1 = (p1 - p).mag2();
+
+		l.start = t.pos[1];
+		auto p2 = closest(l, p);
+		auto d2 = (p2 - p).mag2();
+
+		if((d0 <= d1) && (d0 <= d2)) {
+			return p0;
+		} else if((d1 <= d0) && (d1 <= d2)) {
+			return p1;
+		} else {
+			return p2;
+		}
 	}
 
 
