@@ -287,8 +287,8 @@ namespace olc::utils::geom2d
 	inline olc::v2d_generic<T2> closest(const line<T1>& l, const olc::v2d_generic<T2>& p)
 	{		
 		auto d = l.vector();
-		double u = std::clamp(double(d.dot(p - l.start) / d.mag2()), 0.0, 1.0);
-		return l.start + d * u;
+		double u = std::clamp(double(d.dot(p - l.start)) / d.mag2(), 0.0, 1.0);
+		return l.start + u * d;
 	}
 
 	// Returns closest point on circle to point
