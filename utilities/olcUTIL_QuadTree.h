@@ -58,6 +58,19 @@
 */
 
 
+/*
+	WARNING! VECTORS OF QUAD-TREES
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	This quad tree implementation will suffer when stored inside a container
+	that can reallocate its contents. Upon reallocation, all of the iterators
+	used to link the quad tree to its items will be invalidated.
+
+	Currently, I advise caution when using std::vector of this quad tree, and
+	should you choose to, then reserve space in advance so reallocation cannot
+	occur.
+*/
+
+
 #pragma once
 
 #include "olcPixelGameEngine.h"

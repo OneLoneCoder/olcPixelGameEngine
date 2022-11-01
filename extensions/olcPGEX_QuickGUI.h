@@ -1,13 +1,16 @@
 /*
-	OneLoneCoder - QuickGUI v1.01
+	OneLoneCoder - QuickGUI v1.02
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A semi-immediate mode GUI for very simple GUI stuff. 
 	Includes:
-		Label		- Displays a single-line string
-		TextBox		- Click to enter/edit single-line text
-		Button		- A clickable labelled rectangle
-		CheckBox	- A clickable labelled rectangle that retains state
-		Slider		- An omnidirectional draggable handle between two values
+		Label		 - Displays a single-line string
+		TextBox		 - Click to enter/edit single-line text
+		Button		 - A clickable labelled rectangle
+		CheckBox	 - A clickable labelled rectangle that retains state
+		ImageButton  - A Button with an image instead of text
+		ImageCheckBox- A CheckBox with an image instead of text
+		Slider		 - An omnidirectional draggable handle between two values
+		ListBox		 - A list of strings, that can be scrolled and an item selected
 
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
@@ -60,6 +63,11 @@
 	v1.01	+Moved Slider::fGrabRad into "theme"
 			+Manager::CopyThemeFrom() - copies theme attributes from a different manager
 			+ListBox - Displays a vector of strings
+	v1.02	+ImageButton
+			+ImageCheckBox
+			+ListBox::bSelectionChanged flag, true when list selected item changes
+			=Fix - Text box mouse behaviours, mouse release is now meaningless
+			+CheckBox Fix for decal display
 
 */
 
@@ -252,6 +260,40 @@ namespace olc::QuickGUI
 		void DrawDecal(olc::PixelGameEngine* pge) override;
 	};
 
+	class ImageButton : public Button
+	{
+	public:
+		ImageButton(olc::QuickGUI::Manager& manager,	// Associate with a Manager
+			const olc::Renderable &icon,			// Text to display			
+			const olc::vf2d& pos,					// Location of button top-left
+			const olc::vf2d& size);					// Size of button
+
+	public:
+		const olc::Renderable& pIcon;
+
+	public:
+		void Draw(olc::PixelGameEngine* pge) override;
+		void DrawDecal(olc::PixelGameEngine* pge) override;
+	};
+
+	class ImageCheckBox : public ImageButton
+	{
+	public:
+		ImageCheckBox(olc::QuickGUI::Manager& manager,	// Associate with a Manager
+			const olc::Renderable& icon,				// Text to display
+			const bool check,						// Is checked or not?
+			const olc::vf2d& pos,					// Location of button top-left
+			const olc::vf2d& size);					// Size of button
+
+	public:
+		bool bChecked = false;
+
+	public:
+		void Update(olc::PixelGameEngine* pge) override;
+		void Draw(olc::PixelGameEngine* pge) override;
+		void DrawDecal(olc::PixelGameEngine* pge) override;
+	};
+
 
 	// Creates a Slider Control - a grabbable handle that slides between two locations 
 	class Slider : public BaseControl
@@ -300,7 +342,7 @@ namespace olc::QuickGUI
 		bool bHasBorder = true;
 		// Show a background?
 		bool bHasBackground = true;
-
+		
 	public:
 		Slider *m_pSlider = nullptr;
 		Manager m_group;
@@ -308,7 +350,11 @@ namespace olc::QuickGUI
 		std::vector<std::string>& m_vList;
 
 	public:
+		// Item currently selected
 		size_t nSelectedItem = 0;
+		size_t nPreviouslySelectedItem = 0;
+		// Has selection changed?
+		bool bSelectionChanged = false;
 
 	public: // BaseControl overrides
 		void Update(olc::PixelGameEngine* pge) override;
@@ -487,13 +533,15 @@ namespace olc::QuickGUI
 		{
 			// Released inside box does nothing to me, but i may have
 			// to finish off the neighbours... oo err
+			bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;
 			bReleased = pge->GetMouse(olc::Mouse::LEFT).bReleased;
-			if (bReleased && pge->IsTextEntryEnabled() && !m_bTextEdit)
+
+			if (bPressed && pge->IsTextEntryEnabled() && !m_bTextEdit)
 			{
 				pge->TextEntryEnable(false);
 			}
 
-			bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;
+			
 			if (bPressed && !pge->IsTextEntryEnabled() && !m_bTextEdit)
 			{				
 				pge->TextEntryEnable(true, sText);
@@ -507,8 +555,11 @@ namespace olc::QuickGUI
 		else
 		{
 			// Released outside box
+			bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;
 			bReleased = pge->GetMouse(olc::Mouse::LEFT).bReleased;
-			if (bReleased && m_bTextEdit)
+			bHeld = pge->GetMouse(olc::Mouse::LEFT).bHeld;
+			
+			if (bPressed && m_bTextEdit)
 			{
 				sText = pge->TextEntryGetString();
 				pge->TextEntryEnable(false);
@@ -679,6 +730,68 @@ namespace olc::QuickGUI
 #pragma endregion
 
 
+#pragma region ImageButton
+	ImageButton::ImageButton(olc::QuickGUI::Manager& manager, const olc::Renderable& icon, const olc::vf2d& pos, const olc::vf2d& size)
+		: Button(manager, "", pos, size), pIcon(icon)
+	{
+
+	}
+	
+	void ImageButton::Draw(olc::PixelGameEngine* pge)
+	{
+		Button::Draw(pge);
+		pge->DrawSprite(vPos + olc::vi2d(4, 4), pIcon.Sprite());
+	}
+
+	void ImageButton::DrawDecal(olc::PixelGameEngine* pge)
+	{
+		Button::DrawDecal(pge);
+		pge->DrawDecal(vPos + olc::vi2d(4, 4), pIcon.Decal());
+	}
+#pragma endregion
+
+
+#pragma region ImageCheckBox
+	ImageCheckBox::ImageCheckBox(olc::QuickGUI::Manager& manager, const olc::Renderable& gfx, const bool check, const olc::vf2d& pos, const olc::vf2d& size)
+		: ImageButton(manager, gfx, pos, size)
+	{
+		bChecked = check;
+	}
+
+	void ImageCheckBox::Update(olc::PixelGameEngine* pge)
+	{
+		if (m_state == State::Disabled || !bVisible)
+			return;
+
+		ImageButton::Update(pge);
+		if (bPressed) bChecked = !bChecked;
+	}
+
+	void ImageCheckBox::Draw(olc::PixelGameEngine* pge)
+	{
+		ImageButton::Draw(pge);
+
+		if (bChecked)
+			pge->DrawRect(vPos + olc::vf2d(2, 2), vSize - olc::vi2d(5, 5), m_manager.colBorder);
+	}
+
+	void ImageCheckBox::DrawDecal(olc::PixelGameEngine* pge)
+	{
+		if (!bVisible)
+			return;
+
+		ImageButton::DrawDecal(pge);
+
+		pge->SetDecalMode(olc::DecalMode::WIREFRAME);
+		pge->FillRectDecal(vPos + olc::vf2d(2, 2), vSize - olc::vf2d(4, 4), m_manager.colBorder);
+		pge->SetDecalMode(olc::DecalMode::NORMAL);
+
+		olc::vf2d vText = pge->GetTextSizeProp(sText);
+		pge->DrawStringPropDecal(vPos + (vSize - vText) * 0.5f, sText, m_manager.colText);
+	}
+#pragma endregion
+
+
 #pragma region CheckBox
 	CheckBox::CheckBox(olc::QuickGUI::Manager& manager, const std::string& text, const bool check, const olc::vf2d& pos, const olc::vf2d& size)
 		: Button(manager, text, pos, size)
@@ -692,7 +805,8 @@ namespace olc::QuickGUI
 			return;
 
 		Button::Update(pge);
-		if (bPressed) bChecked = !bChecked;
+		if (bPressed)
+			bChecked = !bChecked;
 	}
 
 	void CheckBox::Draw(olc::PixelGameEngine* pge)
@@ -713,9 +827,12 @@ namespace olc::QuickGUI
 
 		Button::DrawDecal(pge);
 
-		pge->SetDecalMode(olc::DecalMode::WIREFRAME);
-		pge->FillRectDecal(vPos + olc::vf2d(2,2), vSize - olc::vf2d(4, 4), m_manager.colBorder);
-		pge->SetDecalMode(olc::DecalMode::NORMAL);
+		if (bChecked)
+		{
+			pge->SetDecalMode(olc::DecalMode::WIREFRAME);
+			pge->FillRectDecal(vPos + olc::vf2d(2, 2), vSize - olc::vf2d(4, 4), m_manager.colBorder);
+			pge->SetDecalMode(olc::DecalMode::NORMAL);
+		}
 
 		olc::vf2d vText = pge->GetTextSizeProp(sText);
 		pge->DrawStringPropDecal(vPos + (vSize - vText) * 0.5f, sText, m_manager.colText);
@@ -851,16 +968,22 @@ namespace olc::QuickGUI
 		if (m_state == State::Disabled || !bVisible)
 			return;
 
+
+		nPreviouslySelectedItem = nSelectedItem;
 		olc::vf2d vMouse = pge->GetMousePos() - vPos + olc::vi2d(2,0);
 		if (pge->GetMouse(olc::Mouse::LEFT).bPressed)
 		{
 			if (vMouse.x >= 0 && vMouse.x < vSize.x - (m_group.fGrabRad * 2) && vMouse.y >= 0 && vMouse.y < vSize.y)
 			{
+				
 				nSelectedItem = size_t(m_pSlider->fValue + vMouse.y / 10);
 			}
 		}
 
 		nSelectedItem = std::clamp(nSelectedItem, size_t(0), m_vList.size()-1);
+
+		bSelectionChanged = nSelectedItem != nPreviouslySelectedItem;
+
 
 		m_pSlider->fMax = float(m_vList.size());
 		m_group.Update(pge);		

@@ -304,6 +304,12 @@
 	      +GetScreenSize()
 		  +olc::Sprite::Size() - returns size of sprite in vector format
 	2.21: Emscripten Overhaul - Thanks Moros!
+		  +DrawPolygonDecal() tint overload, can now tint a polygon accounting for vertex colours
+		  +Multiplicative Pixel overload
+		  +v2d_generic clamp()
+		  +v2d_generic lerp()
+		  +GetDroppedFiles() - returns files dropped onto engine window for that frame (MSW only)
+		  +GetDroppedFilesPoint() - returns location of dropped files (MSW only)
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -568,6 +574,8 @@ namespace olc
 		Pixel  operator - (const Pixel& p) const;
 		Pixel& operator +=(const Pixel& p);
 		Pixel& operator -=(const Pixel& p);
+		Pixel  operator * (const Pixel& p) const;
+		Pixel& operator *=(const Pixel& p);
 		Pixel  inv() const;
 	};
 
@@ -649,6 +657,8 @@ namespace olc
 		v2d_generic  min(const v2d_generic& v) const { return v2d_generic(std::min(x, v.x), std::min(y, v.y)); }
 		v2d_generic  cart() { return { std::cos(y) * x, std::sin(y) * x }; }
 		v2d_generic  polar() { return { mag(), std::atan2(y, x) }; }
+		v2d_generic  clamp(const v2d_generic& v1, const v2d_generic& v2) const { return this->max(v1)->min(v2); }
+		v2d_generic	 lerp(const v2d_generic& v1, const v2d_generic& v2, const double t) { return (v2 - v1) * t + v1; }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
@@ -940,6 +950,7 @@ namespace olc
 		// Called when a console command is executed
 		virtual bool OnConsoleCommand(const std::string& sCommand);
 
+
 	public: // Hardware Interfaces
 		// Returns true if window is currently in focus
 		bool IsFocused() const;
@@ -988,6 +999,9 @@ namespace olc
 		const olc::vi2d& GetScreenPixelSize() const;
 		// Gets "screen" size
 		const olc::vi2d& GetScreenSize() const;
+		// Gets any files dropped this frame
+		const std::vector<std::string>& GetDroppedFiles() const;
+		const olc::vi2d& GetDroppedFilesPoint() const;
 
 	public: // CONFIGURATION ROUTINES
 		// Layer targeting functions
@@ -1090,7 +1104,7 @@ namespace olc
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<float>& depth, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& tint);
-
+		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint);
 		// Draws a line in Decal Space
 		void DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p = olc::WHITE);
 		void DrawRotatedStringDecal(const olc::vf2d& pos, const std::string& sText, const float fAngle, const olc::vf2d& center = { 0.0f, 0.0f }, const olc::Pixel col = olc::WHITE, const olc::vf2d& scale = { 1.0f, 1.0f });
@@ -1193,6 +1207,10 @@ namespace olc
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 		std::chrono::time_point<std::chrono::system_clock> m_tp1, m_tp2;
 		std::vector<olc::vi2d> vFontSpacing;
+		std::vector<std::string> vDroppedFiles;
+		std::vector<std::string> vDroppedFilesCache;
+		olc::vi2d vDroppedFilesPoint;
+		olc::vi2d vDroppedFilesPointCache;
 
 		// Command Console Specific
 		bool bConsoleShow = false;
@@ -1247,6 +1265,7 @@ namespace olc
 		void olc_UpdateMouseFocus(bool state);
 		void olc_UpdateKeyFocus(bool state);
 		void olc_Terminate();
+		void olc_DropFiles(int32_t x, int32_t y, const std::vector<std::string>& vFiles);
 		void olc_Reanimate();
 		bool olc_IsRunning();
 
@@ -1385,6 +1404,24 @@ namespace olc
 		this->r = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
 		this->g = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
 		this->b = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+		return *this;
+	}
+
+	Pixel Pixel::operator * (const Pixel& p) const
+	{
+		uint8_t nR = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+		uint8_t nG = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+		uint8_t nB = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+		uint8_t nA = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
+		return Pixel(nR, nG, nB, nA);
+	}
+
+	Pixel& Pixel::operator *=(const Pixel& p)
+	{
+		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+		this->a = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
 		return *this;
 	}
 
@@ -2636,6 +2673,15 @@ namespace olc
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
+	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint)
+	{
+		std::vector<olc::Pixel> newColours(colours.size(), olc::WHITE);
+		std::transform(colours.begin(), colours.end(), newColours.begin(),
+			[&tint](const olc::Pixel pin) {	return pin * tint; });
+		DrawPolygonDecal(decal, pos, uv, newColours);
+	}
+
+
 	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<float>& depth, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
 	{
 		DecalInstance di;
@@ -3211,6 +3257,12 @@ namespace olc
 	}
 
 
+	const std::vector<std::string>& PixelGameEngine::GetDroppedFiles() const
+	{ return vDroppedFiles;	}
+
+	const olc::vi2d& PixelGameEngine::GetDroppedFilesPoint() const
+	{ return vDroppedFilesPoint; }
+
 
 	void PixelGameEngine::TextEntryEnable(const bool bEnable, const std::string& sText)
 	{
@@ -3329,7 +3381,6 @@ namespace olc
 	void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
 	bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
 	
-
 	// Externalised API
 	void PixelGameEngine::olc_UpdateViewport()
 	{
@@ -3394,6 +3445,19 @@ namespace olc
 
 	void PixelGameEngine::olc_UpdateKeyFocus(bool state)
 	{ bHasInputFocus = state; }
+
+	void PixelGameEngine::olc_DropFiles(int32_t x, int32_t y, const std::vector<std::string>& vFiles)
+	{ 
+		x -= vViewPos.x;
+		y -= vViewPos.y;
+		vDroppedFilesPointCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
+		vDroppedFilesPointCache.y = (int32_t)(((float)y / (float)(vWindowSize.y - (vViewPos.y * 2)) * (float)vScreenSize.y));
+		if (vDroppedFilesPointCache.x >= (int32_t)vScreenSize.x)	vDroppedFilesPointCache.x = vScreenSize.x - 1;
+		if (vDroppedFilesPointCache.y >= (int32_t)vScreenSize.y)	vDroppedFilesPointCache.y = vScreenSize.y - 1;
+		if (vDroppedFilesPointCache.x < 0) vDroppedFilesPointCache.x = 0;
+		if (vDroppedFilesPointCache.y < 0) vDroppedFilesPointCache.y = 0;
+		vDroppedFilesCache = vFiles; 
+	}
 
 	void PixelGameEngine::olc_Reanimate()
 	{ bAtomActive = true; }
@@ -3502,17 +3566,22 @@ namespace olc
 		nMouseWheelDelta = nMouseWheelDeltaCache;
 		nMouseWheelDeltaCache = 0;
 
+		vDroppedFiles = vDroppedFilesCache;
+		vDroppedFilesPoint = vDroppedFilesPointCache;
+		vDroppedFilesCache.clear();
+
 		if (bTextEntryEnable)
 		{
 			UpdateTextEntry();
 		}
 
 		// Handle Frame Update
-		bool bExtensionBlockFrame = false;
+		bool bExtensionBlockFrame = false;		
 		for (auto& ext : vExtensions) bExtensionBlockFrame |= ext->OnBeforeUserUpdate(fElapsedTime);
 		if (!bExtensionBlockFrame)
 		{
 			if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
+			
 		}
 		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
 
@@ -3521,6 +3590,8 @@ namespace olc
 			SetDrawTarget((uint8_t)0);
 			UpdateConsole();
 		}
+
+		
 
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
@@ -4950,6 +5021,8 @@ namespace olc
 			return w;
 		}
 
+
+
 	public:
 		virtual olc::rcode ApplicationStartUp() override { return olc::rcode::OK; }
 		virtual olc::rcode ApplicationCleanUp() override { return olc::rcode::OK; }
@@ -5015,6 +5088,8 @@ namespace olc
 
 			olc_hWnd = CreateWindowEx(dwExStyle, olcT("OLC_PIXEL_GAME_ENGINE"), olcT(""), dwStyle,
 				vTopLeft.x, vTopLeft.y, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
+
+			DragAcceptFiles(olc_hWnd, true);
 
 			// Create Keyboard Mapping
 			mapKeys[0x00] = Key::NONE;
@@ -5113,6 +5188,44 @@ namespace olc
 			case WM_RBUTTONUP:	ptrPGE->olc_UpdateMouseState(1, false);                                 return 0;
 			case WM_MBUTTONDOWN:ptrPGE->olc_UpdateMouseState(2, true);                                  return 0;
 			case WM_MBUTTONUP:	ptrPGE->olc_UpdateMouseState(2, false);                                 return 0;
+			case WM_DROPFILES:
+			{
+				// This is all eww...
+				HDROP drop = (HDROP)wParam;
+				
+				uint32_t nFiles = DragQueryFile(drop, 0xFFFFFFFF, nullptr, 0);
+				std::vector<std::string> vFiles;
+				for (uint32_t i = 0; i < nFiles; i++)
+				{
+					TCHAR dfbuffer[256]{};
+					uint32_t len = DragQueryFile(drop, i, nullptr, 0);
+					DragQueryFile(drop, i, dfbuffer, 256);
+#ifdef UNICODE
+	#ifdef __MINGW32__
+					char* buffer = new char[len + 1];
+					wcstombs(buffer, dfbuffer, len);
+					buffer[len] = '\0';
+	#else
+					int count = WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, NULL, 0, NULL, NULL);
+					char* buffer = new char[count];
+					WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, buffer, count, NULL, NULL);
+	#endif				
+					vFiles.push_back(std::string(buffer));
+					delete[] buffer;
+#else
+					vFiles.push_back(std::string(dbuffer));
+#endif
+				}
+
+				// Even more eww...
+				POINT p; DragQueryPoint(drop, &p);
+				ptrPGE->olc_DropFiles(p.x, p.y, vFiles);
+				DragFinish(drop);
+				return 0;
+			} 
+			break;
+
+
 			case WM_CLOSE:		ptrPGE->olc_Terminate();                                                return 0;
 			case WM_DESTROY:	PostQuitMessage(0); DestroyWindow(hWnd);								return 0;
 			}
