@@ -4333,7 +4333,7 @@ namespace olc
 			wglMakeCurrent(glDeviceContext, glRenderContext);
 
 			// Set Vertical Sync
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, "wglSwapIntervalEXT");
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, wglSwapIntervalEXT);
 			if (locSwapInterval && !bVSYNC) locSwapInterval(0);
 			bSync = bVSYNC;
 #endif
@@ -4353,7 +4353,7 @@ namespace olc
 			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
 			glViewport(0, 0, gwa.width, gwa.height);
 
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, "glXSwapIntervalEXT");
+			locSwapInterval = OGL_LOAD(locSwapInterval_t, glXSwapIntervalEXT);
 
 			if (locSwapInterval == nullptr && !bVSYNC)
 			{
