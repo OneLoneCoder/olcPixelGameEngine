@@ -310,6 +310,11 @@
 		  +v2d_generic lerp()
 		  +GetDroppedFiles() - returns files dropped onto engine window for that frame (MSW only)
 		  +GetDroppedFilesPoint() - returns location of dropped files (MSW only)
+		  +Exposed OpenGL33 Loader interface so the typedefs can be shared with PGEX & user
+		  +Fix OGL33 DecalStructure types - wow, how did that one get missed?? lol
+		  +FillTexturedTriangle() - Software rasterizes a textured, coloured, triangle
+		  +FillTexturedPolygon() - Hijacks DecalStructure for configuration
+		  +olc::vf2d arguments for Sprite::Sample() functions
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -545,6 +550,7 @@ namespace olc
 	constexpr uint8_t  nDefaultAlpha = 0xFF;
 	constexpr uint32_t nDefaultPixel = (nDefaultAlpha << 24);
 	constexpr uint8_t  nTabSizeInSpaces = 4;
+	constexpr size_t OLC_MAX_VERTS = 128;
 	enum rcode { FAIL = 0, OK = 1, NO_FILE = -1 };
 
 	// O------------------------------------------------------------------------------O
@@ -658,7 +664,7 @@ namespace olc
 		v2d_generic  cart() { return { std::cos(y) * x, std::sin(y) * x }; }
 		v2d_generic  polar() { return { mag(), std::atan2(y, x) }; }
 		v2d_generic  clamp(const v2d_generic& v1, const v2d_generic& v2) const { return this->max(v1)->min(v2); }
-		v2d_generic	 lerp(const v2d_generic& v1, const v2d_generic& v2, const double t) { return (v2 - v1) * t + v1; }
+		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1) - t) + (v1 * t); }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
@@ -782,7 +788,9 @@ namespace olc
 		Pixel GetPixel(const olc::vi2d& a) const;
 		bool  SetPixel(const olc::vi2d& a, Pixel p);
 		Pixel Sample(float x, float y) const;
+		Pixel Sample(const olc::vf2d& uv) const;
 		Pixel SampleBL(float u, float v) const;
+		Pixel SampleBL(const olc::vf2d& uv) const;
 		Pixel* GetData();
 		olc::Sprite* Duplicate();
 		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
@@ -1055,6 +1063,9 @@ namespace olc
 		// Flat fills a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		void FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
+		// Fill a textured and coloured triangle
+		void FillTexturedTriangle(const std::vector<olc::vf2d>& vPoints, std::vector<olc::vf2d> vTex, std::vector<olc::Pixel> vColour, olc::Sprite* sprTex);
+		void FillTexturedPolygon(const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTex, const std::vector<olc::Pixel>& vColour, olc::Sprite* sprTex, olc::DecalStructure structure = olc::DecalStructure::LIST);
 		// Draws an entire sprite at location (x,y)
 		void DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
 		void DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
@@ -1309,6 +1320,100 @@ namespace olc
 
 #pragma endregion
 
+
+#pragma region opengl33_iface
+// In order to facilitate more advanced graphics features, some PGEX
+// will rely on shaders. Instead of having each PGEX responsible for
+// managing this, for convenience, this interface exists.
+
+#if defined(OLC_GFX_OPENGL33)
+
+	#if defined(OLC_PLATFORM_WINAPI)
+		#include <gl/GL.h>
+		#define CALLSTYLE __stdcall
+	#endif
+
+	#if defined(__linux__) || defined(__FreeBSD__)
+		#include <GL/gl.h>
+	#endif
+
+	#if defined(OLC_PLATFORM_X11)
+		namespace X11
+		{#include <GL/glx.h>}
+		#define CALLSTYLE 
+	#endif
+
+	#if defined(__APPLE__)
+		#define GL_SILENCE_DEPRECATION
+		#include <OpenGL/OpenGL.h>
+		#include <OpenGL/gl.h>
+		#include <OpenGL/glu.h>
+	#endif
+
+	#if defined(OLC_PLATFORM_EMSCRIPTEN)
+		#include <EGL/egl.h>
+		#include <GLES2/gl2.h>
+		#define GL_GLEXT_PROTOTYPES
+		#include <GLES2/gl2ext.h>
+		#include <emscripten/emscripten.h>
+		#define CALLSTYLE
+		#define GL_CLAMP GL_CLAMP_TO_EDGE
+	#endif
+
+namespace olc
+{
+	typedef char GLchar;
+	typedef ptrdiff_t GLsizeiptr;
+
+	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+	typedef GLuint CALLSTYLE locCreateProgram_t(void);
+	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+	typedef void CALLSTYLE locUseProgram_t(GLuint program);
+	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
+	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
+	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
+	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
+	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
+	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
+	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
+	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
+	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
+	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+
+#if defined(OLC_PLATFORM_WINAPI)
+	typedef void __stdcall locSwapInterval_t(GLsizei n);
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+	typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+#endif
+
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+#else
+	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+#endif
+
+} // olc namespace
+#endif // OpenGL33 Definitions
+#pragma endregion
+
+
 #endif // OLC_PGE_DEF
 
 
@@ -1503,6 +1608,11 @@ namespace olc
 		return GetPixel(sx, sy);
 	}
 
+	Pixel Sprite::Sample(const olc::vf2d& uv) const
+	{
+		return Sample(uv.x, uv.y);
+	}
+
 	Pixel Sprite::SampleBL(float u, float v) const
 	{
 		u = u * width - 0.5f;
@@ -1523,6 +1633,11 @@ namespace olc
 			(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
 			(uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
 			(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
+	}
+
+	Pixel Sprite::SampleBL(const olc::vf2d& uv) const
+	{
+		return SampleBL(uv.x, uv.y);
 	}
 
 	Pixel* Sprite::GetData()
@@ -2441,6 +2556,168 @@ namespace olc
 			if (y > y3) return;
 		}
 	}
+
+	void PixelGameEngine::FillTexturedTriangle(const std::vector<olc::vf2d>& vPoints, std::vector<olc::vf2d> vTex, std::vector<olc::Pixel> vColour, olc::Sprite* sprTex)
+	{
+		olc::vi2d p1 = vPoints[0];
+		olc::vi2d p2 = vPoints[1];
+		olc::vi2d p3 = vPoints[2];
+
+		if (p2.y < p1.y){std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); std::swap(vTex[0].x, vTex[1].x); std::swap(vTex[0].y, vTex[1].y); std::swap(vColour[0], vColour[1]);}
+		if (p3.y < p1.y){std::swap(p1.y, p3.y); std::swap(p1.x, p3.x); std::swap(vTex[0].x, vTex[2].x); std::swap(vTex[0].y, vTex[2].y); std::swap(vColour[0], vColour[2]);}
+		if (p3.y < p2.y){std::swap(p2.y, p3.y); std::swap(p2.x, p3.x); std::swap(vTex[1].x, vTex[2].x); std::swap(vTex[1].y, vTex[2].y); std::swap(vColour[1], vColour[2]);}
+
+		olc::vi2d dPos1 = p2 - p1;
+		olc::vf2d dTex1 = vTex[1] - vTex[0];
+		int dcr1 = vColour[1].r - vColour[0].r;
+		int dcg1 = vColour[1].g - vColour[0].g;
+		int dcb1 = vColour[1].b - vColour[0].b;
+		int dca1 = vColour[1].a - vColour[0].a;
+
+		olc::vi2d dPos2 = p3 - p1;
+		olc::vf2d dTex2 = vTex[2] - vTex[0];
+		int dcr2 = vColour[2].r - vColour[0].r;
+		int dcg2 = vColour[2].g - vColour[0].g;
+		int dcb2 = vColour[2].b - vColour[0].b;
+		int dca2 = vColour[2].a - vColour[0].a;
+
+		float dax_step = 0, dbx_step = 0, dcr1_step = 0, dcr2_step = 0,	dcg1_step = 0, dcg2_step = 0, dcb1_step = 0, dcb2_step = 0,	dca1_step = 0, dca2_step = 0;
+		olc::vf2d vTex1Step, vTex2Step;
+
+		if (dPos1.y)
+		{
+			dax_step = dPos1.x / (float)abs(dPos1.y);
+			vTex1Step = dTex1 / (float)abs(dPos1.y);
+			dcr1_step = dcr1 / (float)abs(dPos1.y);
+			dcg1_step = dcg1 / (float)abs(dPos1.y);
+			dcb1_step = dcb1 / (float)abs(dPos1.y);
+			dca1_step = dca1 / (float)abs(dPos1.y);
+		}
+
+		if (dPos2.y)
+		{
+			dbx_step = dPos2.x / (float)abs(dPos2.y);
+			vTex2Step = dTex2 / (float)abs(dPos2.y);
+			dcr2_step = dcr2 / (float)abs(dPos2.y);
+			dcg2_step = dcg2 / (float)abs(dPos2.y);
+			dcb2_step = dcb2 / (float)abs(dPos2.y);
+			dca2_step = dca2 / (float)abs(dPos2.y);
+		}
+
+		olc::vi2d vStart;
+		olc::vi2d vEnd;
+		int vStartIdx;
+
+		for (int pass = 0; pass < 2; pass++)
+		{
+			if (pass == 0)
+			{
+				vStart = p1; vEnd = p2;	vStartIdx = 0;
+			}
+			else
+			{
+				dPos1 = p3 - p2;
+				dTex1 = vTex[2] - vTex[1];
+				dcr1 = vColour[2].r - vColour[1].r;
+				dcg1 = vColour[2].g - vColour[1].g;
+				dcb1 = vColour[2].b - vColour[1].b;
+				dca1 = vColour[2].a - vColour[1].a;
+				dcr1_step = 0; dcg1_step = 0; dcb1_step = 0; dca1_step = 0;
+
+				if (dPos2.y) dbx_step = dPos2.x / (float)abs(dPos2.y);
+				if (dPos1.y)
+				{
+					dax_step = dPos1.x / (float)abs(dPos1.y);
+					vTex1Step = dTex1 / (float)abs(dPos1.y);
+					dcr1_step = dcr1 / (float)abs(dPos1.y);
+					dcg1_step = dcg1 / (float)abs(dPos1.y);
+					dcb1_step = dcb1 / (float)abs(dPos1.y);
+					dca1_step = dca1 / (float)abs(dPos1.y);
+				}
+
+				vStart = p2; vEnd = p3; vStartIdx = 1;
+			}
+
+			if (dPos1.y)
+			{
+				for (int i = vStart.y; i <= vEnd.y; i++)
+				{
+					int ax = int(vStart.x + (float)(i - vStart.y) * dax_step);
+					int bx = int(p1.x + (float)(i - p1.y) * dbx_step);
+
+					olc::vf2d tex_s(vTex[vStartIdx].x + (float)(i - vStart.y) * vTex1Step.x, vTex[vStartIdx].y + (float)(i - vStart.y) * vTex1Step.y);
+					olc::vf2d tex_e(vTex[0].x + (float)(i - p1.y) * vTex2Step.x, vTex[0].y + (float)(i - p1.y) * vTex2Step.y);
+
+					olc::Pixel col_s(vColour[vStartIdx].r + uint8_t((float)(i - vStart.y) * dcr1_step), vColour[vStartIdx].g + uint8_t((float)(i - vStart.y) * dcg1_step),
+						vColour[vStartIdx].b + uint8_t((float)(i - vStart.y) * dcb1_step), vColour[vStartIdx].a + uint8_t((float)(i - vStart.y) * dca1_step));
+
+					olc::Pixel col_e(vColour[0].r + uint8_t((float)(i - p1.y) * dcr2_step), vColour[0].g + uint8_t((float)(i - p1.y) * dcg2_step),
+						vColour[0].b + uint8_t((float)(i - p1.y) * dcb2_step), vColour[0].a + uint8_t((float)(i - p1.y) * dca2_step));
+
+					if (ax > bx) { std::swap(ax, bx); std::swap(tex_s, tex_e); std::swap(col_s, col_e); }
+
+					float tstep = 1.0f / ((float)(bx - ax));
+					float t = 0.0f;
+
+					for (int j = ax; j < bx; j++)
+					{
+						olc::Pixel pixel = PixelLerp(col_s, col_e, t);
+						if (sprTex != nullptr) pixel *= sprTex->Sample(tex_s.lerp(tex_e, t));
+						Draw(j, i, pixel);
+						t += tstep;
+					}
+				}
+			}
+		}			
+	}
+
+	void PixelGameEngine::FillTexturedPolygon(const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTex, const std::vector<olc::Pixel>& vColour, olc::Sprite* sprTex, olc::DecalStructure structure)
+	{
+		if (structure == olc::DecalStructure::LINE)
+		{
+			return; // Meaningless, so do nothing
+		}
+
+		if (vPoints.size() < 3 || vTex.size() < 3 || vColour.size() < 3)
+			return;
+
+		if (structure == olc::DecalStructure::LIST)
+		{			
+			for (int tri = 0; tri < vPoints.size() / 3; tri++)
+			{
+				std::vector<olc::vf2d> vP = { vPoints[tri * 3 + 0], vPoints[tri * 3 + 1], vPoints[tri * 3 + 2] };
+				std::vector<olc::vf2d> vT = { vTex[tri * 3 + 0], vTex[tri * 3 + 1], vTex[tri * 3 + 2] };
+				std::vector<olc::Pixel> vC = { vColour[tri * 3 + 0], vColour[tri * 3 + 1], vColour[tri * 3 + 2] };
+				FillTexturedTriangle(vP, vT, vC, sprTex);
+			}
+			return;
+		}
+
+		if (structure == olc::DecalStructure::STRIP)
+		{
+			for (int tri = 2; tri < vPoints.size(); tri++)
+			{
+				std::vector<olc::vf2d> vP = { vPoints[tri - 2], vPoints[tri-1], vPoints[tri] };
+				std::vector<olc::vf2d> vT = { vTex[tri - 2], vTex[tri - 1], vTex[tri] };
+				std::vector<olc::Pixel> vC = { vColour[tri - 2], vColour[tri - 1], vColour[tri] };
+				FillTexturedTriangle(vP, vT, vC, sprTex);
+			}
+			return;
+		}
+
+		if (structure == olc::DecalStructure::FAN)
+		{
+			for (int tri = 2; tri < vPoints.size(); tri++)
+			{
+				std::vector<olc::vf2d> vP = { vPoints[0], vPoints[tri - 1], vPoints[tri] };
+				std::vector<olc::vf2d> vT = { vTex[0], vTex[tri - 1], vTex[tri] };
+				std::vector<olc::Pixel> vC = { vColour[0], vColour[tri - 1], vColour[tri] };
+				FillTexturedTriangle(vP, vT, vC, sprTex);
+			}
+			return;
+		}
+	}
+
 
 	void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
 	{ DrawSprite(pos.x, pos.y, sprite, scale, flip); }
@@ -4156,79 +4433,91 @@ namespace olc
 
 #if defined(OLC_PLATFORM_WINAPI)
 	#include <dwmapi.h>
-	#include <gl/GL.h>
+	//#include <gl/GL.h>
 	#if !defined(__MINGW32__)
 		#pragma comment(lib, "Dwmapi.lib")
 	#endif		
-	typedef void __stdcall locSwapInterval_t(GLsizei n);
+	//typedef void __stdcall locSwapInterval_t(GLsizei n);
 	typedef HDC glDeviceContext_t;
 	typedef HGLRC glRenderContext_t;
-	#define CALLSTYLE __stdcall
+	//#define CALLSTYLE __stdcall
 	#define OGL_LOAD(t, n) (t*)wglGetProcAddress(#n)
 #endif
-
-#if defined(__linux__) || defined(__FreeBSD__)
-	#include <GL/gl.h>
-#endif
+//
+//#if defined(__linux__) || defined(__FreeBSD__)
+//	#include <GL/gl.h>
+//#endif
 
 #if defined(OLC_PLATFORM_X11)
-	namespace X11
+	/*namespace X11
 	{
 		#include <GL/glx.h>
 	}
-	typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+	typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);*/
 	typedef X11::GLXContext glDeviceContext_t;
 	typedef X11::GLXContext glRenderContext_t;
-	#define CALLSTYLE 
+	//#define CALLSTYLE 
 	#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
 #endif
 
-#if defined(__APPLE__)
-	#define GL_SILENCE_DEPRECATION
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
-#endif
+//#if defined(__APPLE__)
+//	#define GL_SILENCE_DEPRECATION
+//	#include <OpenGL/OpenGL.h>
+//	#include <OpenGL/gl.h>
+//	#include <OpenGL/glu.h>
+//#endif
 
-#if defined(OLC_PLATFORM_EMSCRIPTEN)
-	#include <EGL/egl.h>
-	#include <GLES2/gl2.h>
-	#define GL_GLEXT_PROTOTYPES
-	#include <GLES2/gl2ext.h>
-	#include <emscripten/emscripten.h>
-	#define CALLSTYLE
-	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-	#define GL_CLAMP GL_CLAMP_TO_EDGE
-	#define OGL_LOAD(t, n) n;
-#endif
+//#if defined(OLC_PLATFORM_EMSCRIPTEN)
+//	#include <EGL/egl.h>
+//	#include <GLES2/gl2.h>
+//	#define GL_GLEXT_PROTOTYPES
+//	#include <GLES2/gl2ext.h>
+//	#include <emscripten/emscripten.h>
+//	#define CALLSTYLE
+//	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+//	#define GL_CLAMP GL_CLAMP_TO_EDGE
+//	#define OGL_LOAD(t, n) n;
+//#endif
 
 namespace olc
 {
-	typedef char GLchar;
-	typedef ptrdiff_t GLsizeiptr;
-	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
-	typedef GLuint CALLSTYLE locCreateProgram_t(void);
-	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
-#if defined(OLC_PLATFORM_EMSCRIPTEN)
-	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-#else
-	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
-#endif
-	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
-	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
-	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
-	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
-	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
-	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
-	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
-	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
-	typedef void CALLSTYLE locUseProgram_t(GLuint program);
-	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
-	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
-	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+//	typedef char GLchar;
+//	typedef ptrdiff_t GLsizeiptr;
+//	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+//	typedef GLuint CALLSTYLE locCreateProgram_t(void);
+//	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+//#if defined(OLC_PLATFORM_EMSCRIPTEN)
+//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+//#else
+//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+//#endif
+//	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+//	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+//	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+//	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+//	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+//	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+//	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+//	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+//	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+//	typedef void CALLSTYLE locUseProgram_t(GLuint program);
+//	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+//	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+//	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+//	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
+//	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
+//	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
+//	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+//	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
+//	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
+//	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
+//	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
+//	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
+//	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+//	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
+//	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
-	constexpr size_t OLC_MAX_VERTS = 128;
+	
 
 	class Renderer_OGL33 : public olc::Renderer
 	{
@@ -4590,7 +4879,14 @@ namespace olc
 			if (nDecalMode == DecalMode::WIREFRAME)
 				glDrawArrays(GL_LINE_LOOP, 0, decal.points);
 			else
-				glDrawArrays(GL_TRIANGLE_FAN, 0, decal.points);
+			{
+				if (decal.structure == olc::DecalStructure::FAN)
+					glDrawArrays(GL_TRIANGLE_FAN, 0, decal.points);
+				else if (decal.structure == olc::DecalStructure::STRIP)
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, decal.points);
+				else if (decal.structure == olc::DecalStructure::LIST)
+					glDrawArrays(GL_TRIANGLES, 0, decal.points);
+			}
 		}
 
 		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
