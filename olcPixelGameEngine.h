@@ -440,8 +440,16 @@ int main()
 // | PLATFORM SELECTION CODE, Thanks slavka!                                      |
 // O------------------------------------------------------------------------------O
 
+#if defined(OLC_PGE_HEADLESS)
+	#define OLC_PLATFORM_HEADLESS
+	#define OLC_GFX_HEADLESS
+	#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
+		#define OLC_IMAGE_HEADLESS
+	#endif
+#endif
+
 // Platform
-#if !defined(OLC_PLATFORM_WINAPI) && !defined(OLC_PLATFORM_X11) && !defined(OLC_PLATFORM_GLUT) && !defined(OLC_PLATFORM_EMSCRIPTEN)
+#if !defined(OLC_PLATFORM_WINAPI) && !defined(OLC_PLATFORM_X11) && !defined(OLC_PLATFORM_GLUT) && !defined(OLC_PLATFORM_EMSCRIPTEN) && !defined(OLC_PLATFORM_HEADLESS)
 	#if !defined(OLC_PLATFORM_CUSTOM_EX)
 		#if defined(_WIN32)
 			#define OLC_PLATFORM_WINAPI
@@ -464,8 +472,10 @@ int main()
 	#define PGE_USE_CUSTOM_START
 #endif
 
+
+
 // Renderer
-#if !defined(OLC_GFX_OPENGL10) && !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10)
+#if !defined(OLC_GFX_OPENGL10) && !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10) && !defined(OLC_GFX_HEADLESS)
 	#if !defined(OLC_GFX_CUSTOM_EX)
 		#if defined(OLC_PLATFORM_EMSCRIPTEN)
 			#define OLC_GFX_OPENGL33
@@ -476,7 +486,7 @@ int main()
 #endif
 
 // Image loader
-#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
+#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG) && !defined(OLC_IMAGE_HEADLESS)
 	#if !defined(OLC_IMAGE_CUSTOM_EX)
 		#if defined(_WIN32)
 			#define	OLC_IMAGE_GDI
@@ -532,6 +542,15 @@ int main()
 	#include <objc/message.h>
 	#include <objc/NSObjCRuntime.h>
 	#endif
+#endif
+#endif
+
+#if defined(OLC_PGE_HEADLESS)
+#if defined max
+#undef max
+#endif
+#if defined min
+#undef min
 #endif
 #endif
 #pragma endregion
@@ -664,7 +683,7 @@ namespace olc
 		v2d_generic  cart() { return { std::cos(y) * x, std::sin(y) * x }; }
 		v2d_generic  polar() { return { mag(), std::atan2(y, x) }; }
 		v2d_generic  clamp(const v2d_generic& v1, const v2d_generic& v2) const { return this->max(v1)->min(v2); }
-		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1) - t) + (v1 * t); }
+		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1.0 - t)) + (v1 * T(t)); }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
@@ -4028,9 +4047,117 @@ namespace olc
 };
 #pragma endregion 
 
+
+#pragma region platform_headless
+namespace olc
+{
+#if defined(OLC_GFX_HEADLESS)
+	class Renderer_Headless : public olc::Renderer
+	{
+	public:
+		virtual void       PrepareDevice() {};
+		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK;		}
+		virtual olc::rcode DestroyDevice() { return olc::rcode::OK; }
+		virtual void       DisplayFrame() {}
+		virtual void       PrepareDrawing() {}
+		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
+		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
+		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
+		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) {return 1;};
+		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
+		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
+		virtual uint32_t   DeleteTexture(const uint32_t id) {return 1;}
+		virtual void       ApplyTexture(uint32_t id) {}
+		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) {}
+		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) {}
+	};
+#endif
+#if defined(OLC_PLATFORM_HEADLESS)
+	class Platform_Headless : public olc::Platform
+	{
+	public:
+		virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
+		virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
+		virtual olc::rcode ThreadStartUp() { return olc::rcode::OK; }
+		virtual olc::rcode ThreadCleanUp() { return olc::rcode::OK; }
+		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) { return olc::rcode::OK; }
+		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) { return olc::rcode::OK; }
+		virtual olc::rcode SetWindowTitle(const std::string& s) { return olc::rcode::OK; }
+		virtual olc::rcode StartSystemEventLoop() { return olc::rcode::OK; }
+		virtual olc::rcode HandleSystemEvent() { return olc::rcode::OK; }
+	};
+#endif
+}
+#pragma endregion
+
 // O------------------------------------------------------------------------------O
 // | olcPixelGameEngine Renderers - the draw-y bits                               |
 // O------------------------------------------------------------------------------O
+
+#pragma region image_stb
+// O------------------------------------------------------------------------------O
+// | START IMAGE LOADER: stb_image.h, all systems, very fast                      |
+// O------------------------------------------------------------------------------O
+// Thanks to Sean Barrett - https://github.com/nothings/stb/blob/master/stb_image.h
+// MIT License - Copyright(c) 2017 Sean Barrett
+
+// Note you need to download the above file into your project folder, and
+// #define OLC_IMAGE_STB 
+// #define OLC_PGE_APPLICATION
+// #include "olcPixelGameEngine.h"
+
+#if defined(OLC_IMAGE_STB)
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+namespace olc
+{
+	class ImageLoader_STB : public olc::ImageLoader
+	{
+	public:
+		ImageLoader_STB() : ImageLoader()
+		{}
+
+		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
+		{
+			UNUSED(pack);
+			// clear out existing sprite
+			spr->pColData.clear();
+			// Open file
+			stbi_uc* bytes = nullptr;
+			int w = 0, h = 0, cmp = 0;
+			if (pack != nullptr)
+			{
+				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
+			}
+			else
+			{
+				// Check file exists
+				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+				bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
+			}
+
+			if (!bytes) return olc::rcode::FAIL;
+			spr->width = w; spr->height = h;
+			spr->pColData.resize(spr->width * spr->height);
+			std::memcpy(spr->pColData.data(), bytes, spr->width * spr->height * 4);
+			delete[] bytes;
+			return olc::rcode::OK;
+		}
+
+		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		{
+			return olc::rcode::OK;
+		}
+	};
+}
+#endif
+// O------------------------------------------------------------------------------O
+// | START IMAGE LOADER: stb_image.h                                              |
+// O------------------------------------------------------------------------------O
+#pragma endregion
+
+
 
 #if !defined(OLC_PGE_HEADLESS)
 
@@ -5214,68 +5341,6 @@ namespace olc
 // O------------------------------------------------------------------------------O
 #pragma endregion
 
-#pragma region image_stb
-// O------------------------------------------------------------------------------O
-// | START IMAGE LOADER: stb_image.h, all systems, very fast                      |
-// O------------------------------------------------------------------------------O
-// Thanks to Sean Barrett - https://github.com/nothings/stb/blob/master/stb_image.h
-// MIT License - Copyright(c) 2017 Sean Barrett
-
-// Note you need to download the above file into your project folder, and
-// #define OLC_IMAGE_STB 
-// #define OLC_PGE_APPLICATION
-// #include "olcPixelGameEngine.h"
-
-#if defined(OLC_IMAGE_STB)
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-namespace olc
-{
-	class ImageLoader_STB : public olc::ImageLoader
-	{
-	public:
-		ImageLoader_STB() : ImageLoader()
-		{}
-
-		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
-		{
-			UNUSED(pack);
-			// clear out existing sprite
-			spr->pColData.clear();
-			// Open file
-			stbi_uc* bytes = nullptr;
-			int w = 0, h = 0, cmp = 0;
-			if (pack != nullptr)
-			{
-				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
-			}
-			else
-			{
-				// Check file exists
-				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-				bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
-			}
-
-			if (!bytes) return olc::rcode::FAIL;
-			spr->width = w; spr->height = h;
-			spr->pColData.resize(spr->width * spr->height);
-			std::memcpy(spr->pColData.data(), bytes, spr->width * spr->height * 4);
-			delete[] bytes;
-			return olc::rcode::OK;
-		}
-
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
-		{
-			return olc::rcode::OK;
-		}
-	};
-}
-#endif
-// O------------------------------------------------------------------------------O
-// | START IMAGE LOADER: stb_image.h                                              |
-// O------------------------------------------------------------------------------O
-#pragma endregion
 
 // O------------------------------------------------------------------------------O
 // | olcPixelGameEngine Platforms                                                 |
@@ -6091,6 +6156,9 @@ namespace olc {
 #pragma endregion 
 
 
+
+
+
 #pragma region platform_emscripten
 // O------------------------------------------------------------------------------O
 // | START PLATFORM: Emscripten - Totally Game Changing...                        |
@@ -6530,7 +6598,9 @@ namespace olc
 	void PixelGameEngine::olc_ConfigureSystem()
 	{
 
-#if !defined(OLC_PGE_HEADLESS)
+//#if !defined(OLC_PGE_HEADLESS)
+
+		olc::Sprite::loader = nullptr;
 
 #if defined(OLC_IMAGE_GDI)
 		olc::Sprite::loader = std::make_unique<olc::ImageLoader_GDIPlus>();
@@ -6549,7 +6619,9 @@ namespace olc
 #endif
 
 
-
+#if defined(OLC_PLATFORM_HEADLESS)
+		platform = std::make_unique<olc::Platform_Headless>();
+#endif
 
 #if defined(OLC_PLATFORM_WINAPI)
 		platform = std::make_unique<olc::Platform_Windows>();
@@ -6571,7 +6643,9 @@ namespace olc
 		platform = std::make_unique<OLC_PLATFORM_CUSTOM_EX>();
 #endif
 
-
+#if defined(OLC_GFX_HEADLESS)
+		renderer = std::make_unique<olc::Renderer_Headless>();
+#endif
 
 #if defined(OLC_GFX_OPENGL10)
 		renderer = std::make_unique<olc::Renderer_OGL10>();
@@ -6600,11 +6674,11 @@ namespace olc
 		// Associate components with PGE instance
 		platform->ptrPGE = this;
 		renderer->ptrPGE = this;
-#else
-		olc::Sprite::loader = nullptr;
-		platform = nullptr;
-		renderer = nullptr;
-#endif
+//#else
+//		olc::Sprite::loader = nullptr;
+//		platform = nullptr;
+//		renderer = nullptr;
+//#endif
 	}
 }
 

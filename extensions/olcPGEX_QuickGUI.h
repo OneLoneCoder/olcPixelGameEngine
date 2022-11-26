@@ -361,6 +361,32 @@ namespace olc::QuickGUI
 		void Draw(olc::PixelGameEngine* pge) override;
 		void DrawDecal(olc::PixelGameEngine* pge) override;
 	};
+
+
+	class ModalDialog : public olc::PGEX
+	{
+	public:
+		ModalDialog();
+
+	public:
+		void ShowFileOpen(const std::string& sPath);
+
+	protected:
+		virtual bool OnBeforeUserUpdate(float& fElapsedTime) override;
+
+	private:
+		bool m_bShowDialog = false;
+
+		Manager m_manFileSelect;
+		ListBox* m_listVolumes = nullptr;
+		ListBox* m_listDirectory = nullptr;
+		ListBox* m_listFiles = nullptr;
+
+		std::vector<std::string> m_vVolumes;
+		std::vector<std::string> m_vDirectory;
+		std::vector<std::string> m_vFiles;
+		std::filesystem::path m_path;
+	};
 }
 
 
@@ -1049,6 +1075,95 @@ namespace olc::QuickGUI
 	}
 #pragma endregion
 
+
+
+#pragma region Modal
+	ModalDialog::ModalDialog() : olc::PGEX(true)
+	{
+
+		// Create File Open Dialog
+		olc::vi2d vScreenSize = pge->GetScreenSize();
+
+		m_listDirectory = new ListBox(m_manFileSelect, m_vDirectory, olc::vf2d(20, 20), olc::vf2d(300, 500));
+		m_listFiles = new ListBox(m_manFileSelect, m_vFiles, olc::vf2d(330, 20), olc::vf2d(300, 500));
+
+		m_path = "/";
+		for (auto const& dir_entry : std::filesystem::directory_iterator{ m_path })
+		{
+			if(dir_entry.is_directory())
+				m_vDirectory.push_back(dir_entry.path().filename().string());
+			else
+				m_vFiles.push_back(dir_entry.path().filename().string());
+		}
+	}
+
+	void ModalDialog::ShowFileOpen(const std::string& sPath)
+	{
+		m_bShowDialog = true;
+	}
+
+	bool ModalDialog::OnBeforeUserUpdate(float& fElapsedTime)
+	{
+		if(!m_bShowDialog) return false;
+
+		m_manFileSelect.Update(this->pge);
+
+		if (pge->GetKey(olc::Key::BACK).bPressed)
+		{
+			m_path = m_path.parent_path().string() + "/";
+			//m_listDirectory->bSelectionChanged = true;
+			//m_listDirectory->nSelectedItem = 0;
+		}
+
+		if (m_listDirectory->bSelectionChanged)
+		{
+			std::string sDirectory = m_vDirectory[m_listDirectory->nSelectedItem];
+			/*if (sDirectory == "..")
+				m_path = m_path.parent_path().string() + "/";
+			else
+				m_path += sDirectory+ "/";*/
+			
+
+			m_path += sDirectory + "/";
+			// Reconstruct Lists
+			m_vDirectory.clear();
+			
+			m_vFiles.clear();
+			
+
+			for (auto const& dir_entry : std::filesystem::directory_iterator{ m_path })
+			{
+				if (dir_entry.is_directory() || dir_entry.is_other())
+					m_vDirectory.push_back(dir_entry.path().filename().string());
+				else
+					m_vFiles.push_back(dir_entry.path().filename().string());
+			}
+
+			//m_vDirectory.push_back("..");
+
+			//m_listFiles->nSelectedItem = 0;
+			//m_listDirectory->nSelectedItem = 0;
+
+		}
+
+			pge->DrawStringDecal({ 0,0 }, m_path.string());
+
+
+
+
+		m_manFileSelect.DrawDecal(this->pge);
+
+
+
+		if (pge->GetKey(olc::Key::ESCAPE).bPressed)
+		{
+			m_bShowDialog = false;
+			return false;
+		}
+
+		return true;
+	}
+#pragma endregion
 
 }
 #endif // OLC_PGEX_QUICKGUI
