@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                 Transformed View v1.07                      |
+	|                 Transformed View v1.08                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -73,6 +73,7 @@
 	1.06:	Fixed error in DrawLine() - Thanks CraisyDaisyRecords (& Fern)!
 	1.07:   +DrawRectDecal()
 			+GetPGE()
+	1.08:  +DrawPolygonDecal() with tint overload, akin to PGE
 */
 
 #pragma once
@@ -190,7 +191,8 @@ namespace olc
 		// Draws an arbitrary convex textured polygon using GPU
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		void DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p = olc::WHITE);
-		void DrawPolygonDecal(olc::Decal * decal, const std::vector<olc::vf2d>&pos, const std::vector<olc::vf2d>&uv, const std::vector<olc::Pixel> &tint);
+		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>&pos, const std::vector<olc::vf2d>&uv, const std::vector<olc::Pixel> &tint);
+		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint);
 
 
 #if defined(OLC_PGEX_SHADER)
@@ -667,6 +669,15 @@ namespace olc
 			vTransformed[n] = WorldToScreen(pos[n]);
 		pge->DrawPolygonDecal(decal, vTransformed, uv, tint);
 	}
+
+	void TransformedView::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint)
+	{
+		std::vector<olc::vf2d> vTransformed(pos.size());
+		for (uint32_t n = 0; n < pos.size(); n++)
+			vTransformed[n] = WorldToScreen(pos[n]);
+		pge->DrawPolygonDecal(decal, vTransformed, uv, colours, tint);
+	}
+
 
 
 #if defined (OLC_PGEX_SHADER)

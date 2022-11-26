@@ -235,4 +235,5 @@ namespace olc::utils
 			}
 		}
 	};
+
 }

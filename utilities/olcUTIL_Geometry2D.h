@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - Geometry 2D v1.00
+	OneLoneCoder - Geometry 2D v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A collection of 2D Geometric primitives and functions to work with
 	and between them.
@@ -51,17 +51,22 @@
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
 
+	Changes:
+	v1.01:		+Made constants inline
+				+Header guards (lol... sigh...)
+
 */
 
+#pragma once
 #include "olcPixelGameEngine.h"
 
 namespace olc::utils::geom2d
 {
 	// Lemon Meringue
-	const double pi = 3.141592653589793238462643383279502884;
+	inline const double pi = 3.141592653589793238462643383279502884;
 
 	// Floating point error margin
-	const double epsilon = 0.001;
+	inline const double epsilon = 0.001;
 
 	//https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 	template <typename T>
