@@ -5574,7 +5574,7 @@ namespace olc
 					vFiles.push_back(std::string(buffer));
 					delete[] buffer;
 #else
-					vFiles.push_back(std::string(dbuffer));
+					vFiles.push_back(std::string(dfbuffer));
 #endif
 				}
 
