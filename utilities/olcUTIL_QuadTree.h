@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - QuadTree v1.00
+	OneLoneCoder - QuadTree v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A Dynamic Quad-Tree implementation to store objects in a 2D space
 	with a fast retrieval.
@@ -50,6 +50,24 @@
 	~~~~~~
 	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
 
+
+	Changes
+	~~~~~~~
+	v1.01:		Bug fix clear() function
+
+*/
+
+
+/*
+	WARNING! VECTORS OF QUAD-TREES
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	This quad tree implementation will suffer when stored inside a container
+	that can reallocate its contents. Upon reallocation, all of the iterators
+	used to link the quad tree to its items will be invalidated.
+
+	Currently, I advise caution when using std::vector of this quad tree, and
+	should you choose to, then reserve space in advance so reallocation cannot
+	occur.
 */
 
 
@@ -313,6 +331,7 @@ namespace olc::utils
 
 		void clear()
 		{
+			m_allItems.clear();
 			root.clear();
 		}
 
