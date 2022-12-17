@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.21              |
+	|           OneLoneCoder Pixel Game Engine v2.22              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -111,7 +111,7 @@
 	about Mac, so if you need support, I suggest checking out the instructions
 	here: https://github.com/MumflrFumperdink/olcPGEMac
 
-	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL 
+	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL
 		-framework GLUT -framework Carbon -lpng YourSource.cpp -o YourProgName
 
 
@@ -120,7 +120,7 @@
 	~~~~~~~~~~~~~~~~~~~~~~~~~
 	Emscripten compiler will turn your awesome C++ PixelGameEngine project into WASM!
 	This means you can run your application in teh browser, great for distributing
-	and submission in to jams and things! It's a bit new at the moment. 
+	and submission in to jams and things! It's a bit new at the moment.
 
 	em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 ./YourSource.cpp -o pge.html
 
@@ -150,9 +150,9 @@
 	#define OLC_PGE_APPLICATION
 	#include "olcPixelGameEngine.h"
 
-	That's all it should include. You can also include PGEX includes and 
-	defines in here too. With this in place, you dont need to 
-	#define OLC_PGE_APPLICATION anywhere, and can simply include this 
+	That's all it should include. You can also include PGEX includes and
+	defines in here too. With this in place, you dont need to
+	#define OLC_PGE_APPLICATION anywhere, and can simply include this
 	header file as an when you need to.
 
 
@@ -169,10 +169,10 @@
 	Thanks
 	~~~~~~
 	I'd like to extend thanks to Ian McKay, Bispoo, Eremiell, slavka, Kwizatz77, gurkanctn, Phantim,
-	IProgramInCPP, JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice, 
-	dandistine,	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, Alexio, SaladinAkara 
+	IProgramInCPP, JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice,
+	dandistine,	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, Alexio, SaladinAkara
 	& MagetzUb for advice, ideas and testing, and I'd like to extend my appreciation to the
-	250K YouTube followers,	80+ Patreons, 4.8K Twitch followers and 10K Discord server members 
+	250K YouTube followers,	80+ Patreons, 4.8K Twitch followers and 10K Discord server members
 	who give me	the motivation to keep going with all this :D
 
 	Significant Contributors: @Moros1138, @SaladinAkara, @MaGetzUb, @slavka,
@@ -258,12 +258,12 @@
 		  +Wireframe Decal Mode - For debug overlays
 	2.11: Made PGEX hooks optional - (provide true to super constructor)
 	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
-	2.13: +GetFontSprite() - allows access to font data	 
+	2.13: +GetFontSprite() - allows access to font data
 	2.14: Fix WIN32 Definition reshuffle
 		  Fix DrawPartialDecal() - messed up dimension during renderer experiment, didnt remove junk code, thanks Alexio
 		  Fix? Strange error regarding GDI+ Image Loader not knowing about COM, SDK change?
 	2.15: Big Reformat
-		  +WASM Platform (via Emscripten) - Big Thanks to OLC Community - See Platform for details		  
+		  +WASM Platform (via Emscripten) - Big Thanks to OLC Community - See Platform for details
 		  +Sample Mode for Decals
 		  +Made olc_ConfigureSystem() accessible
 		  +Added OLC_----_CUSTOM_EX for externalised platforms, renderers and image loaders
@@ -287,7 +287,7 @@
 	2.18: +Option to not "dirty" layers with SetDrawTarget() - Thanks TerasKasi!
 		  =Detection for Mac M1, fix for scroll wheel interrogation - Thanks ruarq!
 	2.19: Textual Input(of)course Edition!
-	      =Built in font is now olc::Renderable
+		  =Built in font is now olc::Renderable
 		  +EnablePixelTransfer() - Gate if layer content transfers occur (speedup in decal only apps)
 		  +TextEntryEnable() - Enables/Disables text entry mode
 		  +TextEntryGetString() - Gets the current accumulated string in text entry mode
@@ -301,7 +301,7 @@
 		  +ConsoleCaptureStdOut() - Capture std::cout by redirecting to built-in console
 		  +OnConsoleCommand() - Override is called when command is entered into built in console
 	2.20: +DrawRectDecal() - Keeps OneSketchyGuy quiet
-	      +GetScreenSize()
+		  +GetScreenSize()
 		  +olc::Sprite::Size() - returns size of sprite in vector format
 	2.21: Emscripten Overhaul - Thanks Moros!
 		  +DrawPolygonDecal() tint overload, can now tint a polygon accounting for vertex colours
@@ -315,8 +315,82 @@
 		  +FillTexturedTriangle() - Software rasterizes a textured, coloured, triangle
 		  +FillTexturedPolygon() - Hijacks DecalStructure for configuration
 		  +olc::vf2d arguments for Sprite::Sample() functions
-		  
-    !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
+	2.22: Add SIMD Instruction methods for PGE and Sprite, Add comments for all SIMD Instruction Sets (John Galvin)
+		  + #include <intrin.h>
+		  Public: Class Sprite
+		  + Updated ~Sprite to clear any stored vector sprites
+		  + Inline void: void setStoreSubSprites(bool bStore)
+		  + Inline bool: bool getStoreSubSprites()
+		  + Inline void: void setInsturctionSet(SIMD_INSTRUCTON_OPTION option)
+		  + Inline int: SIMD_INSTRUCTON_OPTION getInsturctionSet()
+		  + Inline: bool CheckForSSESupport()
+		  + Inline: bool CheckForAVXSupport()
+		  + Inline: bool CheckForAVX512Support()
+		  + Inline: bool CheckForARMSupport() Placeholder not implemented yet
+		  + olc::Sprite* Duplicate(olc::Sprite::Flip flip);
+		  + olc::Sprite* Duplicate_SIMD();
+		  + olc::Sprite* Duplicate_SIMD(olc::Sprite::Flip flip);
+		  + olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize);
+		  + olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget);
+		  + olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip);
+		  + olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip);
+		  + std::vector<std::tuple<olc::vi2d, olc::vi2d, uint32_t, uint8_t, Sprite*>> vecSubSprites;
+
+
+		  Private: Class Sprite
+		  + olc::Sprite* Duplicate_SSE(olc::Sprite::Flip flip)
+		  + olc::Sprite* Duplicate_AVX256(olc::Sprite::Flip flip)
+		  + olc::Sprite* Duplicate_AVX512(olc::Sprite::Flip flip)
+		  + olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		  + olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		  + olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		  + olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		  + olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		  + olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		  + olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		  + olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		  + olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		  + olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		  + olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		  + olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+
+		  Public: Class PixelGameEngine
+		  + Inline enum: enum INSTRUCTON_OPTION
+		  + Inline void: void setInsturctionSet(INSTRUCTON_OPTION option)
+		  + Inline bool: int getInsturctionSet()
+		  + static bool CheckForSSESupport()
+		  + static bool CheckForAVXSupport()
+		  + static bool CheckForAVX512Support()
+		  + void Clear_SIMD(Pixel p = olc::BLANK)
+		  + void FillCircle_SIMD(olc::vi2d pos, int32_t radius, Pixel p = olc::WHITE)
+		  + void FillCircle_SIMD(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE)
+		  + void FillTriangle_SIMD(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE)
+		  + void FillTriangle_SIMD(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE)
+		  + void FillRect_SIMD(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE)
+		  + void FillRect_SIMD(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE)
+		  + void DrawSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE)
+		  + void DrawSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE)
+		  + void DrawPartialSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE)
+		  + void DrawPartialSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE)
+		  + void DrawPartialTriangleDecal(olc::Decal* decal, const olc::vf2d& pos1, const olc::vf2d& pos2, const olc::vf2d& pos3, const olc::Pixel& tint)
+
+		  Private: Class PixelGameEngine
+		  + void Clear_SSE(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK)
+		  + void Clear_AVX256(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK)
+		  + void Clear_AVX512(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK)
+		  + bool Draw_SIMD(int32_t sx, int32_t ex, int32_t ny, Pixel p = olc::WHITE)
+		  + void DrawFillLine_SSE(int sx, int ex, int ny, Pixel p = olc::WHITE)
+		  + void DrawFillLine_AVX256(int sx, int ex, int ny, Pixel p = olc::WHITE)
+		  + void DrawFillLine_AVX512(int sx, int ex, int ny, Pixel p = olc::WHITE)
+		  + void DrawFillLine_SIMD(int VecStartIndex, int VecEndIndex, int ny, Pixel p = olc::WHITE)
+
+
+
+
+
+
+
+	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
 */
 #pragma endregion
@@ -392,6 +466,7 @@ int main()
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <intrin.h> // John Galvin
 #pragma endregion
 
 #define PGE_VER 221
@@ -402,36 +477,36 @@ int main()
 #pragma region compiler_config
 #define USE_EXPERIMENTAL_FS
 #if defined(_WIN32)
-	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 #if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__) || defined(__APPLE__)
-	#if __cplusplus >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if __cplusplus >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 
 #if !defined(OLC_KEYBOARD_UK)
-	#define OLC_KEYBOARD_UK
+#define OLC_KEYBOARD_UK
 #endif
 
 
 #if defined(USE_EXPERIMENTAL_FS) || defined(FORCE_EXPERIMENTAL_FS)
 	// C++14
-	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#include <experimental/filesystem>
-	namespace _gfs = std::experimental::filesystem::v1;
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+namespace _gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+#include <filesystem>
+namespace _gfs = std::filesystem;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
-	#define olcT(s) L##s
+#define olcT(s) L##s
 #else
-	#define olcT(s) s
+#define olcT(s) s
 #endif
 
 #define UNUSED(x) (void)(x)
@@ -441,60 +516,60 @@ int main()
 // O------------------------------------------------------------------------------O
 
 #if defined(OLC_PGE_HEADLESS)
-	#define OLC_PLATFORM_HEADLESS
-	#define OLC_GFX_HEADLESS
-	#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
-		#define OLC_IMAGE_HEADLESS
-	#endif
+#define OLC_PLATFORM_HEADLESS
+#define OLC_GFX_HEADLESS
+#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
+#define OLC_IMAGE_HEADLESS
+#endif
 #endif
 
 // Platform
 #if !defined(OLC_PLATFORM_WINAPI) && !defined(OLC_PLATFORM_X11) && !defined(OLC_PLATFORM_GLUT) && !defined(OLC_PLATFORM_EMSCRIPTEN) && !defined(OLC_PLATFORM_HEADLESS)
-	#if !defined(OLC_PLATFORM_CUSTOM_EX)
-		#if defined(_WIN32)
-			#define OLC_PLATFORM_WINAPI
-		#endif
-		#if defined(__linux__) || defined(__FreeBSD__)
-			#define OLC_PLATFORM_X11
-		#endif
-		#if defined(__APPLE__)
-			#define GL_SILENCE_DEPRECATION
-			#define OLC_PLATFORM_GLUT
-		#endif
-		#if defined(__EMSCRIPTEN__)
-			#define OLC_PLATFORM_EMSCRIPTEN
-		#endif
-	#endif
+#if !defined(OLC_PLATFORM_CUSTOM_EX)
+#if defined(_WIN32)
+#define OLC_PLATFORM_WINAPI
+#endif
+#if defined(__linux__) || defined(__FreeBSD__)
+#define OLC_PLATFORM_X11
+#endif
+#if defined(__APPLE__)
+#define GL_SILENCE_DEPRECATION
+#define OLC_PLATFORM_GLUT
+#endif
+#if defined(__EMSCRIPTEN__)
+#define OLC_PLATFORM_EMSCRIPTEN
+#endif
+#endif
 #endif
 
 // Start Situation
 #if defined(OLC_PLATFORM_GLUT) || defined(OLC_PLATFORM_EMSCRIPTEN)
-	#define PGE_USE_CUSTOM_START
+#define PGE_USE_CUSTOM_START
 #endif
 
 
 
 // Renderer
 #if !defined(OLC_GFX_OPENGL10) && !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10) && !defined(OLC_GFX_HEADLESS)
-	#if !defined(OLC_GFX_CUSTOM_EX)
-		#if defined(OLC_PLATFORM_EMSCRIPTEN)
-			#define OLC_GFX_OPENGL33
-		#else
-			#define OLC_GFX_OPENGL10
-		#endif
-	#endif
+#if !defined(OLC_GFX_CUSTOM_EX)
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+#define OLC_GFX_OPENGL33
+#else
+#define OLC_GFX_OPENGL10
+#endif
+#endif
 #endif
 
 // Image loader
 #if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG) && !defined(OLC_IMAGE_HEADLESS)
-	#if !defined(OLC_IMAGE_CUSTOM_EX)
-		#if defined(_WIN32)
-			#define	OLC_IMAGE_GDI
-		#endif
-		#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
-			#define	OLC_IMAGE_LIBPNG
-		#endif
-	#endif
+#if !defined(OLC_IMAGE_CUSTOM_EX)
+#if defined(_WIN32)
+#define	OLC_IMAGE_GDI
+#endif
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+#define	OLC_IMAGE_LIBPNG
+#endif
+#endif
 #endif
 
 
@@ -503,45 +578,45 @@ int main()
 // O------------------------------------------------------------------------------O
 #if !defined(OLC_PGE_HEADLESS)
 #if defined(OLC_PLATFORM_WINAPI)	
-	#define _WINSOCKAPI_ // Thanks Cornchipss
-		#if !defined(VC_EXTRALEAN)
-		#define VC_EXTRALEAN
-	#endif
-	#if !defined(NOMINMAX)
-		#define NOMINMAX
-	#endif
+#define _WINSOCKAPI_ // Thanks Cornchipss
+#if !defined(VC_EXTRALEAN)
+#define VC_EXTRALEAN
+#endif
+#if !defined(NOMINMAX)
+#define NOMINMAX
+#endif
 
-	// In Code::Blocks
-	#if !defined(_WIN32_WINNT)
-		#ifdef HAVE_MSMF
-			#define _WIN32_WINNT 0x0600 // Windows Vista
-		#else
-			#define _WIN32_WINNT 0x0500 // Windows 2000
-		#endif
-	#endif
+// In Code::Blocks
+#if !defined(_WIN32_WINNT)
+#ifdef HAVE_MSMF
+#define _WIN32_WINNT 0x0600 // Windows Vista
+#else
+#define _WIN32_WINNT 0x0500 // Windows 2000
+#endif
+#endif
 
-	#include <windows.h>
-	#undef _WINSOCKAPI_
+#include <windows.h>
+#undef _WINSOCKAPI_
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-	namespace X11
-	{
-		#include <X11/X.h>
-		#include <X11/Xlib.h>
-	}
+namespace X11
+{
+#include <X11/X.h>
+#include <X11/Xlib.h>
+}
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-	#if defined(__linux__)
-		#include <GL/glut.h>
-		#include <GL/freeglut_ext.h>
-	#endif
-	#if defined(__APPLE__)
-		#include <GLUT/glut.h>
-	#include <objc/message.h>
-	#include <objc/NSObjCRuntime.h>
-	#endif
+#if defined(__linux__)
+#include <GL/glut.h>
+#include <GL/freeglut_ext.h>
+#endif
+#if defined(__APPLE__)
+#include <GLUT/glut.h>
+#include <objc/message.h>
+#include <objc/NSObjCRuntime.h>
+#endif
 #endif
 #endif
 
@@ -712,23 +787,39 @@ namespace olc
 	// Note: joshinils has some good suggestions here, but they are complicated to implement at this moment, 
 	// however they will appear in a future version of PGE
 	template<class T> inline v2d_generic<T> operator * (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (float)rhs.x), (T)(lhs * (float)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator * (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (double)rhs.x), (T)(lhs * (double)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator * (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs * (int)rhs.x), (T)(lhs * (int)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const float& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (float)rhs.x), (T)(lhs / (float)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const double& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (double)rhs.x), (T)(lhs / (double)rhs.y));
+	}
 	template<class T> inline v2d_generic<T> operator / (const int& lhs, const v2d_generic<T>& rhs)
-	{ return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y)); }
+	{
+		return v2d_generic<T>((T)(lhs / (int)rhs.x), (T)(lhs / (int)rhs.y));
+	}
 
 	// To stop dandistine crying...
 	template<class T, class U> inline bool operator < (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
-	{ return lhs.y < rhs.y || (lhs.y == rhs.y && lhs.x < rhs.x); }
+	{
+		return lhs.y < rhs.y || (lhs.y == rhs.y && lhs.x < rhs.x);
+	}
 	template<class T, class U> inline bool operator > (const v2d_generic<T>& lhs, const v2d_generic<U>& rhs)
-	{ return lhs.y > rhs.y || (lhs.y == rhs.y && lhs.x > rhs.x); }
+	{
+		return lhs.y > rhs.y || (lhs.y == rhs.y && lhs.x > rhs.x);
+	}
 
 	typedef v2d_generic<int32_t> vi2d;
 	typedef v2d_generic<uint32_t> vu2d;
@@ -738,7 +829,7 @@ namespace olc
 
 
 
-	
+
 
 
 	// O------------------------------------------------------------------------------O
@@ -789,7 +880,7 @@ namespace olc
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		Sprite(int32_t w, int32_t h);
 		Sprite(const olc::Sprite&) = delete;
-		~Sprite();
+		~Sprite(); // Now clears all sub vector sprites John Galvin
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
@@ -813,11 +904,413 @@ namespace olc
 		Pixel* GetData();
 		olc::Sprite* Duplicate();
 		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
+		olc::Sprite* Duplicate(olc::Sprite::Flip flip); // Creates a duplicate flipped sprite John Galvin
 		olc::vi2d Size() const;
 		std::vector<olc::Pixel> pColData;
 		Mode modeSample = Mode::NORMAL;
 
 		static std::unique_ptr<olc::ImageLoader> loader;
+
+		/// <summary>
+		/// SIMD Instructions Declarations John Galvin
+		/// </summary>
+	public:
+
+
+		/// <summary>
+		/// Stores sub sprites that are created during runtime, if 'Store Sub Strites' is enabled
+		/// </summary>
+		std::vector<std::tuple<olc::vi2d, olc::vi2d, uint32_t, uint8_t, Sprite*>> vecSubSprites;
+
+		/// <summary>
+		/// SIMD Instruction Options
+		/// These enums are used solely within the Sprite Class
+		/// </summary>
+		enum SIMD_INSTRUCTON_OPTION
+		{
+			SIMD_NONE = 0,	// No SIMD Support
+			SIMD_SSE = 1,	// Use SEE (128bit) Instruction Set	
+			SIMD_SSE2 = 2,	// Use SEE2 (128bit) Instruction Set
+			SIMD_SSE3 = 3,	// Use SEE3 (128bit) Instruction Set
+			SIMD_SSE41 = 4, // Use SEE41 (128bit) Instruction Set
+			SIMD_AVX = 5,	// Use AVX (256bit) Instruction Set
+			SIMD_AVX2 = 6,	// Use AVX2 (256bit) Instruction Set
+			SIMD_AVX512 = 7,// Use AVX512 (512bit) Instruction Set
+			RISC_ARM = 8,	// Not Implemented coming soon
+			RISC_NEON = 9	// Not Implemented coming soon
+
+		};
+
+		/// <summary>
+		/// Enables/Disables storing of sub sprites
+		/// If enabled and set to False will auto clear all sub sprites stored in vecSubSprites vector 
+		/// </summary>
+		/// <param name="bStore">True: enable 'Store Sub Sprites', False: disables the storing of sub sprites and clears sub sprite vector</param>
+		void setStoreSubSprites(bool bStore)
+		{
+			// If we where already storing sub sprites (bStoreSubSprite = true) and we set bStore to false, clear the vector
+			if (!bStore && bStoreSubSprite)
+			{
+				for (int i = 0; i < vecSubSprites.size(); i++)
+				{
+					Sprite* spr = std::get<4>(vecSubSprites[i]);
+					spr->~Sprite();
+				}
+
+				vecSubSprites.clear();
+			}
+			bStoreSubSprite = bStore;
+
+		}
+
+		/// <summary>
+		/// Get is 'Store Sub Sprites' is enabled
+		/// </summary>
+		/// <returns>True: 'Store Sub Sprites' is enabled, False: 'Store Sub Sprites' is disabled</returns>
+		bool getStoreSubSprites()
+		{
+			return bStoreSubSprite;
+		}
+
+		/// <summary>
+		/// Override the SIMD Instruction set that was Auto detected
+		/// USE WITH CAUTION: Manually setting the SIMD Instruction set when a CPU does not supported will cause the application to crash
+		/// </summary>
+		/// <param name="option">SIMD_INSTRUCTON_OPTION SIMD_SEE, SIMD_AVX etc</param>
+		void setInsturctionSet(SIMD_INSTRUCTON_OPTION option) {
+			nInsturctionSet = (int)option;
+		}
+
+		/// <summary>
+		/// Get the SIMD Instruction Set used in this sprite (see SIMD_INSTRUCTON_OPTION)
+		/// </summary>
+		/// <returns>SIMD_INSTRUCTON_OPTION SIMD_SEE, SIMD_AVX etc</returns>
+		SIMD_INSTRUCTON_OPTION getInsturctionSet() {
+
+			if (nInsturctionSet == -1)
+			{
+				// Always start with SIMD_NONE(0)
+				setInsturctionSet(SIMD_NONE);
+				if (CheckForSSESupport())
+				{
+					setInsturctionSet(SIMD_SSE41);
+				}
+
+				if (CheckForAVXSupport())
+				{
+					setInsturctionSet(SIMD_AVX2);
+				}
+
+				if (CheckForAVX512Support())
+				{
+					setInsturctionSet(SIMD_AVX512);
+
+				}
+
+			}
+
+			return SIMD_INSTRUCTON_OPTION(nInsturctionSet);
+		}
+
+
+
+
+		/// <summary>
+		/// Sets SIMD Instruction Set SSE4 if supported (128bit)
+		/// </summary>
+		/// <returns>True Supported, False Not Supported</returns>
+		bool CheckForSSESupport()
+		{
+			bool bSupported = false;
+			int cpuInfo[4];
+
+			//-- Get number of valid info ids
+			__cpuid(cpuInfo, 0);
+			int nIds = cpuInfo[0];
+
+			//-- Get info for id "1"
+			if (nIds >= 1)
+			{
+				__cpuid(cpuInfo, 1);
+				bSupported = (cpuInfo[2] & 0x1) || false;
+			}
+			return bSupported;
+
+		}
+
+		/// <summary>
+		/// Sets SIMD Instruction Set AVX if supported (256bit)
+		/// </summary>
+		/// <returns>True Supported, False Not Supported</returns>
+		bool CheckForAVXSupport()
+		{
+			bool bSupported = false;
+			int cpuInfo[4];
+			__cpuid(cpuInfo, 1);
+
+			bool osUsesXSAVE_XRSTORE = cpuInfo[2] & (1 << 27) || false;
+			bool cpuAVXSuport = cpuInfo[2] & (1 << 28) || false;
+
+			if (osUsesXSAVE_XRSTORE && cpuAVXSuport)
+			{
+				uint64_t xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);
+				bSupported = (xcrFeatureMask & 0x6) == 0x6;
+			}
+
+			return bSupported;
+		}
+
+		/// <summary>
+		/// Sets SIMD Instruction Set AVX_512 if supported (512bit)
+		/// </summary>
+		/// <returns>True Supported, False Not Supported</returns>
+		bool CheckForAVX512Support()
+		{
+			bool bSupported = false;
+			int cpuInfo[4];
+			__cpuid(cpuInfo, 1);
+
+			bool osUsesXSAVE_XRSTORE = cpuInfo[2] & (1 << 28) || false;
+			bool cpuAVXSuport = cpuInfo[2] & (1 << 28) || false;
+
+			if (osUsesXSAVE_XRSTORE && cpuAVXSuport)
+			{
+				uint64_t xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);
+				bSupported = (xcrFeatureMask & 0xe6) == 0xe6;;
+			}
+
+			return bSupported;
+		}
+
+		/// <summary>
+		/// Not Implemented I am on it ;) (Mobile Apps will soon be supported)
+		/// </summary>
+		/// <returns>False only not implemented</returns>
+		bool CheckForARMSupport()
+		{
+			//TODO: John Galvin 15-DEC-2022: "Implement ARM Support"
+
+			bool bSupported = false;
+			return bSupported;
+		}
+
+		/// <summary>
+		/// Creates a duplicate of the sprite
+		/// This method is here for consistancly 
+		/// There is no performace difference between Duplicate() or Duplicate_SIMD(), both run the excat same code
+		/// </summary>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_SIMD();
+
+		/// <summary>
+		/// Creates a duplicate of the sprite by flip (olc::Sprite::NONE.. HORIZ.. VERT)
+		/// </summary>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprites</returns>
+		olc::Sprite* Duplicate_SIMD(olc::Sprite::Flip flip); // John Galvin
+
+
+		/// <summary>
+		/// Creates a duplicate partial sprite using the passed Start Position and Size
+		/// </summary>
+		/// <param name="vPos">Start position (x,y)</param>
+		/// <param name="vSize">Size (width, height)</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize);
+
+		/// <summary>
+		/// Draws the passed sprite to a draw target at the position set
+		/// This method is usually called from the Sprite Class with 'Store Sub Sprites' is enabled
+		/// </summary>
+		/// <param name="vPos">Start position (x,y)</param>
+		/// <param name="pdrawTarget">A Pointer to the draw target</param>
+		/// <returns>A pointer to the draw target (Auto memory Managed)</returns>
+		olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget);
+
+		/// <summary>
+		/// Draws a duplicate Sprite that is flipped and draws it to draw target
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the draw target</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to the draw target (Auto memory Managed)</returns>
+		olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip);
+
+		/// <summary>
+		/// Draws a scales duplicate Sprite that is flipped and draws it to draw target
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the draw target</param>
+		/// <param name="scale">Scaler (>= 1)</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to the draw target (Auto memory Managed)</returns>
+		olc::Sprite* Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip);
+
+	private:
+
+		/// <summary>
+		/// Holds an integer cast of SIMD_INSTRUCTON_OPTION (Default -1)
+		/// </summary>
+		int nInsturctionSet = -1;
+
+		/// <summary>
+		/// Holds if 'Stored Sub Sprite' is enabled
+		/// </summary>
+		bool bStoreSubSprite = false;
+
+		/// <summary>
+		/// Creates a duplicate of the sprite by flip value, using SSE (128bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(olc::Sprite::Flip flip)
+		/// </summary>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_SSE(olc::Sprite::Flip flip);
+
+		/// <summary>
+		/// Creates a duplicate of the sprite by flip value, using AVX (256bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(olc::Sprite::Flip flip)
+		/// </summary>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_AVX256(olc::Sprite::Flip flip);
+
+		/// <summary>
+		/// Creates a duplicate of the sprite by flip value, using AVX512 (512bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(olc::Sprite::Flip flip)
+		/// </summary>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_AVX512(olc::Sprite::Flip flip);
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		/// <summary>
+		/// Create a partial duplicate, using SSE (128bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		/// </summary>
+		/// <param name="vPos">Start position (x,y)</param>
+		/// <param name="vSize">Size (width, height)</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, const olc::vi2d& vSize);
+
+		/// <summary>
+		/// Create a partial duplicate, using AVX (256bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		/// </summary>
+		/// <param name="vPos">Start position (x,y)</param>
+		/// <param name="vSize">Size (width, height)</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, const olc::vi2d& vSize);
+
+		/// <summary>
+		/// Create a partial duplicate, using AVX512 (512bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		/// </summary>
+		/// <param name="vPos">Start position (x,y)</param>
+		/// <param name="vSize">Size (width, height)</param>
+		/// <returns>A pionter to a NEW duplicate Sprite, enable 'Store Sub Sprites' to auto memory manage the new sprite</returns>
+		olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, const olc::vi2d& vSize);
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		/// <summary>
+		/// Draws a duplicate sprite to the draw target, using SSE (128bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget);
+
+		/// <summary>
+		/// Draws a duplicate sprite to the draw target, using AVX (256bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget);
+
+		/// <summary>
+		/// Draws a duplicate sprite to the draw target, using AVX512 (512bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget);
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		/// <summary>
+		/// Draws a duplicate flipped sprite to the draw target, using SSE (128bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip);
+
+		/// <summary>
+		/// Draws a duplicate flipped sprite to the draw target, using AVX (256bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip);
+
+		/// <summary>
+		/// Draws a duplicate flipped sprite to the draw target, using AVX512 (512bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the drawtarget</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ,.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip);
+
+
+		/*------------------------------------------------------------------------------------------------------------------------*/
+
+		/// <summary>
+		/// Draws a scales duplicate Sprite that is flipped and draws it to draw target, using SSE (128bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start Position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the draw target</param>
+		/// <param name="scale">Scaler (>= 1)</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip);
+
+		/// <summary>
+		/// Draws a scales duplicate Sprite that is flipped and draws it to draw target, using AVX (256bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start Position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the draw target</param>
+		/// <param name="scale">Scaler (>= 1)</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip);
+
+		/// <summary>
+		/// Draws a scales duplicate Sprite that is flipped and draws it to draw target, using AVX512 (512bit) Instruction Set
+		/// DO NOT CALL DIRECTY: Use Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		/// </summary>
+		/// <param name="vPos">Start Position in the draw target (x,y)</param>
+		/// <param name="pdrawTarget">A pointer to the draw target</param>
+		/// <param name="scale">Scaler (>= 1)</param>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to the draw target</returns>
+		olc::Sprite* Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip);
+
+		/*-------------------------- END SIMD INSTRUCTIONS CHANGES --------------------------------------------------------*/
+
+
 	};
 
 	// O------------------------------------------------------------------------------O
@@ -863,8 +1356,8 @@ namespace olc
 	class Renderable
 	{
 	public:
-		Renderable() = default;		
-		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal)) {}		
+		Renderable() = default;
+		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal)) {}
 		Renderable(const Renderable&) = delete;
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false, bool clamp = true);
 		void Create(uint32_t width, uint32_t height, bool filter = false, bool clamp = true);
@@ -1153,7 +1646,7 @@ namespace olc
 		void EnablePixelTransfer(const bool bEnable = true);
 
 		// Command Console Routines
-		void ConsoleShow(const olc::Key &keyExit, bool bSuspendTime = true);
+		void ConsoleShow(const olc::Key& keyExit, bool bSuspendTime = true);
 		bool IsConsoleShowing() const;
 		void ConsoleClear();
 		std::stringstream& ConsoleOut();
@@ -1166,6 +1659,272 @@ namespace olc
 		bool IsTextEntryEnabled() const;
 
 
+	public: // SIMD Instruction Methods John Galvin
+
+		/// <summary>
+		/// PGE SIMD Instruction Set (Default -1)
+		/// </summary>
+		int INSTRUCTION_SET = -1;
+
+		/// <summary>
+		/// SIMD Instruction Options
+		/// </summary>
+		enum INSTRUCTON_OPTION
+		{
+			NONE = 0, // No SIMD Support
+			SSE = 1, // Use SEE (128bit) Instruction Set	
+			SSE2 = 2, // Use SEE2 (128bit) Instruction Set
+			SSE3 = 3, // Use SEE3 (128bit) Instruction Set
+			SSE41 = 4, // Use SEE41 (128bit) Instruction Set
+			AVX = 5, // Use AVX (256bit) Instruction Set
+			AVX2 = 6, // Use AVX2 (256bit) Instruction Set
+			AVX512 = 7,// Use AVX512 (512bit) Instruction Set
+			ARM = 8, // Not Implemented coming soon
+			NEON = 9 // Not Implemented coming soon
+
+		};
+
+		/// <summary>
+		/// Set the SIMD Instruction Set to use
+		/// </summary>
+		/// <param name="option">INSTRUCTON_OPTION</param>
+		void setInsturctionSet(INSTRUCTON_OPTION option) {
+			INSTRUCTION_SET = (int)option;
+		}
+
+		/// <summary>
+		/// Get the SIMD Instruction Set used in this sprite (see INSTRUCTON_OPTION)
+		/// </summary>
+		/// <returns>INSTRUCTON_OPTION</returns>
+		int getInsturctionSet() {
+
+			if (INSTRUCTION_SET == -1)
+			{
+				// Always start with SIMD_NONE(0)
+				setInsturctionSet(NONE);
+				if (CheckForSSESupport())
+				{
+					setInsturctionSet(SSE41);
+				}
+
+				if (CheckForAVXSupport())
+				{
+					setInsturctionSet(AVX2);
+				}
+
+				if (CheckForAVX512Support())
+				{
+					setInsturctionSet(AVX512);
+
+				}
+
+			}
+
+			return (int)INSTRUCTION_SET;
+		}
+
+		/// <summary>
+		/// Checks for SSE CPU Support
+		/// </summary>
+		/// <returns>True supported, False not supported</returns>
+		static bool CheckForSSESupport();
+
+		/// <summary>
+		/// Checks for AVX CPU Support
+		/// </summary>
+		/// <returns>True supported, False not supported</returns>
+		static bool CheckForAVXSupport();
+
+		/// <summary>
+		/// Checks for AVX512 CPU Support
+		/// </summary>
+		/// <returns>True supported, False not supported</returns>
+		static bool CheckForAVX512Support();
+
+		/// <summary>
+		/// Clears the target to the passed pixel using SIMD
+		/// </summary>
+		/// <param name="p"></param>
+		void Clear_SIMD(Pixel p = olc::BLANK);
+
+		/// <summary>
+		/// Draws a filled circle using SIMD
+		/// </summary>
+		/// <param name="pos">Position (x,y)</param>
+		/// <param name="radius">Radius</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillCircle_SIMD(olc::vi2d pos, int32_t radius, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// Draws a filled circle using SIMD
+		/// </summary>
+		/// <param name="x">Position 1 x</param>
+		/// <param name="y">Position 2 x</param>
+		/// <param name="radius">Radius</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillCircle_SIMD(int32_t x, int32_t y, int32_t radius, Pixel p = olc::WHITE);
+
+
+		/// <summary>
+		/// Draws a filled triangle using SIMD
+		/// </summary>
+		/// <param name="pos1">Position 1 (x,y)</param>
+		/// <param name="pos2">Position 2 (x,y)</param>
+		/// <param name="pos3">Position 3 (x,y)</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillTriangle_SIMD(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// Draws a filled triangle using SIMD
+		/// </summary>
+		/// <param name="x1">Position 1 x</param>
+		/// <param name="y1">Position 1 y</param>
+		/// <param name="x2">Position 2 x</param>
+		/// <param name="y2">Position 2 y</param>
+		/// <param name="x3">Position 3 x</param>
+		/// <param name="y3">Position 3 y</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillTriangle_SIMD(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
+
+		/// <summary>
+		///  Draws a filled rectangle using SIMD
+		/// </summary>
+		/// <param name="pos">Position x,y</param>
+		/// <param name="size">Size (width, height)</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillRect_SIMD(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE);
+
+		/// <summary>
+		///  Draws a filled rectangle using SIMD
+		/// </summary>
+		/// <param name="x">Position X</param>
+		/// <param name="y">Position X</param>
+		/// <param name="w">Size Width</param>
+		/// <param name="h">Size Height</param>
+		/// <param name="p">Pixel Colour (Default White)</param>
+		void FillRect_SIMD(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
+
+
+		/// <summary>
+		/// Draws a sprite using SIMD
+		/// </summary>
+		/// <param name="pos">Target Layer position (x,y)</param>
+		/// <param name="sprite">Pointer to the sprite</param>
+		/// <param name="scale">Scaler size (>= 1, Default 1)</param>
+		/// <param name="flip">olc::Sprite::NONE, ..HORIZ, ..VERT (Default NONE)</param>
+		void DrawSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
+
+		/// <summary>
+		/// Draws a sprite using SIMD
+		/// </summary>
+		/// <param name="x">Target Layer position x</param>
+		/// <param name="y">Target Layer position y)</param>
+		/// <param name="sprite">Pointer to the sprite</param>
+		/// <param name="scale">Scaler size (>= 1, Default 1)</param>
+		/// <param name="flip">olc::Sprite::NONE, ..HORIZ, ..VERT (Default NONE)</param>
+		void DrawSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
+
+		/// <summary>
+		/// Draw a partial sprite using SIMD
+		/// </summary>
+		/// <param name="pos">Target positon (x,y)</param>
+		/// <param name="sprite">Pointer to Sprite</param>
+		/// <param name="sourcepos">Strite Start Position (x,y)</param>
+		/// <param name="size">Size (width, height)</param>
+		/// <param name="scale">Scaler size (>= 1, Default 1)</param>
+		/// <param name="flip">olc::Sprite::NONE, ..HORIZ, ..VERT (Default NONE)</param>
+		void DrawPartialSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
+
+		/// <summary>
+		/// Draw a partial sprite using SIMD to a draw target at position (x,y)
+		/// </summary>
+		/// <param name="x">Target positon x</param>
+		/// <param name="y">Target positon y</param>
+		/// <param name="sprite">Pointer to Sprite</param>
+		/// <param name="ox">Strite start position x</param>
+		/// <param name="oy">Strite start position y</param>
+		/// <param name="w">Size width</param>
+		/// <param name="h">Size height</param>
+		/// <param name="scale">Scaler size (>= 1, Default 1)</param>
+		/// <param name="flip">olc::Sprite::NONE, ..HORIZ, ..VERT (Default NONE)</param>
+		void DrawPartialSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale = 1, uint8_t flip = olc::Sprite::NONE);
+
+
+	private: // SIMD Instuctions John Galvin
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Use Clear_SIMD(), clears a target to the passed pixel colour using SSE instruction set
+		/// </summary>
+		/// <param name="VecStartIndex">pColdata start</param>
+		/// <param name="VecEndIndex">pColdata end</param>
+		/// <param name="p">pixel</param>
+		void Clear_SSE(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Use Clear_SIMD(), clears a target to the passed pixel colour using AVX instruction set
+		/// </summary>
+		/// <param name="VecStartIndex">pColdata start</param>
+		/// <param name="VecEndIndex">pColdata end</param>
+		/// <param name="p">pixel</param>
+		void Clear_AVX256(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Use Clear_SIMD(), clears a target to the passed pixel colour using AVX512 instruction set
+		/// </summary>
+		/// <param name="VecStartIndex">pColdata start</param>
+		/// <param name="VecEndIndex">pColdata end</param>
+		/// <param name="p">pixel</param>
+		void Clear_AVX512(int VecStartIndex, int VecEndIndex, Pixel p = olc::BLANK);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Draws a line using SIMD 
+		/// </summary>
+		/// <param name="sx">Start Position</param>
+		/// <param name="ex">End Position</param>
+		/// <param name="ny">Y Position</param>
+		/// <param name="p">Pixel Colour</param>
+		/// <returns>True/False</returns>
+		bool Draw_SIMD(int32_t sx, int32_t ex, int32_t ny, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Draws a line using SIMD SSE
+		/// </summary>
+		/// <param name="sx">Start Position</param>
+		/// <param name="ex">End Position</param>
+		/// <param name="ny">Y Position</param>
+		/// <param name="p">Pixel Colour</param>
+		/// <returns>True/False</returns>
+		void DrawFillLine_SSE(int sx, int ex, int ny, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Draws a line using AVX 
+		/// </summary>
+		/// <param name="sx">Start Position</param>
+		/// <param name="ex">End Position</param>
+		/// <param name="ny">Y Position</param>
+		/// <param name="p">Pixel Colour</param>
+		/// <returns>True/False</returns>
+		void DrawFillLine_AVX256(int sx, int ex, int ny, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Draws a line using AVX512 
+		/// </summary>
+		/// <param name="sx">Start Position</param>
+		/// <param name="ex">End Position</param>
+		/// <param name="ny">Y Position</param>
+		/// <param name="p">Pixel Colour</param>
+		/// <returns>True/False</returns>
+		void DrawFillLine_AVX512(int sx, int ex, int ny, Pixel p = olc::WHITE);
+
+		/// <summary>
+		/// DO NOT CALL DIRECTLY: Draws a line using SIMD 
+		/// </summary>
+		/// <param name="sx">Start Position</param>
+		/// <param name="ex">End Position</param>
+		/// <param name="ny">Y Position</param>
+		/// <param name="p">Pixel Colour</param>
+		/// <returns>True/False</returns>
+		void DrawFillLine_SIMD(int VecStartIndex, int VecEndIndex, int ny, Pixel p = olc::WHITE);
 
 	private:
 		void UpdateTextEntry();
@@ -1181,12 +1940,12 @@ namespace olc
 		void LW3D_World(const std::array<float, 16>& m);
 		// Set Manual Projection Matrix
 		void LW3D_Projection(const std::array<float, 16>& m);
-		
+
 		// Draws a vector of vertices, interprted as individual triangles
-		void LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float,3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col);
+		void LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col);
 
 		void LW3D_ModelTranslate(const float x, const float y, const float z);
-		
+
 		// Camera convenience functions
 		void LW3D_SetCameraAtTarget(const float fEyeX, const float fEyeY, const float fEyeZ,
 			const float fTargetX, const float fTargetY, const float fTargetZ,
@@ -1203,7 +1962,7 @@ namespace olc
 		std::string sAppName;
 
 	private: // Inner mysterious workings
-		olc::Sprite*     pDrawTarget = nullptr;
+		olc::Sprite* pDrawTarget = nullptr;
 		Pixel::Mode	nPixelMode = Pixel::NORMAL;
 		float		fBlendFactor = 1.0f;
 		olc::vi2d	vScreenSize = { 256, 240 };
@@ -1225,7 +1984,7 @@ namespace olc
 		bool		bEnableVSYNC = false;
 		float		fFrameTimer = 1.0f;
 		float		fLastElapsed = 0.0f;
-		int			nFrameCount = 0;		
+		int			nFrameCount = 0;
 		bool bSuspendTextureTransfer = false;
 		Renderable  fontRenderable;
 		std::vector<LayerDesc> vLayers;
@@ -1329,7 +2088,7 @@ namespace olc
 	protected:
 		virtual void OnBeforeUserCreate();
 		virtual void OnAfterUserCreate();
-		virtual bool OnBeforeUserUpdate(float &fElapsedTime);
+		virtual bool OnBeforeUserUpdate(float& fElapsedTime);
 		virtual void OnAfterUserUpdate(float fElapsedTime);
 
 	protected:
@@ -1347,88 +2106,89 @@ namespace olc
 
 #if defined(OLC_GFX_OPENGL33)
 
-	#if defined(OLC_PLATFORM_WINAPI)
-		#include <gl/GL.h>
-		#define CALLSTYLE __stdcall
-	#endif
-
-	#if defined(__linux__) || defined(__FreeBSD__)
-		#include <GL/gl.h>
-	#endif
-
-	#if defined(OLC_PLATFORM_X11)
-		namespace X11
-		{#include <GL/glx.h>}
-		#define CALLSTYLE 
-	#endif
-
-	#if defined(__APPLE__)
-		#define GL_SILENCE_DEPRECATION
-		#include <OpenGL/OpenGL.h>
-		#include <OpenGL/gl.h>
-		#include <OpenGL/glu.h>
-	#endif
-
-	#if defined(OLC_PLATFORM_EMSCRIPTEN)
-		#include <EGL/egl.h>
-		#include <GLES2/gl2.h>
-		#define GL_GLEXT_PROTOTYPES
-		#include <GLES2/gl2ext.h>
-		#include <emscripten/emscripten.h>
-		#define CALLSTYLE
-		#define GL_CLAMP GL_CLAMP_TO_EDGE
-	#endif
-
-namespace olc
-{
-	typedef char GLchar;
-	typedef ptrdiff_t GLsizeiptr;
-
-	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
-	typedef GLuint CALLSTYLE locCreateProgram_t(void);
-	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
-	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
-	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
-	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
-	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
-	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
-	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
-	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
-	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
-	typedef void CALLSTYLE locUseProgram_t(GLuint program);
-	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
-	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
-	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
-	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
-	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
-	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
-	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
-	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
-	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
-	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
-	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
-	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
-	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-
 #if defined(OLC_PLATFORM_WINAPI)
-	typedef void __stdcall locSwapInterval_t(GLsizei n);
+#include <gl/GL.h>
+#define CALLSTYLE __stdcall
+#endif
+
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <GL/gl.h>
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-	typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+namespace X11
+{
+#include <GL/glx.h>}
+#define CALLSTYLE 
+#endif
+
+#if defined(__APPLE__)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-#else
-	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2ext.h>
+#include <emscripten/emscripten.h>
+#define CALLSTYLE
+#define GL_CLAMP GL_CLAMP_TO_EDGE
 #endif
 
-} // olc namespace
+	namespace olc
+	{
+		typedef char GLchar;
+		typedef ptrdiff_t GLsizeiptr;
+
+		typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+		typedef GLuint CALLSTYLE locCreateProgram_t(void);
+		typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+		typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+		typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+		typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+		typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+		typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+		typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+		typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+		typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+		typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+		typedef void CALLSTYLE locUseProgram_t(GLuint program);
+		typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+		typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+		typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+		typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
+		typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
+		typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
+		typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+		typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
+		typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
+		typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
+		typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
+		typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
+		typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+		typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
+		typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+
+#if defined(OLC_PLATFORM_WINAPI)
+		typedef void __stdcall locSwapInterval_t(GLsizei n);
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+		typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+#endif
+
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+		typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+		typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+#else
+		typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+#endif
+
+	} // olc namespace
 #endif // OpenGL33 Definitions
 #pragma endregion
 
@@ -1447,2652 +2207,5723 @@ namespace olc
 // | Note: The core implementation is platform independent                        |
 // O------------------------------------------------------------------------------O
 #pragma region pge_implementation
-namespace olc
-{
-	// O------------------------------------------------------------------------------O
-	// | olc::Pixel IMPLEMENTATION                                                    |
-	// O------------------------------------------------------------------------------O
-	Pixel::Pixel()
-	{ r = 0; g = 0; b = 0; a = nDefaultAlpha; }
-
-	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	{ n = red | (green << 8) | (blue << 16) | (alpha << 24); } // Thanks jarekpelczar 
-
-	Pixel::Pixel(uint32_t p)
-	{ n = p; }
-
-	bool Pixel::operator==(const Pixel& p) const
-	{ return n == p.n; }
-
-	bool Pixel::operator!=(const Pixel& p) const
-	{ return n != p.n; }
-
-	Pixel  Pixel::operator * (const float i) const
+	namespace olc
 	{
-		float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
-		float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
-		float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
-		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
-	}
+		// O------------------------------------------------------------------------------O
+		// | olc::Pixel IMPLEMENTATION                                                    |
+		// O------------------------------------------------------------------------------O
+		Pixel::Pixel()
+		{
+			r = 0; g = 0; b = 0; a = nDefaultAlpha;
+		}
 
-	Pixel  Pixel::operator / (const float i) const
-	{
-		float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
-		float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
-		float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
-		return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
-	}
+		Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
+		{
+			n = red | (green << 8) | (blue << 16) | (alpha << 24);
+		} // Thanks jarekpelczar 
 
-	Pixel& Pixel::operator *=(const float i)
-	{
-		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
-		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
-		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
-		return *this;
-	}
+		Pixel::Pixel(uint32_t p)
+		{
+			n = p;
+		}
 
-	Pixel& Pixel::operator /=(const float i)
-	{
-		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
-		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
-		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
-		return *this;
-	}
+		bool Pixel::operator==(const Pixel& p) const
+		{
+			return n == p.n;
+		}
 
-	Pixel  Pixel::operator + (const Pixel& p) const
-	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
-		return Pixel(nR, nG, nB, a);
-	}
+		bool Pixel::operator!=(const Pixel& p) const
+		{
+			return n != p.n;
+		}
 
-	Pixel  Pixel::operator - (const Pixel& p) const
-	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
-		return Pixel(nR, nG, nB, a);
-	}
+		Pixel  Pixel::operator * (const float i) const
+		{
+			float fR = std::min(255.0f, std::max(0.0f, float(r) * i));
+			float fG = std::min(255.0f, std::max(0.0f, float(g) * i));
+			float fB = std::min(255.0f, std::max(0.0f, float(b) * i));
+			return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+		}
 
-	Pixel& Pixel::operator += (const Pixel& p)
-	{
-		this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
-		this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
-		this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
-		return *this;
-	}
+		Pixel  Pixel::operator / (const float i) const
+		{
+			float fR = std::min(255.0f, std::max(0.0f, float(r) / i));
+			float fG = std::min(255.0f, std::max(0.0f, float(g) / i));
+			float fB = std::min(255.0f, std::max(0.0f, float(b) / i));
+			return Pixel(uint8_t(fR), uint8_t(fG), uint8_t(fB), a);
+		}
 
-	Pixel& Pixel::operator -= (const Pixel& p) // Thanks Au Lit
-	{
-		this->r = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
-		this->g = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
-		this->b = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
-		return *this;
-	}
+		Pixel& Pixel::operator *=(const float i)
+		{
+			this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * i)));
+			this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * i)));
+			this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * i)));
+			return *this;
+		}
 
-	Pixel Pixel::operator * (const Pixel& p) const
-	{
-		uint8_t nR = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
-		uint8_t nG = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
-		uint8_t nB = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
-		uint8_t nA = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
-		return Pixel(nR, nG, nB, nA);
-	}
+		Pixel& Pixel::operator /=(const float i)
+		{
+			this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) / i)));
+			this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) / i)));
+			this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) / i)));
+			return *this;
+		}
 
-	Pixel& Pixel::operator *=(const Pixel& p)
-	{
-		this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
-		this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
-		this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
-		this->a = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
-		return *this;
-	}
+		Pixel  Pixel::operator + (const Pixel& p) const
+		{
+			uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+			uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+			uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+			return Pixel(nR, nG, nB, a);
+		}
 
-	Pixel Pixel::inv() const
-	{
-		uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
-		uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
-		uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
-		return Pixel(nR, nG, nB, a);
-	}
+		Pixel  Pixel::operator - (const Pixel& p) const
+		{
+			uint8_t nR = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+			uint8_t nG = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+			uint8_t nB = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+			return Pixel(nR, nG, nB, a);
+		}
 
-	Pixel PixelF(float red, float green, float blue, float alpha)
-	{ return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f)); }
+		Pixel& Pixel::operator += (const Pixel& p)
+		{
+			this->r = uint8_t(std::min(255, std::max(0, int(r) + int(p.r))));
+			this->g = uint8_t(std::min(255, std::max(0, int(g) + int(p.g))));
+			this->b = uint8_t(std::min(255, std::max(0, int(b) + int(p.b))));
+			return *this;
+		}
 
-	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t)
-	{ return (p2 * t) + p1 * (1.0f - t); }
+		Pixel& Pixel::operator -= (const Pixel& p) // Thanks Au Lit
+		{
+			this->r = uint8_t(std::min(255, std::max(0, int(r) - int(p.r))));
+			this->g = uint8_t(std::min(255, std::max(0, int(g) - int(p.g))));
+			this->b = uint8_t(std::min(255, std::max(0, int(b) - int(p.b))));
+			return *this;
+		}
 
-	// O------------------------------------------------------------------------------O
-	// | olc::Sprite IMPLEMENTATION                                                   |
-	// O------------------------------------------------------------------------------O
-	Sprite::Sprite()
-	{ width = 0; height = 0; }
+		Pixel Pixel::operator * (const Pixel& p) const
+		{
+			uint8_t nR = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+			uint8_t nG = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+			uint8_t nB = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+			uint8_t nA = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
+			return Pixel(nR, nG, nB, nA);
+		}
 
-	Sprite::Sprite(const std::string& sImageFile, olc::ResourcePack* pack)
-	{ LoadFromFile(sImageFile, pack); }
+		Pixel& Pixel::operator *=(const Pixel& p)
+		{
+			this->r = uint8_t(std::min(255.0f, std::max(0.0f, float(r) * float(p.r) / 255.0f)));
+			this->g = uint8_t(std::min(255.0f, std::max(0.0f, float(g) * float(p.g) / 255.0f)));
+			this->b = uint8_t(std::min(255.0f, std::max(0.0f, float(b) * float(p.b) / 255.0f)));
+			this->a = uint8_t(std::min(255.0f, std::max(0.0f, float(a) * float(p.a) / 255.0f)));
+			return *this;
+		}
 
-	Sprite::Sprite(int32_t w, int32_t h)
-	{		
-		width = w;		height = h;
-		pColData.resize(width * height);
-		pColData.resize(width * height, nDefaultPixel);
-	}
+		Pixel Pixel::inv() const
+		{
+			uint8_t nR = uint8_t(std::min(255, std::max(0, 255 - int(r))));
+			uint8_t nG = uint8_t(std::min(255, std::max(0, 255 - int(g))));
+			uint8_t nB = uint8_t(std::min(255, std::max(0, 255 - int(b))));
+			return Pixel(nR, nG, nB, a);
+		}
 
-	Sprite::~Sprite()
-	{ pColData.clear();	}
+		Pixel PixelF(float red, float green, float blue, float alpha)
+		{
+			return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
+		}
 
-	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
-	{ modeSample = mode; }
+		Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t)
+		{
+			return (p2 * t) + p1 * (1.0f - t);
+		}
 
-	Pixel Sprite::GetPixel(const olc::vi2d& a) const
-	{ return GetPixel(a.x, a.y); }
+		// O------------------------------------------------------------------------------O
+		// | olc::Sprite IMPLEMENTATION                                                   |
+		// O------------------------------------------------------------------------------O
+		Sprite::Sprite()
+		{
+			width = 0; height = 0;
+		}
 
-	bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
-	{ return SetPixel(a.x, a.y, p); }
+		Sprite::Sprite(const std::string& sImageFile, olc::ResourcePack* pack)
+		{
+			LoadFromFile(sImageFile, pack);
+		}
 
-	Pixel Sprite::GetPixel(int32_t x, int32_t y) const
-	{
-		if (modeSample == olc::Sprite::Mode::NORMAL)
+		Sprite::Sprite(int32_t w, int32_t h)
+		{
+			width = w;		height = h;
+			pColData.resize(width * height);
+			pColData.resize(width * height, nDefaultPixel);
+		}
+
+		Sprite::~Sprite()
+		{
+			pColData.clear();
+		}
+
+		void Sprite::SetSampleMode(olc::Sprite::Mode mode)
+		{
+			modeSample = mode;
+		}
+
+		Pixel Sprite::GetPixel(const olc::vi2d& a) const
+		{
+			return GetPixel(a.x, a.y);
+		}
+
+		bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
+		{
+			return SetPixel(a.x, a.y, p);
+		}
+
+		Pixel Sprite::GetPixel(int32_t x, int32_t y) const
+		{
+			if (modeSample == olc::Sprite::Mode::NORMAL)
+			{
+				if (x >= 0 && x < width && y >= 0 && y < height)
+					return pColData[y * width + x];
+				else
+					return Pixel(0, 0, 0, 0);
+			}
+			else
+			{
+				if (modeSample == olc::Sprite::Mode::PERIODIC)
+					return pColData[abs(y % height) * width + abs(x % width)];
+				else
+					return pColData[std::max(0, std::min(y, height - 1)) * width + std::max(0, std::min(x, width - 1))];
+			}
+		}
+
+		bool Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
 		{
 			if (x >= 0 && x < width && y >= 0 && y < height)
-				return pColData[y * width + x];
+			{
+				pColData[y * width + x] = p;
+				return true;
+			}
 			else
-				return Pixel(0, 0, 0, 0);
+				return false;
 		}
-		else
+
+		Pixel Sprite::Sample(float x, float y) const
 		{
-			if (modeSample == olc::Sprite::Mode::PERIODIC)
-				return pColData[abs(y % height) * width + abs(x % width)];
+			int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
+			int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
+			return GetPixel(sx, sy);
+		}
+
+		Pixel Sprite::Sample(const olc::vf2d& uv) const
+		{
+			return Sample(uv.x, uv.y);
+		}
+
+		Pixel Sprite::SampleBL(float u, float v) const
+		{
+			u = u * width - 0.5f;
+			v = v * height - 0.5f;
+			int x = (int)floor(u); // cast to int rounds toward zero, not downward
+			int y = (int)floor(v); // Thanks @joshinils
+			float u_ratio = u - x;
+			float v_ratio = v - y;
+			float u_opposite = 1 - u_ratio;
+			float v_opposite = 1 - v_ratio;
+
+			olc::Pixel p1 = GetPixel(std::max(x, 0), std::max(y, 0));
+			olc::Pixel p2 = GetPixel(std::min(x + 1, (int)width - 1), std::max(y, 0));
+			olc::Pixel p3 = GetPixel(std::max(x, 0), std::min(y + 1, (int)height - 1));
+			olc::Pixel p4 = GetPixel(std::min(x + 1, (int)width - 1), std::min(y + 1, (int)height - 1));
+
+			return olc::Pixel(
+				(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
+				(uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
+				(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
+		}
+
+		Pixel Sprite::SampleBL(const olc::vf2d& uv) const
+		{
+			return SampleBL(uv.x, uv.y);
+		}
+
+		Pixel* Sprite::GetData()
+		{
+			return pColData.data();
+		}
+
+
+		olc::rcode Sprite::LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack)
+		{
+			UNUSED(pack);
+			return loader->LoadImageResource(this, sImageFile, pack);
+		}
+
+		olc::Sprite* Sprite::Duplicate()
+		{
+			olc::Sprite* spr = new olc::Sprite(width, height);
+			std::memcpy(spr->GetData(), GetData(), width * height * sizeof(olc::Pixel));
+			spr->modeSample = modeSample;
+			return spr;
+		}
+
+		olc::Sprite* Sprite::Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		{
+			olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
+			for (int y = 0; y < vSize.y; y++)
+				for (int x = 0; x < vSize.x; x++)
+					spr->SetPixel(x, y, GetPixel(vPos.x + x, vPos.y + y));
+			return spr;
+		}
+
+		/// <summary>
+		/// Create a flipped duplicate sprite 
+		/// </summary>
+		/// <param name="flip">olc::Sprite::NONE.. HORIZ.. VERT</param>
+		/// <returns>A pointer to a new sprite</returns>
+		olc::Sprite* Sprite::Duplicate(olc::Sprite::Flip flip)
+		{
+			// Update John Galvin
+			olc::Sprite* spr = new olc::Sprite(width, height);
+
+			int32_t fxs = 0, fxm = 1, fx = 0;
+			int32_t fys = 0, fym = 1, fy = 0;
+			if (flip & olc::Sprite::Flip::HORIZ) { fxs = width - 1; fxm = -1; }
+			if (flip & olc::Sprite::Flip::VERT) { fys = height - 1; fym = -1; }
+
+			fx = fxs;
+			for (int32_t i = 0; i < width; i++, fx += fxm)
+			{
+				fy = fys;
+				for (int32_t j = 0; j < height; j++, fy += fym)
+					spr->SetPixel(i, j, GetPixel(fx, fy));
+
+			}
+
+			return spr;
+		}
+
+		/*--------------------------- SIMD Instruction set For Sprites John Galvin -------------------------------------*/
+
+		olc::Sprite* Sprite::Duplicate_SIMD()
+		{
+			return Duplicate();
+		}
+
+		olc::Sprite* Sprite::Duplicate_SIMD(olc::Sprite::Flip flip)
+		{
+
+			olc::Sprite* spr = nullptr;
+			olc::vi2d vPos = { 0, 0 };
+			olc::vi2d vSize = { this->width, this->height };
+			uint32_t scale = 1;
+
+			// Lets check if the sprite all ready exist?
+			if (bStoreSubSprite)
+			{
+				Sprite* spr = nullptr;
+				uint32_t scale = 1;
+				for (int i = 0; i < vecSubSprites.size(); i++)
+				{
+					if (std::get<0>(vecSubSprites[i]) == vPos
+						&& std::get<2>(vecSubSprites[i]) == scale
+						&& std::get<3>(vecSubSprites[i]) == flip)
+					{
+						// We found a match all we need to do now is draw it
+						spr = std::get<4>(vecSubSprites[i]);
+						return spr;
+						break;
+					}
+				}
+			}
+
+
+
+			if (flip == olc::Sprite::NONE)
+			{
+				// Return a copy of the sprite
+				spr = this->Duplicate();
+				spr->setInsturctionSet(getInsturctionSet());
+				spr->setStoreSubSprites(getStoreSubSprites());
+				if (bStoreSubSprite)
+				{
+					vecSubSprites.push_back({ vPos, vSize, scale, flip, spr });
+				}
+				return spr;
+			}
+
+
+			switch (getInsturctionSet())
+			{
+
+			case SIMD_AVX:
+			case SIMD_AVX2:
+				return Duplicate_AVX256(flip);
+				break;
+
+			case SIMD_SSE:
+			case SIMD_SSE2:
+			case SIMD_SSE3:
+			case SIMD_SSE41:
+				return Duplicate_SSE(flip);
+				break;
+
+			case SIMD_AVX512:
+				return Duplicate_AVX512(flip);
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				return Duplicate(flip);
+				break;
+			}
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_SSE(olc::Sprite::Flip flip)
+		{
+
+			olc::vi2d vPos = { 0, 0 };
+			olc::vi2d vSize = { this->width, this->height };
+			uint32_t scale = 1;
+
+			olc::Sprite* spr = new olc::Sprite(width, height);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int sx = 0;
+			int ex = width;
+			int nOffSet = ex % 4;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 4) + 1; // 270 / 8 = 67. + 1 = 68
+				nOffSet = (nOffSet * 4); // 68 * 4 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			int* pTargetVector = (int*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m128i _sx, _ex, _result, _vecRead;
+
+			_sx = _mm_set1_epi32(sx);
+			_ex = _mm_set1_epi32(ex);
+			_result = _mm_set1_epi32(0xFF); // 0xFF = -1 -> True, 0x00 = 0 -> False;
+
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+				nVecRead = nVecRLen;
+				for (int y = 0; y < height; y++)
+				{
+					nVecRead = (y * width) + 0;
+					for (int x = 0; x < ex; x += 4, pTargetVector += 4, nVecRead += -4, nVecTarget += 4)
+					{
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm_shuffle_epi32(_vecRead, _MM_SHUFFLE(0, 1, 2, 3));
+						_mm_storeu_epi32(pTargetVector, _result);
+					}
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+				nVecRead = nVecRLen;
+				for (int y = height; y > 0; y--)
+				{
+					nVecRead = (y * width) + 0;
+					for (int x = 0; x < ex; x += 4, pTargetVector += 4, nVecRead += 4, nVecTarget += 4)
+					{
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm_storeu_epi32(pTargetVector, _vecRead);
+					}
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			//Clean up any left over pixels
+			_vecRead = _mm_set1_epi32(0);
+			_ex = _mm_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 4, pTargetVector += 4)
+			{
+				// We compare if the all the pixels ly within sx->nVecTLen, and pixel greater then ex are not process
+				_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+
+				_result = _mm_cmpgt_epi32(_ex, _sx);
+
+				// Store only the pixels that are between sx-->ex
+				_mm_maskstore_epi32(pTargetVector, _result, _vecRead);
+			}
+
+			if (bStoreSubSprite)
+			{
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr });
+			}
+
+
+			return spr;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX256(olc::Sprite::Flip flip)
+		{
+			olc::vi2d vPos = { 0, 0 };
+			olc::vi2d vSize = { this->width, this->height };
+			uint32_t scale = 1;
+
+			olc::Sprite* spr = new olc::Sprite(width, height);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+
+			int sx = 0;
+			int ex = width;
+			int nOffSet = ex % 8;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 8) + 1; // 270 / 8 = 33. + 1 = 34
+				nOffSet = (nOffSet * 8); // 34 * 8 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			float* pTargetVector = (float*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m256i _reverse, _sx, _ex, _compare, _blankpixels;
+			__m256 _result, _vecRead;
+
+			_reverse = _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+				nVecRead = nVecRLen;
+				for (int y = 1; y < height; y++)
+				{
+					nVecRead = (y * width) - 8;
+					for (int x = 0; x < ex; x += 8, pTargetVector += 8, nVecRead += -8, nVecTarget += 8)
+					{
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm256_permutevar8x32_ps(_vecRead, _reverse);
+						_mm256_storeu_ps(pTargetVector, _result);
+
+					}
+
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+				nVecRead = nVecRLen;
+				for (int y = height - 1; y > 0; y--)
+				{
+					if (nVecTarget + 8 > nVecTLen) break;
+					nVecRead = (y * width) + 0;
+					for (int x = 0; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+					{
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm256_storeu_ps(pTargetVector, _vecRead);
+
+					}
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			//Clean up any left over pixels
+			_compare = _mm256_set1_epi32(0);
+			_blankpixels = _mm256_set1_epi32(0);
+			_ex = _mm256_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 8, pTargetVector += 8)
+			{
+				//We compare if the all the pixels ly within sx->nVecTLen, and pixel greater then ex are not process
+				_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+				_compare = _mm256_cmpgt_epi32(_ex, _sx);
+
+				//Store only the pixels that are between sx-->ex
+				_mm256_maskstore_epi32((int*)pTargetVector, _compare, _blankpixels);
+			}
+
+			if (bStoreSubSprite)
+			{
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr });
+			}
+
+			return spr;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX512(olc::Sprite::Flip flip)
+		{
+			olc::vi2d vPos = { 0, 0 };
+			olc::vi2d vSize = { this->width, this->height };
+			uint32_t scale = 1;
+
+			olc::Sprite* spr = new olc::Sprite(width, height);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+
+			int sx = 0;
+			int ex = width;
+			int nOffSet = ex % 16;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 16) + 1; // 270 / 8 = 16. + 1 = 17
+				nOffSet = (nOffSet * 16); // 17 * 8 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			int* pTargetVector = (int*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m512i _reverse, _sx, _ex, _result, _vecRead, _compare, _blankpixels;
+
+			_reverse = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+			_sx = _mm512_set1_epi32(sx);
+			_ex = _mm512_set1_epi32(ex);
+			_result = _mm512_set1_epi32(0xFF); // 0xFF = -1 -> True, 0x00 = 0 -> False;
+
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+				nVecRead = nVecRLen;
+				for (int y = 0; y < height; y++)
+				{
+					nVecRead = (y * width) + 0;
+					for (int x = 0; x < ex; x += 16, pTargetVector += 16, nVecRead += -16, nVecTarget += 16)
+					{
+
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm512_permutevar_epi32(_vecRead, _reverse);
+						_mm512_storeu_epi32(pTargetVector, _result);
+					}
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+				nVecRead = nVecRLen;
+				for (int y = height; y > 0; y--)
+				{
+					nVecRead = (y * width) + 0;
+					for (int x = 0; x < ex; x += 16, pTargetVector += 16, nVecRead += 16, nVecTarget += 16)
+					{
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm512_storeu_epi32(pTargetVector, _vecRead);
+					}
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+
+			//Clean up any left over pixels
+			_blankpixels = _mm512_set1_epi32(0);
+			_ex = _mm512_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 16, pTargetVector += 16)
+			{
+				//We compare if the all the pixels ly within sx->nVecTLen, and pixel greater then ex are not process
+				_sx = _mm512_set_epi32(x + 15, x + 14, x + 13, x + 12, x + 11, x + 10, x + 9, x + 8, x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+				// Store only the pixels that are between sx-->ex
+				_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _blankpixels);
+
+
+			}
+
+			if (bStoreSubSprite)
+			{
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr });
+			}
+
+			return spr;
+
+		}
+
+
+		olc::Sprite* Sprite::Duplicate_SIMD(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		{
+
+			olc::Sprite* spr = nullptr;
+			uint32_t scale = 1;
+
+			// Lets check if the sprite all ready exist?
+			if (bStoreSubSprite)
+			{
+				Sprite* spr = nullptr;
+				uint32_t scale = 1;
+				for (int i = 0; i < vecSubSprites.size(); i++)
+				{
+					if (std::get<0>(vecSubSprites[i]) == vPos
+						&& std::get<1>(vecSubSprites[i]) == vSize)
+					{
+						// We found a match all we need to do now is draw it
+						spr = std::get<4>(vecSubSprites[i]);
+						return spr;
+						break;
+					}
+				}
+			}
+
+			switch (getInsturctionSet())
+			{
+
+			case SIMD_AVX:
+			case SIMD_AVX2:
+				return Duplicate_AVX256(vPos, vSize);
+				break;
+
+			case SIMD_SSE:
+			case SIMD_SSE2:
+			case SIMD_SSE3:
+			case SIMD_SSE41:
+				return Duplicate_SSE(vPos, vSize);
+				break;
+
+			case SIMD_AVX512:
+				return Duplicate_AVX512(vPos, vSize);
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				return Duplicate(vPos, vSize);
+				break;
+			}
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_SSE(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		{
+
+			olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int sx = 0;
+			int ex = vSize.x;
+			int nOffSet = ex % 4;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 4) + 1; // 270 / 8 = 67. + 1 = 68
+				nOffSet = (nOffSet * 4); // 68 * 4 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			int* pTargetVector = (int*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = (vPos.y * width) + vPos.x; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m128i _sx, _ex, _result, _vecRead;
+
+			_sx = _mm_set1_epi32(sx);
+			_ex = _mm_set1_epi32(ex);
+			_result = _mm_set1_epi32(0xFF); // 0xFF = -1 -> True, 0x00 = 0 -> False;
+
+			for (int y = 0; y < vSize.y; y++)
+			{
+				if (nVecRead > nVecRLen)
+				{
+					break; // Break if we reached the end of the read vector
+				}
+				if (nVecTarget > nVecTLen) {
+					break; // break if we reached the end of the traget vector
+				}
+
+				//Get the next position of the read vector
+				// Take note of (y + vPos.y), we need the position of y + the next row of y for the read vector (nVecRead)
+				nVecRead = ((y + vPos.y) * width) + vPos.x;
+				for (int x = 0; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+				{
+					// Load in the read vector
+					_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+
+					// We compare if the all the pixels ly within sx->ex, and pixel greater then ex are not process
+					_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+
+					// Take note there is 'no less than or equals', but if you just reverse the operands and use 'greater than' you get the excat same affect
+					_result = _mm_cmpgt_epi32(_ex, _sx);
+
+					// Store only the pixels that are between sx-->ex
+					_mm_maskstore_epi32(pTargetVector, _result, _vecRead);
+
+				}
+
+				// shift the ptr for pTargetVector by the offset
+				// this ensures the ptr is always in the correct position for the next row of y
+				// Debug it to understand better
+				pTargetVector -= nOffSet;
+				nVecTarget -= nOffSet;
+
+
+			}
+
+			//Clean up any left over pixels
+			_vecRead = _mm_set1_epi32(0);
+			_ex = _mm_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 8, pTargetVector += 8)
+			{
+				// We compare if the all the pixels ly within sx->nVecTLen, and pixel greater then ex are not process
+				_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+
+				_result = _mm_cmpgt_epi32(_ex, _sx);
+
+				// Store only the pixels that are between sx-->ex
+				_mm_maskstore_epi32(pTargetVector, _result, _vecRead);
+			}
+
+			if (bStoreSubSprite)
+			{
+				uint32_t scale = 1;
+				vecSubSprites.push_back({ vPos, vSize, scale, (uint8_t)Sprite::NONE, spr });
+			}
+
+
+			return spr;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX256(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		{
+
+			olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int sx = 0;
+			int ex = vSize.x;
+			int nOffSet = ex % 8;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 8) + 1; // 270 / 8 = 33. + 1 = 34
+				nOffSet = (nOffSet * 8); // 34 * 8 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			int* pTargetVector = (int*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = (vPos.y * width) + vPos.x; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m256i _sx, _ex, _result, _vecRead;
+
+			_sx = _mm256_set1_epi32(sx);
+			_ex = _mm256_set1_epi32(ex);
+			_result = _mm256_set1_epi32(0xFF); // 0xFF = -1 -> True, 0x00 = 0 -> False;
+
+			for (int y = 0; y < vSize.y; y++)
+			{
+				if (nVecRead > nVecRLen)
+				{
+					break; // Break if we reached the end of the read vector
+				}
+				if (nVecTarget > nVecTLen) {
+					break; // break if we reached the end of the traget vector
+				}
+
+				//Get the next position of the read vector
+				// Take note of (y + vPos.y), we need the position of y + the next row of y for the read vector (nVecRead)
+				nVecRead = ((y + vPos.y) * width) + vPos.x;
+				for (int x = 0; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+				{
+					// Load in the read vector
+					_vecRead = _mm256_load_si256((const __m256i*)((olc::Pixel*)pColData.data() + nVecRead));
+
+					// We compare if the all the pixels ly within sx->ex, and pixel greater then ex are not process
+					_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+					// Take note there is 'no less than or equals', but if you just reverse the operands and use 'greater than' you get the excat same affect
+					_result = _mm256_cmpgt_epi32(_ex, _sx);
+
+					// Store only the pixels that are between sx-->ex
+					_mm256_maskstore_epi32(pTargetVector, _result, _vecRead);
+					//_mm256_storeu_epi32(pTargetVector, _vecRead);
+				}
+
+				// shift the ptr for pTargetVector by the offset
+				// this ensures the ptr is always in the correct position for the next row of y
+				// Debug it to understand better
+				pTargetVector -= nOffSet;
+				nVecTarget -= nOffSet;
+
+
+			}
+
+			//Clean up any left over pixels
+			_vecRead = _mm256_set1_epi32(0);
+			_ex = _mm256_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 8, pTargetVector += 8)
+			{
+				// We compare if the all the pixels ly within sx->nVecTLen, and pixel greater then ex are not process
+				_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+				_result = _mm256_cmpgt_epi32(_ex, _sx);
+
+				// Store only the pixels that are between sx-->ex
+				_mm256_maskstore_epi32(pTargetVector, _result, _vecRead);
+			}
+
+			if (bStoreSubSprite)
+			{
+				uint32_t scale = 1;
+				vecSubSprites.push_back({ vPos, vSize, scale, (uint8_t)Sprite::NONE, spr });
+			}
+
+
+			return spr;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX512(const olc::vi2d& vPos, const olc::vi2d& vSize)
+		{
+
+			olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int sx = 0;
+			int ex = vSize.x;
+			int nOffSet = ex % 16;
+
+			if (nOffSet > 0)
+			{
+				// we need to work out what is the next muliple of 8 pixels
+				// Example: vSize.x = 270 
+				nOffSet = (ex / 16) + 1; // 270 / 16 = 16. + 1 = 17
+				nOffSet = (nOffSet * 16); // 16 * 16 = 272
+				nOffSet = nOffSet - ex; // therefore the offset is 2
+
+			}
+
+			int nVecTarget = 0;
+			int* pTargetVector = (int*)spr->pColData.data();
+			int nVecTLen = spr->pColData.size();
+
+			int nVecRead = (vPos.y * width) + vPos.x; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			__m512i _sx, _ex, _result, _vecRead;
+
+			_sx = _mm512_set1_epi32(sx);
+			_ex = _mm512_set1_epi32(ex);
+			_result = _mm512_set1_epi32(0xFF); // 0xFF = -1 -> True, 0x00 = 0 -> False;
+
+			for (int y = 0; y < vSize.y; y++)
+			{
+				if (nVecRead > nVecRLen)
+				{
+					break; // Break if we reached the end of the read vector
+				}
+				if (nVecTarget > nVecTLen) {
+					break; // break if we reached the end of the target vector
+				}
+
+				//Get the next position of the read vector
+				// Take note of (y + vPos.y), we need the position of y + the next row of y for the read vector (nVecRead)
+				nVecRead = ((y + vPos.y) * width) + vPos.x;
+				for (int x = 0; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+				{
+					// Load in the read vector
+					_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+
+					// we compare if the all the pixels ly within sx->ex, and pixel greater then ex are not process
+					_sx = _mm512_set_epi32(x + 15, x + 14, x + 13, x + 12, x + 11, x + 10, x + 9, x + 8, x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+					// Take note there is 'no less than or equals', but if you just reverse the operands and use 'greater than' you get the excat same affect
+					// Store only the pixels that are between sx-->ex
+					_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _vecRead);
+				}
+
+				// shift the ptr for pTargetVector by the offset
+				// this ensures the ptr is always in the correct position for the next row of y
+				// Debug it to understand better
+				pTargetVector -= nOffSet;
+				nVecTarget -= nOffSet;
+
+
+			}
+
+			//Clean up any left over pixels
+			_vecRead = _mm512_set1_epi32(0);
+			_ex = _mm512_set1_epi32(nVecTLen);
+			for (int x = nVecTarget; x < nVecTLen; x += 8, pTargetVector += 8)
+			{
+				// we compare if the all the pixels ly within sx->ex, and pixel greater then ex are not process
+				_sx = _mm512_set_epi32(x + 15, x + 14, x + 13, x + 12, x + 11, x + 10, x + 9, x + 8, x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+
+				// Take note there is 'no less than or equals', but if you just reverse the operands and use 'greater than' you get the excat same affect
+				// Store only the pixels that are between sx-->ex
+				_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _vecRead);
+			}
+
+			if (bStoreSubSprite)
+			{
+				uint32_t scale = 1;
+				vecSubSprites.push_back({ vPos, vSize, scale, (uint8_t)Sprite::NONE, spr });
+			}
+
+
+			return spr;
+
+		}
+
+		/*--------------------------------------------------------------------------------------*/
+
+		olc::Sprite* Sprite::Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		{
+
+			switch (getInsturctionSet())
+			{
+
+			case SIMD_AVX:
+			case SIMD_AVX2:
+				return Duplicate_AVX256(vPos, pdrawTarget);
+				break;
+
+			case SIMD_SSE:
+			case SIMD_SSE2:
+			case SIMD_SSE3:
+			case SIMD_SSE41:
+				return Duplicate_SSE(vPos, pdrawTarget);
+				break;
+
+			case SIMD_AVX512:
+				return Duplicate_AVX512(vPos, pdrawTarget);
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				//return Duplicate(flip);
+				break;
+			}
+
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
+		{
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			int* pTargetVector = (int*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+			// Get if we have an offset to manage
+			// Try to keep your spites in even mulitples of 8 (8, 16, 24, 32, 40... 80, 88, 96, 104)
+			// In this way most of your sprites will fall into the the "high speed" processing below
+			int nOffSet = nWidth % 4;
+			bool bUseHighSpeed = (nOffSet == 0) ? true : false;
+
+			__m128i _reverse, _sx, _ex, _compare, _blankpixels, _vecRead, _result;
+
+			_reverse = _mm_set_epi32(0, 1, 2, 3);
+			_sx = _mm_set1_epi32(0);
+			_ex = _mm_set1_epi32(ex);
+
+			// NOTE: We write out the full for-->loop for both High & Low speed
+			// If we put the condional statement between the Y for loop we get a 'branch' in our assembly
+			// and lose any gains in proformance
+			if (bUseHighSpeed)
+			{
+				// High speed (up too 2times faster as we have no offset to manage)
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 4, pTargetVector += 4, nVecRead += 4, nVecTarget += 4)
+					{
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm_storeu_epi32(pTargetVector, _vecRead);
+
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
 			else
-				return pColData[std::max(0, std::min(y, height-1)) * width + std::max(0, std::min(x, width-1))];
+			{
+				// Low speed as we have an offset to manage
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 4, pTargetVector += 4, nVecRead += 4, nVecTarget += 4)
+					{
+						_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm_cmpgt_epi32(_ex, _sx);
+						_mm_maskstore_epi32(pTargetVector, _compare, _vecRead);
+						/*_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm_storeu_epi32(pTargetVector, _vecRead);*/
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+
+
+
+
+			return pdrawTarget;
+
 		}
-	}
 
-	bool Sprite::SetPixel(int32_t x, int32_t y, Pixel p)
-	{
-		if (x >= 0 && x < width && y >= 0 && y < height)
+		olc::Sprite* Sprite::Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
 		{
-			pColData[y * width + x] = p;
-			return true;
+
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			float* pTargetVector = (float*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+			// Get if we have an offset to manage
+			// Try to keep your spites in even mulitples of 8 (8, 16, 24, 32, 40... 80, 88, 96, 104)
+			// In this way most of your sprites will fall into the the "high speed" processing
+			int nOffSet = nWidth % 8;
+			bool bUseHighSpeed = (nOffSet == 0) ? true : false;
+
+
+			// Set up registers
+			__m256i _reverse, _sx, _ex, _compare, _blankpixels;
+			__m256 _result, _vecRead;
+			_reverse = _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+			_sx = _mm256_set1_epi32(0);
+			_ex = _mm256_set1_epi32(ex);
+
+
+			// NOTE: We write out the full for-->loop for both High & Low speed
+			// If we put the condional statement between the Y for loop we get a 'branch' in our assembly
+			// and lose any gains in proformance
+			if (bUseHighSpeed)
+			{
+				// High speed (up too 2times faster as we have no offset to manage)
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+
+					for (int x = nXStart; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+					{
+						// as there is no offset we can read and write as fast as possible
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm256_store_ps(pTargetVector, _vecRead);
+
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+			else
+			{
+				// Low speed as we have an offset to manage
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+
+					for (int x = nXStart; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+					{
+						// See Notes: TBA
+						// is source sprite is not a mulpile of 8 (i.e. 16, 24, 32 etc) we will be left with extra pixels that may be overwriten
+						// the _sx, _ex ensure this does not happen
+						_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm256_cmpgt_epi32(_ex, _sx);
+						_mm256_maskstore_ps(pTargetVector, _compare, _vecRead);
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+
+
+			return pdrawTarget;
+
 		}
-		else
-			return false;
-	}
 
-	Pixel Sprite::Sample(float x, float y) const
-	{
-		int32_t sx = std::min((int32_t)((x * (float)width)), width - 1);
-		int32_t sy = std::min((int32_t)((y * (float)height)), height - 1);
-		return GetPixel(sx, sy);
-	}
-
-	Pixel Sprite::Sample(const olc::vf2d& uv) const
-	{
-		return Sample(uv.x, uv.y);
-	}
-
-	Pixel Sprite::SampleBL(float u, float v) const
-	{
-		u = u * width - 0.5f;
-		v = v * height - 0.5f;
-		int x = (int)floor(u); // cast to int rounds toward zero, not downward
-		int y = (int)floor(v); // Thanks @joshinils
-		float u_ratio = u - x;
-		float v_ratio = v - y;
-		float u_opposite = 1 - u_ratio;
-		float v_opposite = 1 - v_ratio;
-
-		olc::Pixel p1 = GetPixel(std::max(x, 0), std::max(y, 0));
-		olc::Pixel p2 = GetPixel(std::min(x + 1, (int)width - 1), std::max(y, 0));
-		olc::Pixel p3 = GetPixel(std::max(x, 0), std::min(y + 1, (int)height - 1));
-		olc::Pixel p4 = GetPixel(std::min(x + 1, (int)width - 1), std::min(y + 1, (int)height - 1));
-
-		return olc::Pixel(
-			(uint8_t)((p1.r * u_opposite + p2.r * u_ratio) * v_opposite + (p3.r * u_opposite + p4.r * u_ratio) * v_ratio),
-			(uint8_t)((p1.g * u_opposite + p2.g * u_ratio) * v_opposite + (p3.g * u_opposite + p4.g * u_ratio) * v_ratio),
-			(uint8_t)((p1.b * u_opposite + p2.b * u_ratio) * v_opposite + (p3.b * u_opposite + p4.b * u_ratio) * v_ratio));
-	}
-
-	Pixel Sprite::SampleBL(const olc::vf2d& uv) const
-	{
-		return SampleBL(uv.x, uv.y);
-	}
-
-	Pixel* Sprite::GetData()
-	{ return pColData.data(); }
-
-
-	olc::rcode Sprite::LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack)
-	{
-		UNUSED(pack);
-		return loader->LoadImageResource(this, sImageFile, pack);
-	}
-
-	olc::Sprite* Sprite::Duplicate()
-	{
-		olc::Sprite* spr = new olc::Sprite(width, height);
-		std::memcpy(spr->GetData(), GetData(), width * height * sizeof(olc::Pixel));
-		spr->modeSample = modeSample;
-		return spr;
-	}
-
-	olc::Sprite* Sprite::Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize)
-	{
-		olc::Sprite* spr = new olc::Sprite(vSize.x, vSize.y);
-		for (int y = 0; y < vSize.y; y++)
-			for (int x = 0; x < vSize.x; x++)
-				spr->SetPixel(x, y, GetPixel(vPos.x + x, vPos.y + y));
-		return spr;
-	}
-
-	olc::vi2d olc::Sprite::Size() const
-	{
-		return { width, height };
-	}
-
-	// O------------------------------------------------------------------------------O
-	// | olc::Decal IMPLEMENTATION                                                    |
-	// O------------------------------------------------------------------------------O
-	Decal::Decal(olc::Sprite* spr, bool filter, bool clamp)
-	{
-		id = -1;
-		if (spr == nullptr) return;
-		sprite = spr;
-		id = renderer->CreateTexture(sprite->width, sprite->height, filter, clamp);
-		Update();
-	}
-
-	Decal::Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr)
-	{
-		if (spr == nullptr) return;
-		id = nExistingTextureResource;
-	}
-
-	void Decal::Update()
-	{
-		if (sprite == nullptr) return;
-		vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
-		renderer->ApplyTexture(id);
-		renderer->UpdateTexture(id, sprite);
-	}
-
-	void Decal::UpdateSprite()
-	{
-		if (sprite == nullptr) return;
-		renderer->ApplyTexture(id);
-		renderer->ReadTexture(id, sprite);
-	}
-
-	Decal::~Decal()
-	{
-		if (id != -1)
+		olc::Sprite* Sprite::Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget)
 		{
-			renderer->DeleteTexture(id);
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			float* pTargetVector = (float*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+			// Get if we have an offset to manage
+			// Try to keep your spites in even mulitples of 8 (8, 16, 24, 32, 40... 80, 88, 96, 104)
+			// In this way most of your sprites will fall into the the "high speed" processing
+			int nOffSet = nWidth % 16;
+			bool bUseHighSpeed = (nOffSet == 0) ? true : false;
+
+			__m512i _reverse, _sx, _ex, _compare, _blankpixels, _vecRead, _result;
+
+			_reverse = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+			_sx = _mm512_set1_epi32(0);
+			_ex = _mm512_set1_epi32(ex);
+
+
+
+			// NOTE: We write out the full for-->loop for both High & Low speed
+			// If we put the condional statement between the Y for loop we get a 'branch' in our assembly
+			// and lose any gains in proformance
+			if (bUseHighSpeed)
+			{
+				// High speed (up too 2times faster as we have no offset to manage)
+				// Low speed as we have an offset to manage
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 16, pTargetVector += 16, nVecRead += 16, nVecTarget += 16)
+					{
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm512_storeu_epi32(pTargetVector, _vecRead);
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+			else
+			{
+				// Low speed as we have an offset to manage
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 16, pTargetVector += 16, nVecRead += 16, nVecTarget += 16)
+					{
+						_sx = _mm512_set_1to16_epi32(x);
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _vecRead);
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+
+
+
+
+
+
+			return pdrawTarget;
+
+
+		}
+
+		/*--------------------------------------------------------------------------------------*/
+
+		olc::Sprite* Sprite::Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		{
+
+			// Lets check if the sprite all ready exist?
+			if (bStoreSubSprite)
+			{
+				Sprite* spr = nullptr;
+				uint32_t scale = 1;
+				for (int i = 0; i < vecSubSprites.size(); i++)
+				{
+					if (std::get<0>(vecSubSprites[i]) == vPos
+						&& std::get<2>(vecSubSprites[i]) == scale
+						&& std::get<3>(vecSubSprites[i]) == flip)
+					{
+						// We found a match all we need to do now is draw it
+						spr = std::get<4>(vecSubSprites[i]);
+						// We set the flip to NONE as all this work has already been done
+						spr->Duplicate_SIMD(vPos, pdrawTarget);
+						return pdrawTarget;
+						break;
+					}
+				}
+			}
+
+
+			switch (getInsturctionSet())
+			{
+
+			case SIMD_AVX:
+			case SIMD_AVX2:
+				return Duplicate_AVX256(vPos, pdrawTarget, flip);
+				break;
+
+			case SIMD_SSE:
+			case SIMD_SSE2:
+			case SIMD_SSE3:
+			case SIMD_SSE41:
+				return Duplicate_SSE(vPos, pdrawTarget, flip);
+				break;
+
+			case SIMD_AVX512:
+				return Duplicate_AVX512(vPos, pdrawTarget, flip);
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				//return Duplicate(flip);
+				break;
+			}
+
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		{
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			int* pTargetVector = (int*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+			__m128i _reverse, _sx, _ex, _compare, _blankpixels, _vecRead, _result;
+
+			_reverse = _mm_set_epi32(0, 1, 2, 3);
+			_sx = _mm_set1_epi32(0);
+			_ex = _mm_set1_epi32(ex);
+
+			// if it less than 1 it is NONE :)
+			if (flip < 1)
+			{
+
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 4, pTargetVector += 4, nVecRead += 4, nVecTarget += 4)
+					{
+						_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm_cmpgt_epi32(_ex, _sx);
+						_mm_maskstore_epi32(pTargetVector, _compare, _vecRead);
+						/*_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm_storeu_epi32(pTargetVector, _vecRead);*/
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+
+
+			}
+
+
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+				int nOffSet = ex % 4;
+
+				if (nOffSet > 0)
+				{
+					// we need to work out what is the next muliple of 8 pixels
+					// Example: vSize.x = 270 
+					nOffSet = (ex / 4) + 1; // 270 / 8 = 33. + 1 = 34
+					nOffSet = (nOffSet * 4); // 34 * 8 = 272
+					nOffSet = nOffSet - ex; // therefore the offset is 2
+
+				}
+
+				if (nYStart == 0) nYStart++;
+				for (int y = nYStart; y < height; y++, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					nVecRead = (y * width) - nXStart;
+					nVecRead += -4;
+					for (int x = nXStart; x < ex; x += 4, pTargetVector += 4, nVecRead += -4, nVecTarget += 4)
+					{
+						_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm_shuffle_epi32(_vecRead, _MM_SHUFFLE(0, 1, 2, 3));
+						_compare = _mm_cmpgt_epi32(_ex, _sx);
+						_mm_maskstore_epi32(pTargetVector, _compare, _result);
+
+						/*_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm_shuffle_epi32(_vecRead, _MM_SHUFFLE(0, 1, 2, 3));
+						_mm_storeu_epi32(pTargetVector, _result);*/
+
+					}
+
+					pTargetVector -= nVecTarget; // reset pointer
+					nVecTarget -= nOffSet;
+
+
+				}
+
+
+			}
+
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+				nVecRead = nVecRLen;
+				for (int y = height - 1; y > nYStart; y--, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					if (nVecTarget + 4 > nVecTLen) break;
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 4, pTargetVector += 4, nVecRead += 4, nVecTarget += 4)
+					{
+						_sx = _mm_set_epi32(x + 3, x + 2, x + 1, x);
+						_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm_cmpgt_epi32(_ex, _sx);
+						_mm_maskstore_epi32(pTargetVector, _compare, _vecRead);
+
+						/*_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm_storeu_epi32(pTargetVector, _vecRead);*/
+
+					}
+					pTargetVector -= nVecTarget;
+
+				}
+
+			}
+
+
+			return pdrawTarget;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		{
+
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			float* pTargetVector = (float*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+			// Set up registers
+			__m256i _reverse, _sx, _ex, _compare, _blankpixels;
+			__m256 _result, _vecRead;
+			_reverse = _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+			_sx = _mm256_set1_epi32(0);
+			_ex = _mm256_set1_epi32(ex);
+
+
+			// if it less than 1 it is NONE :)
+			if (flip < 1)
+			{
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+					{
+						// See Notes: TBA
+						// is source sprite is not a mulpile of 8 (i.e. 16, 24, 32 etc) we will be left with extra pixels that may be overwriten
+						// the _sx, _ex ensure this does not happen
+						_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm256_cmpgt_epi32(_ex, _sx);
+						_mm256_maskstore_ps(pTargetVector, _compare, _vecRead);
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+
+			// If Horiz
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+				int nOffSet = ex % 8;
+
+				if (nOffSet > 0)
+				{
+					// we need to work out what is the next muliple of 8 pixels
+					// Example: vSize.x = 270 
+					nOffSet = (ex / 8) + 1; // 270 / 8 = 33. + 1 = 34
+					nOffSet = (nOffSet * 8); // 34 * 8 = 272
+					nOffSet = nOffSet - ex; // therefore the offset is 2
+
+				}
+
+				if (nYStart == 0) nYStart++;
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					nVecRead = (y * width) - nXStart;
+					nVecRead += -8;
+					for (int x = nXStart; x < ex; x += 8, pTargetVector += 8, nVecRead += -8, nVecTarget += 8)
+					{
+						_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm256_permutevar8x32_ps(_vecRead, _reverse);
+						_compare = _mm256_cmpgt_epi32(_ex, _sx);
+						_mm256_maskstore_ps(pTargetVector, _compare, _result);
+						//_mm256_storeu_ps(pTargetVector, _result);
+
+					}
+
+					pTargetVector -= nVecTarget; // reset pointer
+					nVecTarget -= nOffSet;
+
+				}
+			}
+
+			// If Vert
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+
+				nVecRead = nVecRLen;
+				for (int y = height - 1; y > nYStart; y--, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					if (nVecTarget + 8 > nVecTLen) break;
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 8, pTargetVector += 8, nVecRead += 8, nVecTarget += 8)
+					{
+						_sx = _mm256_set_epi32(x + 7, x + 6, x + 5, x + 4, x + 3, x + 2, x + 1, x);
+						_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+						_compare = _mm256_cmpgt_epi32(_ex, _sx);
+						_mm256_maskstore_ps(pTargetVector, _compare, _vecRead);
+
+					}
+					pTargetVector -= nVecTarget;
+
+				}
+			}
+
+
+			return pdrawTarget;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint8_t flip)
+		{
+			// Ok we need to ensure the sprite can fit on the layer (pdrawTarget)
+			// lets add the with of the sprite to pos.x 
+			int nFullWidth = vPos.x + width;
+			int nFullHeight = vPos.y + height;
+			int nWidth = width; //std::min(nFullWidth, pdrawTarget->width);
+			int nHeight = height; // std::min(nFullHeight, pdrawTarget->height);
+
+			if (nFullWidth >= pdrawTarget->width)
+			{
+				// Get the new width for off layer sprite
+				nWidth = nFullWidth - pdrawTarget->width;
+				nWidth = width - nWidth;
+			}
+
+			if (nFullHeight >= pdrawTarget->height)
+			{
+				// get the new height for off layer sprite
+				nHeight = nFullHeight - pdrawTarget->height;
+				nHeight = height - nHeight;
+			}
+
+			// Get the new Start Position for off layer sprite
+			int nXStart = (vPos.x < 0) ? vPos.x * -1 : 0;
+			int nYStart = (vPos.y < 0) ? vPos.y * -1 : 0;
+
+			// Get the new vPosition for off layer sprite
+			int nXPos = (vPos.x < 0) ? 0 : vPos.x;
+			int nYPos = (vPos.y < 0) ? 0 : vPos.y;
+
+			// Get the target layer vector pointer
+			int nVecTarget = (nYPos * pdrawTarget->width) + nXPos;
+			float* pTargetVector = (float*)pdrawTarget->pColData.data();
+			int nVecTLen = pdrawTarget->pColData.size();
+			int nTargetY = 0;
+
+			// Get the local sprite vector detals
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size();
+
+			// Set up counters
+			int sx = 0;
+			int ex = nWidth;
+
+
+			__m512i _reverse, _sx, _ex, _compare, _blankpixels, _vecRead, _result;
+
+			_reverse = _mm512_set_epi32(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+
+			_sx = _mm512_set1_epi32(0);
+			_ex = _mm512_set1_epi32(ex);
+
+			// if it less than 1 it is NONE :)
+			if (flip < 1)
+			{
+
+				for (int y = nYStart; y < nHeight; y++, nTargetY++)
+				{
+					// Get next Target Vector position, but if we are out of bounds on the target we break
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget >= nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					// Get next read Position 
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 16, pTargetVector += 16, nVecRead += 16, nVecTarget += 16)
+					{
+						_sx = _mm512_set_1to16_epi32(x);
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _vecRead);
+					}
+
+					pTargetVector -= nVecTarget; // reset the pointer to 0 position
+
+
+				}
+			}
+
+
+			if (flip & olc::Sprite::Flip::HORIZ)
+			{
+
+				int nOffSet = ex % 16;
+
+				if (nOffSet > 0)
+				{
+					// we need to work out what is the next muliple of 8 pixels
+					// Example: vSize.x = 270 
+					nOffSet = (ex / 16) + 1; // 270 / 8 = 33. + 1 = 34
+					nOffSet = (nOffSet * 16); // 34 * 8 = 272
+					nOffSet = nOffSet - ex; // therefore the offset is 2
+
+				}
+
+
+				if (nYStart == 0) nYStart++;
+				for (int y = nYStart; y < height; y++, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					nVecRead = (y * width) - nXStart;
+					nVecRead += -16;
+					for (int x = nXStart; x < ex; x += 16, pTargetVector += 16, nVecRead += -16, nVecTarget += 16)
+					{
+						_sx = _mm512_set_1to16_epi32(x);
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_result = _mm512_permutevar_epi32(_vecRead, _reverse);
+						_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _result);
+						//_mm256_storeu_ps(pTargetVector, _result);
+
+					}
+
+					pTargetVector -= nVecTarget; // reset pointer
+					nVecTarget -= nOffSet;
+
+				}
+
+			}
+
+			if (flip & olc::Sprite::Flip::VERT)
+			{
+				nVecRead = nVecRLen;
+				for (int y = height - 1; y > nYStart; y--, nTargetY++)
+				{
+					nVecTarget = ((nTargetY + nYPos) * pdrawTarget->width) + nXPos;
+					if (nVecTarget > nVecTLen) break;
+					pTargetVector += nVecTarget;
+
+					if (nVecTarget + 16 > nVecTLen) break;
+					nVecRead = (y * width) + nXStart;
+					for (int x = nXStart; x < ex; x += 16, pTargetVector += 16, nVecRead += 16, nVecTarget += 16)
+					{
+						_sx = _mm512_set_1to16_epi32(x);
+						_vecRead = _mm512_load_si512((const __m512i*)((olc::Pixel*)pColData.data() + nVecRead));
+						_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _vecRead);
+
+					}
+					pTargetVector -= nVecTarget;
+
+				}
+
+
+			}
+
+
+			return pdrawTarget;
+
+
+		}
+
+		/*--------------------------------------------------------------------------------------*/
+
+		olc::Sprite* Sprite::Duplicate_SIMD(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		{
+
+			// Lets check if the sprite all ready exist?
+			if (bStoreSubSprite)
+			{
+				Sprite* spr = nullptr;
+				for (int i = 0; i < vecSubSprites.size(); i++)
+				{
+					if (std::get<0>(vecSubSprites[i]) == vPos
+						&& std::get<2>(vecSubSprites[i]) == scale
+						&& std::get<3>(vecSubSprites[i]) == flip)
+					{
+						// We found a match all we need to do now is draw it
+						spr = std::get<4>(vecSubSprites[i]);
+						// We set the flip to NONE as all this work has already been done
+						spr->Duplicate_SIMD(vPos, pdrawTarget);
+						return pdrawTarget;
+						break;
+					}
+				}
+			}
+
+
+			switch (getInsturctionSet())
+			{
+
+			case SIMD_AVX:
+			case SIMD_AVX2:
+				return Duplicate_AVX256(vPos, pdrawTarget, scale, flip);
+				break;
+
+			case SIMD_SSE:
+			case SIMD_SSE2:
+			case SIMD_SSE3:
+			case SIMD_SSE41:
+				return Duplicate_SSE(vPos, pdrawTarget, scale, flip);
+				break;
+
+			case SIMD_AVX512:
+				return Duplicate_AVX512(vPos, pdrawTarget, scale, flip);
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				//return Duplicate(flip);
+				break;
+			}
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_SSE(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		{
+
+			olc::Sprite* spr = new olc::Sprite(width * scale, height * scale);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+
+			int ex = width;
+
+			int nVecTarget = 0; // Target vector position
+			float* pTargetVector = (float*)spr->pColData.data(); // Target vector pointer
+			int nVecTLen = spr->pColData.size(); // Target vector size
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size(); // Read vector size
+
+			int nReadCount = std::max(int(4 / scale), 1); // Number of pixels to be read in
+
+			int nOffSet = 4 % scale; // Offset for left over pixels
+			int nScaleCount = 0; // Scale count used when the scale is greater than the register
+			if (scale > 4)
+			{
+				nOffSet = 0;
+				nScaleCount = scale - 4;
+			}
+
+			int nsuffle[4] = { 0, 0, 0, 0 }; // Suffle Pixels
+			int nPosCounter = 0; // Suffle position counter
+			int nPos = 0; // Suffle start position
+
+			// as Scale 2 the it is double 1 pixel becomes 2
+			// {i, i, i, i, i, i, i} --> {0, 0, 1, 1, 2, 2, 3, 3}; 
+			for (int i = 0; i < 4; i++)
+			{
+				nsuffle[i] = nPos;
+				nPosCounter++;
+				if (nPosCounter >= scale)
+				{
+					nPosCounter = 0;
+					nPos++;
+				}
+
+			}
+
+			__m128i _reverse, _sx, _ex, _compare, _blankpixels;
+			__m128 _result, _vecRead;
+
+			//_reverse = _mm128_set_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+			_sx = _mm_set1_epi32(0);
+			_ex = _mm_set1_epi32(ex);
+
+
+			_reverse = _mm_set_epi32(nsuffle[3], nsuffle[2], nsuffle[1], nsuffle[0]);
+			nPosCounter = 0;
+
+			int y = 0;
+			int x = 0;
+			int yS = 0;
+			int nTottle = scale;
+
+			for (y = 0; y < height; y++, yS++)
+			{
+				// Added extra Y Lines of x values
+				nTottle++;
+				if (nTottle < scale) y--;
+				if (nTottle >= scale) nTottle = 0;
+
+				nVecRead = (y * width) + 0;
+				nVecTarget = (yS * spr->width) + 0;
+				pTargetVector += nVecTarget;
+				for (x = 0; x < width; x += nReadCount, nVecRead += nReadCount, pTargetVector += 4, nVecTarget += 4)
+				{
+
+
+					/*_vecRead = _mm_load_si128((const __m128i*)((olc::Pixel*)pColData.data() + nVecRead));
+					_result = _mm_shuffle_epi32(_vecRead, _MM_SHUFFLE(0, 1, 2, 3));
+					_mm_storeu_epi32(pTargetVector, _result);*/
+
+					_vecRead = _mm_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+					//_result = _mm_permutevar4x32_ps(_vecRead, _reverse);
+
+					_result = _mm_permutevar_ps(_vecRead, _reverse);
+
+					_mm_storeu_ps(pTargetVector, _result);
+
+					// if out scale is greater than 8 times, i.e.10 then we need repeat the pixels
+					if (nScaleCount > 0)
+					{
+						_ex = _mm_set1_epi32(nScaleCount + 1);
+
+						for (int i = 1; i < nScaleCount; i += 4)
+						{
+							pTargetVector += 4;
+							nVecTarget += 4;
+							nOffSet = (i * 4) - nScaleCount;
+							_sx = _mm_set_epi32(i + 3, i + 2, i + 1, i);
+							_compare = _mm_cmpgt_epi32(_ex, _sx);
+							_mm_maskstore_ps(pTargetVector, _compare, _result);
+
+						}
+					}
+
+					// move back the pointer and vectors to get the offset bytes
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+
+				pTargetVector -= nVecTarget;
+
+			}
+
+			// There can be some pixels on the target sprite left over
+			int nYPos = ((y - 1) * width);
+			int nYTarPos = (yS * (width * scale));
+			// check is there are left over pixels
+			if (nYTarPos < nVecTLen)
+			{
+				// if so process them
+				for (int i = nYPos; i < nVecRLen; i++)
+				{
+					for (int j = 0; j < scale; j++, nYTarPos++)
+					{
+						if (nYTarPos >= nVecTLen) break;
+						spr->pColData[nYTarPos] = pColData[i];
+					}
+				}
+			}
+
+			// Flip the Sprite
+			spr->Duplicate_SSE(vPos, pdrawTarget, flip);
+			if (bStoreSubSprite)
+			{
+				olc::vi2d vSize = { spr->width, spr->height };
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr->Duplicate_SIMD((olc::Sprite::Flip)flip) });
+			}
+			else
+			{
+				delete spr; // We need delete the spr otherwise we will have a nasy memory leak
+			}
+			return pdrawTarget;
+
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX256(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		{
+			olc::Sprite* spr = new olc::Sprite(width * scale, height * scale);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int ex = width;
+			int nVecTarget = 0; // Target vector position
+			float* pTargetVector = (float*)spr->pColData.data(); // Target vector pointer
+			int nVecTLen = spr->pColData.size(); // Target vector size
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size(); // Read vector size
+
+			int nReadCount = std::max(int(8 / scale), 1); // Number of pixels to be read in
+
+			int nOffSet = 8 % scale; // Offset for left over pixels
+			int nScaleCount = 0; // Scale count used when the scale is greater than the register
+			if (scale > 8)
+			{
+				nOffSet = 0;
+				nScaleCount = scale - 8;
+			}
+
+			int nsuffle[8] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // Suffle Pixels
+			int nPosCounter = 0; // Suffle position counter
+			int nPos = 0; // Suffle start position
+
+			// as Scale 2 the it is double 1 pixel becomes 2
+			// {i, i, i, i, i, i, i} --> {0, 0, 1, 1, 2, 2, 3, 3}; 
+			for (int i = 0; i < 8; i++)
+			{
+				nsuffle[i] = nPos;
+				nPosCounter++;
+				if (nPosCounter >= scale)
+				{
+					nPosCounter = 0;
+					nPos++;
+				}
+
+			}
+
+			__m256i _reverse, _sx, _ex, _compare, _blankpixels;
+			__m256 _result, _vecRead;
+
+			//_reverse = _mm256_set_epi32(0, 1, 2, 3, 4, 5, 6, 7);
+			_sx = _mm256_set1_epi32(0);
+			_ex = _mm256_set1_epi32(ex);
+
+
+			_reverse = _mm256_set_epi32(nsuffle[7], nsuffle[6], nsuffle[5], nsuffle[4], nsuffle[3], nsuffle[2], nsuffle[1], nsuffle[0]);
+			nPosCounter = 0;
+
+			int y = 0;
+			int x = 0;
+			int yS = 0;
+			int nTottle = scale;
+
+			for (y = 0; y < height; y++, yS++)
+			{
+				// Added extra Y Lines of x values
+				nTottle++;
+				if (nTottle < scale) y--;
+				if (nTottle >= scale) nTottle = 0;
+
+				nVecRead = (y * width) + 0;
+				nVecTarget = (yS * spr->width) + 0;
+				pTargetVector += nVecTarget;
+				for (x = 0; x < width; x += nReadCount, nVecRead += nReadCount, pTargetVector += 8, nVecTarget += 8)
+				{
+
+					_vecRead = _mm256_load_ps((const float*)((olc::Pixel*)pColData.data() + nVecRead));
+					_result = _mm256_permutevar8x32_ps(_vecRead, _reverse);
+					_mm256_storeu_ps(pTargetVector, _result);
+
+					// if out scale is greater than 8 times, i.e.10 then we need repeat the pixels
+					if (nScaleCount > 0)
+					{
+						_ex = _mm256_set1_epi32(nScaleCount + 1);
+
+						for (int i = 1; i < nScaleCount; i += 8)
+						{
+							pTargetVector += 8;
+							nVecTarget += 8;
+							nOffSet = (i * 8) - nScaleCount;
+							_sx = _mm256_set_epi32(i + 7, i + 6, i + 5, i + 4, i + 3, i + 2, i + 1, i);
+							_compare = _mm256_cmpgt_epi32(_ex, _sx);
+							_mm256_maskstore_ps(pTargetVector, _compare, _result);
+
+						}
+					}
+
+					// move back the pointer and vectors to get the offset bytes
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+
+				pTargetVector -= nVecTarget;
+
+			}
+
+			// There can be some pixels left over, at most 1 full line
+			int nYPos = ((y - 1) * width);
+			int nYTarPos = (yS * (width * scale));
+			// check is there are left over pixels
+			if (nYTarPos < nVecTLen)
+			{
+				// if so process them
+				for (int i = nYPos; i < nVecRLen; i++)
+				{
+					for (int j = 0; j < scale; j++, nYTarPos++)
+					{
+						if (nYTarPos >= nVecTLen) break;
+						spr->pColData[nYTarPos] = pColData[i];
+					}
+				}
+			}
+
+			// Filp the spr
+			spr->Duplicate_AVX256(vPos, pdrawTarget, flip);
+
+			if (bStoreSubSprite)
+			{
+				olc::vi2d vSize = { spr->width, spr->height };
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr->Duplicate_SIMD((olc::Sprite::Flip)flip) });
+			}
+			else
+			{
+				delete spr; // We need delete the spr otherwise we will have a nasy memory leak
+			}
+
+			return pdrawTarget;
+		}
+
+		olc::Sprite* Sprite::Duplicate_AVX512(const olc::vi2d& vPos, olc::Sprite* pdrawTarget, uint32_t scale, uint8_t flip)
+		{
+
+			olc::Sprite* spr = new olc::Sprite(width * scale, height * scale);
+			spr->setInsturctionSet(getInsturctionSet());
+			spr->setStoreSubSprites(getStoreSubSprites());
+
+			int ex = width;
+
+			int nVecTarget = 0; // Target vector position
+			int* pTargetVector = (int*)spr->pColData.data(); // Target vector pointer
+			int nVecTLen = spr->pColData.size(); // Target vector size
+
+			int nVecRead = 0; // Start position of read vector
+			int nVecRLen = pColData.size(); // Read vector size
+
+			int nReadCount = std::max(int(16 / scale), 1); // Number of pixels to be read in
+
+			int nOffSet = 16 % scale; // Offset for left over pixels
+			int nScaleCount = 0; // Scale count used when the scale is greater than the register
+			if (scale > 16)
+			{
+				nOffSet = 0;
+				nScaleCount = scale - 16;
+			}
+
+			int nsuffle[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // Suffle Pixels
+			int nPosCounter = 0; // Suffle position counter
+			int nPos = 0; // Suffle start position
+
+			// as Scale 2 the it is double 1 pixel becomes 2
+			// {i, i, i, i, i, i, i} --> {0, 0, 1, 1, 2, 2, 3, 3}; 
+			for (int i = 0; i < 16; i++)
+			{
+				nsuffle[i] = nPos;
+				nPosCounter++;
+				if (nPosCounter >= scale)
+				{
+					nPosCounter = 0;
+					nPos++;
+				}
+
+			}
+
+			__m512i _reverse, _sx, _ex, _compare, _vecRead;
+			_sx = _mm512_set1_epi32(0);
+			_ex = _mm512_set1_epi32(ex);
+
+			_reverse = _mm512_set_epi32(nsuffle[15], nsuffle[14], nsuffle[13], nsuffle[12], nsuffle[11], nsuffle[10], nsuffle[9], nsuffle[8],
+				nsuffle[7], nsuffle[6], nsuffle[5], nsuffle[4], nsuffle[3], nsuffle[2], nsuffle[1], nsuffle[0]);
+			nPosCounter = 0;
+
+			int y = 0;
+			int x = 0;
+			int yS = 0;
+			int nTottle = scale;
+
+			for (y = 0; y < height; y++, yS++)
+			{
+				// Added extra Y Lines of x values
+				nTottle++;
+				if (nTottle < scale) y--;
+				if (nTottle >= scale) nTottle = 0;
+
+				nVecRead = (y * width) + 0;
+				nVecTarget = (yS * spr->width) + 0;
+				pTargetVector += nVecTarget;
+				for (x = 0; x < width; x += nReadCount, nVecRead += nReadCount, pTargetVector += 8, nVecTarget += 8)
+				{
+
+					_vecRead = _mm512_load_epi32((const int*)((olc::Pixel*)pColData.data() + nVecRead));
+					_mm512_storeu_epi32(pTargetVector, _mm512_permutexvar_epi32(_vecRead, _reverse));
+
+					// if out scale is greater than 8 times, i.e.10 then we need repeat the pixels
+					if (nScaleCount > 0)
+					{
+						_ex = _mm512_set1_epi32(nScaleCount + 1);
+
+						for (int i = 1; i < nScaleCount; i += 8)
+						{
+							pTargetVector += 8;
+							nVecTarget += 8;
+							nOffSet = (i * 8) - nScaleCount;
+							_sx = _mm512_set_epi32(i + 15, i + 14, i + 13, i + 12, i + 11, i + 10, i + 9, i + 8, i + 7, i + 6, i + 5, i + 4, i + 3, i + 2, i + 1, i);
+							_mm512_mask_store_epi32(pTargetVector, _mm512_cmpgt_epi32_mask(_ex, _sx), _mm512_permutexvar_epi32(_vecRead, _reverse));
+
+						}
+					}
+
+					// move back the pointer and vectors to get the offset bytes
+					pTargetVector -= nOffSet;
+					nVecTarget -= nOffSet;
+
+				}
+
+				pTargetVector -= nVecTarget;
+
+			}
+
+
+			// There can be some pixels left over, at most 1 full line
+			int nYPos = ((y - 1) * width);
+			int nYTarPos = (yS * (width * scale));
+			// check is there are left over pixels
+			if (nYTarPos < nVecTLen)
+			{
+				// if so process them
+				for (int i = nYPos; i < nVecRLen; i++)
+				{
+					for (int j = 0; j < scale; j++, nYTarPos++)
+					{
+						if (nYTarPos >= nVecTLen) break;
+						spr->pColData[nYTarPos] = pColData[i];
+					}
+				}
+			}
+
+			// Flip the Sprite
+			spr->Duplicate_AVX512(vPos, pdrawTarget, flip);
+			if (bStoreSubSprite)
+			{
+				olc::vi2d vSize = { spr->width, spr->height };
+				vecSubSprites.push_back({ vPos, vSize, scale, flip, spr->Duplicate_SIMD((olc::Sprite::Flip)flip) });
+			}
+			else
+			{
+				delete spr; // We need delete the spr otherwise we will have a nasy memory leak
+			}
+			return pdrawTarget;
+
+		}
+
+
+		/*--------------------------- SIMD Instruction set -------------------------------------*/
+
+
+		olc::vi2d olc::Sprite::Size() const
+		{
+			return { width, height };
+		}
+
+		// O------------------------------------------------------------------------------O
+		// | olc::Decal IMPLEMENTATION                                                    |
+		// O------------------------------------------------------------------------------O
+		Decal::Decal(olc::Sprite* spr, bool filter, bool clamp)
+		{
 			id = -1;
+			if (spr == nullptr) return;
+			sprite = spr;
+			id = renderer->CreateTexture(sprite->width, sprite->height, filter, clamp);
+			Update();
 		}
-	}
 
-	void Renderable::Create(uint32_t width, uint32_t height, bool filter, bool clamp)
-	{
-		pSprite = std::make_unique<olc::Sprite>(width, height);
-		pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter, clamp);
-	}
-
-	olc::rcode Renderable::Load(const std::string& sFile, ResourcePack* pack, bool filter, bool clamp)
-	{
-		pSprite = std::make_unique<olc::Sprite>();
-		if (pSprite->LoadFromFile(sFile, pack) == olc::rcode::OK)
+		Decal::Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr)
 		{
+			if (spr == nullptr) return;
+			id = nExistingTextureResource;
+		}
+
+		void Decal::Update()
+		{
+			if (sprite == nullptr) return;
+			vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
+			renderer->ApplyTexture(id);
+			renderer->UpdateTexture(id, sprite);
+		}
+
+		void Decal::UpdateSprite()
+		{
+			if (sprite == nullptr) return;
+			renderer->ApplyTexture(id);
+			renderer->ReadTexture(id, sprite);
+		}
+
+		Decal::~Decal()
+		{
+			if (id != -1)
+			{
+				renderer->DeleteTexture(id);
+				id = -1;
+			}
+		}
+
+		void Renderable::Create(uint32_t width, uint32_t height, bool filter, bool clamp)
+		{
+			pSprite = std::make_unique<olc::Sprite>(width, height);
 			pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter, clamp);
-			return olc::rcode::OK;
-		}
-		else
-		{
-			pSprite.release();
-			pSprite = nullptr;
-			return olc::rcode::NO_FILE;
-		}
-	}
-
-	olc::Decal* Renderable::Decal() const
-	{ return pDecal.get(); }
-
-	olc::Sprite* Renderable::Sprite() const
-	{ return pSprite.get(); }
-
-	// O------------------------------------------------------------------------------O
-	// | olc::ResourcePack IMPLEMENTATION                                             |
-	// O------------------------------------------------------------------------------O
-
-
-	//=============================================================
-	// Resource Packs - Allows you to store files in one large 
-	// scrambled file - Thanks MaGetzUb for debugging a null char in std::stringstream bug
-	ResourceBuffer::ResourceBuffer(std::ifstream& ifs, uint32_t offset, uint32_t size)
-	{
-		vMemory.resize(size);
-		ifs.seekg(offset); ifs.read(vMemory.data(), vMemory.size());
-		setg(vMemory.data(), vMemory.data(), vMemory.data() + size);
-	}
-
-	ResourcePack::ResourcePack() { }
-	ResourcePack::~ResourcePack() { baseFile.close(); }
-
-	bool ResourcePack::AddFile(const std::string& sFile)
-	{
-		const std::string file = makeposix(sFile);
-
-		if (_gfs::exists(file))
-		{
-			sResourceFile e;
-			e.nSize = (uint32_t)_gfs::file_size(file);
-			e.nOffset = 0; // Unknown at this stage			
-			mapFiles[file] = e;
-			return true;
-		}
-		return false;
-	}
-
-	bool ResourcePack::LoadPack(const std::string& sFile, const std::string& sKey)
-	{
-		// Open the resource file
-		baseFile.open(sFile, std::ifstream::binary);
-		if (!baseFile.is_open()) return false;
-
-		// 1) Read Scrambled index
-		uint32_t nIndexSize = 0;
-		baseFile.read((char*)&nIndexSize, sizeof(uint32_t));
-
-		std::vector<char> buffer(nIndexSize);
-		for (uint32_t j = 0; j < nIndexSize; j++)
-			buffer[j] = baseFile.get();
-
-		std::vector<char> decoded = scramble(buffer, sKey);
-		size_t pos = 0;
-		auto read = [&decoded, &pos](char* dst, size_t size) {
-			memcpy((void*)dst, (const void*)(decoded.data() + pos), size);
-			pos += size;
-		};
-
-		auto get = [&read]() -> int { char c; read(&c, 1); return c; };
-
-		// 2) Read Map
-		uint32_t nMapEntries = 0;
-		read((char*)&nMapEntries, sizeof(uint32_t));
-		for (uint32_t i = 0; i < nMapEntries; i++)
-		{
-			uint32_t nFilePathSize = 0;
-			read((char*)&nFilePathSize, sizeof(uint32_t));
-
-			std::string sFileName(nFilePathSize, ' ');
-			for (uint32_t j = 0; j < nFilePathSize; j++)
-				sFileName[j] = get();
-
-			sResourceFile e;
-			read((char*)&e.nSize, sizeof(uint32_t));
-			read((char*)&e.nOffset, sizeof(uint32_t));
-			mapFiles[sFileName] = e;
 		}
 
-		// Don't close base file! we will provide a stream
-		// pointer when the file is requested
-		return true;
-	}
-
-	bool ResourcePack::SavePack(const std::string& sFile, const std::string& sKey)
-	{
-		// Create/Overwrite the resource file
-		std::ofstream ofs(sFile, std::ofstream::binary);
-		if (!ofs.is_open()) return false;
-
-		// Iterate through map
-		uint32_t nIndexSize = 0; // Unknown for now
-		ofs.write((char*)&nIndexSize, sizeof(uint32_t));
-		uint32_t nMapSize = uint32_t(mapFiles.size());
-		ofs.write((char*)&nMapSize, sizeof(uint32_t));
-		for (auto& e : mapFiles)
+		olc::rcode Renderable::Load(const std::string& sFile, ResourcePack* pack, bool filter, bool clamp)
 		{
-			// Write the path of the file
-			size_t nPathSize = e.first.size();
-			ofs.write((char*)&nPathSize, sizeof(uint32_t));
-			ofs.write(e.first.c_str(), nPathSize);
-
-			// Write the file entry properties
-			ofs.write((char*)&e.second.nSize, sizeof(uint32_t));
-			ofs.write((char*)&e.second.nOffset, sizeof(uint32_t));
-		}
-
-		// 2) Write the individual Data
-		std::streampos offset = ofs.tellp();
-		nIndexSize = (uint32_t)offset;
-		for (auto& e : mapFiles)
-		{
-			// Store beginning of file offset within resource pack file
-			e.second.nOffset = (uint32_t)offset;
-
-			// Load the file to be added
-			std::vector<uint8_t> vBuffer(e.second.nSize);
-			std::ifstream i(e.first, std::ifstream::binary);
-			i.read((char*)vBuffer.data(), e.second.nSize);
-			i.close();
-
-			// Write the loaded file into resource pack file
-			ofs.write((char*)vBuffer.data(), e.second.nSize);
-			offset += e.second.nSize;
-		}
-
-		// 3) Scramble Index
-		std::vector<char> stream;
-		auto write = [&stream](const char* data, size_t size) {
-			size_t sizeNow = stream.size();
-			stream.resize(sizeNow + size);
-			memcpy(stream.data() + sizeNow, data, size);
-		};
-
-		// Iterate through map
-		write((char*)&nMapSize, sizeof(uint32_t));
-		for (auto& e : mapFiles)
-		{
-			// Write the path of the file
-			size_t nPathSize = e.first.size();
-			write((char*)&nPathSize, sizeof(uint32_t));
-			write(e.first.c_str(), nPathSize);
-
-			// Write the file entry properties
-			write((char*)&e.second.nSize, sizeof(uint32_t));
-			write((char*)&e.second.nOffset, sizeof(uint32_t));
-		}
-		std::vector<char> sIndexString = scramble(stream, sKey);
-		uint32_t nIndexStringLen = uint32_t(sIndexString.size());
-		// 4) Rewrite Map (it has been updated with offsets now)
-		// at start of file
-		ofs.seekp(0, std::ios::beg);
-		ofs.write((char*)&nIndexStringLen, sizeof(uint32_t));
-		ofs.write(sIndexString.data(), nIndexStringLen);
-		ofs.close();
-		return true;
-	}
-
-	ResourceBuffer ResourcePack::GetFileBuffer(const std::string& sFile)
-	{ return ResourceBuffer(baseFile, mapFiles[sFile].nOffset, mapFiles[sFile].nSize); }
-
-	bool ResourcePack::Loaded()
-	{ return baseFile.is_open(); }
-
-	std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const std::string& key)
-	{
-		if (key.empty()) return data;
-		std::vector<char> o;
-		size_t c = 0;
-		for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]);
-		return o;
-	};
-
-	std::string ResourcePack::makeposix(const std::string& path)
-	{
-		std::string o;
-		for (auto s : path) o += std::string(1, s == '\\' ? '/' : s);
-		return o;
-	};
-
-	// O------------------------------------------------------------------------------O
-	// | olc::PixelGameEngine IMPLEMENTATION                                          |
-	// O------------------------------------------------------------------------------O
-	PixelGameEngine::PixelGameEngine()
-	{
-		sAppName = "Undefined";
-		olc::PGEX::pge = this;
-
-		// Bring in relevant Platform & Rendering systems depending
-		// on compiler parameters
-		olc_ConfigureSystem();
-	}
-
-	PixelGameEngine::~PixelGameEngine()
-	{}
-
-
-	olc::rcode PixelGameEngine::Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h, bool full_screen, bool vsync, bool cohesion)
-	{
-		bPixelCohesion = cohesion;
-		vScreenSize = { screen_w, screen_h };
-		vInvScreenSize = { 1.0f / float(screen_w), 1.0f / float(screen_h) };
-		vPixelSize = { pixel_w, pixel_h };
-		vWindowSize = vScreenSize * vPixelSize;
-		bFullScreen = full_screen;
-		bEnableVSYNC = vsync;
-		vPixel = 2.0f / vScreenSize;
-
-		if (vPixelSize.x <= 0 || vPixelSize.y <= 0 || vScreenSize.x <= 0 || vScreenSize.y <= 0)
-			return olc::FAIL;
-		return olc::OK;
-	}
-
-
-	void PixelGameEngine::SetScreenSize(int w, int h)
-	{
-		vScreenSize = { w, h };
-		vInvScreenSize = { 1.0f / float(w), 1.0f / float(h) };
-		for (auto& layer : vLayers)
-		{
-			layer.pDrawTarget.Create(vScreenSize.x, vScreenSize.y);
-			layer.bUpdate = true;
-		}
-		SetDrawTarget(nullptr);
-		renderer->ClearBuffer(olc::BLACK, true);
-		renderer->DisplayFrame();
-		renderer->ClearBuffer(olc::BLACK, true);
-		renderer->UpdateViewport(vViewPos, vViewSize);
-	}
-
-#if !defined(PGE_USE_CUSTOM_START)
-	olc::rcode PixelGameEngine::Start()
-	{
-		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
-
-		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
-		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
-
-		// Start the thread
-		bAtomActive = true;
-		std::thread t = std::thread(&PixelGameEngine::EngineThread, this);
-
-		// Some implementations may form an event loop here
-		platform->StartSystemEventLoop();
-
-		// Wait for thread to be exited
-		t.join();
-
-		if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
-
-		return olc::OK;
-	}
-#endif
-
-	void PixelGameEngine::SetDrawTarget(Sprite* target)
-	{
-		if (target)
-		{
-			pDrawTarget = target;
-		}
-		else
-		{
-			nTargetLayer = 0;
-			pDrawTarget = vLayers[0].pDrawTarget.Sprite();
-		}
-	}
-
-	void PixelGameEngine::SetDrawTarget(uint8_t layer, bool bDirty)
-	{
-		if (layer < vLayers.size())
-		{
-			pDrawTarget = vLayers[layer].pDrawTarget.Sprite();
-			vLayers[layer].bUpdate = bDirty;
-			nTargetLayer = layer;
-		}
-	}
-
-	void PixelGameEngine::EnableLayer(uint8_t layer, bool b)
-	{ if (layer < vLayers.size()) vLayers[layer].bShow = b; }
-
-	void PixelGameEngine::SetLayerOffset(uint8_t layer, const olc::vf2d& offset)
-	{ SetLayerOffset(layer, offset.x, offset.y); }
-
-	void PixelGameEngine::SetLayerOffset(uint8_t layer, float x, float y)
-	{ if (layer < vLayers.size()) vLayers[layer].vOffset = { x, y }; }
-
-	void PixelGameEngine::SetLayerScale(uint8_t layer, const olc::vf2d& scale)
-	{ SetLayerScale(layer, scale.x, scale.y); }
-
-	void PixelGameEngine::SetLayerScale(uint8_t layer, float x, float y)
-	{ if (layer < vLayers.size()) vLayers[layer].vScale = { x, y }; }
-
-	void PixelGameEngine::SetLayerTint(uint8_t layer, const olc::Pixel& tint)
-	{ if (layer < vLayers.size()) vLayers[layer].tint = tint; }
-
-	void PixelGameEngine::SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f)
-	{ if (layer < vLayers.size()) vLayers[layer].funcHook = f; }
-
-	std::vector<LayerDesc>& PixelGameEngine::GetLayers()
-	{ return vLayers; }
-
-	uint32_t PixelGameEngine::CreateLayer()
-	{
-		LayerDesc ld;
-		ld.pDrawTarget.Create(vScreenSize.x, vScreenSize.y);
-		vLayers.push_back(std::move(ld));
-		return uint32_t(vLayers.size()) - 1;
-	}
-
-	Sprite* PixelGameEngine::GetDrawTarget() const
-	{ return pDrawTarget; }
-
-	int32_t PixelGameEngine::GetDrawTargetWidth() const
-	{
-		if (pDrawTarget)
-			return pDrawTarget->width;
-		else
-			return 0;
-	}
-
-	int32_t PixelGameEngine::GetDrawTargetHeight() const
-	{
-		if (pDrawTarget)
-			return pDrawTarget->height;
-		else
-			return 0;
-	}
-
-	uint32_t PixelGameEngine::GetFPS() const
-	{ return nLastFPS; }
-
-	bool PixelGameEngine::IsFocused() const
-	{ return bHasInputFocus; }
-
-	HWButton PixelGameEngine::GetKey(Key k) const
-	{ return pKeyboardState[k];	}
-
-	HWButton PixelGameEngine::GetMouse(uint32_t b) const
-	{ return pMouseState[b]; }
-
-	int32_t PixelGameEngine::GetMouseX() const
-	{ return vMousePos.x; }
-
-	int32_t PixelGameEngine::GetMouseY() const
-	{ return vMousePos.y; }
-
-	const olc::vi2d& PixelGameEngine::GetMousePos() const
-	{ return vMousePos; }
-
-	int32_t PixelGameEngine::GetMouseWheel() const
-	{ return nMouseWheelDelta; }
-
-	int32_t PixelGameEngine::ScreenWidth() const
-	{ return vScreenSize.x; }
-
-	int32_t PixelGameEngine::ScreenHeight() const
-	{ return vScreenSize.y; }
-
-	float PixelGameEngine::GetElapsedTime() const
-	{ return fLastElapsed; }
-
-	const olc::vi2d& PixelGameEngine::GetWindowSize() const
-	{ return vWindowSize; }
-
-	const olc::vi2d& PixelGameEngine::GetPixelSize() const
-	{ return vPixelSize; }
-
-	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
-	{ return vScreenPixelSize; }
-
-	const olc::vi2d& PixelGameEngine::GetScreenSize() const
-	{ return vScreenSize;	}
-
-	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
-	{ return vMouseWindowPos; }
-
-	bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
-	{ return Draw(pos.x, pos.y, p); }
-
-	// This is it, the critical function that plots a pixel
-	bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
-	{
-		if (!pDrawTarget) return false;
-
-		if (nPixelMode == Pixel::NORMAL)
-		{
-			return pDrawTarget->SetPixel(x, y, p);
-		}
-
-		if (nPixelMode == Pixel::MASK)
-		{
-			if (p.a == 255)
-				return pDrawTarget->SetPixel(x, y, p);
-		}
-
-		if (nPixelMode == Pixel::ALPHA)
-		{
-			Pixel d = pDrawTarget->GetPixel(x, y);
-			float a = (float)(p.a / 255.0f) * fBlendFactor;
-			float c = 1.0f - a;
-			float r = a * (float)p.r + c * (float)d.r;
-			float g = a * (float)p.g + c * (float)d.g;
-			float b = a * (float)p.b + c * (float)d.b;
-			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
-		}
-
-		if (nPixelMode == Pixel::CUSTOM)
-		{
-			return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
-		}
-
-		return false;
-	}
-
-
-	void PixelGameEngine::DrawLine(const olc::vi2d& pos1, const olc::vi2d& pos2, Pixel p, uint32_t pattern)
-	{ DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, p, pattern); }
-
-	void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p, uint32_t pattern)
-	{
-		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
-		dx = x2 - x1; dy = y2 - y1;
-
-		auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
-
-		olc::vi2d p1(x1, y1), p2(x2, y2);
-		//if (!ClipLineToScreen(p1, p2))
-		//	return;
-		x1 = p1.x; y1 = p1.y;
-		x2 = p2.x; y2 = p2.y;
-
-		// straight lines idea by gurkanctn
-		if (dx == 0) // Line is vertical
-		{
-			if (y2 < y1) std::swap(y1, y2);
-			for (y = y1; y <= y2; y++) if (rol()) Draw(x1, y, p);
-			return;
-		}
-
-		if (dy == 0) // Line is horizontal
-		{
-			if (x2 < x1) std::swap(x1, x2);
-			for (x = x1; x <= x2; x++) if (rol()) Draw(x, y1, p);
-			return;
-		}
-
-		// Line is Funk-aye
-		dx1 = abs(dx); dy1 = abs(dy);
-		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
-		if (dy1 <= dx1)
-		{
-			if (dx >= 0)
+			pSprite = std::make_unique<olc::Sprite>();
+			if (pSprite->LoadFromFile(sFile, pack) == olc::rcode::OK)
 			{
-				x = x1; y = y1; xe = x2;
+				pDecal = std::make_unique<olc::Decal>(pSprite.get(), filter, clamp);
+				return olc::rcode::OK;
 			}
 			else
 			{
-				x = x2; y = y2; xe = x1;
-			}
-
-			if (rol()) Draw(x, y, p);
-
-			for (i = 0; x < xe; i++)
-			{
-				x = x + 1;
-				if (px < 0)
-					px = px + 2 * dy1;
-				else
-				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1; else y = y - 1;
-					px = px + 2 * (dy1 - dx1);
-				}
-				if (rol()) Draw(x, y, p);
+				pSprite.release();
+				pSprite = nullptr;
+				return olc::rcode::NO_FILE;
 			}
 		}
-		else
+
+		olc::Decal* Renderable::Decal() const
 		{
-			if (dy >= 0)
-			{
-				x = x1; y = y1; ye = y2;
-			}
-			else
-			{
-				x = x2; y = y2; ye = y1;
-			}
-
-			if (rol()) Draw(x, y, p);
-
-			for (i = 0; y < ye; i++)
-			{
-				y = y + 1;
-				if (py <= 0)
-					py = py + 2 * dx1;
-				else
-				{
-					if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1; else x = x - 1;
-					py = py + 2 * (dx1 - dy1);
-				}
-				if (rol()) Draw(x, y, p);
-			}
+			return pDecal.get();
 		}
-	}
 
-	void PixelGameEngine::DrawCircle(const olc::vi2d& pos, int32_t radius, Pixel p, uint8_t mask)
-	{ DrawCircle(pos.x, pos.y, radius, p, mask); }
-
-	void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
-	{ // Thanks to IanM-Matrix1 #PR121
-		if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
-			return;
-
-		if (radius > 0)
+		olc::Sprite* Renderable::Sprite() const
 		{
-			int x0 = 0;
-			int y0 = radius;
-			int d = 3 - 2 * radius;
-
-			while (y0 >= x0) // only formulate 1/8 of circle
-			{
-				// Draw even octants
-				if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
-				if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
-				if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
-				if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
-				if (x0 != 0 && x0 != y0)
-				{
-					if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
-					if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
-					if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
-					if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
-				}
-
-				if (d < 0)
-					d += 4 * x0++ + 6;
-				else
-					d += 4 * (x0++ - y0--) + 10;
-			}
+			return pSprite.get();
 		}
-		else
-			Draw(x, y, p);
-	}
 
-	void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
-	{ FillCircle(pos.x, pos.y, radius, p); }
+		// O------------------------------------------------------------------------------O
+		// | olc::ResourcePack IMPLEMENTATION                                             |
+		// O------------------------------------------------------------------------------O
 
-	void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
-	{ // Thanks to IanM-Matrix1 #PR121
-		if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
-			return;
 
-		if (radius > 0)
+		//=============================================================
+		// Resource Packs - Allows you to store files in one large 
+		// scrambled file - Thanks MaGetzUb for debugging a null char in std::stringstream bug
+		ResourceBuffer::ResourceBuffer(std::ifstream& ifs, uint32_t offset, uint32_t size)
 		{
-			int x0 = 0;
-			int y0 = radius;
-			int d = 3 - 2 * radius;
+			vMemory.resize(size);
+			ifs.seekg(offset); ifs.read(vMemory.data(), vMemory.size());
+			setg(vMemory.data(), vMemory.data(), vMemory.data() + size);
+		}
 
-			auto drawline = [&](int sx, int ex, int y)
+		ResourcePack::ResourcePack() { }
+		ResourcePack::~ResourcePack() { baseFile.close(); }
+
+		bool ResourcePack::AddFile(const std::string& sFile)
+		{
+			const std::string file = makeposix(sFile);
+
+			if (_gfs::exists(file))
 			{
-				for (int x = sx; x <= ex; x++)
-					Draw(x, y, p);
+				sResourceFile e;
+				e.nSize = (uint32_t)_gfs::file_size(file);
+				e.nOffset = 0; // Unknown at this stage			
+				mapFiles[file] = e;
+				return true;
+			}
+			return false;
+		}
+
+		bool ResourcePack::LoadPack(const std::string& sFile, const std::string& sKey)
+		{
+			// Open the resource file
+			baseFile.open(sFile, std::ifstream::binary);
+			if (!baseFile.is_open()) return false;
+
+			// 1) Read Scrambled index
+			uint32_t nIndexSize = 0;
+			baseFile.read((char*)&nIndexSize, sizeof(uint32_t));
+
+			std::vector<char> buffer(nIndexSize);
+			for (uint32_t j = 0; j < nIndexSize; j++)
+				buffer[j] = baseFile.get();
+
+			std::vector<char> decoded = scramble(buffer, sKey);
+			size_t pos = 0;
+			auto read = [&decoded, &pos](char* dst, size_t size) {
+				memcpy((void*)dst, (const void*)(decoded.data() + pos), size);
+				pos += size;
 			};
 
-			while (y0 >= x0)
+			auto get = [&read]() -> int { char c; read(&c, 1); return c; };
+
+			// 2) Read Map
+			uint32_t nMapEntries = 0;
+			read((char*)&nMapEntries, sizeof(uint32_t));
+			for (uint32_t i = 0; i < nMapEntries; i++)
 			{
-				drawline(x - y0, x + y0, y - x0);
-				if (x0 > 0)	drawline(x - y0, x + y0, y + x0);
+				uint32_t nFilePathSize = 0;
+				read((char*)&nFilePathSize, sizeof(uint32_t));
 
-				if (d < 0)
-					d += 4 * x0++ + 6;
-				else
-				{
-					if (x0 != y0)
-					{
-						drawline(x - x0, x + x0, y - y0);
-						drawline(x - x0, x + x0, y + y0);
-					}
-					d += 4 * (x0++ - y0--) + 10;
-				}
+				std::string sFileName(nFilePathSize, ' ');
+				for (uint32_t j = 0; j < nFilePathSize; j++)
+					sFileName[j] = get();
+
+				sResourceFile e;
+				read((char*)&e.nSize, sizeof(uint32_t));
+				read((char*)&e.nOffset, sizeof(uint32_t));
+				mapFiles[sFileName] = e;
 			}
+
+			// Don't close base file! we will provide a stream
+			// pointer when the file is requested
+			return true;
 		}
-		else
-			Draw(x, y, p);
-	}
 
-	void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
-	{ DrawRect(pos.x, pos.y, size.x, size.y, p); }
-
-	void PixelGameEngine::DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
-	{
-		DrawLine(x, y, x + w, y, p);
-		DrawLine(x + w, y, x + w, y + h, p);
-		DrawLine(x + w, y + h, x, y + h, p);
-		DrawLine(x, y + h, x, y, p);
-	}
-
-	void PixelGameEngine::Clear(Pixel p)
-	{
-		int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
-		Pixel* m = GetDrawTarget()->GetData();
-		for (int i = 0; i < pixels; i++) m[i] = p;
-	}
-
-	void PixelGameEngine::ClearBuffer(Pixel p, bool bDepth)
-	{ renderer->ClearBuffer(p, bDepth);	}
-
-	olc::Sprite* PixelGameEngine::GetFontSprite()
-	{ return fontRenderable.Sprite(); }
-
-	bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
-	{
-		// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
-		static constexpr int SEG_I = 0b0000, SEG_L = 0b0001, SEG_R = 0b0010, SEG_B = 0b0100, SEG_T = 0b1000;
-		auto Segment = [&vScreenSize = vScreenSize](const olc::vi2d& v)
+		bool ResourcePack::SavePack(const std::string& sFile, const std::string& sKey)
 		{
-			int i = SEG_I;
-			if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
-			if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
-			return i;
+			// Create/Overwrite the resource file
+			std::ofstream ofs(sFile, std::ofstream::binary);
+			if (!ofs.is_open()) return false;
+
+			// Iterate through map
+			uint32_t nIndexSize = 0; // Unknown for now
+			ofs.write((char*)&nIndexSize, sizeof(uint32_t));
+			uint32_t nMapSize = uint32_t(mapFiles.size());
+			ofs.write((char*)&nMapSize, sizeof(uint32_t));
+			for (auto& e : mapFiles)
+			{
+				// Write the path of the file
+				size_t nPathSize = e.first.size();
+				ofs.write((char*)&nPathSize, sizeof(uint32_t));
+				ofs.write(e.first.c_str(), nPathSize);
+
+				// Write the file entry properties
+				ofs.write((char*)&e.second.nSize, sizeof(uint32_t));
+				ofs.write((char*)&e.second.nOffset, sizeof(uint32_t));
+			}
+
+			// 2) Write the individual Data
+			std::streampos offset = ofs.tellp();
+			nIndexSize = (uint32_t)offset;
+			for (auto& e : mapFiles)
+			{
+				// Store beginning of file offset within resource pack file
+				e.second.nOffset = (uint32_t)offset;
+
+				// Load the file to be added
+				std::vector<uint8_t> vBuffer(e.second.nSize);
+				std::ifstream i(e.first, std::ifstream::binary);
+				i.read((char*)vBuffer.data(), e.second.nSize);
+				i.close();
+
+				// Write the loaded file into resource pack file
+				ofs.write((char*)vBuffer.data(), e.second.nSize);
+				offset += e.second.nSize;
+			}
+
+			// 3) Scramble Index
+			std::vector<char> stream;
+			auto write = [&stream](const char* data, size_t size) {
+				size_t sizeNow = stream.size();
+				stream.resize(sizeNow + size);
+				memcpy(stream.data() + sizeNow, data, size);
+			};
+
+			// Iterate through map
+			write((char*)&nMapSize, sizeof(uint32_t));
+			for (auto& e : mapFiles)
+			{
+				// Write the path of the file
+				size_t nPathSize = e.first.size();
+				write((char*)&nPathSize, sizeof(uint32_t));
+				write(e.first.c_str(), nPathSize);
+
+				// Write the file entry properties
+				write((char*)&e.second.nSize, sizeof(uint32_t));
+				write((char*)&e.second.nOffset, sizeof(uint32_t));
+			}
+			std::vector<char> sIndexString = scramble(stream, sKey);
+			uint32_t nIndexStringLen = uint32_t(sIndexString.size());
+			// 4) Rewrite Map (it has been updated with offsets now)
+			// at start of file
+			ofs.seekp(0, std::ios::beg);
+			ofs.write((char*)&nIndexStringLen, sizeof(uint32_t));
+			ofs.write(sIndexString.data(), nIndexStringLen);
+			ofs.close();
+			return true;
+		}
+
+		ResourceBuffer ResourcePack::GetFileBuffer(const std::string& sFile)
+		{
+			return ResourceBuffer(baseFile, mapFiles[sFile].nOffset, mapFiles[sFile].nSize);
+		}
+
+		bool ResourcePack::Loaded()
+		{
+			return baseFile.is_open();
+		}
+
+		std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const std::string& key)
+		{
+			if (key.empty()) return data;
+			std::vector<char> o;
+			size_t c = 0;
+			for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]);
+			return o;
 		};
 
-		int s1 = Segment(in_p1), s2 = Segment(in_p2);
-
-		while (true)
+		std::string ResourcePack::makeposix(const std::string& path)
 		{
-			if (!(s1 | s2))	  return true;
-			else if (s1 & s2) return false;
-			else
+			std::string o;
+			for (auto s : path) o += std::string(1, s == '\\' ? '/' : s);
+			return o;
+		};
+
+
+		// O------------------------------------------------------------------------------O
+		// | olc::PixelGameEngine SSE, AVX, AVX512 IMPLEMENTATION John Galvin                                         |
+		// O------------------------------------------------------------------------------O
+
+		/// <summary>
+		/// Sets SIMD Instruction Set SSE4 if supported (128bit)
+		/// </summary>
+		bool PixelGameEngine::CheckForSSESupport()
+		{
+			bool bSupported = false;
+			int cpuInfo[4];
+
+			//-- Get number of valid info ids
+			__cpuid(cpuInfo, 0);
+			int nIds = cpuInfo[0];
+
+			//-- Get info for id "1"
+			if (nIds >= 1)
 			{
-				int s3 = s2 > s1 ? s2 : s1;
-				olc::vi2d n;
-				if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vScreenSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vScreenSize.y; }
-				else if (s3 & SEG_B) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (0 - in_p1.y) / (in_p2.y - in_p1.y); n.y = 0; }
-				else if (s3 & SEG_R) { n.x = vScreenSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vScreenSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
-				else if (s3 & SEG_L) { n.x = 0; n.y = in_p1.y + (in_p2.y - in_p1.y) * (0 - in_p1.x) / (in_p2.x - in_p1.x); }
-				if (s3 == s1) { in_p1 = n; s1 = Segment(in_p1); }
-				else { in_p2 = n; s2 = Segment(in_p2); }
+				__cpuid(cpuInfo, 1);
+				bSupported = (cpuInfo[2] & 0x1) || false;
 			}
+			return bSupported;
+
 		}
-		return true;
-	}
 
-	void PixelGameEngine::EnablePixelTransfer(const bool bEnable)
-	{
-		bSuspendTextureTransfer = !bEnable;
-	}
-
-
-	void PixelGameEngine::FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
-	{ FillRect(pos.x, pos.y, size.x, size.y, p); }
-
-	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
-	{
-		int32_t x2 = x + w;
-		int32_t y2 = y + h;
-
-		if (x < 0) x = 0;
-		if (x >= (int32_t)GetDrawTargetWidth()) x = (int32_t)GetDrawTargetWidth();
-		if (y < 0) y = 0;
-		if (y >= (int32_t)GetDrawTargetHeight()) y = (int32_t)GetDrawTargetHeight();
-
-		if (x2 < 0) x2 = 0;
-		if (x2 >= (int32_t)GetDrawTargetWidth()) x2 = (int32_t)GetDrawTargetWidth();
-		if (y2 < 0) y2 = 0;
-		if (y2 >= (int32_t)GetDrawTargetHeight()) y2 = (int32_t)GetDrawTargetHeight();
-
-		for (int i = x; i < x2; i++)
-			for (int j = y; j < y2; j++)
-				Draw(i, j, p);
-	}
-
-	void PixelGameEngine::DrawTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
-	{ DrawTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p); }
-
-	void PixelGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
-	{
-		DrawLine(x1, y1, x2, y2, p);
-		DrawLine(x2, y2, x3, y3, p);
-		DrawLine(x3, y3, x1, y1, p);
-	}
-
-	void PixelGameEngine::FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
-	{ FillTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p); }
-
-	// https://www.avrfreaks.net/sites/default/files/triangles.c
-	void PixelGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
-	{
-		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, p); };
-
-		int t1x, t2x, y, minx, maxx, t1xp, t2xp;
-		bool changed1 = false;
-		bool changed2 = false;
-		int signx1, signx2, dx1, dy1, dx2, dy2;
-		int e1, e2;
-		// Sort vertices
-		if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
-		if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
-		if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
-
-		t1x = t2x = x1; y = y1;   // Starting points
-		dx1 = (int)(x2 - x1);
-		if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
-		else signx1 = 1;
-		dy1 = (int)(y2 - y1);
-
-		dx2 = (int)(x3 - x1);
-		if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
-		else signx2 = 1;
-		dy2 = (int)(y3 - y1);
-
-		if (dy1 > dx1) { std::swap(dx1, dy1); changed1 = true; }
-		if (dy2 > dx2) { std::swap(dy2, dx2); changed2 = true; }
-
-		e2 = (int)(dx2 >> 1);
-		// Flat top, just process the second half
-		if (y1 == y2) goto next;
-		e1 = (int)(dx1 >> 1);
-
-		for (int i = 0; i < dx1;) {
-			t1xp = 0; t2xp = 0;
-			if (t1x < t2x) { minx = t1x; maxx = t2x; }
-			else { minx = t2x; maxx = t1x; }
-			// process first line until y value is about to change
-			while (i < dx1) {
-				i++;
-				e1 += dy1;
-				while (e1 >= dx1) {
-					e1 -= dx1;
-					if (changed1) t1xp = signx1;//t1x += signx1;
-					else          goto next1;
-				}
-				if (changed1) break;
-				else t1x += signx1;
-			}
-			// Move line
-		next1:
-			// process second line until y value is about to change
-			while (1) {
-				e2 += dy2;
-				while (e2 >= dx2) {
-					e2 -= dx2;
-					if (changed2) t2xp = signx2;//t2x += signx2;
-					else          goto next2;
-				}
-				if (changed2)     break;
-				else              t2x += signx2;
-			}
-		next2:
-			if (minx > t1x) minx = t1x;
-			if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x;
-			if (maxx < t2x) maxx = t2x;
-			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
-										// Now increase y
-			if (!changed1) t1x += signx1;
-			t1x += t1xp;
-			if (!changed2) t2x += signx2;
-			t2x += t2xp;
-			y += 1;
-			if (y == y2) break;
-		}
-	next:
-		// Second half
-		dx1 = (int)(x3 - x2); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
-		else signx1 = 1;
-		dy1 = (int)(y3 - y2);
-		t1x = x2;
-
-		if (dy1 > dx1) {   // swap values
-			std::swap(dy1, dx1);
-			changed1 = true;
-		}
-		else changed1 = false;
-
-		e1 = (int)(dx1 >> 1);
-
-		for (int i = 0; i <= dx1; i++) {
-			t1xp = 0; t2xp = 0;
-			if (t1x < t2x) { minx = t1x; maxx = t2x; }
-			else { minx = t2x; maxx = t1x; }
-			// process first line until y value is about to change
-			while (i < dx1) {
-				e1 += dy1;
-				while (e1 >= dx1) {
-					e1 -= dx1;
-					if (changed1) { t1xp = signx1; break; }//t1x += signx1;
-					else          goto next3;
-				}
-				if (changed1) break;
-				else   	   	  t1x += signx1;
-				if (i < dx1) i++;
-			}
-		next3:
-			// process second line until y value is about to change
-			while (t2x != x3) {
-				e2 += dy2;
-				while (e2 >= dx2) {
-					e2 -= dx2;
-					if (changed2) t2xp = signx2;
-					else          goto next4;
-				}
-				if (changed2)     break;
-				else              t2x += signx2;
-			}
-		next4:
-
-			if (minx > t1x) minx = t1x;
-			if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x;
-			if (maxx < t2x) maxx = t2x;
-			drawline(minx, maxx, y);
-			if (!changed1) t1x += signx1;
-			t1x += t1xp;
-			if (!changed2) t2x += signx2;
-			t2x += t2xp;
-			y += 1;
-			if (y > y3) return;
-		}
-	}
-
-	void PixelGameEngine::FillTexturedTriangle(const std::vector<olc::vf2d>& vPoints, std::vector<olc::vf2d> vTex, std::vector<olc::Pixel> vColour, olc::Sprite* sprTex)
-	{
-		olc::vi2d p1 = vPoints[0];
-		olc::vi2d p2 = vPoints[1];
-		olc::vi2d p3 = vPoints[2];
-
-		if (p2.y < p1.y){std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); std::swap(vTex[0].x, vTex[1].x); std::swap(vTex[0].y, vTex[1].y); std::swap(vColour[0], vColour[1]);}
-		if (p3.y < p1.y){std::swap(p1.y, p3.y); std::swap(p1.x, p3.x); std::swap(vTex[0].x, vTex[2].x); std::swap(vTex[0].y, vTex[2].y); std::swap(vColour[0], vColour[2]);}
-		if (p3.y < p2.y){std::swap(p2.y, p3.y); std::swap(p2.x, p3.x); std::swap(vTex[1].x, vTex[2].x); std::swap(vTex[1].y, vTex[2].y); std::swap(vColour[1], vColour[2]);}
-
-		olc::vi2d dPos1 = p2 - p1;
-		olc::vf2d dTex1 = vTex[1] - vTex[0];
-		int dcr1 = vColour[1].r - vColour[0].r;
-		int dcg1 = vColour[1].g - vColour[0].g;
-		int dcb1 = vColour[1].b - vColour[0].b;
-		int dca1 = vColour[1].a - vColour[0].a;
-
-		olc::vi2d dPos2 = p3 - p1;
-		olc::vf2d dTex2 = vTex[2] - vTex[0];
-		int dcr2 = vColour[2].r - vColour[0].r;
-		int dcg2 = vColour[2].g - vColour[0].g;
-		int dcb2 = vColour[2].b - vColour[0].b;
-		int dca2 = vColour[2].a - vColour[0].a;
-
-		float dax_step = 0, dbx_step = 0, dcr1_step = 0, dcr2_step = 0,	dcg1_step = 0, dcg2_step = 0, dcb1_step = 0, dcb2_step = 0,	dca1_step = 0, dca2_step = 0;
-		olc::vf2d vTex1Step, vTex2Step;
-
-		if (dPos1.y)
+		/// <summary>
+		/// Sets SIMD Instruction Set AVX if supported (256bit)
+		/// </summary>
+		bool PixelGameEngine::CheckForAVXSupport()
 		{
-			dax_step = dPos1.x / (float)abs(dPos1.y);
-			vTex1Step = dTex1 / (float)abs(dPos1.y);
-			dcr1_step = dcr1 / (float)abs(dPos1.y);
-			dcg1_step = dcg1 / (float)abs(dPos1.y);
-			dcb1_step = dcb1 / (float)abs(dPos1.y);
-			dca1_step = dca1 / (float)abs(dPos1.y);
-		}
+			bool bSupported = false;
+			int cpuInfo[4];
+			__cpuid(cpuInfo, 1);
 
-		if (dPos2.y)
-		{
-			dbx_step = dPos2.x / (float)abs(dPos2.y);
-			vTex2Step = dTex2 / (float)abs(dPos2.y);
-			dcr2_step = dcr2 / (float)abs(dPos2.y);
-			dcg2_step = dcg2 / (float)abs(dPos2.y);
-			dcb2_step = dcb2 / (float)abs(dPos2.y);
-			dca2_step = dca2 / (float)abs(dPos2.y);
-		}
+			bool osUsesXSAVE_XRSTORE = cpuInfo[2] & (1 << 27) || false;
+			bool cpuAVXSuport = cpuInfo[2] & (1 << 28) || false;
 
-		olc::vi2d vStart;
-		olc::vi2d vEnd;
-		int vStartIdx;
-
-		for (int pass = 0; pass < 2; pass++)
-		{
-			if (pass == 0)
+			if (osUsesXSAVE_XRSTORE && cpuAVXSuport)
 			{
-				vStart = p1; vEnd = p2;	vStartIdx = 0;
+				uint64_t xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);
+				bSupported = (xcrFeatureMask & 0x6) == 0x6;
+			}
+
+			return bSupported;
+		}
+
+		/// <summary>
+		/// Sets SIMD Instruction Set AVX_512 if supported (512bit)
+		/// </summary>
+		bool PixelGameEngine::CheckForAVX512Support()
+		{
+			bool bSupported = false;
+			int cpuInfo[4];
+			__cpuid(cpuInfo, 1);
+
+			bool osUsesXSAVE_XRSTORE = cpuInfo[2] & (1 << 28) || false;
+			bool cpuAVXSuport = cpuInfo[2] & (1 << 28) || false;
+
+			if (osUsesXSAVE_XRSTORE && cpuAVXSuport)
+			{
+				uint64_t xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);
+				bSupported = (xcrFeatureMask & 0xe6) == 0xe6;;
+			}
+
+			return bSupported;
+		}
+
+
+
+		// O------------------------------------------------------------------------------O
+		// | olc::PixelGameEngine IMPLEMENTATION                                          |
+		// O------------------------------------------------------------------------------O
+		PixelGameEngine::PixelGameEngine()
+		{
+			sAppName = "Undefined";
+			olc::PGEX::pge = this;
+
+			// Bring in relevant Platform & Rendering systems depending
+			// on compiler parameters
+			olc_ConfigureSystem();
+
+
+			// Check for SIMD CPU support John Galvin
+			INSTRUCTION_SET = INSTRUCTON_OPTION::NONE;
+			if (CheckForSSESupport()) INSTRUCTION_SET = INSTRUCTON_OPTION::SSE41;
+			if (CheckForAVXSupport()) INSTRUCTION_SET = INSTRUCTON_OPTION::AVX2;
+			if (CheckForAVX512Support()) INSTRUCTION_SET = INSTRUCTON_OPTION::AVX512;
+		}
+
+		PixelGameEngine::~PixelGameEngine()
+		{}
+
+
+		olc::rcode PixelGameEngine::Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h, bool full_screen, bool vsync, bool cohesion)
+		{
+			bPixelCohesion = cohesion;
+			vScreenSize = { screen_w, screen_h };
+			vInvScreenSize = { 1.0f / float(screen_w), 1.0f / float(screen_h) };
+			vPixelSize = { pixel_w, pixel_h };
+			vWindowSize = vScreenSize * vPixelSize;
+			bFullScreen = full_screen;
+			bEnableVSYNC = vsync;
+			vPixel = 2.0f / vScreenSize;
+
+			if (vPixelSize.x <= 0 || vPixelSize.y <= 0 || vScreenSize.x <= 0 || vScreenSize.y <= 0)
+				return olc::FAIL;
+			return olc::OK;
+		}
+
+
+		void PixelGameEngine::SetScreenSize(int w, int h)
+		{
+			vScreenSize = { w, h };
+			vInvScreenSize = { 1.0f / float(w), 1.0f / float(h) };
+			for (auto& layer : vLayers)
+			{
+				layer.pDrawTarget.Create(vScreenSize.x, vScreenSize.y);
+				layer.bUpdate = true;
+			}
+			SetDrawTarget(nullptr);
+			renderer->ClearBuffer(olc::BLACK, true);
+			renderer->DisplayFrame();
+			renderer->ClearBuffer(olc::BLACK, true);
+			renderer->UpdateViewport(vViewPos, vViewSize);
+		}
+
+#if !defined(PGE_USE_CUSTOM_START)
+		olc::rcode PixelGameEngine::Start()
+		{
+			if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
+
+			// Construct the window
+			if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+			olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
+
+			// Start the thread
+			bAtomActive = true;
+			std::thread t = std::thread(&PixelGameEngine::EngineThread, this);
+
+			// Some implementations may form an event loop here
+			platform->StartSystemEventLoop();
+
+			// Wait for thread to be exited
+			t.join();
+
+			if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
+
+			return olc::OK;
+		}
+#endif
+
+		void PixelGameEngine::SetDrawTarget(Sprite* target)
+		{
+			if (target)
+			{
+				pDrawTarget = target;
 			}
 			else
 			{
-				dPos1 = p3 - p2;
-				dTex1 = vTex[2] - vTex[1];
-				dcr1 = vColour[2].r - vColour[1].r;
-				dcg1 = vColour[2].g - vColour[1].g;
-				dcb1 = vColour[2].b - vColour[1].b;
-				dca1 = vColour[2].a - vColour[1].a;
-				dcr1_step = 0; dcg1_step = 0; dcb1_step = 0; dca1_step = 0;
+				nTargetLayer = 0;
+				pDrawTarget = vLayers[0].pDrawTarget.Sprite();
+			}
+		}
 
-				if (dPos2.y) dbx_step = dPos2.x / (float)abs(dPos2.y);
-				if (dPos1.y)
+		void PixelGameEngine::SetDrawTarget(uint8_t layer, bool bDirty)
+		{
+			if (layer < vLayers.size())
+			{
+				pDrawTarget = vLayers[layer].pDrawTarget.Sprite();
+				vLayers[layer].bUpdate = bDirty;
+				nTargetLayer = layer;
+			}
+		}
+
+		void PixelGameEngine::EnableLayer(uint8_t layer, bool b)
+		{
+			if (layer < vLayers.size()) vLayers[layer].bShow = b;
+		}
+
+		void PixelGameEngine::SetLayerOffset(uint8_t layer, const olc::vf2d& offset)
+		{
+			SetLayerOffset(layer, offset.x, offset.y);
+		}
+
+		void PixelGameEngine::SetLayerOffset(uint8_t layer, float x, float y)
+		{
+			if (layer < vLayers.size()) vLayers[layer].vOffset = { x, y };
+		}
+
+		void PixelGameEngine::SetLayerScale(uint8_t layer, const olc::vf2d& scale)
+		{
+			SetLayerScale(layer, scale.x, scale.y);
+		}
+
+		void PixelGameEngine::SetLayerScale(uint8_t layer, float x, float y)
+		{
+			if (layer < vLayers.size()) vLayers[layer].vScale = { x, y };
+		}
+
+		void PixelGameEngine::SetLayerTint(uint8_t layer, const olc::Pixel& tint)
+		{
+			if (layer < vLayers.size()) vLayers[layer].tint = tint;
+		}
+
+		void PixelGameEngine::SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f)
+		{
+			if (layer < vLayers.size()) vLayers[layer].funcHook = f;
+		}
+
+		std::vector<LayerDesc>& PixelGameEngine::GetLayers()
+		{
+			return vLayers;
+		}
+
+		uint32_t PixelGameEngine::CreateLayer()
+		{
+			LayerDesc ld;
+			ld.pDrawTarget.Create(vScreenSize.x, vScreenSize.y);
+			vLayers.push_back(std::move(ld));
+			return uint32_t(vLayers.size()) - 1;
+		}
+
+		Sprite* PixelGameEngine::GetDrawTarget() const
+		{
+			return pDrawTarget;
+		}
+
+		int32_t PixelGameEngine::GetDrawTargetWidth() const
+		{
+			if (pDrawTarget)
+				return pDrawTarget->width;
+			else
+				return 0;
+		}
+
+		int32_t PixelGameEngine::GetDrawTargetHeight() const
+		{
+			if (pDrawTarget)
+				return pDrawTarget->height;
+			else
+				return 0;
+		}
+
+		uint32_t PixelGameEngine::GetFPS() const
+		{
+			return nLastFPS;
+		}
+
+		bool PixelGameEngine::IsFocused() const
+		{
+			return bHasInputFocus;
+		}
+
+		HWButton PixelGameEngine::GetKey(Key k) const
+		{
+			return pKeyboardState[k];
+		}
+
+		HWButton PixelGameEngine::GetMouse(uint32_t b) const
+		{
+			return pMouseState[b];
+		}
+
+		int32_t PixelGameEngine::GetMouseX() const
+		{
+			return vMousePos.x;
+		}
+
+		int32_t PixelGameEngine::GetMouseY() const
+		{
+			return vMousePos.y;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetMousePos() const
+		{
+			return vMousePos;
+		}
+
+		int32_t PixelGameEngine::GetMouseWheel() const
+		{
+			return nMouseWheelDelta;
+		}
+
+		int32_t PixelGameEngine::ScreenWidth() const
+		{
+			return vScreenSize.x;
+		}
+
+		int32_t PixelGameEngine::ScreenHeight() const
+		{
+			return vScreenSize.y;
+		}
+
+		float PixelGameEngine::GetElapsedTime() const
+		{
+			return fLastElapsed;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetWindowSize() const
+		{
+			return vWindowSize;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetPixelSize() const
+		{
+			return vPixelSize;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
+		{
+			return vScreenPixelSize;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetScreenSize() const
+		{
+			return vScreenSize;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetWindowMouse() const
+		{
+			return vMouseWindowPos;
+		}
+
+		bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
+		{
+			return Draw(pos.x, pos.y, p);
+		}
+
+		// This is it, the critical function that plots a pixel
+		bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
+		{
+			if (!pDrawTarget) return false;
+
+			if (nPixelMode == Pixel::NORMAL)
+			{
+				return pDrawTarget->SetPixel(x, y, p);
+			}
+
+			if (nPixelMode == Pixel::MASK)
+			{
+				if (p.a == 255)
+					return pDrawTarget->SetPixel(x, y, p);
+			}
+
+			if (nPixelMode == Pixel::ALPHA)
+			{
+				Pixel d = pDrawTarget->GetPixel(x, y);
+				float a = (float)(p.a / 255.0f) * fBlendFactor;
+				float c = 1.0f - a;
+				float r = a * (float)p.r + c * (float)d.r;
+				float g = a * (float)p.g + c * (float)d.g;
+				float b = a * (float)p.b + c * (float)d.b;
+				return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
+			}
+
+			if (nPixelMode == Pixel::CUSTOM)
+			{
+				return pDrawTarget->SetPixel(x, y, funcPixelMode(x, y, p, pDrawTarget->GetPixel(x, y)));
+			}
+
+			return false;
+		}
+
+		/*--------------------------- SIMD Instruction set For PGE John Galvin -------------------------------------*/
+
+		void PixelGameEngine::Clear_SIMD(Pixel p)
+		{
+			if (pDrawTarget == nullptr)
+			{
+				return;
+			}
+
+			int VecStartIndex = 0;
+			int VecEndIndex = pDrawTarget->pColData.size();
+			int nTempVecEnd = VecStartIndex;
+			switch (INSTRUCTION_SET)
+			{
+			case PixelGameEngine::AVX:
+			case PixelGameEngine::AVX2:
+				// AVX mm256 hold 8 ints
+				// we need to check if there is enough data to fill the regsiter
+				if (VecEndIndex - VecStartIndex > 7)
 				{
-					dax_step = dPos1.x / (float)abs(dPos1.y);
-					vTex1Step = dTex1 / (float)abs(dPos1.y);
-					dcr1_step = dcr1 / (float)abs(dPos1.y);
-					dcg1_step = dcg1 / (float)abs(dPos1.y);
-					dcb1_step = dcb1 / (float)abs(dPos1.y);
-					dca1_step = dca1 / (float)abs(dPos1.y);
+					nTempVecEnd = VecEndIndex / 8; // Example: VecEndIndex = 23, nTempVecEnd = 2
+					nTempVecEnd = nTempVecEnd * 8; // --> nTempVecEnd = 2 * 8 = 16. the left over 7 pixels will be handled later
+					Clear_AVX256(VecStartIndex, nTempVecEnd, p);
 				}
 
-				vStart = p2; vEnd = p3; vStartIdx = 1;
+				break;
+
+			case PixelGameEngine::SSE:
+			case PixelGameEngine::SSE2:
+			case PixelGameEngine::SSE3:
+			case PixelGameEngine::SSE41:
+				// AVX mm128 hold 4 ints
+				if (VecEndIndex - VecStartIndex > 3)
+				{
+					nTempVecEnd = VecEndIndex / 4;
+					nTempVecEnd = nTempVecEnd * 4;
+					Clear_SSE(VecStartIndex, nTempVecEnd, p);
+				}
+				break;
+
+			case PixelGameEngine::AVX512:
+				// AVX mm512 hold 16 ints
+				// AVX mm128 hold 4 ints
+				if (VecEndIndex - VecStartIndex > 15)
+				{
+					nTempVecEnd = VecEndIndex / 16;
+					nTempVecEnd = nTempVecEnd * 16;
+					Clear_AVX512(VecStartIndex, nTempVecEnd, p);
+				}
+
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				nTempVecEnd = VecStartIndex;
+				break;
 			}
+
+			// Clean up left over pixels
+			for (int i = nTempVecEnd; i < VecEndIndex; i++)
+			{
+				pDrawTarget->pColData[i] = p;
+			}
+
+		}
+
+		void PixelGameEngine::Clear_SSE(int VecStartIndex, int VecEndIndex, Pixel p)
+		{
+			// Get a pointer to the pColData (Pixel colour vector data)
+			int* pVecB = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = 0;
+
+			int nReplacePixel = (int)p.n; // Get the int value of the pixel
+
+			__m128i _replacepixel, _compare, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+
+			//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
+			_replacepixel = _mm_set1_epi32(nReplacePixel);
+			_compare = _mm_set1_epi32(0);
+			_vecA = _mm_set1_epi32(0);
+			_xorNot = _mm_set1_epi32(0xffffffff);
+
+			for (int i = VecStartIndex; i < VecEndIndex; i += 4, pVecB += 4, nVecA += 4)
+			{
+				// Load the vector into a 128BIT REGISTER*
+				_vecA = _mm_load_si128((const __m128i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
+
+				// check if the pixel is already the same, if not no need to write to the momory location
+				// Do this:
+				//_compare = _mm_cmpeq_epi32(_vecA, _replacepixel);
+				//_compare = _mm_xor_si128 (_compare, _xorNot);
+				// or do this:
+				//I didn't check wich one is faster 
+				_compare = _mm_xor_si128(_xorNot, _mm_cmpeq_epi32(_vecA, _replacepixel));
+
+				// write the only the changed values to vector in MEMORY*
+				_mm_maskstore_epi32(pVecB, _compare, _replacepixel);
+
+				// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
+				// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
+				// therefore we use the pointer MEMORY to the vector location to write the result to the vector
+				// we use the _compare (MASK) to see if we need to write any
+
+
+			}
+		}
+
+		void PixelGameEngine::Clear_AVX256(int VecStartIndex, int VecEndIndex, Pixel p)
+		{
+			// Get a pointer to the pColData (Pixel colour vector data)
+			int* pVecB = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = 0;
+
+			int nReplacePixel = (int)p.n; // Get the int value of the pixel
+
+			__m256i _replacepixel, _compare, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+
+			//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
+			_replacepixel = _mm256_set1_epi32(nReplacePixel);
+			_compare = _mm256_set1_epi32(0);
+			_vecA = _mm256_set1_epi32(0);
+			_xorNot = _mm256_set1_epi32(0xffffffff);
+
+			for (int i = VecStartIndex; i < VecEndIndex; i += 8, pVecB += 8, nVecA += 8)
+			{
+				// Load the vector into a 256BIT REGISTER*
+				_vecA = _mm256_load_si256((const __m256i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
+
+				// check if the pixel is already the same, if not no need to write to the momory location
+				// Do this:
+				//_compare = _mm256_cmpeq_epi32(_vecA, _replacepixel);
+				//_compare = _mm256_xor_si256 (_compare, _xorNot);
+				// or do this:
+				//I didn't check wich one is faster 
+				_compare = _mm256_xor_si256(_xorNot, _mm256_cmpeq_epi32(_vecA, _replacepixel));
+
+				// write the only the changed values to vector in MEMORY*
+				_mm256_maskstore_epi32(pVecB, _compare, _replacepixel);
+
+				// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
+				// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
+				// therefore we use the pointer MEMORY to the vector location to write the result to the vector
+				// we use the _compare (MASK) to see if we need to write any
+
+
+			}
+		}
+
+		void PixelGameEngine::Clear_AVX512(int VecStartIndex, int VecEndIndex, Pixel p)
+		{
+			// Get a pointer to the pColData (Pixel colour vector data)
+			int* pVecB = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = 0;
+
+			int nReplacePixel = (int)p.n; // Get the int value of the pixel
+
+			__m512i _replacepixel, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+
+			//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
+			_replacepixel = _mm512_set1_epi32(nReplacePixel);
+			_vecA = _mm512_set1_epi32(0);
+			_xorNot = _mm512_set1_epi32(0xffffffff);
+
+			for (int i = VecStartIndex; i < VecEndIndex; i += 16, pVecB += 16, nVecA += 16)
+			{
+				// Load the vector into a 256BIT REGISTER*
+				_vecA = _mm512_load_si512((const __m512i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
+
+				// write the only the changed values to vector in MEMORY*
+				_mm512_mask_store_epi32(pVecB, _mm512_cmpneq_epi32_mask(_vecA, _replacepixel), _replacepixel);
+
+				// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
+				// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
+				// therefore we use the pointer MEMORY to the vector location to write the result to the vector
+				// we use the _mm512_cmpneq_epi32_mask(_vecA, _replacepixel) (MASK) to see if we need to write any
+
+
+			}
+		}
+
+		bool PixelGameEngine::Draw_SIMD(int32_t sx, int32_t ex, int32_t y, Pixel p)
+		{
+			if (!pDrawTarget) return false;
+
+			if (nPixelMode == Pixel::NORMAL)
+			{
+				DrawFillLine_SIMD(sx, ex, y, p);
+			}
+
+			if (nPixelMode == Pixel::MASK)
+			{
+				if (p.a == 255)
+					DrawFillLine_SIMD(sx, ex, y, p);
+			}
+
+			if (nPixelMode == Pixel::ALPHA)
+			{
+				Pixel d = pDrawTarget->GetPixel(sx, y);
+				float a = (float)(p.a / 255.0f) * fBlendFactor;
+				float c = 1.0f - a;
+				float r = a * (float)p.r + c * (float)d.r;
+				float g = a * (float)p.g + c * (float)d.g;
+				float b = a * (float)p.b + c * (float)d.b;
+				DrawFillLine_SIMD(sx, ex, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
+
+			}
+
+			if (nPixelMode == Pixel::CUSTOM)
+			{
+				DrawFillLine_SIMD(sx, ex, y, funcPixelMode(sx, y, p, pDrawTarget->GetPixel(sx, y)));
+			}
+
+			return false;
+		}
+
+		void PixelGameEngine::FillCircle_SIMD(olc::vi2d pos, int32_t radius, Pixel p)
+		{
+
+			FillCircle_SIMD(pos.x, pos.y, radius, p);
+		}
+		void PixelGameEngine::FillCircle_SIMD(int32_t x, int32_t y, int32_t radius, Pixel p)
+		{
+			// Thanks to IanM-Matrix1 #PR121
+			if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+				return;
+
+			if (radius > 0)
+			{
+				int x0 = 0;
+				int y0 = radius;
+				int d = 3 - 2 * radius;
+
+				while (y0 >= x0)
+				{
+					DrawFillLine_SIMD(x - y0, x + y0, y - x0, p);
+					if (x0 > 0)	DrawFillLine_SIMD(x - y0, x + y0, y + x0, p); // John Galvin added missing 'p'
+
+					if (d < 0)
+						d += 4 * x0++ + 6;
+					else
+					{
+						if (x0 != y0)
+						{
+							DrawFillLine_SIMD(x - x0, x + x0, y - y0, p); // John Galvin added missing 'p'
+							DrawFillLine_SIMD(x - x0, x + x0, y + y0, p); // John Galvin added missing 'p'
+						}
+						d += 4 * (x0++ - y0--) + 10;
+					}
+				}
+			}
+			else
+				Draw(x, y, p);
+
+		}
+
+		void PixelGameEngine::FillRect_SIMD(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
+		{
+			FillRect_SIMD(pos.x, pos.y, size.x, size.y, p);
+		}
+		void PixelGameEngine::FillRect_SIMD(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+		{
+			int32_t x2 = x + w;
+			int32_t y2 = y + h;
+
+			if (x < 0) x = 0;
+			if (x >= (int32_t)GetDrawTargetWidth()) x = (int32_t)GetDrawTargetWidth();
+			if (y < 0) y = 0;
+			if (y >= (int32_t)GetDrawTargetHeight()) y = (int32_t)GetDrawTargetHeight();
+
+			if (x2 < 0) x2 = 0;
+			if (x2 >= (int32_t)GetDrawTargetWidth()) x2 = (int32_t)GetDrawTargetWidth();
+			if (y2 < 0) y2 = 0;
+			if (y2 >= (int32_t)GetDrawTargetHeight()) y2 = (int32_t)GetDrawTargetHeight();
+
+			for (int j = y; j < y2; j++)
+			{
+				Draw_SIMD(x, x2, j, p);
+			}
+
+
+		}
+
+		void PixelGameEngine::FillTriangle_SIMD(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
+		{
+			FillTriangle_SIMD(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p);
+		}
+		void PixelGameEngine::FillTriangle_SIMD(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
+		{
+			// https://www.avrfreaks.net/sites/default/files/triangles.c
+			/*auto drawline = [&](int sx, int ex, int ny) {
+				for (int i = sx; i <= ex; i++)
+				{
+
+					Draw(i, ny, p);
+				}
+
+			};*/
+
+			int t1x, t2x, y, minx, maxx, t1xp, t2xp;
+			bool changed1 = false;
+			bool changed2 = false;
+			int signx1, signx2, dx1, dy1, dx2, dy2;
+			int e1, e2;
+			// Sort vertices
+			if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
+			if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
+			if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
+
+			t1x = t2x = x1; y = y1;   // Starting points
+			dx1 = (int)(x2 - x1);
+			if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+			else signx1 = 1;
+			dy1 = (int)(y2 - y1);
+
+			dx2 = (int)(x3 - x1);
+			if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
+			else signx2 = 1;
+			dy2 = (int)(y3 - y1);
+
+			if (dy1 > dx1) { std::swap(dx1, dy1); changed1 = true; }
+			if (dy2 > dx2) { std::swap(dy2, dx2); changed2 = true; }
+
+			e2 = (int)(dx2 >> 1);
+			// Flat top, just process the second half
+			if (y1 == y2) goto next;
+			e1 = (int)(dx1 >> 1);
+
+			/// End Setup
+
+			for (int i = 0; i < dx1;) {
+				t1xp = 0; t2xp = 0;
+				if (t1x < t2x) { minx = t1x; maxx = t2x; }
+				else { minx = t2x; maxx = t1x; }
+				// process first line until y value is about to change
+				while (i < dx1) {
+					i++;
+					e1 += dy1;
+					while (e1 >= dx1) {
+						e1 -= dx1;
+						if (changed1) t1xp = signx1;//t1x += signx1;
+						else          goto next1;
+					}
+					if (changed1) break;
+					else t1x += signx1;
+				}
+				// Move line
+			next1:
+				// process second line until y value is about to change
+				while (1) {
+					e2 += dy2;
+					while (e2 >= dx2) {
+						e2 -= dx2;
+						if (changed2) t2xp = signx2;//t2x += signx2;
+						else          goto next2;
+					}
+					if (changed2)     break;
+					else              t2x += signx2;
+				}
+			next2:
+				if (minx > t1x) minx = t1x;
+				if (minx > t2x) minx = t2x;
+				if (maxx < t1x) maxx = t1x;
+				if (maxx < t2x) maxx = t2x;
+				DrawFillLine_SIMD(minx, maxx, y, p); // Draw line from min to max points found on the y using SIMD, // John Galvin added missing 'p'
+				// Now increase y
+				if (!changed1) t1x += signx1;
+				t1x += t1xp;
+				if (!changed2) t2x += signx2;
+				t2x += t2xp;
+				y += 1;
+				if (y == y2) break;
+			}
+
+		next:
+			// Second half
+			dx1 = (int)(x3 - x2); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+			else signx1 = 1;
+			dy1 = (int)(y3 - y2);
+			t1x = x2;
+
+			if (dy1 > dx1) {   // swap values
+				std::swap(dy1, dx1);
+				changed1 = true;
+			}
+			else changed1 = false;
+
+			e1 = (int)(dx1 >> 1);
+
+			for (int i = 0; i <= dx1; i++) {
+				t1xp = 0; t2xp = 0;
+				if (t1x < t2x) { minx = t1x; maxx = t2x; }
+				else { minx = t2x; maxx = t1x; }
+				// process first line until y value is about to change
+				while (i < dx1) {
+					e1 += dy1;
+					while (e1 >= dx1) {
+						e1 -= dx1;
+						if (changed1) { t1xp = signx1; break; }//t1x += signx1;
+						else          goto next3;
+					}
+					if (changed1) break;
+					else   	   	  t1x += signx1;
+					if (i < dx1) i++;
+				}
+			next3:
+				// process second line until y value is about to change
+				while (t2x != x3) {
+					e2 += dy2;
+					while (e2 >= dx2) {
+						e2 -= dx2;
+						if (changed2) t2xp = signx2;
+						else          goto next4;
+					}
+					if (changed2)     break;
+					else              t2x += signx2;
+				}
+			next4:
+
+				if (minx > t1x) minx = t1x;
+				if (minx > t2x) minx = t2x;
+				if (maxx < t1x) maxx = t1x;
+				if (maxx < t2x) maxx = t2x;
+				DrawFillLine_SIMD(minx, maxx, y, p); // Draw line from min to max points found on the y using SIMD. // John Galvin added missing 'p'
+				if (!changed1) t1x += signx1;
+				t1x += t1xp;
+				if (!changed2) t2x += signx2;
+				t2x += t2xp;
+				y += 1;
+				if (y > y3) return;
+			}
+		}
+
+		void PixelGameEngine::DrawSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
+		{
+			DrawSprite_SIMD(pos.x, pos.y, sprite, scale, flip);
+		}
+		void PixelGameEngine::DrawSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, uint32_t scale, uint8_t flip)
+		{
+			if (sprite == nullptr)
+				return;
+
+			// As I am still developing ARM, NEON etc this switch is used to ensure everything
+			// still works
+			switch (sprite->getInsturctionSet())
+			{
+			case Sprite::SIMD_NONE:
+			case Sprite::RISC_ARM:
+			case Sprite::RISC_NEON:
+				// Use unrolling (default code)
+				DrawSprite(x, y, sprite, scale, flip);
+				return;
+				break;
+
+			default:
+				break;
+			}
+
+			// If we are storing sub sprites, (makes game much faster)
+			// then we just call sprite->Duplicate_SIMD({ x , y }, pDrawTarget, scale, flip), this will take care of everything for us
+			if (sprite->getStoreSubSprites() || scale > 1)
+			{
+				sprite->Duplicate_SIMD({ x , y }, pDrawTarget, scale, flip);
+			}
+			else
+			{
+				// Note this method is not able to store sprites
+				sprite->Duplicate_SIMD({ x , y }, pDrawTarget, flip);
+			}
+
+
+		}
+
+		void PixelGameEngine::DrawPartialSprite_SIMD(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale, uint8_t flip)
+		{
+			DrawPartialSprite_SIMD(pos.x, pos.y, sprite, sourcepos.x, sourcepos.y, size.x, size.y, scale, flip);
+		}
+		void PixelGameEngine::DrawPartialSprite_SIMD(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale, uint8_t flip)
+		{
+			// 1: Get Instruction set
+			if (sprite == nullptr)
+				return;
+
+			// As I am still developing ARM, NEON etc this switch is used to ensure everything still works ok
+			switch (sprite->getInsturctionSet())
+			{
+			case Sprite::SIMD_NONE:
+			case Sprite::RISC_ARM:
+			case Sprite::RISC_NEON:
+				// Use unrolling (default code)
+				DrawPartialSprite(x, y, sprite, ox, oy, w, h, scale, flip);
+				return;
+				break;
+
+			default:
+				break;
+			}
+
+			Sprite* spr = nullptr;
+			//2 Get the sprite size
+			olc::vi2d sourcepos = { ox, oy };
+			olc::vi2d size = { w, h };
+			spr = sprite->Duplicate_SIMD(sourcepos, size);
+
+
+			olc::vi2d vPos = { x, y };
+			if (scale > 1)
+			{
+				spr->Duplicate_SIMD(vPos, pDrawTarget, scale, flip);
+			}
+			else
+			{
+				spr->Duplicate_SIMD(vPos, pDrawTarget, flip);
+			}
+
+			if (!sprite->getStoreSubSprites()) delete spr;
+
+		}
+
+
+		void PixelGameEngine::DrawFillLine_SIMD(int VecStartIndex, int VecEndIndex, int ny, Pixel p)
+		{
+			int nTempVecEnd = VecStartIndex;
+			switch (INSTRUCTION_SET)
+			{
+			case PixelGameEngine::AVX:
+			case PixelGameEngine::AVX2:
+				// AVX mm256 hold 8 ints
+				// we need to check if there is enough data to fill the regsiter
+				if (VecEndIndex - VecStartIndex > 7)
+				{
+					nTempVecEnd = VecEndIndex / 8; // Example: VecEndIndex = 23, nTempVecEnd = 2
+					nTempVecEnd = nTempVecEnd * 8; // --> nTempVecEnd = 2 * 8 = 16. the left over 7 pixels will be handled later
+					DrawFillLine_AVX256(VecStartIndex, nTempVecEnd, ny, p);
+				}
+
+				break;
+
+			case PixelGameEngine::SSE:
+			case PixelGameEngine::SSE2:
+			case PixelGameEngine::SSE3:
+			case PixelGameEngine::SSE41:
+				// AVX mm128 hold 4 ints
+				if (VecEndIndex - VecStartIndex > 3)
+				{
+					nTempVecEnd = VecEndIndex / 4;
+					nTempVecEnd = nTempVecEnd * 4;
+					DrawFillLine_SSE(VecStartIndex, nTempVecEnd, ny);
+				}
+				break;
+
+			case PixelGameEngine::AVX512:
+				// AVX mm512 hold 16 ints
+				// AVX mm128 hold 4 ints
+				if (VecEndIndex - VecStartIndex > 15)
+				{
+					DrawFillLine_AVX512(VecStartIndex, nTempVecEnd, ny);
+				}
+
+				break;
+
+			default:
+				// nothing we can do, but run everything using the complier (unrolling)
+				nTempVecEnd = VecStartIndex;
+				break;
+			}
+
+
+			for (int i = nTempVecEnd; i <= VecEndIndex; i++)
+			{
+				if (i >= 0 && i < GetDrawTargetWidth() && ny >= 0 && ny < GetDrawTargetHeight())
+				{
+					pDrawTarget->pColData[static_cast<std::vector<olc::Pixel, std::allocator<olc::Pixel>>::size_type>(ny) * GetDrawTargetWidth() + i] = p;
+
+				}
+
+			}
+
+
+		}
+
+		void PixelGameEngine::DrawFillLine_SSE(int sx, int ex, int ny, Pixel p)
+		{
+			if (pDrawTarget == nullptr)
+			{
+				return;
+			}
+
+			int i = 0;
+			int* pTargetVector = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = (ny * GetDrawTargetWidth()) + sx;
+			pTargetVector += nVecA;
+
+			uint32_t setPixel = (int)p.n;
+
+			__m128i _setpixel, _sx, _ex, _result;
+			_setpixel = _mm_set1_epi32(setPixel);
+			_sx = _mm_set1_epi32(sx);
+			_ex = _mm_set1_epi32(ex);
+			_result = _mm_set1_epi32(-1);
+
+			for (i = sx; i <= ex; i += 4, pTargetVector += 4)
+			{
+				_sx = _mm_set_epi32(i + 3, i + 2, i + 1, i);
+				// Take note there is 'no less than or equals', but if you just revverse the operands and use 'greater than'
+				// you get the excat same affect
+				_result = _mm_cmpgt_epi32(_ex, _sx);
+
+				_mm_maskstore_epi32(pTargetVector, _result, _setpixel);
+
+
+			}
+
+		}
+
+		void PixelGameEngine::DrawFillLine_AVX256(int sx, int ex, int ny, Pixel p)
+		{
+
+			if (pDrawTarget == nullptr)
+			{
+				return;
+			}
+
+			int i = 0;
+			int* pTargetVector = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = (ny * GetDrawTargetWidth()) + sx;
+			pTargetVector += nVecA;
+
+			uint32_t setPixel = (int)p.n;
+
+			__m256i _setpixel, _sx, _ex, _result;
+
+			_setpixel = _mm256_set1_epi32(setPixel);
+			_sx = _mm256_set_epi32(sx, sx + 1, sx + 2, sx + 3, sx + 4, sx + 5, sx + 6, sx + 7);
+			_ex = _mm256_set1_epi32(ex);
+			_result = _mm256_set1_epi32(-1);
+
+			for (i = sx; i <= ex; i += 8, pTargetVector += 8)
+			{
+				_sx = _mm256_set_epi32(i + 7, i + 6, i + 5, i + 4, i + 3, i + 2, i + 1, i);
+				// Take note there is 'no less than or equals', but if you just revverse the operands and use 'greater than'
+				// you get the excat same affect
+				_result = _mm256_cmpgt_epi32(_ex, _sx);
+
+				_mm256_maskstore_epi32(pTargetVector, _result, _setpixel);
+
+
+			}
+
+
+
+		}
+
+		void PixelGameEngine::DrawFillLine_AVX512(int sx, int ex, int ny, Pixel p)
+		{
+			if (pDrawTarget == nullptr)
+			{
+				return;
+			}
+
+			int i = 0;
+			int* pTargetVector = (int*)pDrawTarget->pColData.data();
+
+			int nVecA = (ny * GetDrawTargetWidth()) + sx;
+			pTargetVector += nVecA;
+
+			uint32_t setPixel = (int)p.n;
+			setPixel = (int)p.n;
+
+			__m512i _setpixel, _sx, _ex, _result;
+			_setpixel = _mm512_set1_epi32(setPixel);
+			_sx = _mm512_set1_epi32(sx);
+			_ex = _mm512_set1_epi32(ex);
+
+			for (i = sx; i <= ex; i += 16, pTargetVector += 16)
+			{
+				_sx = _mm512_set_epi32(i + 15, i + 14, i + 13, i + 12, i + 11, i + 10, i + 9, i + 8, i + 7, i + 6, i + 5, i + 4, i + 3, i + 2, i + 1, i);
+
+				_mm512_mask_store_epi32(pTargetVector, _mm512_cmpge_epi32_mask(_ex, _sx), _setpixel);
+
+
+			}
+
+
+		}
+
+		/*--------------------------- END SIMD Instruction Set-------------------------------------*/
+
+		void PixelGameEngine::DrawLine(const olc::vi2d& pos1, const olc::vi2d& pos2, Pixel p, uint32_t pattern)
+		{
+			DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, p, pattern);
+		}
+
+		void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p, uint32_t pattern)
+		{
+			int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+			dx = x2 - x1; dy = y2 - y1;
+
+			auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
+
+			olc::vi2d p1(x1, y1), p2(x2, y2);
+			//if (!ClipLineToScreen(p1, p2))
+			//	return;
+			x1 = p1.x; y1 = p1.y;
+			x2 = p2.x; y2 = p2.y;
+
+			// straight lines idea by gurkanctn
+			if (dx == 0) // Line is vertical
+			{
+				if (y2 < y1) std::swap(y1, y2);
+				for (y = y1; y <= y2; y++) if (rol()) Draw(x1, y, p);
+				return;
+			}
+
+			if (dy == 0) // Line is horizontal
+			{
+				if (x2 < x1) std::swap(x1, x2);
+				for (x = x1; x <= x2; x++) if (rol()) Draw(x, y1, p);
+				return;
+			}
+
+			// Line is Funk-aye
+			dx1 = abs(dx); dy1 = abs(dy);
+			px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
+			if (dy1 <= dx1)
+			{
+				if (dx >= 0)
+				{
+					x = x1; y = y1; xe = x2;
+				}
+				else
+				{
+					x = x2; y = y2; xe = x1;
+				}
+
+				if (rol()) Draw(x, y, p);
+
+				for (i = 0; x < xe; i++)
+				{
+					x = x + 1;
+					if (px < 0)
+						px = px + 2 * dy1;
+					else
+					{
+						if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) y = y + 1; else y = y - 1;
+						px = px + 2 * (dy1 - dx1);
+					}
+					if (rol()) Draw(x, y, p);
+				}
+			}
+			else
+			{
+				if (dy >= 0)
+				{
+					x = x1; y = y1; ye = y2;
+				}
+				else
+				{
+					x = x2; y = y2; ye = y1;
+				}
+
+				if (rol()) Draw(x, y, p);
+
+				for (i = 0; y < ye; i++)
+				{
+					y = y + 1;
+					if (py <= 0)
+						py = py + 2 * dx1;
+					else
+					{
+						if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) x = x + 1; else x = x - 1;
+						py = py + 2 * (dx1 - dy1);
+					}
+					if (rol()) Draw(x, y, p);
+				}
+			}
+		}
+
+		void PixelGameEngine::DrawCircle(const olc::vi2d& pos, int32_t radius, Pixel p, uint8_t mask)
+		{
+			DrawCircle(pos.x, pos.y, radius, p, mask);
+		}
+
+		void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
+		{ // Thanks to IanM-Matrix1 #PR121
+			if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+				return;
+
+			if (radius > 0)
+			{
+				int x0 = 0;
+				int y0 = radius;
+				int d = 3 - 2 * radius;
+
+				while (y0 >= x0) // only formulate 1/8 of circle
+				{
+					// Draw even octants
+					if (mask & 0x01) Draw(x + x0, y - y0, p);// Q6 - upper right right
+					if (mask & 0x04) Draw(x + y0, y + x0, p);// Q4 - lower lower right
+					if (mask & 0x10) Draw(x - x0, y + y0, p);// Q2 - lower left left
+					if (mask & 0x40) Draw(x - y0, y - x0, p);// Q0 - upper upper left
+					if (x0 != 0 && x0 != y0)
+					{
+						if (mask & 0x02) Draw(x + y0, y - x0, p);// Q7 - upper upper right
+						if (mask & 0x08) Draw(x + x0, y + y0, p);// Q5 - lower right right
+						if (mask & 0x20) Draw(x - y0, y + x0, p);// Q3 - lower lower left
+						if (mask & 0x80) Draw(x - x0, y - y0, p);// Q1 - upper left left
+					}
+
+					if (d < 0)
+						d += 4 * x0++ + 6;
+					else
+						d += 4 * (x0++ - y0--) + 10;
+				}
+			}
+			else
+				Draw(x, y, p);
+		}
+
+		void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
+		{
+			FillCircle(pos.x, pos.y, radius, p);
+		}
+
+		void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
+		{ // Thanks to IanM-Matrix1 #PR121
+			if (radius < 0 || x < -radius || y < -radius || x - GetDrawTargetWidth() > radius || y - GetDrawTargetHeight() > radius)
+				return;
+
+			if (radius > 0)
+			{
+				int x0 = 0;
+				int y0 = radius;
+				int d = 3 - 2 * radius;
+
+				auto drawline = [&](int sx, int ex, int y)
+				{
+					for (int x = sx; x <= ex; x++)
+						Draw(x, y, p);
+				};
+
+				while (y0 >= x0)
+				{
+					drawline(x - y0, x + y0, y - x0);
+					if (x0 > 0)	drawline(x - y0, x + y0, y + x0);
+
+					if (d < 0)
+						d += 4 * x0++ + 6;
+					else
+					{
+						if (x0 != y0)
+						{
+							drawline(x - x0, x + x0, y - y0);
+							drawline(x - x0, x + x0, y + y0);
+						}
+						d += 4 * (x0++ - y0--) + 10;
+					}
+				}
+			}
+			else
+				Draw(x, y, p);
+		}
+
+		void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
+		{
+			DrawRect(pos.x, pos.y, size.x, size.y, p);
+		}
+
+		void PixelGameEngine::DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+		{
+			DrawLine(x, y, x + w, y, p);
+			DrawLine(x + w, y, x + w, y + h, p);
+			DrawLine(x + w, y + h, x, y + h, p);
+			DrawLine(x, y + h, x, y, p);
+		}
+
+		void PixelGameEngine::Clear(Pixel p)
+		{
+			int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
+			Pixel* m = GetDrawTarget()->GetData();
+			for (int i = 0; i < pixels; i++) m[i] = p;
+		}
+
+		void PixelGameEngine::ClearBuffer(Pixel p, bool bDepth)
+		{
+			renderer->ClearBuffer(p, bDepth);
+		}
+
+		olc::Sprite* PixelGameEngine::GetFontSprite()
+		{
+			return fontRenderable.Sprite();
+		}
+
+		bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
+		{
+			// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+			static constexpr int SEG_I = 0b0000, SEG_L = 0b0001, SEG_R = 0b0010, SEG_B = 0b0100, SEG_T = 0b1000;
+			auto Segment = [&vScreenSize = vScreenSize](const olc::vi2d& v)
+			{
+				int i = SEG_I;
+				if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
+				if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
+				return i;
+			};
+
+			int s1 = Segment(in_p1), s2 = Segment(in_p2);
+
+			while (true)
+			{
+				if (!(s1 | s2))	  return true;
+				else if (s1 & s2) return false;
+				else
+				{
+					int s3 = s2 > s1 ? s2 : s1;
+					olc::vi2d n;
+					if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vScreenSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vScreenSize.y; }
+					else if (s3 & SEG_B) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (0 - in_p1.y) / (in_p2.y - in_p1.y); n.y = 0; }
+					else if (s3 & SEG_R) { n.x = vScreenSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vScreenSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
+					else if (s3 & SEG_L) { n.x = 0; n.y = in_p1.y + (in_p2.y - in_p1.y) * (0 - in_p1.x) / (in_p2.x - in_p1.x); }
+					if (s3 == s1) { in_p1 = n; s1 = Segment(in_p1); }
+					else { in_p2 = n; s2 = Segment(in_p2); }
+				}
+			}
+			return true;
+		}
+
+		void PixelGameEngine::EnablePixelTransfer(const bool bEnable)
+		{
+			bSuspendTextureTransfer = !bEnable;
+		}
+
+
+		void PixelGameEngine::FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
+		{
+			FillRect(pos.x, pos.y, size.x, size.y, p);
+		}
+
+		void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
+		{
+			int32_t x2 = x + w;
+			int32_t y2 = y + h;
+
+			if (x < 0) x = 0;
+			if (x >= (int32_t)GetDrawTargetWidth()) x = (int32_t)GetDrawTargetWidth();
+			if (y < 0) y = 0;
+			if (y >= (int32_t)GetDrawTargetHeight()) y = (int32_t)GetDrawTargetHeight();
+
+			if (x2 < 0) x2 = 0;
+			if (x2 >= (int32_t)GetDrawTargetWidth()) x2 = (int32_t)GetDrawTargetWidth();
+			if (y2 < 0) y2 = 0;
+			if (y2 >= (int32_t)GetDrawTargetHeight()) y2 = (int32_t)GetDrawTargetHeight();
+
+			for (int i = x; i < x2; i++)
+				for (int j = y; j < y2; j++)
+					Draw(i, j, p);
+		}
+
+		void PixelGameEngine::DrawTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
+		{
+			DrawTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p);
+		}
+
+		void PixelGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
+		{
+			DrawLine(x1, y1, x2, y2, p);
+			DrawLine(x2, y2, x3, y3, p);
+			DrawLine(x3, y3, x1, y1, p);
+		}
+
+		void PixelGameEngine::FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
+		{
+			FillTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p);
+		}
+
+		// https://www.avrfreaks.net/sites/default/files/triangles.c
+		void PixelGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
+		{
+			auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny, p); };
+
+			int t1x, t2x, y, minx, maxx, t1xp, t2xp;
+			bool changed1 = false;
+			bool changed2 = false;
+			int signx1, signx2, dx1, dy1, dx2, dy2;
+			int e1, e2;
+			// Sort vertices
+			if (y1 > y2) { std::swap(y1, y2); std::swap(x1, x2); }
+			if (y1 > y3) { std::swap(y1, y3); std::swap(x1, x3); }
+			if (y2 > y3) { std::swap(y2, y3); std::swap(x2, x3); }
+
+			t1x = t2x = x1; y = y1;   // Starting points
+			dx1 = (int)(x2 - x1);
+			if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+			else signx1 = 1;
+			dy1 = (int)(y2 - y1);
+
+			dx2 = (int)(x3 - x1);
+			if (dx2 < 0) { dx2 = -dx2; signx2 = -1; }
+			else signx2 = 1;
+			dy2 = (int)(y3 - y1);
+
+			if (dy1 > dx1) { std::swap(dx1, dy1); changed1 = true; }
+			if (dy2 > dx2) { std::swap(dy2, dx2); changed2 = true; }
+
+			e2 = (int)(dx2 >> 1);
+			// Flat top, just process the second half
+			if (y1 == y2) goto next;
+			e1 = (int)(dx1 >> 1);
+
+			for (int i = 0; i < dx1;) {
+				t1xp = 0; t2xp = 0;
+				if (t1x < t2x) { minx = t1x; maxx = t2x; }
+				else { minx = t2x; maxx = t1x; }
+				// process first line until y value is about to change
+				while (i < dx1) {
+					i++;
+					e1 += dy1;
+					while (e1 >= dx1) {
+						e1 -= dx1;
+						if (changed1) t1xp = signx1;//t1x += signx1;
+						else          goto next1;
+					}
+					if (changed1) break;
+					else t1x += signx1;
+				}
+				// Move line
+			next1:
+				// process second line until y value is about to change
+				while (1) {
+					e2 += dy2;
+					while (e2 >= dx2) {
+						e2 -= dx2;
+						if (changed2) t2xp = signx2;//t2x += signx2;
+						else          goto next2;
+					}
+					if (changed2)     break;
+					else              t2x += signx2;
+				}
+			next2:
+				if (minx > t1x) minx = t1x;
+				if (minx > t2x) minx = t2x;
+				if (maxx < t1x) maxx = t1x;
+				if (maxx < t2x) maxx = t2x;
+				drawline(minx, maxx, y);    // Draw line from min to max points found on the y
+				// Now increase y
+				if (!changed1) t1x += signx1;
+				t1x += t1xp;
+				if (!changed2) t2x += signx2;
+				t2x += t2xp;
+				y += 1;
+				if (y == y2) break;
+			}
+		next:
+			// Second half
+			dx1 = (int)(x3 - x2); if (dx1 < 0) { dx1 = -dx1; signx1 = -1; }
+			else signx1 = 1;
+			dy1 = (int)(y3 - y2);
+			t1x = x2;
+
+			if (dy1 > dx1) {   // swap values
+				std::swap(dy1, dx1);
+				changed1 = true;
+			}
+			else changed1 = false;
+
+			e1 = (int)(dx1 >> 1);
+
+			for (int i = 0; i <= dx1; i++) {
+				t1xp = 0; t2xp = 0;
+				if (t1x < t2x) { minx = t1x; maxx = t2x; }
+				else { minx = t2x; maxx = t1x; }
+				// process first line until y value is about to change
+				while (i < dx1) {
+					e1 += dy1;
+					while (e1 >= dx1) {
+						e1 -= dx1;
+						if (changed1) { t1xp = signx1; break; }//t1x += signx1;
+						else          goto next3;
+					}
+					if (changed1) break;
+					else   	   	  t1x += signx1;
+					if (i < dx1) i++;
+				}
+			next3:
+				// process second line until y value is about to change
+				while (t2x != x3) {
+					e2 += dy2;
+					while (e2 >= dx2) {
+						e2 -= dx2;
+						if (changed2) t2xp = signx2;
+						else          goto next4;
+					}
+					if (changed2)     break;
+					else              t2x += signx2;
+				}
+			next4:
+
+				if (minx > t1x) minx = t1x;
+				if (minx > t2x) minx = t2x;
+				if (maxx < t1x) maxx = t1x;
+				if (maxx < t2x) maxx = t2x;
+				drawline(minx, maxx, y);
+				if (!changed1) t1x += signx1;
+				t1x += t1xp;
+				if (!changed2) t2x += signx2;
+				t2x += t2xp;
+				y += 1;
+				if (y > y3) return;
+			}
+		}
+
+		void PixelGameEngine::FillTexturedTriangle(const std::vector<olc::vf2d>& vPoints, std::vector<olc::vf2d> vTex, std::vector<olc::Pixel> vColour, olc::Sprite* sprTex)
+		{
+			olc::vi2d p1 = vPoints[0];
+			olc::vi2d p2 = vPoints[1];
+			olc::vi2d p3 = vPoints[2];
+
+			if (p2.y < p1.y) { std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); std::swap(vTex[0].x, vTex[1].x); std::swap(vTex[0].y, vTex[1].y); std::swap(vColour[0], vColour[1]); }
+			if (p3.y < p1.y) { std::swap(p1.y, p3.y); std::swap(p1.x, p3.x); std::swap(vTex[0].x, vTex[2].x); std::swap(vTex[0].y, vTex[2].y); std::swap(vColour[0], vColour[2]); }
+			if (p3.y < p2.y) { std::swap(p2.y, p3.y); std::swap(p2.x, p3.x); std::swap(vTex[1].x, vTex[2].x); std::swap(vTex[1].y, vTex[2].y); std::swap(vColour[1], vColour[2]); }
+
+			olc::vi2d dPos1 = p2 - p1;
+			olc::vf2d dTex1 = vTex[1] - vTex[0];
+			int dcr1 = vColour[1].r - vColour[0].r;
+			int dcg1 = vColour[1].g - vColour[0].g;
+			int dcb1 = vColour[1].b - vColour[0].b;
+			int dca1 = vColour[1].a - vColour[0].a;
+
+			olc::vi2d dPos2 = p3 - p1;
+			olc::vf2d dTex2 = vTex[2] - vTex[0];
+			int dcr2 = vColour[2].r - vColour[0].r;
+			int dcg2 = vColour[2].g - vColour[0].g;
+			int dcb2 = vColour[2].b - vColour[0].b;
+			int dca2 = vColour[2].a - vColour[0].a;
+
+			float dax_step = 0, dbx_step = 0, dcr1_step = 0, dcr2_step = 0, dcg1_step = 0, dcg2_step = 0, dcb1_step = 0, dcb2_step = 0, dca1_step = 0, dca2_step = 0;
+			olc::vf2d vTex1Step, vTex2Step;
 
 			if (dPos1.y)
 			{
-				for (int i = vStart.y; i <= vEnd.y; i++)
+				dax_step = dPos1.x / (float)abs(dPos1.y);
+				vTex1Step = dTex1 / (float)abs(dPos1.y);
+				dcr1_step = dcr1 / (float)abs(dPos1.y);
+				dcg1_step = dcg1 / (float)abs(dPos1.y);
+				dcb1_step = dcb1 / (float)abs(dPos1.y);
+				dca1_step = dca1 / (float)abs(dPos1.y);
+			}
+
+			if (dPos2.y)
+			{
+				dbx_step = dPos2.x / (float)abs(dPos2.y);
+				vTex2Step = dTex2 / (float)abs(dPos2.y);
+				dcr2_step = dcr2 / (float)abs(dPos2.y);
+				dcg2_step = dcg2 / (float)abs(dPos2.y);
+				dcb2_step = dcb2 / (float)abs(dPos2.y);
+				dca2_step = dca2 / (float)abs(dPos2.y);
+			}
+
+			olc::vi2d vStart;
+			olc::vi2d vEnd;
+			int vStartIdx;
+
+			for (int pass = 0; pass < 2; pass++)
+			{
+				if (pass == 0)
 				{
-					int ax = int(vStart.x + (float)(i - vStart.y) * dax_step);
-					int bx = int(p1.x + (float)(i - p1.y) * dbx_step);
+					vStart = p1; vEnd = p2;	vStartIdx = 0;
+				}
+				else
+				{
+					dPos1 = p3 - p2;
+					dTex1 = vTex[2] - vTex[1];
+					dcr1 = vColour[2].r - vColour[1].r;
+					dcg1 = vColour[2].g - vColour[1].g;
+					dcb1 = vColour[2].b - vColour[1].b;
+					dca1 = vColour[2].a - vColour[1].a;
+					dcr1_step = 0; dcg1_step = 0; dcb1_step = 0; dca1_step = 0;
 
-					olc::vf2d tex_s(vTex[vStartIdx].x + (float)(i - vStart.y) * vTex1Step.x, vTex[vStartIdx].y + (float)(i - vStart.y) * vTex1Step.y);
-					olc::vf2d tex_e(vTex[0].x + (float)(i - p1.y) * vTex2Step.x, vTex[0].y + (float)(i - p1.y) * vTex2Step.y);
-
-					olc::Pixel col_s(vColour[vStartIdx].r + uint8_t((float)(i - vStart.y) * dcr1_step), vColour[vStartIdx].g + uint8_t((float)(i - vStart.y) * dcg1_step),
-						vColour[vStartIdx].b + uint8_t((float)(i - vStart.y) * dcb1_step), vColour[vStartIdx].a + uint8_t((float)(i - vStart.y) * dca1_step));
-
-					olc::Pixel col_e(vColour[0].r + uint8_t((float)(i - p1.y) * dcr2_step), vColour[0].g + uint8_t((float)(i - p1.y) * dcg2_step),
-						vColour[0].b + uint8_t((float)(i - p1.y) * dcb2_step), vColour[0].a + uint8_t((float)(i - p1.y) * dca2_step));
-
-					if (ax > bx) { std::swap(ax, bx); std::swap(tex_s, tex_e); std::swap(col_s, col_e); }
-
-					float tstep = 1.0f / ((float)(bx - ax));
-					float t = 0.0f;
-
-					for (int j = ax; j < bx; j++)
+					if (dPos2.y) dbx_step = dPos2.x / (float)abs(dPos2.y);
+					if (dPos1.y)
 					{
-						olc::Pixel pixel = PixelLerp(col_s, col_e, t);
-						if (sprTex != nullptr) pixel *= sprTex->Sample(tex_s.lerp(tex_e, t));
-						Draw(j, i, pixel);
-						t += tstep;
+						dax_step = dPos1.x / (float)abs(dPos1.y);
+						vTex1Step = dTex1 / (float)abs(dPos1.y);
+						dcr1_step = dcr1 / (float)abs(dPos1.y);
+						dcg1_step = dcg1 / (float)abs(dPos1.y);
+						dcb1_step = dcb1 / (float)abs(dPos1.y);
+						dca1_step = dca1 / (float)abs(dPos1.y);
+					}
+
+					vStart = p2; vEnd = p3; vStartIdx = 1;
+				}
+
+				if (dPos1.y)
+				{
+					for (int i = vStart.y; i <= vEnd.y; i++)
+					{
+						int ax = int(vStart.x + (float)(i - vStart.y) * dax_step);
+						int bx = int(p1.x + (float)(i - p1.y) * dbx_step);
+
+						olc::vf2d tex_s(vTex[vStartIdx].x + (float)(i - vStart.y) * vTex1Step.x, vTex[vStartIdx].y + (float)(i - vStart.y) * vTex1Step.y);
+						olc::vf2d tex_e(vTex[0].x + (float)(i - p1.y) * vTex2Step.x, vTex[0].y + (float)(i - p1.y) * vTex2Step.y);
+
+						olc::Pixel col_s(vColour[vStartIdx].r + uint8_t((float)(i - vStart.y) * dcr1_step), vColour[vStartIdx].g + uint8_t((float)(i - vStart.y) * dcg1_step),
+							vColour[vStartIdx].b + uint8_t((float)(i - vStart.y) * dcb1_step), vColour[vStartIdx].a + uint8_t((float)(i - vStart.y) * dca1_step));
+
+						olc::Pixel col_e(vColour[0].r + uint8_t((float)(i - p1.y) * dcr2_step), vColour[0].g + uint8_t((float)(i - p1.y) * dcg2_step),
+							vColour[0].b + uint8_t((float)(i - p1.y) * dcb2_step), vColour[0].a + uint8_t((float)(i - p1.y) * dca2_step));
+
+						if (ax > bx) { std::swap(ax, bx); std::swap(tex_s, tex_e); std::swap(col_s, col_e); }
+
+						float tstep = 1.0f / ((float)(bx - ax));
+						float t = 0.0f;
+
+						for (int j = ax; j < bx; j++)
+						{
+							olc::Pixel pixel = PixelLerp(col_s, col_e, t);
+							if (sprTex != nullptr) pixel *= sprTex->Sample(tex_s.lerp(tex_e, t));
+							Draw(j, i, pixel);
+							t += tstep;
+						}
 					}
 				}
 			}
-		}			
-	}
-
-	void PixelGameEngine::FillTexturedPolygon(const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTex, const std::vector<olc::Pixel>& vColour, olc::Sprite* sprTex, olc::DecalStructure structure)
-	{
-		if (structure == olc::DecalStructure::LINE)
-		{
-			return; // Meaningless, so do nothing
 		}
 
-		if (vPoints.size() < 3 || vTex.size() < 3 || vColour.size() < 3)
-			return;
-
-		if (structure == olc::DecalStructure::LIST)
-		{			
-			for (int tri = 0; tri < vPoints.size() / 3; tri++)
+		void PixelGameEngine::FillTexturedPolygon(const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTex, const std::vector<olc::Pixel>& vColour, olc::Sprite* sprTex, olc::DecalStructure structure)
+		{
+			if (structure == olc::DecalStructure::LINE)
 			{
-				std::vector<olc::vf2d> vP = { vPoints[tri * 3 + 0], vPoints[tri * 3 + 1], vPoints[tri * 3 + 2] };
-				std::vector<olc::vf2d> vT = { vTex[tri * 3 + 0], vTex[tri * 3 + 1], vTex[tri * 3 + 2] };
-				std::vector<olc::Pixel> vC = { vColour[tri * 3 + 0], vColour[tri * 3 + 1], vColour[tri * 3 + 2] };
-				FillTexturedTriangle(vP, vT, vC, sprTex);
+				return; // Meaningless, so do nothing
 			}
-			return;
-		}
 
-		if (structure == olc::DecalStructure::STRIP)
-		{
-			for (int tri = 2; tri < vPoints.size(); tri++)
+			if (vPoints.size() < 3 || vTex.size() < 3 || vColour.size() < 3)
+				return;
+
+			if (structure == olc::DecalStructure::LIST)
 			{
-				std::vector<olc::vf2d> vP = { vPoints[tri - 2], vPoints[tri-1], vPoints[tri] };
-				std::vector<olc::vf2d> vT = { vTex[tri - 2], vTex[tri - 1], vTex[tri] };
-				std::vector<olc::Pixel> vC = { vColour[tri - 2], vColour[tri - 1], vColour[tri] };
-				FillTexturedTriangle(vP, vT, vC, sprTex);
+				for (int tri = 0; tri < vPoints.size() / 3; tri++)
+				{
+					std::vector<olc::vf2d> vP = { vPoints[tri * 3 + 0], vPoints[tri * 3 + 1], vPoints[tri * 3 + 2] };
+					std::vector<olc::vf2d> vT = { vTex[tri * 3 + 0], vTex[tri * 3 + 1], vTex[tri * 3 + 2] };
+					std::vector<olc::Pixel> vC = { vColour[tri * 3 + 0], vColour[tri * 3 + 1], vColour[tri * 3 + 2] };
+					FillTexturedTriangle(vP, vT, vC, sprTex);
+				}
+				return;
 			}
-			return;
-		}
 
-		if (structure == olc::DecalStructure::FAN)
-		{
-			for (int tri = 2; tri < vPoints.size(); tri++)
+			if (structure == olc::DecalStructure::STRIP)
 			{
-				std::vector<olc::vf2d> vP = { vPoints[0], vPoints[tri - 1], vPoints[tri] };
-				std::vector<olc::vf2d> vT = { vTex[0], vTex[tri - 1], vTex[tri] };
-				std::vector<olc::Pixel> vC = { vColour[0], vColour[tri - 1], vColour[tri] };
-				FillTexturedTriangle(vP, vT, vC, sprTex);
+				for (int tri = 2; tri < vPoints.size(); tri++)
+				{
+					std::vector<olc::vf2d> vP = { vPoints[tri - 2], vPoints[tri - 1], vPoints[tri] };
+					std::vector<olc::vf2d> vT = { vTex[tri - 2], vTex[tri - 1], vTex[tri] };
+					std::vector<olc::Pixel> vC = { vColour[tri - 2], vColour[tri - 1], vColour[tri] };
+					FillTexturedTriangle(vP, vT, vC, sprTex);
+				}
+				return;
 			}
-			return;
-		}
-	}
 
-
-	void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
-	{ DrawSprite(pos.x, pos.y, sprite, scale, flip); }
-
-	void PixelGameEngine::DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale, uint8_t flip)
-	{
-		if (sprite == nullptr)
-			return;
-
-		int32_t fxs = 0, fxm = 1, fx = 0;
-		int32_t fys = 0, fym = 1, fy = 0;
-		if (flip & olc::Sprite::Flip::HORIZ) { fxs = sprite->width - 1; fxm = -1; }
-		if (flip & olc::Sprite::Flip::VERT) { fys = sprite->height - 1; fym = -1; }
-
-		if (scale > 1)
-		{
-			fx = fxs;
-			for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
+			if (structure == olc::DecalStructure::FAN)
 			{
-				fy = fys;
-				for (int32_t j = 0; j < sprite->height; j++, fy += fym)
-					for (uint32_t is = 0; is < scale; is++)
-						for (uint32_t js = 0; js < scale; js++)
-							Draw(x + (i * scale) + is, y + (j * scale) + js, sprite->GetPixel(fx, fy));
+				for (int tri = 2; tri < vPoints.size(); tri++)
+				{
+					std::vector<olc::vf2d> vP = { vPoints[0], vPoints[tri - 1], vPoints[tri] };
+					std::vector<olc::vf2d> vT = { vTex[0], vTex[tri - 1], vTex[tri] };
+					std::vector<olc::Pixel> vC = { vColour[0], vColour[tri - 1], vColour[tri] };
+					FillTexturedTriangle(vP, vT, vC, sprTex);
+				}
+				return;
 			}
 		}
-		else
+
+
+		void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
 		{
-			fx = fxs;
-			for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
+			DrawSprite(pos.x, pos.y, sprite, scale, flip);
+		}
+
+		void PixelGameEngine::DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale, uint8_t flip)
+		{
+			if (sprite == nullptr)
+				return;
+
+			int32_t fxs = 0, fxm = 1, fx = 0;
+			int32_t fys = 0, fym = 1, fy = 0;
+			if (flip & olc::Sprite::Flip::HORIZ) { fxs = sprite->width - 1; fxm = -1; }
+			if (flip & olc::Sprite::Flip::VERT) { fys = sprite->height - 1; fym = -1; }
+
+			if (scale > 1)
 			{
-				fy = fys;
-				for (int32_t j = 0; j < sprite->height; j++, fy += fym)
-					Draw(x + i, y + j, sprite->GetPixel(fx, fy));
+				fx = fxs;
+				for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
+				{
+					fy = fys;
+					for (int32_t j = 0; j < sprite->height; j++, fy += fym)
+						for (uint32_t is = 0; is < scale; is++)
+							for (uint32_t js = 0; js < scale; js++)
+								Draw(x + (i * scale) + is, y + (j * scale) + js, sprite->GetPixel(fx, fy));
+				}
+			}
+			else
+			{
+				fx = fxs;
+				for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
+				{
+					fy = fys;
+					for (int32_t j = 0; j < sprite->height; j++, fy += fym)
+						Draw(x + i, y + j, sprite->GetPixel(fx, fy));
+				}
 			}
 		}
-	}
 
-	void PixelGameEngine::DrawPartialSprite(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale, uint8_t flip)
-	{ DrawPartialSprite(pos.x, pos.y, sprite, sourcepos.x, sourcepos.y, size.x, size.y, scale, flip); }
-
-	void PixelGameEngine::DrawPartialSprite(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale, uint8_t flip)
-	{
-		if (sprite == nullptr)
-			return;
-
-		int32_t fxs = 0, fxm = 1, fx = 0;
-		int32_t fys = 0, fym = 1, fy = 0;
-		if (flip & olc::Sprite::Flip::HORIZ) { fxs = w - 1; fxm = -1; }
-		if (flip & olc::Sprite::Flip::VERT) { fys = h - 1; fym = -1; }
-
-		if (scale > 1)
+		void PixelGameEngine::DrawPartialSprite(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale, uint8_t flip)
 		{
-			fx = fxs;
-			for (int32_t i = 0; i < w; i++, fx += fxm)
+			DrawPartialSprite(pos.x, pos.y, sprite, sourcepos.x, sourcepos.y, size.x, size.y, scale, flip);
+		}
+
+		void PixelGameEngine::DrawPartialSprite(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale, uint8_t flip)
+		{
+			if (sprite == nullptr)
+				return;
+
+			int32_t fxs = 0, fxm = 1, fx = 0;
+			int32_t fys = 0, fym = 1, fy = 0;
+			if (flip & olc::Sprite::Flip::HORIZ) { fxs = w - 1; fxm = -1; }
+			if (flip & olc::Sprite::Flip::VERT) { fys = h - 1; fym = -1; }
+
+			if (scale > 1)
 			{
-				fy = fys;
-				for (int32_t j = 0; j < h; j++, fy += fym)
-					for (uint32_t is = 0; is < scale; is++)
-						for (uint32_t js = 0; js < scale; js++)
-							Draw(x + (i * scale) + is, y + (j * scale) + js, sprite->GetPixel(fx + ox, fy + oy));
+				fx = fxs;
+				for (int32_t i = 0; i < w; i++, fx += fxm)
+				{
+					fy = fys;
+					for (int32_t j = 0; j < h; j++, fy += fym)
+						for (uint32_t is = 0; is < scale; is++)
+							for (uint32_t js = 0; js < scale; js++)
+								Draw(x + (i * scale) + is, y + (j * scale) + js, sprite->GetPixel(fx + ox, fy + oy));
+				}
+			}
+			else
+			{
+				fx = fxs;
+				for (int32_t i = 0; i < w; i++, fx += fxm)
+				{
+					fy = fys;
+					for (int32_t j = 0; j < h; j++, fy += fym)
+						Draw(x + i, y + j, sprite->GetPixel(fx + ox, fy + oy));
+				}
 			}
 		}
-		else
+
+		void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
 		{
-			fx = fxs;
-			for (int32_t i = 0; i < w; i++, fx += fxm)
+			nDecalMode = mode;
+		}
+
+		void PixelGameEngine::SetDecalStructure(const olc::DecalStructure& structure)
+		{
+			nDecalStructure = structure;
+		}
+
+		void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
+		{
+			olc::vf2d vScreenSpacePos =
 			{
-				fy = fys;
-				for (int32_t j = 0; j < h; j++, fy += fym)
-					Draw(x + i, y + j, sprite->GetPixel(fx + ox, fy + oy));
+				  (pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
+				-((pos.y * vInvScreenSize.y) * 2.0f - 1.0f)
+			};
+
+
+			olc::vf2d vScreenSpaceDim =
+			{
+				  ((pos.x + source_size.x * scale.x) * vInvScreenSize.x) * 2.0f - 1.0f,
+				-(((pos.y + source_size.y * scale.y) * vInvScreenSize.y) * 2.0f - 1.0f)
+			};
+
+			olc::vf2d vWindow = olc::vf2d(vViewSize);
+			olc::vf2d vQuantisedPos = ((vScreenSpacePos * vWindow) + olc::vf2d(0.5f, 0.5f)).floor() / vWindow;
+			olc::vf2d vQuantisedDim = ((vScreenSpaceDim * vWindow) + olc::vf2d(0.5f, -0.5f)).ceil() / vWindow;
+
+			DecalInstance di;
+			di.points = 4;
+			di.decal = decal;
+			di.tint = { tint, tint, tint, tint };
+			di.pos = { { vQuantisedPos.x, vQuantisedPos.y }, { vQuantisedPos.x, vQuantisedDim.y }, { vQuantisedDim.x, vQuantisedDim.y }, { vQuantisedDim.x, vQuantisedPos.y } };
+			olc::vf2d uvtl = (source_pos + olc::vf2d(0.0001f, 0.0001f)) * decal->vUVScale;
+			olc::vf2d uvbr = (source_pos + source_size - olc::vf2d(0.0001f, 0.0001f)) * decal->vUVScale;
+			di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
+			di.w = { 1,1,1,1 };
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		}
+
+		void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, const olc::vf2d& size, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
+		{
+			olc::vf2d vScreenSpacePos =
+			{
+				(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
+				((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+			};
+
+			olc::vf2d vScreenSpaceDim =
+			{
+				vScreenSpacePos.x + (2.0f * size.x * vInvScreenSize.x),
+				vScreenSpacePos.y - (2.0f * size.y * vInvScreenSize.y)
+			};
+
+			DecalInstance di;
+			di.points = 4;
+			di.decal = decal;
+			di.tint = { tint, tint, tint, tint };
+			di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
+			olc::vf2d uvtl = (source_pos)*decal->vUVScale;
+			olc::vf2d uvbr = uvtl + ((source_size)*decal->vUVScale);
+			di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
+			di.w = { 1,1,1,1 };
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		}
+
+
+		void PixelGameEngine::DrawDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& scale, const olc::Pixel& tint)
+		{
+			olc::vf2d vScreenSpacePos =
+			{
+				(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
+				((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+			};
+
+			olc::vf2d vScreenSpaceDim =
+			{
+				vScreenSpacePos.x + (2.0f * (float(decal->sprite->width) * vInvScreenSize.x)) * scale.x,
+				vScreenSpacePos.y - (2.0f * (float(decal->sprite->height) * vInvScreenSize.y)) * scale.y
+			};
+
+			DecalInstance di;
+			di.decal = decal;
+			di.points = 4;
+			di.tint = { tint, tint, tint, tint };
+			di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
+			di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+			di.w = { 1, 1, 1, 1 };
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		}
+
+		void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col, uint32_t elements)
+		{
+			DecalInstance di;
+			di.decal = decal;
+			di.pos.resize(elements);
+			di.uv.resize(elements);
+			di.w.resize(elements);
+			di.tint.resize(elements);
+			di.points = elements;
+			for (uint32_t i = 0; i < elements; i++)
+			{
+				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				di.uv[i] = uv[i];
+				di.tint[i] = col[i];
+				di.w[i] = 1.0f;
 			}
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-	}
 
-	void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
-	{ nDecalMode = mode; }
-
-	void PixelGameEngine::SetDecalStructure(const olc::DecalStructure& structure)
-	{ nDecalStructure = structure; }
-
-	void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
-	{
-		olc::vf2d vScreenSpacePos =
+		void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
 		{
-			  (pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			-((pos.y * vInvScreenSize.y) * 2.0f - 1.0f)
-		};
-
-		
-		olc::vf2d vScreenSpaceDim =
-		{
-			  ((pos.x + source_size.x * scale.x) * vInvScreenSize.x) * 2.0f - 1.0f,
-			-(((pos.y + source_size.y * scale.y) * vInvScreenSize.y) * 2.0f - 1.0f)
-		};
-
-		olc::vf2d vWindow = olc::vf2d(vViewSize);
-		olc::vf2d vQuantisedPos = ((vScreenSpacePos * vWindow) + olc::vf2d(0.5f, 0.5f)).floor() / vWindow;
-		olc::vf2d vQuantisedDim = ((vScreenSpaceDim * vWindow) + olc::vf2d(0.5f, -0.5f)).ceil() / vWindow;
-
-		DecalInstance di;
-		di.points = 4;
-		di.decal = decal;
-		di.tint = { tint, tint, tint, tint };
-		di.pos = { { vQuantisedPos.x, vQuantisedPos.y }, { vQuantisedPos.x, vQuantisedDim.y }, { vQuantisedDim.x, vQuantisedDim.y }, { vQuantisedDim.x, vQuantisedPos.y } };
-		olc::vf2d uvtl = (source_pos + olc::vf2d(0.0001f, 0.0001f)) * decal->vUVScale;
-		olc::vf2d uvbr = (source_pos + source_size - olc::vf2d(0.0001f, 0.0001f)) * decal->vUVScale;
-		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
-		di.w = { 1,1,1,1 };
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, const olc::vf2d& size, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{
-		olc::vf2d vScreenSpacePos =
-		{
-			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
-		};
-
-		olc::vf2d vScreenSpaceDim =
-		{
-			vScreenSpacePos.x + (2.0f * size.x * vInvScreenSize.x),
-			vScreenSpacePos.y - (2.0f * size.y * vInvScreenSize.y)
-		};
-
-		DecalInstance di;
-		di.points = 4;
-		di.decal = decal;
-		di.tint = { tint, tint, tint, tint };
-		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
-		olc::vf2d uvtl = (source_pos) * decal->vUVScale;
-		olc::vf2d uvbr = uvtl + ((source_size) * decal->vUVScale);
-		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
-		di.w = { 1,1,1,1 };
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-
-	void PixelGameEngine::DrawDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& scale, const olc::Pixel& tint)
-	{
-		olc::vf2d vScreenSpacePos =
-		{
-			(pos.x * vInvScreenSize.x) * 2.0f - 1.0f,
-			((pos.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
-		};
-
-		olc::vf2d vScreenSpaceDim =
-		{
-			vScreenSpacePos.x + (2.0f * (float(decal->sprite->width) * vInvScreenSize.x)) * scale.x,
-			vScreenSpacePos.y - (2.0f * (float(decal->sprite->height) * vInvScreenSize.y)) * scale.y
-		};
-
-		DecalInstance di;
-		di.decal = decal;
-		di.points = 4;
-		di.tint = { tint, tint, tint, tint };
-		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
-		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		di.w = { 1, 1, 1, 1 };
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::DrawExplicitDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d* uv, const olc::Pixel* col, uint32_t elements)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.pos.resize(elements);
-		di.uv.resize(elements);
-		di.w.resize(elements);
-		di.tint.resize(elements);
-		di.points = elements;
-		for (uint32_t i = 0; i < elements; i++)
-		{
-			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			di.uv[i] = uv[i];
-			di.tint[i] = col[i];
-			di.w[i] = 1.0f;
+			DecalInstance di;
+			di.decal = decal;
+			di.points = uint32_t(pos.size());
+			di.pos.resize(di.points);
+			di.uv.resize(di.points);
+			di.w.resize(di.points);
+			di.tint.resize(di.points);
+			for (uint32_t i = 0; i < di.points; i++)
+			{
+				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				di.uv[i] = uv[i];
+				di.tint[i] = tint;
+				di.w[i] = 1.0f;
+			}
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
 
-	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = uint32_t(pos.size());
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		for (uint32_t i = 0; i < di.points; i++)
+		void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& tint)
 		{
-			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			di.uv[i] = uv[i];
-			di.tint[i] = tint;
-			di.w[i] = 1.0f;
+			DecalInstance di;
+			di.decal = decal;
+			di.points = uint32_t(pos.size());
+			di.pos.resize(di.points);
+			di.uv.resize(di.points);
+			di.w.resize(di.points);
+			di.tint.resize(di.points);
+			for (uint32_t i = 0; i < di.points; i++)
+			{
+				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				di.uv[i] = uv[i];
+				di.tint[i] = tint[i];
+				di.w[i] = 1.0f;
+			}
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
 
-	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel> &tint)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = uint32_t(pos.size());
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		for (uint32_t i = 0; i < di.points; i++)
+		void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint)
 		{
-			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			di.uv[i] = uv[i];
-			di.tint[i] = tint[i];
-			di.w[i] = 1.0f;
+			std::vector<olc::Pixel> newColours(colours.size(), olc::WHITE);
+			std::transform(colours.begin(), colours.end(), newColours.begin(),
+				[&tint](const olc::Pixel pin) {	return pin * tint; });
+			DrawPolygonDecal(decal, pos, uv, newColours);
 		}
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint)
-	{
-		std::vector<olc::Pixel> newColours(colours.size(), olc::WHITE);
-		std::transform(colours.begin(), colours.end(), newColours.begin(),
-			[&tint](const olc::Pixel pin) {	return pin * tint; });
-		DrawPolygonDecal(decal, pos, uv, newColours);
-	}
 
 
-	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<float>& depth, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = uint32_t(pos.size());
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		for (uint32_t i = 0; i < di.points; i++)
+		void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<float>& depth, const std::vector<olc::vf2d>& uv, const olc::Pixel tint)
 		{
-			di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			di.uv[i] = uv[i];
-			di.tint[i] = tint;
-			di.w[i] = 1.0f;
+			DecalInstance di;
+			di.decal = decal;
+			di.points = uint32_t(pos.size());
+			di.pos.resize(di.points);
+			di.uv.resize(di.points);
+			di.w.resize(di.points);
+			di.tint.resize(di.points);
+			for (uint32_t i = 0; i < di.points; i++)
+			{
+				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				di.uv[i] = uv[i];
+				di.tint[i] = tint;
+				di.w[i] = 1.0f;
+			}
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
 
 #ifdef OLC_ENABLE_EXPERIMENTAL
-	// Lightweight 3D
-	void PixelGameEngine::LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = uint32_t(pos.size());
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		for (uint32_t i = 0; i < di.points; i++)
+		// Lightweight 3D
+		void PixelGameEngine::LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col)
 		{
-			di.pos[i] = { pos[i][0], pos[i][1] };
-			di.w[i] = pos[i][2];
-			di.uv[i] = tex[i];
-			di.tint[i] = col[i];			
+			DecalInstance di;
+			di.decal = decal;
+			di.points = uint32_t(pos.size());
+			di.pos.resize(di.points);
+			di.uv.resize(di.points);
+			di.w.resize(di.points);
+			di.tint.resize(di.points);
+			for (uint32_t i = 0; i < di.points; i++)
+			{
+				di.pos[i] = { pos[i][0], pos[i][1] };
+				di.w[i] = pos[i][2];
+				di.uv[i] = tex[i];
+				di.tint[i] = col[i];
+			}
+			di.mode = DecalMode::MODEL3D;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-		di.mode = DecalMode::MODEL3D;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
 #endif
 
-	void PixelGameEngine::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
-	{
-		auto m = nDecalMode;
-		nDecalMode = olc::DecalMode::WIREFRAME;
-		DrawPolygonDecal(nullptr, { pos1, pos2 }, { {0, 0}, {0,0} }, p);
-		nDecalMode = m;
-
-		/*DecalInstance di;
-		di.decal = nullptr;
-		di.points = uint32_t(2);
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		di.pos[0] = { (pos1.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos1.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[0] = { 0.0f, 0.0f };
-		di.tint[0] = p;
-		di.w[0] = 1.0f;
-		di.pos[1] = { (pos2.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos2.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[1] = { 0.0f, 0.0f };
-		di.tint[1] = p;
-		di.w[1] = 1.0f;
-		di.mode = olc::DecalMode::WIREFRAME;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);*/
-	}
-
-	void PixelGameEngine::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
-	{
-		auto m = nDecalMode;
-		SetDecalMode(olc::DecalMode::WIREFRAME);
-		olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
-		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
-		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
-		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
-		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
-		SetDecalMode(m);
-
-	}
-
-	void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
-	{
-		olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
-		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
-		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
-		std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
-		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
-	}
-
-	void PixelGameEngine::GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR)
-	{
-		std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
-		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
-		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
-		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
-	}
-
-	void PixelGameEngine::DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& scale, const olc::Pixel& tint)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.pos.resize(4);
-		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		di.w = { 1, 1, 1, 1 };
-		di.tint = { tint, tint, tint, tint };
-		di.points = 4;
-		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
-		di.pos[1] = (olc::vf2d(0.0f, float(decal->sprite->height)) - center) * scale;
-		di.pos[2] = (olc::vf2d(float(decal->sprite->width), float(decal->sprite->height)) - center) * scale;
-		di.pos[3] = (olc::vf2d(float(decal->sprite->width), 0.0f) - center) * scale;
-		float c = cos(fAngle), s = sin(fAngle);
-		for (int i = 0; i < 4; i++)
+		void PixelGameEngine::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
 		{
-			di.pos[i] = pos + olc::vf2d(di.pos[i].x * c - di.pos[i].y * s, di.pos[i].x * s + di.pos[i].y * c);
-			di.pos[i] = di.pos[i] * vInvScreenSize * 2.0f - olc::vf2d(1.0f, 1.0f);
-			di.pos[i].y *= -1.0f;
-			di.w[i] = 1;
-		}
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
+			auto m = nDecalMode;
+			nDecalMode = olc::DecalMode::WIREFRAME;
+			DrawPolygonDecal(nullptr, { pos1, pos2 }, { {0, 0}, {0,0} }, p);
+			nDecalMode = m;
 
-
-	void PixelGameEngine::DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
-	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = 4;
-		di.tint = { tint, tint, tint, tint };
-		di.w = { 1, 1, 1, 1 };
-		di.pos.resize(4);
-		di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
-		di.pos[1] = (olc::vf2d(0.0f, source_size.y) - center) * scale;
-		di.pos[2] = (olc::vf2d(source_size.x, source_size.y) - center) * scale;
-		di.pos[3] = (olc::vf2d(source_size.x, 0.0f) - center) * scale;
-		float c = cos(fAngle), s = sin(fAngle);
-		for (int i = 0; i < 4; i++)
-		{
-			di.pos[i] = pos + olc::vf2d(di.pos[i].x * c - di.pos[i].y * s, di.pos[i].x * s + di.pos[i].y * c);
-			di.pos[i] = di.pos[i] * vInvScreenSize * 2.0f - olc::vf2d(1.0f, 1.0f);
-			di.pos[i].y *= -1.0f;
+			/*DecalInstance di;
+			di.decal = nullptr;
+			di.points = uint32_t(2);
+			di.pos.resize(di.points);
+			di.uv.resize(di.points);
+			di.w.resize(di.points);
+			di.tint.resize(di.points);
+			di.pos[0] = { (pos1.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos1.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+			di.uv[0] = { 0.0f, 0.0f };
+			di.tint[0] = p;
+			di.w[0] = 1.0f;
+			di.pos[1] = { (pos2.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos2.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+			di.uv[1] = { 0.0f, 0.0f };
+			di.tint[1] = p;
+			di.w[1] = 1.0f;
+			di.mode = olc::DecalMode::WIREFRAME;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);*/
 		}
 
-		olc::vf2d uvtl = source_pos * decal->vUVScale;
-		olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
-		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
-		di.mode = nDecalMode;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	}
-
-	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{
-		DecalInstance di;
-		di.points = 4;
-		di.decal = decal;
-		di.tint = { tint, tint, tint, tint };
-		di.w = { 1, 1, 1, 1 };
-		di.pos.resize(4);
-		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		olc::vf2d center;
-		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
-		if (rd != 0)
+		void PixelGameEngine::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
 		{
+			auto m = nDecalMode;
+			SetDecalMode(olc::DecalMode::WIREFRAME);
+			olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
+			std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
+			std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+			std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
+			DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+			SetDecalMode(m);
+
+		}
+
+		void PixelGameEngine::FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
+		{
+			olc::vf2d vNewSize = size;// (size - olc::vf2d(0.375f, 0.375f)).ceil();
+			std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + vNewSize.y}, {pos + vNewSize}, {pos.x + vNewSize.x, pos.y} } };
+			std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+			std::array<olc::Pixel, 4> cols = { {col, col, col, col} };
+			DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+		}
+
+		void PixelGameEngine::GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR)
+		{
+			std::array<olc::vf2d, 4> points = { { {pos}, {pos.x, pos.y + size.y}, {pos + size}, {pos.x + size.x, pos.y} } };
+			std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
+			std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
+			DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+		}
+
+		void PixelGameEngine::DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& scale, const olc::Pixel& tint)
+		{
+			DecalInstance di;
+			di.decal = decal;
+			di.pos.resize(4);
+			di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+			di.w = { 1, 1, 1, 1 };
+			di.tint = { tint, tint, tint, tint };
+			di.points = 4;
+			di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
+			di.pos[1] = (olc::vf2d(0.0f, float(decal->sprite->height)) - center) * scale;
+			di.pos[2] = (olc::vf2d(float(decal->sprite->width), float(decal->sprite->height)) - center) * scale;
+			di.pos[3] = (olc::vf2d(float(decal->sprite->width), 0.0f) - center) * scale;
+			float c = cos(fAngle), s = sin(fAngle);
+			for (int i = 0; i < 4; i++)
+			{
+				di.pos[i] = pos + olc::vf2d(di.pos[i].x * c - di.pos[i].y * s, di.pos[i].x * s + di.pos[i].y * c);
+				di.pos[i] = di.pos[i] * vInvScreenSize * 2.0f - olc::vf2d(1.0f, 1.0f);
+				di.pos[i].y *= -1.0f;
+				di.w[i] = 1;
+			}
+			di.mode = nDecalMode;
+			di.structure = nDecalStructure;
+			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		}
+
+
+		void PixelGameEngine::DrawPartialRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
+		{
+			DecalInstance di;
+			di.decal = decal;
+			di.points = 4;
+			di.tint = { tint, tint, tint, tint };
+			di.w = { 1, 1, 1, 1 };
+			di.pos.resize(4);
+			di.pos[0] = (olc::vf2d(0.0f, 0.0f) - center) * scale;
+			di.pos[1] = (olc::vf2d(0.0f, source_size.y) - center) * scale;
+			di.pos[2] = (olc::vf2d(source_size.x, source_size.y) - center) * scale;
+			di.pos[3] = (olc::vf2d(source_size.x, 0.0f) - center) * scale;
+			float c = cos(fAngle), s = sin(fAngle);
+			for (int i = 0; i < 4; i++)
+			{
+				di.pos[i] = pos + olc::vf2d(di.pos[i].x * c - di.pos[i].y * s, di.pos[i].x * s + di.pos[i].y * c);
+				di.pos[i] = di.pos[i] * vInvScreenSize * 2.0f - olc::vf2d(1.0f, 1.0f);
+				di.pos[i].y *= -1.0f;
+			}
+
 			olc::vf2d uvtl = source_pos * decal->vUVScale;
 			olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
 			di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
-
-			rd = 1.0f / rd;
-			float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
-			float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
-			if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
-			float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
-			for (int i = 0; i < 4; i++)
-			{
-				float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
-				di.uv[i] *= q; di.w[i] *= q;
-				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			}
 			di.mode = nDecalMode;
 			di.structure = nDecalStructure;
 			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 		}
-	}
 
-	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::Pixel& tint)
-	{
-		// Thanks Nathan Reed, a brilliant article explaining whats going on here
-		// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
-		DecalInstance di;
-		di.points = 4;
-		di.decal = decal;
-		di.tint = { tint, tint, tint, tint };
-		di.w = { 1, 1, 1, 1 };
-		di.pos.resize(4);
-		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		olc::vf2d center;
-		float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
-		if (rd != 0)
+		void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
 		{
-			rd = 1.0f / rd;
-			float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
-			float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
-			if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
-			float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
-			for (int i = 0; i < 4; i++)
+			DecalInstance di;
+			di.points = 4;
+			di.decal = decal;
+			di.tint = { tint, tint, tint, tint };
+			di.w = { 1, 1, 1, 1 };
+			di.pos.resize(4);
+			di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+			olc::vf2d center;
+			float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
+			if (rd != 0)
 			{
-				float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
-				di.uv[i] *= q; di.w[i] *= q;
-				di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			}
-			di.mode = nDecalMode;
-			di.structure = nDecalStructure;
-			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-		}
-	}
+				olc::vf2d uvtl = source_pos * decal->vUVScale;
+				olc::vf2d uvbr = uvtl + (source_size * decal->vUVScale);
+				di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
 
-	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::Pixel& tint)
-	{ DrawWarpedDecal(decal, pos.data(), tint); }
-
-	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::Pixel& tint)
-	{ DrawWarpedDecal(decal, &pos[0], tint); }
-
-	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{ DrawPartialWarpedDecal(decal, pos.data(), source_pos, source_size, tint); }
-
-	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{ DrawPartialWarpedDecal(decal, &pos[0], source_pos, source_size, tint); }
-
-	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
-	{
-		olc::vf2d spos = { 0.0f, 0.0f };
-		for (auto c : sText)
-		{
-			if (c == '\n')
-			{
-				spos.x = 0; spos.y += 8.0f * scale.y;
-			}
-			else if (c == '\t')
-			{
-				spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
-			}
-			else
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontRenderable.Decal(), {float(ox) * 8.0f, float(oy) * 8.0f}, {8.0f, 8.0f}, scale, col);
-				spos.x += 8.0f * scale.x;
-			}
-		}
-	}
-
-	void PixelGameEngine::DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
-	{
-		olc::vf2d spos = { 0.0f, 0.0f };
-		for (auto c : sText)
-		{
-			if (c == '\n')
-			{
-				spos.x = 0; spos.y += 8.0f * scale.y;
-			}
-			else if (c == '\t')
-			{
-				spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
-			}
-			else
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontRenderable.Decal(), { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
-				spos.x += float(vFontSpacing[c - 32].y) * scale.x;
-			}
-		}
-	}
-	// Thanks Oso-Grande/Sopadeoso For these awesom and stupidly clever Text Rotation routines... duh XD
-	void PixelGameEngine::DrawRotatedStringDecal(const olc::vf2d& pos, const std::string& sText, const float fAngle, const olc::vf2d& center, const Pixel col, const olc::vf2d& scale)
-	{
-		olc::vf2d spos = center;
-		for (auto c : sText)
-		{
-			if (c == '\n')
-			{
-				spos.x = center.x; spos.y -= 8.0f;
-			}
-			else if (c == '\t')
-			{
-				spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
-			}
-			else
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
-				spos.x -= 8.0f;
-			}
-		}
-	}
-
-	void PixelGameEngine::DrawRotatedStringPropDecal(const olc::vf2d& pos, const std::string& sText, const float fAngle, const olc::vf2d& center, const Pixel col, const olc::vf2d& scale)
-	{
-		olc::vf2d spos = center;
-		for (auto c : sText)
-		{
-			if (c == '\n')
-			{
-				spos.x = center.x; spos.y -= 8.0f;
-			}
-			else if (c == '\t')
-			{
-				spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
-			}
-			else
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-				DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
-				spos.x -= float(vFontSpacing[c - 32].y);
-			}
-		}
-	}
-
-	olc::vi2d PixelGameEngine::GetTextSize(const std::string& s)
-	{
-		olc::vi2d size = { 0,1 };
-		olc::vi2d pos = { 0,1 };
-		for (auto c : s)
-		{
-			if (c == '\n') { pos.y++;  pos.x = 0; }
-			else if (c == '\t') { pos.x += nTabSizeInSpaces; }
-			else pos.x++;
-			size.x = std::max(size.x, pos.x);
-			size.y = std::max(size.y, pos.y);
-		}
-		return size * 8;
-	}
-
-	void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
-	{ DrawString(pos.x, pos.y, sText, col, scale); }
-
-	void PixelGameEngine::DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
-	{
-		int32_t sx = 0;
-		int32_t sy = 0;
-		Pixel::Mode m = nPixelMode;
-		// Thanks @tucna, spotted bug with col.ALPHA :P
-		if (m != Pixel::CUSTOM) // Thanks @Megarev, required for "shaders"
-		{
-			if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
-			else					SetPixelMode(Pixel::MASK);
-		}
-		for (auto c : sText)
-		{
-			if (c == '\n')
-			{
-				sx = 0; sy += 8 * scale;
-			}
-			else if (c == '\t')
-			{
-				sx += 8 * nTabSizeInSpaces * scale;
-			}
-			else			
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-
-				if (scale > 1)
+				rd = 1.0f / rd;
+				float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
+				float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
+				if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
+				float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
+				for (int i = 0; i < 4; i++)
 				{
-					for (uint32_t i = 0; i < 8; i++)
-						for (uint32_t j = 0; j < 8; j++)
-							if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
-								for (uint32_t is = 0; is < scale; is++)
-									for (uint32_t js = 0; js < scale; js++)
-										Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
+					float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
+					di.uv[i] *= q; di.w[i] *= q;
+					di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				}
+				di.mode = nDecalMode;
+				di.structure = nDecalStructure;
+				vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+			}
+		}
+
+		void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const olc::vf2d* pos, const olc::Pixel& tint)
+		{
+			// Thanks Nathan Reed, a brilliant article explaining whats going on here
+			// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
+			DecalInstance di;
+			di.points = 4;
+			di.decal = decal;
+			di.tint = { tint, tint, tint, tint };
+			di.w = { 1, 1, 1, 1 };
+			di.pos.resize(4);
+			di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+			olc::vf2d center;
+			float rd = ((pos[2].x - pos[0].x) * (pos[3].y - pos[1].y) - (pos[3].x - pos[1].x) * (pos[2].y - pos[0].y));
+			if (rd != 0)
+			{
+				rd = 1.0f / rd;
+				float rn = ((pos[3].x - pos[1].x) * (pos[0].y - pos[1].y) - (pos[3].y - pos[1].y) * (pos[0].x - pos[1].x)) * rd;
+				float sn = ((pos[2].x - pos[0].x) * (pos[0].y - pos[1].y) - (pos[2].y - pos[0].y) * (pos[0].x - pos[1].x)) * rd;
+				if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)) center = pos[0] + rn * (pos[2] - pos[0]);
+				float d[4];	for (int i = 0; i < 4; i++)	d[i] = (pos[i] - center).mag();
+				for (int i = 0; i < 4; i++)
+				{
+					float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
+					di.uv[i] *= q; di.w[i] *= q;
+					di.pos[i] = { (pos[i].x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i].y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
+				}
+				di.mode = nDecalMode;
+				di.structure = nDecalStructure;
+				vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+			}
+		}
+
+		void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::Pixel& tint)
+		{
+			DrawWarpedDecal(decal, pos.data(), tint);
+		}
+
+		void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::Pixel& tint)
+		{
+			DrawWarpedDecal(decal, &pos[0], tint);
+		}
+
+		void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
+		{
+			DrawPartialWarpedDecal(decal, pos.data(), source_pos, source_size, tint);
+		}
+
+		void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
+		{
+			DrawPartialWarpedDecal(decal, &pos[0], source_pos, source_size, tint);
+		}
+
+		void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
+		{
+			olc::vf2d spos = { 0.0f, 0.0f };
+			for (auto c : sText)
+			{
+				if (c == '\n')
+				{
+					spos.x = 0; spos.y += 8.0f * scale.y;
+				}
+				else if (c == '\t')
+				{
+					spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
 				}
 				else
 				{
-					for (uint32_t i = 0; i < 8; i++)
-						for (uint32_t j = 0; j < 8; j++)
-							if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
-								Draw(x + sx + i, y + sy + j, col);
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+					DrawPartialDecal(pos + spos, fontRenderable.Decal(), { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+					spos.x += 8.0f * scale.x;
 				}
-				sx += 8 * scale;
 			}
 		}
-		SetPixelMode(m);
-	}
 
-	olc::vi2d PixelGameEngine::GetTextSizeProp(const std::string& s)
-	{
-		olc::vi2d size = { 0,1 };
-		olc::vi2d pos = { 0,1 };
-		for (auto c : s)
+		void PixelGameEngine::DrawStringPropDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
 		{
-			if (c == '\n') { pos.y += 1;  pos.x = 0; }
-			else if (c == '\t') { pos.x += nTabSizeInSpaces * 8; }
-			else pos.x += vFontSpacing[c - 32].y;
-			size.x = std::max(size.x, pos.x);
-			size.y = std::max(size.y, pos.y);
-		}
-
-		size.y *= 8;
-		return size;
-	}
-
-	void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
-	{ DrawStringProp(pos.x, pos.y, sText, col, scale); }
-
-	void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
-	{
-		int32_t sx = 0;
-		int32_t sy = 0;
-		Pixel::Mode m = nPixelMode;
-
-		if (m != Pixel::CUSTOM)
-		{
-			if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
-			else					SetPixelMode(Pixel::MASK);
-		}
-		for (auto c : sText)
-		{
-			if (c == '\n')
+			olc::vf2d spos = { 0.0f, 0.0f };
+			for (auto c : sText)
 			{
-				sx = 0; sy += 8 * scale;
-			}
-			else if (c == '\t')
-			{
-				sx += 8 * nTabSizeInSpaces * scale;
-			}
-			else
-			{
-				int32_t ox = (c - 32) % 16;
-				int32_t oy = (c - 32) / 16;
-
-				if (scale > 1)
+				if (c == '\n')
 				{
-					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
-						for (int32_t j = 0; j < 8; j++)
-							if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
-								for (int32_t is = 0; is < int(scale); is++)
-									for (int32_t js = 0; js < int(scale); js++)
-										Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
+					spos.x = 0; spos.y += 8.0f * scale.y;
+				}
+				else if (c == '\t')
+				{
+					spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
 				}
 				else
 				{
-					for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
-						for (int32_t j = 0; j < 8; j++)
-							if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
-								Draw(x + sx + i, y + sy + j, col);
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+					DrawPartialDecal(pos + spos, fontRenderable.Decal(), { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+					spos.x += float(vFontSpacing[c - 32].y) * scale.x;
 				}
-				sx += vFontSpacing[c - 32].y * scale;
 			}
 		}
-		SetPixelMode(m);
-	}
-
-	void PixelGameEngine::SetPixelMode(Pixel::Mode m)
-	{ nPixelMode = m; }
-
-	Pixel::Mode PixelGameEngine::GetPixelMode()
-	{ return nPixelMode; }
-
-	void PixelGameEngine::SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> pixelMode)
-	{
-		funcPixelMode = pixelMode;
-		nPixelMode = Pixel::Mode::CUSTOM;
-	}
-
-	void PixelGameEngine::SetPixelBlend(float fBlend)
-	{
-		fBlendFactor = fBlend;
-		if (fBlendFactor < 0.0f) fBlendFactor = 0.0f;
-		if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
-	}
-
-	std::stringstream& PixelGameEngine::ConsoleOut()
-	{ return ssConsoleOutput; }
-
-	bool PixelGameEngine::IsConsoleShowing() const
-	{ return bConsoleShow; }
-
-	void PixelGameEngine::ConsoleShow(const olc::Key& keyExit, bool bSuspendTime)
-	{
-		if (bConsoleShow)
-			return;
-
-		bConsoleShow = true;		
-		bConsoleSuspendTime = bSuspendTime;
-		TextEntryEnable(true);
-		keyConsoleExit = keyExit;
-		pKeyboardState[keyConsoleExit].bHeld = false;
-		pKeyboardState[keyConsoleExit].bPressed = false;
-		pKeyboardState[keyConsoleExit].bReleased = true;
-	}
-	
-	void PixelGameEngine::ConsoleClear()
-	{ sConsoleLines.clear(); }
-
-	void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
-	{
-		if(bCapture)
-			sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
-		else
-			std::cout.rdbuf(sbufOldCout);
-	}
-
-	void PixelGameEngine::UpdateConsole()
-	{
-		if (GetKey(keyConsoleExit).bPressed)
+		// Thanks Oso-Grande/Sopadeoso For these awesom and stupidly clever Text Rotation routines... duh XD
+		void PixelGameEngine::DrawRotatedStringDecal(const olc::vf2d& pos, const std::string& sText, const float fAngle, const olc::vf2d& center, const Pixel col, const olc::vf2d& scale)
 		{
-			TextEntryEnable(false);
-			bConsoleSuspendTime = false;
-			bConsoleShow = false;
-			return;
-		}
-
-		// Keep Console sizes based in real screen dimensions
-		vConsoleCharacterScale = olc::vf2d(1.0f, 2.0f) / (olc::vf2d(vViewSize) * vInvScreenSize);
-		vConsoleSize = (vViewSize / olc::vi2d(8, 16)) - olc::vi2d(2, 4);
-
-		// If console has changed size, simply reset it
-		if (vConsoleSize.y != sConsoleLines.size())
-		{
-			vConsoleCursor = { 0,0 };
-			sConsoleLines.clear();
-			sConsoleLines.resize(vConsoleSize.y);
-		}
-
-		auto TypeCharacter = [&](const char c)
-		{
-			if (c >= 32 && c < 127)
+			olc::vf2d spos = center;
+			for (auto c : sText)
 			{
-				sConsoleLines[vConsoleCursor.y].append(1, c);
-				vConsoleCursor.x++;
-			}
-
-			if( c == '\n' || vConsoleCursor.x >= vConsoleSize.x)
-			{
-				vConsoleCursor.y++; vConsoleCursor.x = 0;				
-			}			
-
-			if (vConsoleCursor.y >= vConsoleSize.y)
-			{
-				vConsoleCursor.y = vConsoleSize.y - 1;
-				for (size_t i = 1; i < vConsoleSize.y; i++)
-					sConsoleLines[i - 1] = sConsoleLines[i];
-				sConsoleLines[vConsoleCursor.y].clear();
-			}
-		};
-
-		// Empty out "std::cout", parsing as we go
-		while (ssConsoleOutput.rdbuf()->sgetc() != -1)
-		{
-			char c = ssConsoleOutput.rdbuf()->sbumpc();
-			TypeCharacter(c);
-		}
-
-		// Draw Shadow
-		GradientFillRectDecal({ 0,0 }, olc::vf2d(vScreenSize), olc::PixelF(0, 0, 0.5f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f));
-				
-		// Draw the console buffer
-		SetDecalMode(olc::DecalMode::NORMAL);
-		for (int32_t nLine = 0; nLine < vConsoleSize.y; nLine++)
-			DrawStringDecal(olc::vf2d( 1, 1 + float(nLine) ) * vConsoleCharacterScale * 8.0f, sConsoleLines[nLine], olc::WHITE, vConsoleCharacterScale);
-
-		// Draw Input State
-		FillRectDecal(olc::vf2d(1 + float((TextEntryGetCursor() + 1)), 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, olc::vf2d(8, 8) * vConsoleCharacterScale, olc::DARK_CYAN);
-		DrawStringDecal(olc::vf2d(1, 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, std::string(">") + TextEntryGetString(), olc::YELLOW, vConsoleCharacterScale);		
-	}
-
-
-	const std::vector<std::string>& PixelGameEngine::GetDroppedFiles() const
-	{ return vDroppedFiles;	}
-
-	const olc::vi2d& PixelGameEngine::GetDroppedFilesPoint() const
-	{ return vDroppedFilesPoint; }
-
-
-	void PixelGameEngine::TextEntryEnable(const bool bEnable, const std::string& sText)
-	{
-		if (bEnable)
-		{
-			nTextEntryCursor = int32_t(sText.size());
-			sTextEntryString = sText;
-			bTextEntryEnable = true;
-		}
-		else
-		{
-			bTextEntryEnable = false;
-		}
-	}
-
-	std::string PixelGameEngine::TextEntryGetString() const
-	{ return sTextEntryString; }
-
-	int32_t PixelGameEngine::TextEntryGetCursor() const
-	{ return nTextEntryCursor; }
-
-	bool PixelGameEngine::IsTextEntryEnabled() const
-	{ return bTextEntryEnable; }
-
-
-	void PixelGameEngine::UpdateTextEntry()
-	{
-		// Check for typed characters
-		for (const auto& key : vKeyboardMap)
-			if (GetKey(std::get<0>(key)).bPressed)
-			{
-				sTextEntryString.insert(nTextEntryCursor, GetKey(olc::Key::SHIFT).bHeld ? std::get<2>(key) : std::get<1>(key));
-				nTextEntryCursor++;
-			}
-
-		// Check for command characters
-		if (GetKey(olc::Key::LEFT).bPressed)
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		if (GetKey(olc::Key::RIGHT).bPressed)
-			nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
-		if (GetKey(olc::Key::BACK).bPressed && nTextEntryCursor > 0)
-		{
-			sTextEntryString.erase(nTextEntryCursor-1, 1);
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		}
-		if (GetKey(olc::Key::DEL).bPressed && nTextEntryCursor < sTextEntryString.size())
-			sTextEntryString.erase(nTextEntryCursor, 1);	
-
-		if (GetKey(olc::Key::UP).bPressed)
-		{
-			if (!sCommandHistory.empty())
-			{
-				if (sCommandHistoryIt != sCommandHistory.begin())
-					sCommandHistoryIt--;
-
-				nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-				sTextEntryString = *sCommandHistoryIt;
-			}
-		}
-
-		if (GetKey(olc::Key::DOWN).bPressed)
-		{	
-			if (!sCommandHistory.empty())
-			{
-				if (sCommandHistoryIt != sCommandHistory.end())
+				if (c == '\n')
 				{
-					sCommandHistoryIt++;
-					if (sCommandHistoryIt != sCommandHistory.end())
+					spos.x = center.x; spos.y -= 8.0f;
+				}
+				else if (c == '\t')
+				{
+					spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
+				}
+				else
+				{
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+					DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
+					spos.x -= 8.0f;
+				}
+			}
+		}
+
+		void PixelGameEngine::DrawRotatedStringPropDecal(const olc::vf2d& pos, const std::string& sText, const float fAngle, const olc::vf2d& center, const Pixel col, const olc::vf2d& scale)
+		{
+			olc::vf2d spos = center;
+			for (auto c : sText)
+			{
+				if (c == '\n')
+				{
+					spos.x = center.x; spos.y -= 8.0f;
+				}
+				else if (c == '\t')
+				{
+					spos.x += 8.0f * float(nTabSizeInSpaces) * scale.x;
+				}
+				else
+				{
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+					DrawPartialRotatedDecal(pos, fontRenderable.Decal(), fAngle, spos, { float(ox) * 8.0f + float(vFontSpacing[c - 32].x), float(oy) * 8.0f }, { float(vFontSpacing[c - 32].y), 8.0f }, scale, col);
+					spos.x -= float(vFontSpacing[c - 32].y);
+				}
+			}
+		}
+
+		olc::vi2d PixelGameEngine::GetTextSize(const std::string& s)
+		{
+			olc::vi2d size = { 0,1 };
+			olc::vi2d pos = { 0,1 };
+			for (auto c : s)
+			{
+				if (c == '\n') { pos.y++;  pos.x = 0; }
+				else if (c == '\t') { pos.x += nTabSizeInSpaces; }
+				else pos.x++;
+				size.x = std::max(size.x, pos.x);
+				size.y = std::max(size.y, pos.y);
+			}
+			return size * 8;
+		}
+
+		void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
+		{
+			DrawString(pos.x, pos.y, sText, col, scale);
+		}
+
+		void PixelGameEngine::DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
+		{
+			int32_t sx = 0;
+			int32_t sy = 0;
+			Pixel::Mode m = nPixelMode;
+			// Thanks @tucna, spotted bug with col.ALPHA :P
+			if (m != Pixel::CUSTOM) // Thanks @Megarev, required for "shaders"
+			{
+				if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
+				else					SetPixelMode(Pixel::MASK);
+			}
+			for (auto c : sText)
+			{
+				if (c == '\n')
+				{
+					sx = 0; sy += 8 * scale;
+				}
+				else if (c == '\t')
+				{
+					sx += 8 * nTabSizeInSpaces * scale;
+				}
+				else
+				{
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+
+					if (scale > 1)
 					{
-						nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-						sTextEntryString = *sCommandHistoryIt;
+						for (uint32_t i = 0; i < 8; i++)
+							for (uint32_t j = 0; j < 8; j++)
+								if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+									for (uint32_t is = 0; is < scale; is++)
+										for (uint32_t js = 0; js < scale; js++)
+											Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
 					}
 					else
 					{
-						nTextEntryCursor = 0;
-						sTextEntryString = "";
+						for (uint32_t i = 0; i < 8; i++)
+							for (uint32_t j = 0; j < 8; j++)
+								if (fontRenderable.Sprite()->GetPixel(i + ox * 8, j + oy * 8).r > 0)
+									Draw(x + sx + i, y + sy + j, col);
 					}
+					sx += 8 * scale;
 				}
 			}
+			SetPixelMode(m);
 		}
 
-		if (GetKey(olc::Key::ENTER).bPressed)
+		olc::vi2d PixelGameEngine::GetTextSizeProp(const std::string& s)
+		{
+			olc::vi2d size = { 0,1 };
+			olc::vi2d pos = { 0,1 };
+			for (auto c : s)
+			{
+				if (c == '\n') { pos.y += 1;  pos.x = 0; }
+				else if (c == '\t') { pos.x += nTabSizeInSpaces * 8; }
+				else pos.x += vFontSpacing[c - 32].y;
+				size.x = std::max(size.x, pos.x);
+				size.y = std::max(size.y, pos.y);
+			}
+
+			size.y *= 8;
+			return size;
+		}
+
+		void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
+		{
+			DrawStringProp(pos.x, pos.y, sText, col, scale);
+		}
+
+		void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
+		{
+			int32_t sx = 0;
+			int32_t sy = 0;
+			Pixel::Mode m = nPixelMode;
+
+			if (m != Pixel::CUSTOM)
+			{
+				if (col.a != 255)		SetPixelMode(Pixel::ALPHA);
+				else					SetPixelMode(Pixel::MASK);
+			}
+			for (auto c : sText)
+			{
+				if (c == '\n')
+				{
+					sx = 0; sy += 8 * scale;
+				}
+				else if (c == '\t')
+				{
+					sx += 8 * nTabSizeInSpaces * scale;
+				}
+				else
+				{
+					int32_t ox = (c - 32) % 16;
+					int32_t oy = (c - 32) / 16;
+
+					if (scale > 1)
+					{
+						for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
+							for (int32_t j = 0; j < 8; j++)
+								if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+									for (int32_t is = 0; is < int(scale); is++)
+										for (int32_t js = 0; js < int(scale); js++)
+											Draw(x + sx + (i * scale) + is, y + sy + (j * scale) + js, col);
+					}
+					else
+					{
+						for (int32_t i = 0; i < vFontSpacing[c - 32].y; i++)
+							for (int32_t j = 0; j < 8; j++)
+								if (fontRenderable.Sprite()->GetPixel(i + ox * 8 + vFontSpacing[c - 32].x, j + oy * 8).r > 0)
+									Draw(x + sx + i, y + sy + j, col);
+					}
+					sx += vFontSpacing[c - 32].y * scale;
+				}
+			}
+			SetPixelMode(m);
+		}
+
+		void PixelGameEngine::SetPixelMode(Pixel::Mode m)
+		{
+			nPixelMode = m;
+		}
+
+		Pixel::Mode PixelGameEngine::GetPixelMode()
+		{
+			return nPixelMode;
+		}
+
+		void PixelGameEngine::SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> pixelMode)
+		{
+			funcPixelMode = pixelMode;
+			nPixelMode = Pixel::Mode::CUSTOM;
+		}
+
+		void PixelGameEngine::SetPixelBlend(float fBlend)
+		{
+			fBlendFactor = fBlend;
+			if (fBlendFactor < 0.0f) fBlendFactor = 0.0f;
+			if (fBlendFactor > 1.0f) fBlendFactor = 1.0f;
+		}
+
+		std::stringstream& PixelGameEngine::ConsoleOut()
+		{
+			return ssConsoleOutput;
+		}
+
+		bool PixelGameEngine::IsConsoleShowing() const
+		{
+			return bConsoleShow;
+		}
+
+		void PixelGameEngine::ConsoleShow(const olc::Key& keyExit, bool bSuspendTime)
 		{
 			if (bConsoleShow)
+				return;
+
+			bConsoleShow = true;
+			bConsoleSuspendTime = bSuspendTime;
+			TextEntryEnable(true);
+			keyConsoleExit = keyExit;
+			pKeyboardState[keyConsoleExit].bHeld = false;
+			pKeyboardState[keyConsoleExit].bPressed = false;
+			pKeyboardState[keyConsoleExit].bReleased = true;
+		}
+
+		void PixelGameEngine::ConsoleClear()
+		{
+			sConsoleLines.clear();
+		}
+
+		void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
+		{
+			if (bCapture)
+				sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
+			else
+				std::cout.rdbuf(sbufOldCout);
+		}
+
+		void PixelGameEngine::UpdateConsole()
+		{
+			if (GetKey(keyConsoleExit).bPressed)
 			{
-				std::cout << ">" + sTextEntryString + "\n";
-				if (OnConsoleCommand(sTextEntryString))
+				TextEntryEnable(false);
+				bConsoleSuspendTime = false;
+				bConsoleShow = false;
+				return;
+			}
+
+			// Keep Console sizes based in real screen dimensions
+			vConsoleCharacterScale = olc::vf2d(1.0f, 2.0f) / (olc::vf2d(vViewSize) * vInvScreenSize);
+			vConsoleSize = (vViewSize / olc::vi2d(8, 16)) - olc::vi2d(2, 4);
+
+			// If console has changed size, simply reset it
+			if (vConsoleSize.y != sConsoleLines.size())
+			{
+				vConsoleCursor = { 0,0 };
+				sConsoleLines.clear();
+				sConsoleLines.resize(vConsoleSize.y);
+			}
+
+			auto TypeCharacter = [&](const char c)
+			{
+				if (c >= 32 && c < 127)
 				{
-					sCommandHistory.push_back(sTextEntryString);
-					sCommandHistoryIt = sCommandHistory.end();
+					sConsoleLines[vConsoleCursor.y].append(1, c);
+					vConsoleCursor.x++;
 				}
-				sTextEntryString.clear();
-				nTextEntryCursor = 0;
+
+				if (c == '\n' || vConsoleCursor.x >= vConsoleSize.x)
+				{
+					vConsoleCursor.y++; vConsoleCursor.x = 0;
+				}
+
+				if (vConsoleCursor.y >= vConsoleSize.y)
+				{
+					vConsoleCursor.y = vConsoleSize.y - 1;
+					for (size_t i = 1; i < vConsoleSize.y; i++)
+						sConsoleLines[i - 1] = sConsoleLines[i];
+					sConsoleLines[vConsoleCursor.y].clear();
+				}
+			};
+
+			// Empty out "std::cout", parsing as we go
+			while (ssConsoleOutput.rdbuf()->sgetc() != -1)
+			{
+				char c = ssConsoleOutput.rdbuf()->sbumpc();
+				TypeCharacter(c);
+			}
+
+			// Draw Shadow
+			GradientFillRectDecal({ 0,0 }, olc::vf2d(vScreenSize), olc::PixelF(0, 0, 0.5f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f));
+
+			// Draw the console buffer
+			SetDecalMode(olc::DecalMode::NORMAL);
+			for (int32_t nLine = 0; nLine < vConsoleSize.y; nLine++)
+				DrawStringDecal(olc::vf2d(1, 1 + float(nLine)) * vConsoleCharacterScale * 8.0f, sConsoleLines[nLine], olc::WHITE, vConsoleCharacterScale);
+
+			// Draw Input State
+			FillRectDecal(olc::vf2d(1 + float((TextEntryGetCursor() + 1)), 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, olc::vf2d(8, 8) * vConsoleCharacterScale, olc::DARK_CYAN);
+			DrawStringDecal(olc::vf2d(1, 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, std::string(">") + TextEntryGetString(), olc::YELLOW, vConsoleCharacterScale);
+		}
+
+
+		const std::vector<std::string>& PixelGameEngine::GetDroppedFiles() const
+		{
+			return vDroppedFiles;
+		}
+
+		const olc::vi2d& PixelGameEngine::GetDroppedFilesPoint() const
+		{
+			return vDroppedFilesPoint;
+		}
+
+
+		void PixelGameEngine::TextEntryEnable(const bool bEnable, const std::string& sText)
+		{
+			if (bEnable)
+			{
+				nTextEntryCursor = int32_t(sText.size());
+				sTextEntryString = sText;
+				bTextEntryEnable = true;
 			}
 			else
 			{
-				OnTextEntryComplete(sTextEntryString);
-				TextEntryEnable(false);
-			}
-		}
-	}
-
-	// User must override these functions as required. I have not made
-	// them abstract because I do need a default behaviour to occur if
-	// they are not overwritten
-
-	bool PixelGameEngine::OnUserCreate()
-	{ return false;	}
-
-	bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
-	{ UNUSED(fElapsedTime);  return false; }
-
-	bool PixelGameEngine::OnUserDestroy()
-	{ return true; }
-
-	void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
-	bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
-	
-	// Externalised API
-	void PixelGameEngine::olc_UpdateViewport()
-	{
-		int32_t ww = vScreenSize.x * vPixelSize.x;
-		int32_t wh = vScreenSize.y * vPixelSize.y;
-		float wasp = (float)ww / (float)wh;
-
-		if (bPixelCohesion)
-		{
-			vScreenPixelSize = (vWindowSize / vScreenSize);
-			vViewSize = (vWindowSize / vScreenSize) * vScreenSize;
-		}
-		else
-		{
-			vViewSize.x = (int32_t)vWindowSize.x;
-			vViewSize.y = (int32_t)((float)vViewSize.x / wasp);
-
-			if (vViewSize.y > vWindowSize.y)
-			{
-				vViewSize.y = vWindowSize.y;
-				vViewSize.x = (int32_t)((float)vViewSize.y * wasp);
+				bTextEntryEnable = false;
 			}
 		}
 
-		vViewPos = (vWindowSize - vViewSize) / 2;
-	}
-
-	void PixelGameEngine::olc_UpdateWindowSize(int32_t x, int32_t y)
-	{
-		vWindowSize = { x, y };
-		olc_UpdateViewport();
-	}
-
-	void PixelGameEngine::olc_UpdateMouseWheel(int32_t delta)
-	{ nMouseWheelDeltaCache += delta; }
-
-	void PixelGameEngine::olc_UpdateMouse(int32_t x, int32_t y)
-	{
-		// Mouse coords come in screen space
-		// But leave in pixel space
-		bHasMouseFocus = true;
-		vMouseWindowPos = { x, y };
-		// Full Screen mode may have a weird viewport we must clamp to
-		x -= vViewPos.x;
-		y -= vViewPos.y;
-		vMousePosCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
-		vMousePosCache.y = (int32_t)(((float)y / (float)(vWindowSize.y - (vViewPos.y * 2)) * (float)vScreenSize.y));
-		if (vMousePosCache.x >= (int32_t)vScreenSize.x)	vMousePosCache.x = vScreenSize.x - 1;
-		if (vMousePosCache.y >= (int32_t)vScreenSize.y)	vMousePosCache.y = vScreenSize.y - 1;
-		if (vMousePosCache.x < 0) vMousePosCache.x = 0;
-		if (vMousePosCache.y < 0) vMousePosCache.y = 0;
-	}
-
-	void PixelGameEngine::olc_UpdateMouseState(int32_t button, bool state)
-	{ pMouseNewState[button] = state; }
-
-	void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
-	{ pKeyNewState[key] = state; }
-
-	void PixelGameEngine::olc_UpdateMouseFocus(bool state)
-	{ bHasMouseFocus = state; }
-
-	void PixelGameEngine::olc_UpdateKeyFocus(bool state)
-	{ bHasInputFocus = state; }
-
-	void PixelGameEngine::olc_DropFiles(int32_t x, int32_t y, const std::vector<std::string>& vFiles)
-	{ 
-		x -= vViewPos.x;
-		y -= vViewPos.y;
-		vDroppedFilesPointCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
-		vDroppedFilesPointCache.y = (int32_t)(((float)y / (float)(vWindowSize.y - (vViewPos.y * 2)) * (float)vScreenSize.y));
-		if (vDroppedFilesPointCache.x >= (int32_t)vScreenSize.x)	vDroppedFilesPointCache.x = vScreenSize.x - 1;
-		if (vDroppedFilesPointCache.y >= (int32_t)vScreenSize.y)	vDroppedFilesPointCache.y = vScreenSize.y - 1;
-		if (vDroppedFilesPointCache.x < 0) vDroppedFilesPointCache.x = 0;
-		if (vDroppedFilesPointCache.y < 0) vDroppedFilesPointCache.y = 0;
-		vDroppedFilesCache = vFiles; 
-	}
-
-	void PixelGameEngine::olc_Reanimate()
-	{ bAtomActive = true; }
-
-	bool PixelGameEngine::olc_IsRunning()
-	{ return bAtomActive; }
-
-	void PixelGameEngine::olc_Terminate()
-	{ bAtomActive = false; }
-
-	void PixelGameEngine::EngineThread()
-	{
-		// Allow platform to do stuff here if needed, since its now in the
-		// context of this thread
-		if (platform->ThreadStartUp() == olc::FAIL)	return;
-
-		// Do engine context specific initialisation
-		olc_PrepareEngine();
-
-		// Create user resources as part of this thread
-		for (auto& ext : vExtensions) ext->OnBeforeUserCreate();
-		if (!OnUserCreate()) bAtomActive = false;
-		for (auto& ext : vExtensions) ext->OnAfterUserCreate();
-
-		while (bAtomActive)
+		std::string PixelGameEngine::TextEntryGetString() const
 		{
-			// Run as fast as possible
-			while (bAtomActive) { olc_CoreUpdate(); }
-
-			// Allow the user to free resources if they have overrided the destroy function
-			if (!OnUserDestroy())
-			{
-				// User denied destroy for some reason, so continue running
-				bAtomActive = true;
-			}
+			return sTextEntryString;
 		}
 
-		platform->ThreadCleanUp();
-	}
-
-	void PixelGameEngine::olc_PrepareEngine()
-	{
-		// Start OpenGL, the context is owned by the game thread
-		if (platform->CreateGraphics(bFullScreen, bEnableVSYNC, vViewPos, vViewSize) == olc::FAIL) return;
-
-		// Construct default font sheet
-		olc_ConstructFontSheet();
-
-		// Create Primary Layer "0"
-		CreateLayer();
-		vLayers[0].bUpdate = true;
-		vLayers[0].bShow = true;
-		SetDrawTarget(nullptr);
-
-		m_tp1 = std::chrono::system_clock::now();
-		m_tp2 = std::chrono::system_clock::now();
-	}
-
-
-	void PixelGameEngine::olc_CoreUpdate()
-	{
-		// Handle Timing
-		m_tp2 = std::chrono::system_clock::now();
-		std::chrono::duration<float> elapsedTime = m_tp2 - m_tp1;
-		m_tp1 = m_tp2;
-
-		// Our time per frame coefficient
-		float fElapsedTime = elapsedTime.count();
-		fLastElapsed = fElapsedTime;
-
-		if (bConsoleSuspendTime)
-			fElapsedTime = 0.0f;
-
-		// Some platforms will need to check for events
-		platform->HandleSystemEvent();
-
-		// Compare hardware input states from previous frame
-		auto ScanHardware = [&](HWButton* pKeys, bool* pStateOld, bool* pStateNew, uint32_t nKeyCount)
+		int32_t PixelGameEngine::TextEntryGetCursor() const
 		{
-			for (uint32_t i = 0; i < nKeyCount; i++)
-			{
-				pKeys[i].bPressed = false;
-				pKeys[i].bReleased = false;
-				if (pStateNew[i] != pStateOld[i])
+			return nTextEntryCursor;
+		}
+
+		bool PixelGameEngine::IsTextEntryEnabled() const
+		{
+			return bTextEntryEnable;
+		}
+
+
+		void PixelGameEngine::UpdateTextEntry()
+		{
+			// Check for typed characters
+			for (const auto& key : vKeyboardMap)
+				if (GetKey(std::get<0>(key)).bPressed)
 				{
-					if (pStateNew[i])
+					sTextEntryString.insert(nTextEntryCursor, GetKey(olc::Key::SHIFT).bHeld ? std::get<2>(key) : std::get<1>(key));
+					nTextEntryCursor++;
+				}
+
+			// Check for command characters
+			if (GetKey(olc::Key::LEFT).bPressed)
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+			if (GetKey(olc::Key::RIGHT).bPressed)
+				nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
+			if (GetKey(olc::Key::BACK).bPressed && nTextEntryCursor > 0)
+			{
+				sTextEntryString.erase(nTextEntryCursor - 1, 1);
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+			}
+			if (GetKey(olc::Key::DEL).bPressed && nTextEntryCursor < sTextEntryString.size())
+				sTextEntryString.erase(nTextEntryCursor, 1);
+
+			if (GetKey(olc::Key::UP).bPressed)
+			{
+				if (!sCommandHistory.empty())
+				{
+					if (sCommandHistoryIt != sCommandHistory.begin())
+						sCommandHistoryIt--;
+
+					nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+					sTextEntryString = *sCommandHistoryIt;
+				}
+			}
+
+			if (GetKey(olc::Key::DOWN).bPressed)
+			{
+				if (!sCommandHistory.empty())
+				{
+					if (sCommandHistoryIt != sCommandHistory.end())
 					{
-						pKeys[i].bPressed = !pKeys[i].bHeld;
-						pKeys[i].bHeld = true;
-					}
-					else
-					{
-						pKeys[i].bReleased = true;
-						pKeys[i].bHeld = false;
+						sCommandHistoryIt++;
+						if (sCommandHistoryIt != sCommandHistory.end())
+						{
+							nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+							sTextEntryString = *sCommandHistoryIt;
+						}
+						else
+						{
+							nTextEntryCursor = 0;
+							sTextEntryString = "";
+						}
 					}
 				}
-				pStateOld[i] = pStateNew[i];
 			}
-		};
 
-		ScanHardware(pKeyboardState, pKeyOldState, pKeyNewState, 256);
-		ScanHardware(pMouseState, pMouseOldState, pMouseNewState, nMouseButtons);
-
-		// Cache mouse coordinates so they remain consistent during frame
-		vMousePos = vMousePosCache;
-		nMouseWheelDelta = nMouseWheelDeltaCache;
-		nMouseWheelDeltaCache = 0;
-
-		vDroppedFiles = vDroppedFilesCache;
-		vDroppedFilesPoint = vDroppedFilesPointCache;
-		vDroppedFilesCache.clear();
-
-		if (bTextEntryEnable)
-		{
-			UpdateTextEntry();
-		}
-
-		// Handle Frame Update
-		bool bExtensionBlockFrame = false;		
-		for (auto& ext : vExtensions) bExtensionBlockFrame |= ext->OnBeforeUserUpdate(fElapsedTime);
-		if (!bExtensionBlockFrame)
-		{
-			if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
-			
-		}
-		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
-
-		if (bConsoleShow)
-		{
-			SetDrawTarget((uint8_t)0);
-			UpdateConsole();
-		}
-
-		
-
-		// Display Frame
-		renderer->UpdateViewport(vViewPos, vViewSize);
-		renderer->ClearBuffer(olc::BLACK, true);
-
-		// Layer 0 must always exist
-		vLayers[0].bUpdate = true;
-		vLayers[0].bShow = true;
-		SetDecalMode(DecalMode::NORMAL);
-		renderer->PrepareDrawing();
-
-		for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
-		{
-			if (layer->bShow)
+			if (GetKey(olc::Key::ENTER).bPressed)
 			{
-				if (layer->funcHook == nullptr)
+				if (bConsoleShow)
 				{
-					renderer->ApplyTexture(layer->pDrawTarget.Decal()->id);
-					if (!bSuspendTextureTransfer && layer->bUpdate)
+					std::cout << ">" + sTextEntryString + "\n";
+					if (OnConsoleCommand(sTextEntryString))
 					{
-						layer->pDrawTarget.Decal()->Update();
-						layer->bUpdate = false;
+						sCommandHistory.push_back(sTextEntryString);
+						sCommandHistoryIt = sCommandHistory.end();
 					}
-
-					renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
-
-					// Display Decals in order for this layer
-					for (auto& decal : layer->vecDecalInstance)
-						renderer->DrawDecal(decal);
-					layer->vecDecalInstance.clear();
+					sTextEntryString.clear();
+					nTextEntryCursor = 0;
 				}
 				else
 				{
-					// Mwa ha ha.... Have Fun!!!
-					layer->funcHook();
+					OnTextEntryComplete(sTextEntryString);
+					TextEntryEnable(false);
 				}
 			}
 		}
 
-		
+		// User must override these functions as required. I have not made
+		// them abstract because I do need a default behaviour to occur if
+		// they are not overwritten
 
-		// Present Graphics to screen
-		renderer->DisplayFrame();
-
-		// Update Title Bar
-		fFrameTimer += fElapsedTime;
-		nFrameCount++;
-		if (fFrameTimer >= 1.0f)
+		bool PixelGameEngine::OnUserCreate()
 		{
-			nLastFPS = nFrameCount;
-			fFrameTimer -= 1.0f;
-			std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
-			platform->SetWindowTitle(sTitle);
-			nFrameCount = 0;
+			return false;
 		}
-	}
 
-	void PixelGameEngine::olc_ConstructFontSheet()
-	{
-		std::string data;
-		data += "?Q`0001oOch0o01o@F40o0<AGD4090LAGD<090@A7ch0?00O7Q`0600>00000000";
-		data += "O000000nOT0063Qo4d8>?7a14Gno94AA4gno94AaOT0>o3`oO400o7QN00000400";
-		data += "Of80001oOg<7O7moBGT7O7lABET024@aBEd714AiOdl717a_=TH013Q>00000000";
-		data += "720D000V?V5oB3Q_HdUoE7a9@DdDE4A9@DmoE4A;Hg]oM4Aj8S4D84@`00000000";
-		data += "OaPT1000Oa`^13P1@AI[?g`1@A=[OdAoHgljA4Ao?WlBA7l1710007l100000000";
-		data += "ObM6000oOfMV?3QoBDD`O7a0BDDH@5A0BDD<@5A0BGeVO5ao@CQR?5Po00000000";
-		data += "Oc``000?Ogij70PO2D]??0Ph2DUM@7i`2DTg@7lh2GUj?0TO0C1870T?00000000";
-		data += "70<4001o?P<7?1QoHg43O;`h@GT0@:@LB@d0>:@hN@L0@?aoN@<0O7ao0000?000";
-		data += "OcH0001SOglLA7mg24TnK7ln24US>0PL24U140PnOgl0>7QgOcH0K71S0000A000";
-		data += "00H00000@Dm1S007@DUSg00?OdTnH7YhOfTL<7Yh@Cl0700?@Ah0300700000000";
-		data += "<008001QL00ZA41a@6HnI<1i@FHLM81M@@0LG81?O`0nC?Y7?`0ZA7Y300080000";
-		data += "O`082000Oh0827mo6>Hn?Wmo?6HnMb11MP08@C11H`08@FP0@@0004@000000000";
-		data += "00P00001Oab00003OcKP0006@6=PMgl<@440MglH@000000`@000001P00000000";
-		data += "Ob@8@@00Ob@8@Ga13R@8Mga172@8?PAo3R@827QoOb@820@0O`0007`0000007P0";
-		data += "O`000P08Od400g`<3V=P0G`673IP0`@3>1`00P@6O`P00g`<O`000GP800000000";
-		data += "?P9PL020O`<`N3R0@E4HC7b0@ET<ATB0@@l6C4B0O`H3N7b0?P01L3R000000020";
-
-		fontRenderable.Create(128, 48);
-
-		int px = 0, py = 0;
-		for (size_t b = 0; b < 1024; b += 4)
+		bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
 		{
-			uint32_t sym1 = (uint32_t)data[b + 0] - 48;
-			uint32_t sym2 = (uint32_t)data[b + 1] - 48;
-			uint32_t sym3 = (uint32_t)data[b + 2] - 48;
-			uint32_t sym4 = (uint32_t)data[b + 3] - 48;
-			uint32_t r = sym1 << 18 | sym2 << 12 | sym3 << 6 | sym4;
+			UNUSED(fElapsedTime);  return false;
+		}
 
-			for (int i = 0; i < 24; i++)
+		bool PixelGameEngine::OnUserDestroy()
+		{
+			return true;
+		}
+
+		void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
+		bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
+
+		// Externalised API
+		void PixelGameEngine::olc_UpdateViewport()
+		{
+			int32_t ww = vScreenSize.x * vPixelSize.x;
+			int32_t wh = vScreenSize.y * vPixelSize.y;
+			float wasp = (float)ww / (float)wh;
+
+			if (bPixelCohesion)
 			{
-				int k = r & (1 << i) ? 255 : 0;
-				fontRenderable.Sprite()->SetPixel(px, py, olc::Pixel(k, k, k, k));
-				if (++py == 48) { px++; py = 0; }
+				vScreenPixelSize = (vWindowSize / vScreenSize);
+				vViewSize = (vWindowSize / vScreenSize) * vScreenSize;
+			}
+			else
+			{
+				vViewSize.x = (int32_t)vWindowSize.x;
+				vViewSize.y = (int32_t)((float)vViewSize.x / wasp);
+
+				if (vViewSize.y > vWindowSize.y)
+				{
+					vViewSize.y = vWindowSize.y;
+					vViewSize.x = (int32_t)((float)vViewSize.y * wasp);
+				}
+			}
+
+			vViewPos = (vWindowSize - vViewSize) / 2;
+		}
+
+		void PixelGameEngine::olc_UpdateWindowSize(int32_t x, int32_t y)
+		{
+			vWindowSize = { x, y };
+			olc_UpdateViewport();
+		}
+
+		void PixelGameEngine::olc_UpdateMouseWheel(int32_t delta)
+		{
+			nMouseWheelDeltaCache += delta;
+		}
+
+		void PixelGameEngine::olc_UpdateMouse(int32_t x, int32_t y)
+		{
+			// Mouse coords come in screen space
+			// But leave in pixel space
+			bHasMouseFocus = true;
+			vMouseWindowPos = { x, y };
+			// Full Screen mode may have a weird viewport we must clamp to
+			x -= vViewPos.x;
+			y -= vViewPos.y;
+			vMousePosCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
+			vMousePosCache.y = (int32_t)(((float)y / (float)(vWindowSize.y - (vViewPos.y * 2)) * (float)vScreenSize.y));
+			if (vMousePosCache.x >= (int32_t)vScreenSize.x)	vMousePosCache.x = vScreenSize.x - 1;
+			if (vMousePosCache.y >= (int32_t)vScreenSize.y)	vMousePosCache.y = vScreenSize.y - 1;
+			if (vMousePosCache.x < 0) vMousePosCache.x = 0;
+			if (vMousePosCache.y < 0) vMousePosCache.y = 0;
+		}
+
+		void PixelGameEngine::olc_UpdateMouseState(int32_t button, bool state)
+		{
+			pMouseNewState[button] = state;
+		}
+
+		void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
+		{
+			pKeyNewState[key] = state;
+		}
+
+		void PixelGameEngine::olc_UpdateMouseFocus(bool state)
+		{
+			bHasMouseFocus = state;
+		}
+
+		void PixelGameEngine::olc_UpdateKeyFocus(bool state)
+		{
+			bHasInputFocus = state;
+		}
+
+		void PixelGameEngine::olc_DropFiles(int32_t x, int32_t y, const std::vector<std::string>& vFiles)
+		{
+			x -= vViewPos.x;
+			y -= vViewPos.y;
+			vDroppedFilesPointCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
+			vDroppedFilesPointCache.y = (int32_t)(((float)y / (float)(vWindowSize.y - (vViewPos.y * 2)) * (float)vScreenSize.y));
+			if (vDroppedFilesPointCache.x >= (int32_t)vScreenSize.x)	vDroppedFilesPointCache.x = vScreenSize.x - 1;
+			if (vDroppedFilesPointCache.y >= (int32_t)vScreenSize.y)	vDroppedFilesPointCache.y = vScreenSize.y - 1;
+			if (vDroppedFilesPointCache.x < 0) vDroppedFilesPointCache.x = 0;
+			if (vDroppedFilesPointCache.y < 0) vDroppedFilesPointCache.y = 0;
+			vDroppedFilesCache = vFiles;
+		}
+
+		void PixelGameEngine::olc_Reanimate()
+		{
+			bAtomActive = true;
+		}
+
+		bool PixelGameEngine::olc_IsRunning()
+		{
+			return bAtomActive;
+		}
+
+		void PixelGameEngine::olc_Terminate()
+		{
+			bAtomActive = false;
+		}
+
+		void PixelGameEngine::EngineThread()
+		{
+			// Allow platform to do stuff here if needed, since its now in the
+			// context of this thread
+			if (platform->ThreadStartUp() == olc::FAIL)	return;
+
+			// Do engine context specific initialisation
+			olc_PrepareEngine();
+
+			// Create user resources as part of this thread
+			for (auto& ext : vExtensions) ext->OnBeforeUserCreate();
+			if (!OnUserCreate()) bAtomActive = false;
+			for (auto& ext : vExtensions) ext->OnAfterUserCreate();
+
+			while (bAtomActive)
+			{
+				// Run as fast as possible
+				while (bAtomActive) { olc_CoreUpdate(); }
+
+				// Allow the user to free resources if they have overrided the destroy function
+				if (!OnUserDestroy())
+				{
+					// User denied destroy for some reason, so continue running
+					bAtomActive = true;
+				}
+			}
+
+			platform->ThreadCleanUp();
+		}
+
+		void PixelGameEngine::olc_PrepareEngine()
+		{
+			// Start OpenGL, the context is owned by the game thread
+			if (platform->CreateGraphics(bFullScreen, bEnableVSYNC, vViewPos, vViewSize) == olc::FAIL) return;
+
+			// Construct default font sheet
+			olc_ConstructFontSheet();
+
+			// Create Primary Layer "0"
+			CreateLayer();
+			vLayers[0].bUpdate = true;
+			vLayers[0].bShow = true;
+			SetDrawTarget(nullptr);
+
+			m_tp1 = std::chrono::system_clock::now();
+			m_tp2 = std::chrono::system_clock::now();
+		}
+
+
+		void PixelGameEngine::olc_CoreUpdate()
+		{
+			// Handle Timing
+			m_tp2 = std::chrono::system_clock::now();
+			std::chrono::duration<float> elapsedTime = m_tp2 - m_tp1;
+			m_tp1 = m_tp2;
+
+			// Our time per frame coefficient
+			float fElapsedTime = elapsedTime.count();
+			fLastElapsed = fElapsedTime;
+
+			if (bConsoleSuspendTime)
+				fElapsedTime = 0.0f;
+
+			// Some platforms will need to check for events
+			platform->HandleSystemEvent();
+
+			// Compare hardware input states from previous frame
+			auto ScanHardware = [&](HWButton* pKeys, bool* pStateOld, bool* pStateNew, uint32_t nKeyCount)
+			{
+				for (uint32_t i = 0; i < nKeyCount; i++)
+				{
+					pKeys[i].bPressed = false;
+					pKeys[i].bReleased = false;
+					if (pStateNew[i] != pStateOld[i])
+					{
+						if (pStateNew[i])
+						{
+							pKeys[i].bPressed = !pKeys[i].bHeld;
+							pKeys[i].bHeld = true;
+						}
+						else
+						{
+							pKeys[i].bReleased = true;
+							pKeys[i].bHeld = false;
+						}
+					}
+					pStateOld[i] = pStateNew[i];
+				}
+			};
+
+			ScanHardware(pKeyboardState, pKeyOldState, pKeyNewState, 256);
+			ScanHardware(pMouseState, pMouseOldState, pMouseNewState, nMouseButtons);
+
+			// Cache mouse coordinates so they remain consistent during frame
+			vMousePos = vMousePosCache;
+			nMouseWheelDelta = nMouseWheelDeltaCache;
+			nMouseWheelDeltaCache = 0;
+
+			vDroppedFiles = vDroppedFilesCache;
+			vDroppedFilesPoint = vDroppedFilesPointCache;
+			vDroppedFilesCache.clear();
+
+			if (bTextEntryEnable)
+			{
+				UpdateTextEntry();
+			}
+
+			// Handle Frame Update
+			bool bExtensionBlockFrame = false;
+			for (auto& ext : vExtensions) bExtensionBlockFrame |= ext->OnBeforeUserUpdate(fElapsedTime);
+			if (!bExtensionBlockFrame)
+			{
+				if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
+
+			}
+			for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
+
+			if (bConsoleShow)
+			{
+				SetDrawTarget((uint8_t)0);
+				UpdateConsole();
+			}
+
+
+
+			// Display Frame
+			renderer->UpdateViewport(vViewPos, vViewSize);
+			renderer->ClearBuffer(olc::BLACK, true);
+
+			// Layer 0 must always exist
+			vLayers[0].bUpdate = true;
+			vLayers[0].bShow = true;
+			SetDecalMode(DecalMode::NORMAL);
+			renderer->PrepareDrawing();
+
+			for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
+			{
+				if (layer->bShow)
+				{
+					if (layer->funcHook == nullptr)
+					{
+						renderer->ApplyTexture(layer->pDrawTarget.Decal()->id);
+						if (!bSuspendTextureTransfer && layer->bUpdate)
+						{
+							layer->pDrawTarget.Decal()->Update();
+							layer->bUpdate = false;
+						}
+
+						renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
+
+						// Display Decals in order for this layer
+						for (auto& decal : layer->vecDecalInstance)
+							renderer->DrawDecal(decal);
+						layer->vecDecalInstance.clear();
+					}
+					else
+					{
+						// Mwa ha ha.... Have Fun!!!
+						layer->funcHook();
+					}
+				}
+			}
+
+
+
+			// Present Graphics to screen
+			renderer->DisplayFrame();
+
+			// Update Title Bar
+			fFrameTimer += fElapsedTime;
+			nFrameCount++;
+			if (fFrameTimer >= 1.0f)
+			{
+				nLastFPS = nFrameCount;
+				fFrameTimer -= 1.0f;
+				std::string sTitle = "OneLoneCoder.com - Pixel Game Engine - " + sAppName + " - FPS: " + std::to_string(nFrameCount);
+				platform->SetWindowTitle(sTitle);
+				nFrameCount = 0;
 			}
 		}
 
-		fontRenderable.Decal()->Update();
-
-		constexpr std::array<uint8_t, 96> vSpacing = { {
-			0x03,0x25,0x16,0x08,0x07,0x08,0x08,0x04,0x15,0x15,0x08,0x07,0x15,0x07,0x24,0x08,
-			0x08,0x17,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x24,0x15,0x06,0x07,0x16,0x17,
-			0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x17,0x08,0x08,0x08,
-			0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x08,0x08,0x17,0x08,0x15,0x08,0x15,0x08,0x08,
-			0x24,0x18,0x17,0x17,0x17,0x17,0x17,0x17,0x17,0x33,0x17,0x17,0x33,0x18,0x17,0x17,
-			0x17,0x17,0x17,0x17,0x07,0x17,0x17,0x18,0x18,0x17,0x17,0x07,0x33,0x07,0x08,0x00, } };
-
-		for (auto c : vSpacing) vFontSpacing.push_back({ c >> 4, c & 15 });
-
-		// UK Standard Layout
-#ifdef OLC_KEYBOARD_UK
-		vKeyboardMap =
+		void PixelGameEngine::olc_ConstructFontSheet()
 		{
-			{olc::Key::A, "a", "A"}, {olc::Key::B, "b", "B"}, {olc::Key::C, "c", "C"}, {olc::Key::D, "d", "D"}, {olc::Key::E, "e", "E"},
-			{olc::Key::F, "f", "F"}, {olc::Key::G, "g", "G"}, {olc::Key::H, "h", "H"}, {olc::Key::I, "i", "I"}, {olc::Key::J, "j", "J"},
-			{olc::Key::K, "k", "K"}, {olc::Key::L, "l", "L"}, {olc::Key::M, "m", "M"}, {olc::Key::N, "n", "N"}, {olc::Key::O, "o", "O"},
-			{olc::Key::P, "p", "P"}, {olc::Key::Q, "q", "Q"}, {olc::Key::R, "r", "R"}, {olc::Key::S, "s", "S"}, {olc::Key::T, "t", "T"},
-			{olc::Key::U, "u", "U"}, {olc::Key::V, "v", "V"}, {olc::Key::W, "w", "W"}, {olc::Key::X, "x", "X"}, {olc::Key::Y, "y", "Y"},
-			{olc::Key::Z, "z", "Z"},
+			std::string data;
+			data += "?Q`0001oOch0o01o@F40o0<AGD4090LAGD<090@A7ch0?00O7Q`0600>00000000";
+			data += "O000000nOT0063Qo4d8>?7a14Gno94AA4gno94AaOT0>o3`oO400o7QN00000400";
+			data += "Of80001oOg<7O7moBGT7O7lABET024@aBEd714AiOdl717a_=TH013Q>00000000";
+			data += "720D000V?V5oB3Q_HdUoE7a9@DdDE4A9@DmoE4A;Hg]oM4Aj8S4D84@`00000000";
+			data += "OaPT1000Oa`^13P1@AI[?g`1@A=[OdAoHgljA4Ao?WlBA7l1710007l100000000";
+			data += "ObM6000oOfMV?3QoBDD`O7a0BDDH@5A0BDD<@5A0BGeVO5ao@CQR?5Po00000000";
+			data += "Oc``000?Ogij70PO2D]??0Ph2DUM@7i`2DTg@7lh2GUj?0TO0C1870T?00000000";
+			data += "70<4001o?P<7?1QoHg43O;`h@GT0@:@LB@d0>:@hN@L0@?aoN@<0O7ao0000?000";
+			data += "OcH0001SOglLA7mg24TnK7ln24US>0PL24U140PnOgl0>7QgOcH0K71S0000A000";
+			data += "00H00000@Dm1S007@DUSg00?OdTnH7YhOfTL<7Yh@Cl0700?@Ah0300700000000";
+			data += "<008001QL00ZA41a@6HnI<1i@FHLM81M@@0LG81?O`0nC?Y7?`0ZA7Y300080000";
+			data += "O`082000Oh0827mo6>Hn?Wmo?6HnMb11MP08@C11H`08@FP0@@0004@000000000";
+			data += "00P00001Oab00003OcKP0006@6=PMgl<@440MglH@000000`@000001P00000000";
+			data += "Ob@8@@00Ob@8@Ga13R@8Mga172@8?PAo3R@827QoOb@820@0O`0007`0000007P0";
+			data += "O`000P08Od400g`<3V=P0G`673IP0`@3>1`00P@6O`P00g`<O`000GP800000000";
+			data += "?P9PL020O`<`N3R0@E4HC7b0@ET<ATB0@@l6C4B0O`H3N7b0?P01L3R000000020";
 
-			{olc::Key::K0, "0", ")"}, {olc::Key::K1, "1", "!"}, {olc::Key::K2, "2", "\""}, {olc::Key::K3, "3", "#"},	{olc::Key::K4, "4", "$"},
-			{olc::Key::K5, "5", "%"}, {olc::Key::K6, "6", "^"}, {olc::Key::K7, "7", "&"}, {olc::Key::K8, "8", "*"},	{olc::Key::K9, "9", "("},
+			fontRenderable.Create(128, 48);
 
-			{olc::Key::NP0, "0", "0"}, {olc::Key::NP1, "1", "1"}, {olc::Key::NP2, "2", "2"}, {olc::Key::NP3, "3", "3"},	{olc::Key::NP4, "4", "4"},
-			{olc::Key::NP5, "5", "5"}, {olc::Key::NP6, "6", "6"}, {olc::Key::NP7, "7", "7"}, {olc::Key::NP8, "8", "8"},	{olc::Key::NP9, "9", "9"},
-			{olc::Key::NP_MUL, "*", "*"}, {olc::Key::NP_DIV, "/", "/"}, {olc::Key::NP_ADD, "+", "+"}, {olc::Key::NP_SUB, "-", "-"},	{olc::Key::NP_DECIMAL, ".", "."},
+			int px = 0, py = 0;
+			for (size_t b = 0; b < 1024; b += 4)
+			{
+				uint32_t sym1 = (uint32_t)data[b + 0] - 48;
+				uint32_t sym2 = (uint32_t)data[b + 1] - 48;
+				uint32_t sym3 = (uint32_t)data[b + 2] - 48;
+				uint32_t sym4 = (uint32_t)data[b + 3] - 48;
+				uint32_t r = sym1 << 18 | sym2 << 12 | sym3 << 6 | sym4;
 
-			{olc::Key::PERIOD, ".", ">"}, {olc::Key::EQUALS, "=", "+"}, {olc::Key::COMMA, ",", "<"}, {olc::Key::MINUS, "-", "_"}, {olc::Key::SPACE, " ", " "},
+				for (int i = 0; i < 24; i++)
+				{
+					int k = r & (1 << i) ? 255 : 0;
+					fontRenderable.Sprite()->SetPixel(px, py, olc::Pixel(k, k, k, k));
+					if (++py == 48) { px++; py = 0; }
+				}
+			}
 
-			{olc::Key::OEM_1, ";", ":"}, {olc::Key::OEM_2, "/", "?"}, {olc::Key::OEM_3, "\'", "@"}, {olc::Key::OEM_4, "[", "{"},
-			{olc::Key::OEM_5, "\\", "|"}, {olc::Key::OEM_6, "]", "}"}, {olc::Key::OEM_7, "#", "~"}, 
-			
-			// {olc::Key::TAB, "\t", "\t"}
-		};
+			fontRenderable.Decal()->Update();
+
+			constexpr std::array<uint8_t, 96> vSpacing = { {
+				0x03,0x25,0x16,0x08,0x07,0x08,0x08,0x04,0x15,0x15,0x08,0x07,0x15,0x07,0x24,0x08,
+				0x08,0x17,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x24,0x15,0x06,0x07,0x16,0x17,
+				0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x17,0x08,0x08,0x08,
+				0x08,0x08,0x08,0x08,0x17,0x08,0x08,0x08,0x08,0x17,0x08,0x15,0x08,0x15,0x08,0x08,
+				0x24,0x18,0x17,0x17,0x17,0x17,0x17,0x17,0x17,0x33,0x17,0x17,0x33,0x18,0x17,0x17,
+				0x17,0x17,0x17,0x17,0x07,0x17,0x17,0x18,0x18,0x17,0x17,0x07,0x33,0x07,0x08,0x00, } };
+
+			for (auto c : vSpacing) vFontSpacing.push_back({ c >> 4, c & 15 });
+
+			// UK Standard Layout
+#ifdef OLC_KEYBOARD_UK
+			vKeyboardMap =
+			{
+				{olc::Key::A, "a", "A"}, {olc::Key::B, "b", "B"}, {olc::Key::C, "c", "C"}, {olc::Key::D, "d", "D"}, {olc::Key::E, "e", "E"},
+				{olc::Key::F, "f", "F"}, {olc::Key::G, "g", "G"}, {olc::Key::H, "h", "H"}, {olc::Key::I, "i", "I"}, {olc::Key::J, "j", "J"},
+				{olc::Key::K, "k", "K"}, {olc::Key::L, "l", "L"}, {olc::Key::M, "m", "M"}, {olc::Key::N, "n", "N"}, {olc::Key::O, "o", "O"},
+				{olc::Key::P, "p", "P"}, {olc::Key::Q, "q", "Q"}, {olc::Key::R, "r", "R"}, {olc::Key::S, "s", "S"}, {olc::Key::T, "t", "T"},
+				{olc::Key::U, "u", "U"}, {olc::Key::V, "v", "V"}, {olc::Key::W, "w", "W"}, {olc::Key::X, "x", "X"}, {olc::Key::Y, "y", "Y"},
+				{olc::Key::Z, "z", "Z"},
+
+				{olc::Key::K0, "0", ")"}, {olc::Key::K1, "1", "!"}, {olc::Key::K2, "2", "\""}, {olc::Key::K3, "3", "#"},	{olc::Key::K4, "4", "$"},
+				{olc::Key::K5, "5", "%"}, {olc::Key::K6, "6", "^"}, {olc::Key::K7, "7", "&"}, {olc::Key::K8, "8", "*"},	{olc::Key::K9, "9", "("},
+
+				{olc::Key::NP0, "0", "0"}, {olc::Key::NP1, "1", "1"}, {olc::Key::NP2, "2", "2"}, {olc::Key::NP3, "3", "3"},	{olc::Key::NP4, "4", "4"},
+				{olc::Key::NP5, "5", "5"}, {olc::Key::NP6, "6", "6"}, {olc::Key::NP7, "7", "7"}, {olc::Key::NP8, "8", "8"},	{olc::Key::NP9, "9", "9"},
+				{olc::Key::NP_MUL, "*", "*"}, {olc::Key::NP_DIV, "/", "/"}, {olc::Key::NP_ADD, "+", "+"}, {olc::Key::NP_SUB, "-", "-"},	{olc::Key::NP_DECIMAL, ".", "."},
+
+				{olc::Key::PERIOD, ".", ">"}, {olc::Key::EQUALS, "=", "+"}, {olc::Key::COMMA, ",", "<"}, {olc::Key::MINUS, "-", "_"}, {olc::Key::SPACE, " ", " "},
+
+				{olc::Key::OEM_1, ";", ":"}, {olc::Key::OEM_2, "/", "?"}, {olc::Key::OEM_3, "\'", "@"}, {olc::Key::OEM_4, "[", "{"},
+				{olc::Key::OEM_5, "\\", "|"}, {olc::Key::OEM_6, "]", "}"}, {olc::Key::OEM_7, "#", "~"},
+
+				// {olc::Key::TAB, "\t", "\t"}
+			};
 #endif
-	}
+		}
 
-	void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
-	{
-		if (std::find(vExtensions.begin(), vExtensions.end(), pgex) == vExtensions.end())
-			vExtensions.push_back(pgex);			
-	}
+		void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
+		{
+			if (std::find(vExtensions.begin(), vExtensions.end(), pgex) == vExtensions.end())
+				vExtensions.push_back(pgex);
+		}
 
 
-	PGEX::PGEX(bool bHook) { if(bHook) pge->pgex_Register(this); }
-	void PGEX::OnBeforeUserCreate() {}
-	void PGEX::OnAfterUserCreate()	{}
-	bool PGEX::OnBeforeUserUpdate(float& fElapsedTime) { return false; }
-	void PGEX::OnAfterUserUpdate(float fElapsedTime) {}
+		PGEX::PGEX(bool bHook) { if (bHook) pge->pgex_Register(this); }
+		void PGEX::OnBeforeUserCreate() {}
+		void PGEX::OnAfterUserCreate() {}
+		bool PGEX::OnBeforeUserUpdate(float& fElapsedTime) { return false; }
+		void PGEX::OnAfterUserUpdate(float fElapsedTime) {}
 
-	// Need a couple of statics as these are singleton instances
-	// read from multiple locations
-	std::atomic<bool> PixelGameEngine::bAtomActive{ false };
-	olc::PixelGameEngine* olc::PGEX::pge = nullptr;
-	olc::PixelGameEngine* olc::Platform::ptrPGE = nullptr;
-	olc::PixelGameEngine* olc::Renderer::ptrPGE = nullptr;
-	std::unique_ptr<ImageLoader> olc::Sprite::loader = nullptr;
-};
+		// Need a couple of statics as these are singleton instances
+		// read from multiple locations
+		std::atomic<bool> PixelGameEngine::bAtomActive{ false };
+		olc::PixelGameEngine* olc::PGEX::pge = nullptr;
+		olc::PixelGameEngine* olc::Platform::ptrPGE = nullptr;
+		olc::PixelGameEngine* olc::Renderer::ptrPGE = nullptr;
+		std::unique_ptr<ImageLoader> olc::Sprite::loader = nullptr;
+	};
 #pragma endregion 
 
 
 #pragma region platform_headless
-namespace olc
-{
-#if defined(OLC_GFX_HEADLESS)
-	class Renderer_Headless : public olc::Renderer
+	namespace olc
 	{
-	public:
-		virtual void       PrepareDevice() {};
-		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK;		}
-		virtual olc::rcode DestroyDevice() { return olc::rcode::OK; }
-		virtual void       DisplayFrame() {}
-		virtual void       PrepareDrawing() {}
-		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
-		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
-		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
-		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) {return 1;};
-		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
-		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
-		virtual uint32_t   DeleteTexture(const uint32_t id) {return 1;}
-		virtual void       ApplyTexture(uint32_t id) {}
-		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) {}
-		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) {}
-	};
+#if defined(OLC_GFX_HEADLESS)
+		class Renderer_Headless : public olc::Renderer
+		{
+		public:
+			virtual void       PrepareDevice() {};
+			virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK; }
+			virtual olc::rcode DestroyDevice() { return olc::rcode::OK; }
+			virtual void       DisplayFrame() {}
+			virtual void       PrepareDrawing() {}
+			virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
+			virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
+			virtual void       DrawDecal(const olc::DecalInstance& decal) {}
+			virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) { return 1; };
+			virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
+			virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
+			virtual uint32_t   DeleteTexture(const uint32_t id) { return 1; }
+			virtual void       ApplyTexture(uint32_t id) {}
+			virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) {}
+			virtual void       ClearBuffer(olc::Pixel p, bool bDepth) {}
+		};
 #endif
 #if defined(OLC_PLATFORM_HEADLESS)
-	class Platform_Headless : public olc::Platform
-	{
-	public:
-		virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
-		virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
-		virtual olc::rcode ThreadStartUp() { return olc::rcode::OK; }
-		virtual olc::rcode ThreadCleanUp() { return olc::rcode::OK; }
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) { return olc::rcode::OK; }
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) { return olc::rcode::OK; }
-		virtual olc::rcode SetWindowTitle(const std::string& s) { return olc::rcode::OK; }
-		virtual olc::rcode StartSystemEventLoop() { return olc::rcode::OK; }
-		virtual olc::rcode HandleSystemEvent() { return olc::rcode::OK; }
-	};
+		class Platform_Headless : public olc::Platform
+		{
+		public:
+			virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
+			virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
+			virtual olc::rcode ThreadStartUp() { return olc::rcode::OK; }
+			virtual olc::rcode ThreadCleanUp() { return olc::rcode::OK; }
+			virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) { return olc::rcode::OK; }
+			virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) { return olc::rcode::OK; }
+			virtual olc::rcode SetWindowTitle(const std::string& s) { return olc::rcode::OK; }
+			virtual olc::rcode StartSystemEventLoop() { return olc::rcode::OK; }
+			virtual olc::rcode HandleSystemEvent() { return olc::rcode::OK; }
+		};
 #endif
-}
+	}
 #pragma endregion
 
-// O------------------------------------------------------------------------------O
-// | olcPixelGameEngine Renderers - the draw-y bits                               |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | olcPixelGameEngine Renderers - the draw-y bits                               |
+	// O------------------------------------------------------------------------------O
 
 #pragma region image_stb
 // O------------------------------------------------------------------------------O
@@ -4109,52 +7940,52 @@ namespace olc
 #if defined(OLC_IMAGE_STB)
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-namespace olc
-{
-	class ImageLoader_STB : public olc::ImageLoader
+	namespace olc
 	{
-	public:
-		ImageLoader_STB() : ImageLoader()
-		{}
-
-		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
+		class ImageLoader_STB : public olc::ImageLoader
 		{
-			UNUSED(pack);
-			// clear out existing sprite
-			spr->pColData.clear();
-			// Open file
-			stbi_uc* bytes = nullptr;
-			int w = 0, h = 0, cmp = 0;
-			if (pack != nullptr)
+		public:
+			ImageLoader_STB() : ImageLoader()
+			{}
+
+			olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
 			{
-				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
-			}
-			else
-			{
-				// Check file exists
-				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-				bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
+				UNUSED(pack);
+				// clear out existing sprite
+				spr->pColData.clear();
+				// Open file
+				stbi_uc* bytes = nullptr;
+				int w = 0, h = 0, cmp = 0;
+				if (pack != nullptr)
+				{
+					ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+					bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
+				}
+				else
+				{
+					// Check file exists
+					if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
+					bytes = stbi_load(sImageFile.c_str(), &w, &h, &cmp, 4);
+				}
+
+				if (!bytes) return olc::rcode::FAIL;
+				spr->width = w; spr->height = h;
+				spr->pColData.resize(spr->width * spr->height);
+				std::memcpy(spr->pColData.data(), bytes, spr->width * spr->height * 4);
+				delete[] bytes;
+				return olc::rcode::OK;
 			}
 
-			if (!bytes) return olc::rcode::FAIL;
-			spr->width = w; spr->height = h;
-			spr->pColData.resize(spr->width * spr->height);
-			std::memcpy(spr->pColData.data(), bytes, spr->width * spr->height * 4);
-			delete[] bytes;
-			return olc::rcode::OK;
-		}
-
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
-		{
-			return olc::rcode::OK;
-		}
-	};
-}
+			olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+			{
+				return olc::rcode::OK;
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | START IMAGE LOADER: stb_image.h                                              |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | START IMAGE LOADER: stb_image.h                                              |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 
@@ -4168,11 +7999,11 @@ namespace olc
 #if defined(OLC_GFX_OPENGL10)
 
 #if defined(OLC_PLATFORM_WINAPI)
-	#include <dwmapi.h>
-	#include <GL/gl.h>
-	#if !defined(__MINGW32__)
-		#pragma comment(lib, "Dwmapi.lib")
-	#endif
+#include <dwmapi.h>
+#include <GL/gl.h>
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif
 	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
 	static wglSwapInterval_t* wglSwapInterval = nullptr;
 	typedef HDC glDeviceContext_t;
@@ -4180,13 +8011,13 @@ namespace olc
 #endif
 
 #if defined(__linux__) || defined(__FreeBSD__)
-	#include <GL/gl.h>
+#include <GL/gl.h>
 #endif
 
 #if defined(OLC_PLATFORM_X11)
 	namespace X11
 	{
-		#include <GL/glx.h>
+#include <GL/glx.h>
 	}
 	typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
 	static glSwapInterval_t* glSwapIntervalEXT;
@@ -4195,361 +8026,361 @@ namespace olc
 #endif
 
 #if defined(__APPLE__)
-	#define GL_SILENCE_DEPRECATION
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #endif
 
-namespace olc
-{
-	class Renderer_OGL10 : public olc::Renderer
+	namespace olc
 	{
-	private:
+		class Renderer_OGL10 : public olc::Renderer
+		{
+		private:
 #if defined(OLC_PLATFORM_GLUT)
-		bool mFullScreen = false;
+			bool mFullScreen = false;
 #else
-		glDeviceContext_t glDeviceContext = 0;
-		glRenderContext_t glRenderContext = 0;
+			glDeviceContext_t glDeviceContext = 0;
+			glRenderContext_t glRenderContext = 0;
 #endif
 
-		bool bSync = false;
-		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
-		olc::DecalStructure nDecalStructure = olc::DecalStructure(-1);
+			bool bSync = false;
+			olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
+			olc::DecalStructure nDecalStructure = olc::DecalStructure(-1);
 #if defined(OLC_PLATFORM_X11)
-		X11::Display* olc_Display = nullptr;
-		X11::Window* olc_Window = nullptr;
-		X11::XVisualInfo* olc_VisualInfo = nullptr;
+			X11::Display* olc_Display = nullptr;
+			X11::Window* olc_Window = nullptr;
+			X11::XVisualInfo* olc_VisualInfo = nullptr;
 #endif
 
-	public:
-		void PrepareDevice() override
-		{
+		public:
+			void PrepareDevice() override
+			{
 #if defined(OLC_PLATFORM_GLUT)
-			//glutInit has to be called with main() arguments, make fake ones
-			int argc = 0;
-			char* argv[1] = { (char*)"" };
-			glutInit(&argc, argv);
-			glutInitWindowPosition(0, 0);
-			glutInitWindowSize(512, 512);
-			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
-			// Creates the window and the OpenGL context for it
-			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
-			glEnable(GL_TEXTURE_2D); // Turn on texturing
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+				//glutInit has to be called with main() arguments, make fake ones
+				int argc = 0;
+				char* argv[1] = { (char*)"" };
+				glutInit(&argc, argv);
+				glutInitWindowPosition(0, 0);
+				glutInitWindowSize(512, 512);
+				glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+				// Creates the window and the OpenGL context for it
+				glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+				glEnable(GL_TEXTURE_2D); // Turn on texturing
+				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
-		}
-
-		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
-		{
-#if defined(OLC_PLATFORM_WINAPI)
-			// Create Device Context
-			glDeviceContext = GetDC((HWND)(params[0]));
-			PIXELFORMATDESCRIPTOR pfd =
-			{
-				sizeof(PIXELFORMATDESCRIPTOR), 1,
-				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-				PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				PFD_MAIN_PLANE, 0, 0, 0, 0
-			};
-
-			int pf = 0;
-			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
-			SetPixelFormat(glDeviceContext, pf, &pfd);
-
-			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
-			wglMakeCurrent(glDeviceContext, glRenderContext);
-
-			// Remove Frame cap
-			wglSwapInterval = (wglSwapInterval_t*)wglGetProcAddress("wglSwapIntervalEXT");
-			if (wglSwapInterval && !bVSYNC) wglSwapInterval(0);
-			bSync = bVSYNC;
-#endif
-
-#if defined(OLC_PLATFORM_X11)
-			using namespace X11;
-			// Linux has tighter coupling between OpenGL and X11, so we store
-			// various "platform" handles in the renderer
-			olc_Display = (X11::Display*)(params[0]);
-			olc_Window = (X11::Window*)(params[1]);
-			olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
-
-			glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
-			glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
-
-			XWindowAttributes gwa;
-			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
-			glViewport(0, 0, gwa.width, gwa.height);
-
-			glSwapIntervalEXT = nullptr;
-			glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
-
-			if (glSwapIntervalEXT == nullptr && !bVSYNC)
-			{
-				printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
-				printf("      Don't worry though, things will still work, it's just the\n");
-				printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
 			}
 
-			if (glSwapIntervalEXT != nullptr && !bVSYNC)
-				glSwapIntervalEXT(olc_Display, *olc_Window, 0);
+			olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
+			{
+#if defined(OLC_PLATFORM_WINAPI)
+				// Create Device Context
+				glDeviceContext = GetDC((HWND)(params[0]));
+				PIXELFORMATDESCRIPTOR pfd =
+				{
+					sizeof(PIXELFORMATDESCRIPTOR), 1,
+					PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+					PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					PFD_MAIN_PLANE, 0, 0, 0, 0
+				};
+
+				int pf = 0;
+				if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
+				SetPixelFormat(glDeviceContext, pf, &pfd);
+
+				if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
+				wglMakeCurrent(glDeviceContext, glRenderContext);
+
+				// Remove Frame cap
+				wglSwapInterval = (wglSwapInterval_t*)wglGetProcAddress("wglSwapIntervalEXT");
+				if (wglSwapInterval && !bVSYNC) wglSwapInterval(0);
+				bSync = bVSYNC;
+#endif
+
+#if defined(OLC_PLATFORM_X11)
+				using namespace X11;
+				// Linux has tighter coupling between OpenGL and X11, so we store
+				// various "platform" handles in the renderer
+				olc_Display = (X11::Display*)(params[0]);
+				olc_Window = (X11::Window*)(params[1]);
+				olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
+
+				glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
+				glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
+
+				XWindowAttributes gwa;
+				XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
+				glViewport(0, 0, gwa.width, gwa.height);
+
+				glSwapIntervalEXT = nullptr;
+				glSwapIntervalEXT = (glSwapInterval_t*)glXGetProcAddress((unsigned char*)"glXSwapIntervalEXT");
+
+				if (glSwapIntervalEXT == nullptr && !bVSYNC)
+				{
+					printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
+					printf("      Don't worry though, things will still work, it's just the\n");
+					printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
+				}
+
+				if (glSwapIntervalEXT != nullptr && !bVSYNC)
+					glSwapIntervalEXT(olc_Display, *olc_Window, 0);
 #endif		
 
 #if defined(OLC_PLATFORM_GLUT)
-			mFullScreen = bFullScreen;
-			if (!bVSYNC)
-			{
+				mFullScreen = bFullScreen;
+				if (!bVSYNC)
+				{
 #if defined(__APPLE__)
-				GLint sync = 0;
-				CGLContextObj ctx = CGLGetCurrentContext();
-				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+					GLint sync = 0;
+					CGLContextObj ctx = CGLGetCurrentContext();
+					if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
 #endif
-			}
+				}
 #else
-			glEnable(GL_TEXTURE_2D); // Turn on texturing
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+				glEnable(GL_TEXTURE_2D); // Turn on texturing
+				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
-			return olc::rcode::OK;
-		}
+				return olc::rcode::OK;
+			}
 
-		olc::rcode DestroyDevice() override
-		{
+			olc::rcode DestroyDevice() override
+			{
 #if defined(OLC_PLATFORM_WINAPI)
-			wglDeleteContext(glRenderContext);
+				wglDeleteContext(glRenderContext);
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-			glXMakeCurrent(olc_Display, None, NULL);
-			glXDestroyContext(olc_Display, glDeviceContext);
+				glXMakeCurrent(olc_Display, None, NULL);
+				glXDestroyContext(olc_Display, glDeviceContext);
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-			glutDestroyWindow(glutGetWindow());
+				glutDestroyWindow(glutGetWindow());
 #endif
-			return olc::rcode::OK;
-		}
+				return olc::rcode::OK;
+			}
 
-		void DisplayFrame() override
-		{
+			void DisplayFrame() override
+			{
 #if defined(OLC_PLATFORM_WINAPI)
-			SwapBuffers(glDeviceContext);
-			if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
+				SwapBuffers(glDeviceContext);
+				if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
 #endif	
 
 #if defined(OLC_PLATFORM_X11)
-			X11::glXSwapBuffers(olc_Display, *olc_Window);
+				X11::glXSwapBuffers(olc_Display, *olc_Window);
 #endif		
 
 #if defined(OLC_PLATFORM_GLUT)
-			glutSwapBuffers();
+				glutSwapBuffers();
 #endif
-		}
-
-		void PrepareDrawing() override
-		{
-			
-			//ClearBuffer(olc::GREEN, true);
-			glEnable(GL_BLEND);
-			nDecalMode = DecalMode::NORMAL;
-			nDecalStructure = DecalStructure::FAN;
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-
-		void SetDecalMode(const olc::DecalMode& mode)
-		{
-			if (mode != nDecalMode)
-			{
-				switch (mode)
-				{
-				case olc::DecalMode::NORMAL:
-				case olc::DecalMode::MODEL3D:
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					break;
-				case olc::DecalMode::ADDITIVE:
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					break;
-				case olc::DecalMode::MULTIPLICATIVE:
-					glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-					break;
-				case olc::DecalMode::STENCIL:
-					glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-					break;
-				case olc::DecalMode::ILLUMINATE:
-					glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-					break;
-				case olc::DecalMode::WIREFRAME:
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					break;
-				}
-
-				nDecalMode = mode;
 			}
-		}
 
-		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
-		{
-			glBegin(GL_QUADS);
-			glColor4ub(tint.r, tint.g, tint.b, tint.a);
-			glTexCoord2f(0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
-			glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
-			glTexCoord2f(0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
-			glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
-			glTexCoord2f(1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
-			glVertex3f(1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
-			glTexCoord2f(1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
-			glVertex3f(1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
-			glEnd();
-		}
-
-		void DrawDecal(const olc::DecalInstance& decal) override
-		{
-			SetDecalMode(decal.mode);
-
-			if (decal.decal == nullptr)
-				glBindTexture(GL_TEXTURE_2D, 0);
-			else
-				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
-			
-			if (nDecalMode == DecalMode::MODEL3D)
+			void PrepareDrawing() override
 			{
-#ifdef OLC_ENABLE_EXPERIMENTAL
-				glMatrixMode(GL_PROJECTION); glPushMatrix();
-				glMatrixMode(GL_MODELVIEW);  glPushMatrix();
 
-				glEnable(GL_DEPTH_TEST);
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glFrustum(-1.0f, 1.0f, -1.0f, 1.0f, 1, 1000);
-
-				#pragma comment (lib, "winmm.lib")
-
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
-				glTranslatef(0, -40, -200);
-				glRotatef(float(clock()) * 0.1f, 1, 0, 0);
-				glRotatef(float(clock()) * 0.1f * 2, 0, 1, 0);
+				//ClearBuffer(olc::GREEN, true);
 				glEnable(GL_BLEND);
+				nDecalMode = DecalMode::NORMAL;
+				nDecalStructure = DecalStructure::FAN;
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-				glBegin(GL_TRIANGLES);
-				
-
-				// Render as 3D Spatial Entity
-				for (uint32_t n = 0; n < decal.points; n++)
-				{
-					glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
-					glTexCoord2f(decal.uv[n].x, decal.uv[n].y);
-					glVertex3f(decal.pos[n].x, decal.pos[n].y, decal.w[n]);
-				}
-
-				glEnd();
-
-				glMatrixMode(GL_PROJECTION); glPopMatrix();
-				glMatrixMode(GL_MODELVIEW);  glPopMatrix();
-				glDisable(GL_DEPTH_TEST);
-#endif
 			}
-			else
+
+			void SetDecalMode(const olc::DecalMode& mode)
 			{
-				if (nDecalMode == DecalMode::WIREFRAME)
-					glBegin(GL_LINE_LOOP);
+				if (mode != nDecalMode)
+				{
+					switch (mode)
+					{
+					case olc::DecalMode::NORMAL:
+					case olc::DecalMode::MODEL3D:
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						break;
+					case olc::DecalMode::ADDITIVE:
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+						break;
+					case olc::DecalMode::MULTIPLICATIVE:
+						glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+						break;
+					case olc::DecalMode::STENCIL:
+						glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+						break;
+					case olc::DecalMode::ILLUMINATE:
+						glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+						break;
+					case olc::DecalMode::WIREFRAME:
+						glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						break;
+					}
+
+					nDecalMode = mode;
+				}
+			}
+
+			void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
+			{
+				glBegin(GL_QUADS);
+				glColor4ub(tint.r, tint.g, tint.b, tint.a);
+				glTexCoord2f(0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
+				glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+				glTexCoord2f(0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
+				glVertex3f(-1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+				glTexCoord2f(1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y);
+				glVertex3f(1.0f /*+ vSubPixelOffset.x*/, 1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+				glTexCoord2f(1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
+				glVertex3f(1.0f /*+ vSubPixelOffset.x*/, -1.0f /*+ vSubPixelOffset.y*/, 0.0f);
+				glEnd();
+			}
+
+			void DrawDecal(const olc::DecalInstance& decal) override
+			{
+				SetDecalMode(decal.mode);
+
+				if (decal.decal == nullptr)
+					glBindTexture(GL_TEXTURE_2D, 0);
+				else
+					glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+
+				if (nDecalMode == DecalMode::MODEL3D)
+				{
+#ifdef OLC_ENABLE_EXPERIMENTAL
+					glMatrixMode(GL_PROJECTION); glPushMatrix();
+					glMatrixMode(GL_MODELVIEW);  glPushMatrix();
+
+					glEnable(GL_DEPTH_TEST);
+					glMatrixMode(GL_PROJECTION);
+					glLoadIdentity();
+					glFrustum(-1.0f, 1.0f, -1.0f, 1.0f, 1, 1000);
+
+#pragma comment (lib, "winmm.lib")
+
+					glMatrixMode(GL_MODELVIEW);
+					glLoadIdentity();
+					glTranslatef(0, -40, -200);
+					glRotatef(float(clock()) * 0.1f, 1, 0, 0);
+					glRotatef(float(clock()) * 0.1f * 2, 0, 1, 0);
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+					glBegin(GL_TRIANGLES);
+
+
+					// Render as 3D Spatial Entity
+					for (uint32_t n = 0; n < decal.points; n++)
+					{
+						glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
+						glTexCoord2f(decal.uv[n].x, decal.uv[n].y);
+						glVertex3f(decal.pos[n].x, decal.pos[n].y, decal.w[n]);
+					}
+
+					glEnd();
+
+					glMatrixMode(GL_PROJECTION); glPopMatrix();
+					glMatrixMode(GL_MODELVIEW);  glPopMatrix();
+					glDisable(GL_DEPTH_TEST);
+#endif
+				}
 				else
 				{
-					if(decal.structure == olc::DecalStructure::FAN)
-						glBegin(GL_TRIANGLE_FAN);
-					else if(decal.structure == olc::DecalStructure::STRIP)
-						glBegin(GL_TRIANGLE_STRIP);
-					else if(decal.structure == olc::DecalStructure::LIST)
-						glBegin(GL_TRIANGLES);
+					if (nDecalMode == DecalMode::WIREFRAME)
+						glBegin(GL_LINE_LOOP);
+					else
+					{
+						if (decal.structure == olc::DecalStructure::FAN)
+							glBegin(GL_TRIANGLE_FAN);
+						else if (decal.structure == olc::DecalStructure::STRIP)
+							glBegin(GL_TRIANGLE_STRIP);
+						else if (decal.structure == olc::DecalStructure::LIST)
+							glBegin(GL_TRIANGLES);
+					}
+
+					// Render as 2D Spatial entity
+					for (uint32_t n = 0; n < decal.points; n++)
+					{
+						glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
+						glTexCoord4f(decal.uv[n].x, decal.uv[n].y, 0.0f, decal.w[n]);
+						glVertex2f(decal.pos[n].x, decal.pos[n].y);
+					}
+
+					glEnd();
 				}
 
-				// Render as 2D Spatial entity
-				for (uint32_t n = 0; n < decal.points; n++)
+
+				//glDisable(GL_DEPTH_TEST);
+			}
+
+			uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
+			{
+				UNUSED(width);
+				UNUSED(height);
+				uint32_t id = 0;
+				glGenTextures(1, &id);
+				glBindTexture(GL_TEXTURE_2D, id);
+				if (filtered)
 				{
-					glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
-					glTexCoord4f(decal.uv[n].x, decal.uv[n].y, 0.0f, decal.w[n]);
-					glVertex2f(decal.pos[n].x, decal.pos[n].y);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				}
+				else
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				}
 
-				glEnd();
+				if (clamp)
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				}
+				else
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				}
+
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				return id;
 			}
-			
 
-			//glDisable(GL_DEPTH_TEST);
-		}
-
-		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
-		{
-			UNUSED(width);
-			UNUSED(height);
-			uint32_t id = 0;
-			glGenTextures(1, &id);
-			glBindTexture(GL_TEXTURE_2D, id);
-			if (filtered)
+			uint32_t DeleteTexture(const uint32_t id) override
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glDeleteTextures(1, &id);
+				return id;
 			}
-			else
+
+			void UpdateTexture(uint32_t id, olc::Sprite* spr) override
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				UNUSED(id);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 			}
 
-			if (clamp)
+			void ReadTexture(uint32_t id, olc::Sprite* spr) override
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 			}
-			else
+
+			void ApplyTexture(uint32_t id) override
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				glBindTexture(GL_TEXTURE_2D, id);
 			}
 
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			return id;
-		}
+			void ClearBuffer(olc::Pixel p, bool bDepth) override
+			{
+				glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				if (bDepth) glClear(GL_DEPTH_BUFFER_BIT);
+			}
 
-		uint32_t DeleteTexture(const uint32_t id) override
-		{
-			glDeleteTextures(1, &id);
-			return id;
-		}
-
-		void UpdateTexture(uint32_t id, olc::Sprite* spr) override
-		{
-			UNUSED(id);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
-		}
-
-		void ReadTexture(uint32_t id, olc::Sprite* spr) override
-		{
-			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
-		}
-
-		void ApplyTexture(uint32_t id) override
-		{
-			glBindTexture(GL_TEXTURE_2D, id);
-		}
-
-		void ClearBuffer(olc::Pixel p, bool bDepth) override
-		{
-			glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			if (bDepth) glClear(GL_DEPTH_BUFFER_BIT);
-		}
-
-		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
-		{
-			glViewport(pos.x, pos.y, size.x, size.y);
-		}
-	};
-}
+			void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
+			{
+				glViewport(pos.x, pos.y, size.x, size.y);
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | END RENDERER: OpenGL 1.0 (the original, the best...)                         |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END RENDERER: OpenGL 1.0 (the original, the best...)                         |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 #pragma region renderer_ogl33
@@ -4559,16 +8390,16 @@ namespace olc
 #if defined(OLC_GFX_OPENGL33)
 
 #if defined(OLC_PLATFORM_WINAPI)
-	#include <dwmapi.h>
-	//#include <gl/GL.h>
-	#if !defined(__MINGW32__)
-		#pragma comment(lib, "Dwmapi.lib")
-	#endif		
-	//typedef void __stdcall locSwapInterval_t(GLsizei n);
+#include <dwmapi.h>
+//#include <gl/GL.h>
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif		
+//typedef void __stdcall locSwapInterval_t(GLsizei n);
 	typedef HDC glDeviceContext_t;
 	typedef HGLRC glRenderContext_t;
 	//#define CALLSTYLE __stdcall
-	#define OGL_LOAD(t, n) (t*)wglGetProcAddress(#n)
+#define OGL_LOAD(t, n) (t*)wglGetProcAddress(#n)
 #endif
 //
 //#if defined(__linux__) || defined(__FreeBSD__)
@@ -4584,7 +8415,7 @@ namespace olc
 	typedef X11::GLXContext glDeviceContext_t;
 	typedef X11::GLXContext glRenderContext_t;
 	//#define CALLSTYLE 
-	#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
+#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
 #endif
 
 //#if defined(__APPLE__)
@@ -4606,490 +8437,490 @@ namespace olc
 //	#define OGL_LOAD(t, n) n;
 //#endif
 
-namespace olc
-{
-//	typedef char GLchar;
-//	typedef ptrdiff_t GLsizeiptr;
-//	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
-//	typedef GLuint CALLSTYLE locCreateProgram_t(void);
-//	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
-//#if defined(OLC_PLATFORM_EMSCRIPTEN)
-//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-//#else
-//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
-//#endif
-//	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
-//	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
-//	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
-//	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
-//	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
-//	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-//	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
-//	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
-//	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
-//	typedef void CALLSTYLE locUseProgram_t(GLuint program);
-//	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
-//	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
-//	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-//	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
-//	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
-//	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
-//	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
-//	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
-//	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
-//	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
-//	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
-//	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
-//	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-//	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
-//	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-
-	
-
-	class Renderer_OGL33 : public olc::Renderer
+	namespace olc
 	{
-	private:
+		//	typedef char GLchar;
+		//	typedef ptrdiff_t GLsizeiptr;
+		//	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+		//	typedef GLuint CALLSTYLE locCreateProgram_t(void);
+		//	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+		//#if defined(OLC_PLATFORM_EMSCRIPTEN)
+		//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+		//#else
+		//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+		//#endif
+		//	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+		//	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+		//	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+		//	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+		//	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+		//	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+		//	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+		//	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+		//	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+		//	typedef void CALLSTYLE locUseProgram_t(GLuint program);
+		//	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+		//	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+		//	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+		//	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
+		//	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
+		//	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
+		//	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+		//	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
+		//	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
+		//	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
+		//	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
+		//	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
+		//	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+		//	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
+		//	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+
+
+
+		class Renderer_OGL33 : public olc::Renderer
+		{
+		private:
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-		EGLDisplay olc_Display;
-		EGLConfig olc_Config;
-		EGLContext olc_Context;
-		EGLSurface olc_Surface;
+			EGLDisplay olc_Display;
+			EGLConfig olc_Config;
+			EGLContext olc_Context;
+			EGLSurface olc_Surface;
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-		bool mFullScreen = false;
+			bool mFullScreen = false;
 #else
-	#if !defined(OLC_PLATFORM_EMSCRIPTEN)
-		glDeviceContext_t glDeviceContext = 0;
-		glRenderContext_t glRenderContext = 0;
-	#endif
+#if !defined(OLC_PLATFORM_EMSCRIPTEN)
+			glDeviceContext_t glDeviceContext = 0;
+			glRenderContext_t glRenderContext = 0;
 #endif
-		bool bSync = false;
-		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
+#endif
+			bool bSync = false;
+			olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
 #if defined(OLC_PLATFORM_X11)
-		X11::Display* olc_Display = nullptr;
-		X11::Window* olc_Window = nullptr;
-		X11::XVisualInfo* olc_VisualInfo = nullptr;
+			X11::Display* olc_Display = nullptr;
+			X11::Window* olc_Window = nullptr;
+			X11::XVisualInfo* olc_VisualInfo = nullptr;
 #endif
 
-	private:
-		locCreateShader_t* locCreateShader = nullptr;
-		locShaderSource_t* locShaderSource = nullptr;
-		locCompileShader_t* locCompileShader = nullptr;
-		locDeleteShader_t* locDeleteShader = nullptr;
-		locCreateProgram_t* locCreateProgram = nullptr;
-		locDeleteProgram_t* locDeleteProgram = nullptr;
-		locLinkProgram_t* locLinkProgram = nullptr;
-		locAttachShader_t* locAttachShader = nullptr;
-		locBindBuffer_t* locBindBuffer = nullptr;
-		locBufferData_t* locBufferData = nullptr;
-		locGenBuffers_t* locGenBuffers = nullptr;
-		locVertexAttribPointer_t* locVertexAttribPointer = nullptr;
-		locEnableVertexAttribArray_t* locEnableVertexAttribArray = nullptr;
-		locUseProgram_t* locUseProgram = nullptr;
-		locBindVertexArray_t* locBindVertexArray = nullptr;
-		locGenVertexArrays_t* locGenVertexArrays = nullptr;
-		locSwapInterval_t* locSwapInterval = nullptr;
-		locGetShaderInfoLog_t* locGetShaderInfoLog = nullptr;
+		private:
+			locCreateShader_t* locCreateShader = nullptr;
+			locShaderSource_t* locShaderSource = nullptr;
+			locCompileShader_t* locCompileShader = nullptr;
+			locDeleteShader_t* locDeleteShader = nullptr;
+			locCreateProgram_t* locCreateProgram = nullptr;
+			locDeleteProgram_t* locDeleteProgram = nullptr;
+			locLinkProgram_t* locLinkProgram = nullptr;
+			locAttachShader_t* locAttachShader = nullptr;
+			locBindBuffer_t* locBindBuffer = nullptr;
+			locBufferData_t* locBufferData = nullptr;
+			locGenBuffers_t* locGenBuffers = nullptr;
+			locVertexAttribPointer_t* locVertexAttribPointer = nullptr;
+			locEnableVertexAttribArray_t* locEnableVertexAttribArray = nullptr;
+			locUseProgram_t* locUseProgram = nullptr;
+			locBindVertexArray_t* locBindVertexArray = nullptr;
+			locGenVertexArrays_t* locGenVertexArrays = nullptr;
+			locSwapInterval_t* locSwapInterval = nullptr;
+			locGetShaderInfoLog_t* locGetShaderInfoLog = nullptr;
 
-		uint32_t m_nFS = 0;
-		uint32_t m_nVS = 0;
-		uint32_t m_nQuadShader = 0;
-		uint32_t m_vbQuad = 0;
-		uint32_t m_vaQuad = 0;
+			uint32_t m_nFS = 0;
+			uint32_t m_nVS = 0;
+			uint32_t m_nQuadShader = 0;
+			uint32_t m_vbQuad = 0;
+			uint32_t m_vaQuad = 0;
 
-		struct locVertex
-		{
-			float pos[3];
-			olc::vf2d tex;
-			olc::Pixel col;
-		};
-
-		locVertex pVertexMem[OLC_MAX_VERTS];
-
-		olc::Renderable rendBlankQuad;
-
-	public:
-		void PrepareDevice() override
-		{
-#if defined(OLC_PLATFORM_GLUT)
-			//glutInit has to be called with main() arguments, make fake ones
-			int argc = 0;
-			char* argv[1] = { (char*)"" };
-			glutInit(&argc, argv);
-			glutInitWindowPosition(0, 0);
-			glutInitWindowSize(512, 512);
-			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
-			// Creates the window and the OpenGL context for it
-			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
-			glEnable(GL_TEXTURE_2D); // Turn on texturing
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-#endif
-		}
-
-		olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
-		{
-			// Create OpenGL Context
-#if defined(OLC_PLATFORM_WINAPI)
-			// Create Device Context
-			glDeviceContext = GetDC((HWND)(params[0]));
-			PIXELFORMATDESCRIPTOR pfd =
+			struct locVertex
 			{
-				sizeof(PIXELFORMATDESCRIPTOR), 1,
-				PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-				PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				PFD_MAIN_PLANE, 0, 0, 0, 0
+				float pos[3];
+				olc::vf2d tex;
+				olc::Pixel col;
 			};
 
-			int pf = 0;
-			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
-			SetPixelFormat(glDeviceContext, pf, &pfd);
+			locVertex pVertexMem[OLC_MAX_VERTS];
 
-			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
-			wglMakeCurrent(glDeviceContext, glRenderContext);
+			olc::Renderable rendBlankQuad;
 
-			// Set Vertical Sync
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, wglSwapIntervalEXT);
-			if (locSwapInterval && !bVSYNC) locSwapInterval(0);
-			bSync = bVSYNC;
+		public:
+			void PrepareDevice() override
+			{
+#if defined(OLC_PLATFORM_GLUT)
+				//glutInit has to be called with main() arguments, make fake ones
+				int argc = 0;
+				char* argv[1] = { (char*)"" };
+				glutInit(&argc, argv);
+				glutInitWindowPosition(0, 0);
+				glutInitWindowSize(512, 512);
+				glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+				// Creates the window and the OpenGL context for it
+				glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+				glEnable(GL_TEXTURE_2D); // Turn on texturing
+				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#endif
+			}
+
+			olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override
+			{
+				// Create OpenGL Context
+#if defined(OLC_PLATFORM_WINAPI)
+			// Create Device Context
+				glDeviceContext = GetDC((HWND)(params[0]));
+				PIXELFORMATDESCRIPTOR pfd =
+				{
+					sizeof(PIXELFORMATDESCRIPTOR), 1,
+					PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+					PFD_TYPE_RGBA, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+					PFD_MAIN_PLANE, 0, 0, 0, 0
+				};
+
+				int pf = 0;
+				if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
+				SetPixelFormat(glDeviceContext, pf, &pfd);
+
+				if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
+				wglMakeCurrent(glDeviceContext, glRenderContext);
+
+				// Set Vertical Sync
+				locSwapInterval = OGL_LOAD(locSwapInterval_t, wglSwapIntervalEXT);
+				if (locSwapInterval && !bVSYNC) locSwapInterval(0);
+				bSync = bVSYNC;
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-			using namespace X11;
-			// Linux has tighter coupling between OpenGL and X11, so we store
-			// various "platform" handles in the renderer
-			olc_Display = (X11::Display*)(params[0]);
-			olc_Window = (X11::Window*)(params[1]);
-			olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
+				using namespace X11;
+				// Linux has tighter coupling between OpenGL and X11, so we store
+				// various "platform" handles in the renderer
+				olc_Display = (X11::Display*)(params[0]);
+				olc_Window = (X11::Window*)(params[1]);
+				olc_VisualInfo = (X11::XVisualInfo*)(params[2]);
 
-			glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
-			glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
+				glDeviceContext = glXCreateContext(olc_Display, olc_VisualInfo, nullptr, GL_TRUE);
+				glXMakeCurrent(olc_Display, *olc_Window, glDeviceContext);
 
-			XWindowAttributes gwa;
-			XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
-			glViewport(0, 0, gwa.width, gwa.height);
+				XWindowAttributes gwa;
+				XGetWindowAttributes(olc_Display, *olc_Window, &gwa);
+				glViewport(0, 0, gwa.width, gwa.height);
 
-			locSwapInterval = OGL_LOAD(locSwapInterval_t, glXSwapIntervalEXT);
+				locSwapInterval = OGL_LOAD(locSwapInterval_t, glXSwapIntervalEXT);
 
-			if (locSwapInterval == nullptr && !bVSYNC)
-			{
-				printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
-				printf("      Don't worry though, things will still work, it's just the\n");
-				printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
-			}
+				if (locSwapInterval == nullptr && !bVSYNC)
+				{
+					printf("NOTE: Could not disable VSYNC, glXSwapIntervalEXT() was not found!\n");
+					printf("      Don't worry though, things will still work, it's just the\n");
+					printf("      frame rate will be capped to your monitors refresh rate - javidx9\n");
+				}
 
-			if (locSwapInterval != nullptr && !bVSYNC)
-				locSwapInterval(olc_Display, *olc_Window, 0);
+				if (locSwapInterval != nullptr && !bVSYNC)
+					locSwapInterval(olc_Display, *olc_Window, 0);
 #endif		
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_NONE };
-			EGLint const context_config[] = { EGL_CONTEXT_CLIENT_VERSION , 2, EGL_NONE };
-			EGLint num_config;
+				EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_NONE };
+				EGLint const context_config[] = { EGL_CONTEXT_CLIENT_VERSION , 2, EGL_NONE };
+				EGLint num_config;
 
-			olc_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-			eglInitialize(olc_Display, nullptr, nullptr);
-			eglChooseConfig(olc_Display, attribute_list, &olc_Config, 1, &num_config);
+				olc_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+				eglInitialize(olc_Display, nullptr, nullptr);
+				eglChooseConfig(olc_Display, attribute_list, &olc_Config, 1, &num_config);
 
-			/* create an EGL rendering context */
-			olc_Context = eglCreateContext(olc_Display, olc_Config, EGL_NO_CONTEXT, context_config);
-			olc_Surface = eglCreateWindowSurface(olc_Display, olc_Config, NULL, nullptr);
-			eglMakeCurrent(olc_Display, olc_Surface, olc_Surface, olc_Context);
-			//eglSwapInterval is currently a NOP, plement anyways in case it becomes supported
-			locSwapInterval = &eglSwapInterval;
-			locSwapInterval(olc_Display, bVSYNC ? 1 : 0);
+				/* create an EGL rendering context */
+				olc_Context = eglCreateContext(olc_Display, olc_Config, EGL_NO_CONTEXT, context_config);
+				olc_Surface = eglCreateWindowSurface(olc_Display, olc_Config, NULL, nullptr);
+				eglMakeCurrent(olc_Display, olc_Surface, olc_Surface, olc_Context);
+				//eglSwapInterval is currently a NOP, plement anyways in case it becomes supported
+				locSwapInterval = &eglSwapInterval;
+				locSwapInterval(olc_Display, bVSYNC ? 1 : 0);
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-			mFullScreen = bFullScreen;
-			if (!bVSYNC)
-			{
+				mFullScreen = bFullScreen;
+				if (!bVSYNC)
+				{
 #if defined(__APPLE__)
-				GLint sync = 0;
-				CGLContextObj ctx = CGLGetCurrentContext();
-				if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+					GLint sync = 0;
+					CGLContextObj ctx = CGLGetCurrentContext();
+					if (ctx) CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
 #endif
-			}
+				}
 #else
-	#if !defined(OLC_PLATFORM_EMSCRIPTEN)
-			glEnable(GL_TEXTURE_2D); // Turn on texturing
-			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	#endif
-#endif
-			// Load External OpenGL Functions
-			locCreateShader = OGL_LOAD(locCreateShader_t, glCreateShader);
-			locCompileShader = OGL_LOAD(locCompileShader_t, glCompileShader);
-			locShaderSource = OGL_LOAD(locShaderSource_t, glShaderSource);
-			locDeleteShader = OGL_LOAD(locDeleteShader_t, glDeleteShader);
-			locCreateProgram = OGL_LOAD(locCreateProgram_t, glCreateProgram);
-			locDeleteProgram = OGL_LOAD(locDeleteProgram_t, glDeleteProgram);
-			locLinkProgram = OGL_LOAD(locLinkProgram_t, glLinkProgram);
-			locAttachShader = OGL_LOAD(locAttachShader_t, glAttachShader);
-			locBindBuffer = OGL_LOAD(locBindBuffer_t, glBindBuffer);
-			locBufferData = OGL_LOAD(locBufferData_t, glBufferData);
-			locGenBuffers = OGL_LOAD(locGenBuffers_t, glGenBuffers);
-			locVertexAttribPointer = OGL_LOAD(locVertexAttribPointer_t, glVertexAttribPointer);
-			locEnableVertexAttribArray = OGL_LOAD(locEnableVertexAttribArray_t, glEnableVertexAttribArray);
-			locUseProgram = OGL_LOAD(locUseProgram_t, glUseProgram);
-			locGetShaderInfoLog = OGL_LOAD(locGetShaderInfoLog_t, glGetShaderInfoLog);
 #if !defined(OLC_PLATFORM_EMSCRIPTEN)
-			locBindVertexArray = OGL_LOAD(locBindVertexArray_t, glBindVertexArray);
-			locGenVertexArrays = OGL_LOAD(locGenVertexArrays_t, glGenVertexArrays);
+				glEnable(GL_TEXTURE_2D); // Turn on texturing
+				glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+#endif
+#endif
+				// Load External OpenGL Functions
+				locCreateShader = OGL_LOAD(locCreateShader_t, glCreateShader);
+				locCompileShader = OGL_LOAD(locCompileShader_t, glCompileShader);
+				locShaderSource = OGL_LOAD(locShaderSource_t, glShaderSource);
+				locDeleteShader = OGL_LOAD(locDeleteShader_t, glDeleteShader);
+				locCreateProgram = OGL_LOAD(locCreateProgram_t, glCreateProgram);
+				locDeleteProgram = OGL_LOAD(locDeleteProgram_t, glDeleteProgram);
+				locLinkProgram = OGL_LOAD(locLinkProgram_t, glLinkProgram);
+				locAttachShader = OGL_LOAD(locAttachShader_t, glAttachShader);
+				locBindBuffer = OGL_LOAD(locBindBuffer_t, glBindBuffer);
+				locBufferData = OGL_LOAD(locBufferData_t, glBufferData);
+				locGenBuffers = OGL_LOAD(locGenBuffers_t, glGenBuffers);
+				locVertexAttribPointer = OGL_LOAD(locVertexAttribPointer_t, glVertexAttribPointer);
+				locEnableVertexAttribArray = OGL_LOAD(locEnableVertexAttribArray_t, glEnableVertexAttribArray);
+				locUseProgram = OGL_LOAD(locUseProgram_t, glUseProgram);
+				locGetShaderInfoLog = OGL_LOAD(locGetShaderInfoLog_t, glGetShaderInfoLog);
+#if !defined(OLC_PLATFORM_EMSCRIPTEN)
+				locBindVertexArray = OGL_LOAD(locBindVertexArray_t, glBindVertexArray);
+				locGenVertexArrays = OGL_LOAD(locGenVertexArrays_t, glGenVertexArrays);
 #else
-			locBindVertexArray = glBindVertexArrayOES;
-			locGenVertexArrays = glGenVertexArraysOES;
+				locBindVertexArray = glBindVertexArrayOES;
+				locGenVertexArrays = glGenVertexArraysOES;
 #endif
 
-			// Load & Compile Quad Shader - assumes no errors
-			m_nFS = locCreateShader(0x8B30);
-			const GLchar* strFS =
+				// Load & Compile Quad Shader - assumes no errors
+				m_nFS = locCreateShader(0x8B30);
+				const GLchar* strFS =
 #if defined(__arm__) || defined(OLC_PLATFORM_EMSCRIPTEN)
-				"#version 300 es\n"
-				"precision mediump float;"
+					"#version 300 es\n"
+					"precision mediump float;"
 #else
-				"#version 330 core\n"
+					"#version 330 core\n"
 #endif
-				"out vec4 pixel;\n""in vec2 oTex;\n"
-				"in vec4 oCol;\n""uniform sampler2D sprTex;\n""void main(){pixel = texture(sprTex, oTex) * oCol;}";
-			locShaderSource(m_nFS, 1, &strFS, NULL);
-			locCompileShader(m_nFS);
+					"out vec4 pixel;\n""in vec2 oTex;\n"
+					"in vec4 oCol;\n""uniform sampler2D sprTex;\n""void main(){pixel = texture(sprTex, oTex) * oCol;}";
+				locShaderSource(m_nFS, 1, &strFS, NULL);
+				locCompileShader(m_nFS);
 
-			m_nVS = locCreateShader(0x8B31);
-			const GLchar* strVS =
+				m_nVS = locCreateShader(0x8B31);
+				const GLchar* strVS =
 #if defined(__arm__) || defined(OLC_PLATFORM_EMSCRIPTEN)
-				"#version 300 es\n"
-				"precision mediump float;"
+					"#version 300 es\n"
+					"precision mediump float;"
 #else
-				"#version 330 core\n"
+					"#version 330 core\n"
 #endif
-				"layout(location = 0) in vec3 aPos;\n""layout(location = 1) in vec2 aTex;\n"
-				"layout(location = 2) in vec4 aCol;\n""out vec2 oTex;\n""out vec4 oCol;\n"
-				"void main(){ float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex; oCol = aCol;}";
-			locShaderSource(m_nVS, 1, &strVS, NULL);
-			locCompileShader(m_nVS);
+					"layout(location = 0) in vec3 aPos;\n""layout(location = 1) in vec2 aTex;\n"
+					"layout(location = 2) in vec4 aCol;\n""out vec2 oTex;\n""out vec4 oCol;\n"
+					"void main(){ float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex; oCol = aCol;}";
+				locShaderSource(m_nVS, 1, &strVS, NULL);
+				locCompileShader(m_nVS);
 
-			m_nQuadShader = locCreateProgram();
-			locAttachShader(m_nQuadShader, m_nFS);
-			locAttachShader(m_nQuadShader, m_nVS);
-			locLinkProgram(m_nQuadShader);
+				m_nQuadShader = locCreateProgram();
+				locAttachShader(m_nQuadShader, m_nFS);
+				locAttachShader(m_nQuadShader, m_nVS);
+				locLinkProgram(m_nQuadShader);
 
-			// Create Quad
-			locGenBuffers(1, &m_vbQuad);
-			locGenVertexArrays(1, &m_vaQuad);
-			locBindVertexArray(m_vaQuad);
-			locBindBuffer(0x8892, m_vbQuad);
+				// Create Quad
+				locGenBuffers(1, &m_vbQuad);
+				locGenVertexArrays(1, &m_vaQuad);
+				locBindVertexArray(m_vaQuad);
+				locBindBuffer(0x8892, m_vbQuad);
 
-			locVertex verts[OLC_MAX_VERTS];
-			locBufferData(0x8892, sizeof(locVertex) * OLC_MAX_VERTS, verts, 0x88E0);
-			locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
-			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
-			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
-			locBindBuffer(0x8892, 0);
-			locBindVertexArray(0);
+				locVertex verts[OLC_MAX_VERTS];
+				locBufferData(0x8892, sizeof(locVertex) * OLC_MAX_VERTS, verts, 0x88E0);
+				locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
+				locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
+				locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
+				locBindBuffer(0x8892, 0);
+				locBindVertexArray(0);
 
-			// Create blank texture for spriteless decals
-			rendBlankQuad.Create(1, 1);
-			rendBlankQuad.Sprite()->GetData()[0] = olc::WHITE;
-			rendBlankQuad.Decal()->Update();
-			return olc::rcode::OK;
-		}
+				// Create blank texture for spriteless decals
+				rendBlankQuad.Create(1, 1);
+				rendBlankQuad.Sprite()->GetData()[0] = olc::WHITE;
+				rendBlankQuad.Decal()->Update();
+				return olc::rcode::OK;
+			}
 
-		olc::rcode DestroyDevice() override
-		{
+			olc::rcode DestroyDevice() override
+			{
 #if defined(OLC_PLATFORM_WINAPI)
-			wglDeleteContext(glRenderContext);
+				wglDeleteContext(glRenderContext);
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-			glXMakeCurrent(olc_Display, None, NULL);
-			glXDestroyContext(olc_Display, glDeviceContext);
+				glXMakeCurrent(olc_Display, None, NULL);
+				glXDestroyContext(olc_Display, glDeviceContext);
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-			glutDestroyWindow(glutGetWindow());
+				glutDestroyWindow(glutGetWindow());
 #endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			eglMakeCurrent(olc_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-			eglDestroyContext(olc_Display, olc_Context);
-			eglDestroySurface(olc_Display, olc_Surface);
-			eglTerminate(olc_Display);
-			olc_Display = EGL_NO_DISPLAY;
-			olc_Surface = EGL_NO_SURFACE;
-			olc_Context = EGL_NO_CONTEXT;
+				eglMakeCurrent(olc_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+				eglDestroyContext(olc_Display, olc_Context);
+				eglDestroySurface(olc_Display, olc_Surface);
+				eglTerminate(olc_Display);
+				olc_Display = EGL_NO_DISPLAY;
+				olc_Surface = EGL_NO_SURFACE;
+				olc_Context = EGL_NO_CONTEXT;
 #endif
-			return olc::rcode::OK;
-		}
+				return olc::rcode::OK;
+			}
 
-		void DisplayFrame() override
-		{
+			void DisplayFrame() override
+			{
 #if defined(OLC_PLATFORM_WINAPI)
-			SwapBuffers(glDeviceContext);
-			if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
+				SwapBuffers(glDeviceContext);
+				if (bSync) DwmFlush(); // Woooohooooooo!!!! SMOOOOOOOTH!
 #endif	
 
 #if defined(OLC_PLATFORM_X11)
-			X11::glXSwapBuffers(olc_Display, *olc_Window);
+				X11::glXSwapBuffers(olc_Display, *olc_Window);
 #endif		
 
 #if defined(OLC_PLATFORM_GLUT)
-			glutSwapBuffers();
+				glutSwapBuffers();
 #endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			eglSwapBuffers(olc_Display, olc_Surface);
+				eglSwapBuffers(olc_Display, olc_Surface);
 #endif
-		}
+			}
 
-		void PrepareDrawing() override
-		{
-			glEnable(GL_BLEND);
-			nDecalMode = DecalMode::NORMAL;
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			locUseProgram(m_nQuadShader);
-			locBindVertexArray(m_vaQuad);
-
-#if defined(OLC_PLATFORM_EMSCRIPTEN)
-			locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
-			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
-			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
-#endif
-		}
-
-		void SetDecalMode(const olc::DecalMode& mode) override
-		{
-			if (mode != nDecalMode)
+			void PrepareDrawing() override
 			{
-				switch (mode)
+				glEnable(GL_BLEND);
+				nDecalMode = DecalMode::NORMAL;
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				locUseProgram(m_nQuadShader);
+				locBindVertexArray(m_vaQuad);
+
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+				locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
+				locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
+				locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
+#endif
+			}
+
+			void SetDecalMode(const olc::DecalMode& mode) override
+			{
+				if (mode != nDecalMode)
 				{
-				case olc::DecalMode::NORMAL: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
-				case olc::DecalMode::ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
-				case olc::DecalMode::MULTIPLICATIVE: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);	break;
-				case olc::DecalMode::STENCIL: glBlendFunc(GL_ZERO, GL_SRC_ALPHA); break;
-				case olc::DecalMode::ILLUMINATE: glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);	break;
-				case olc::DecalMode::WIREFRAME: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
+					switch (mode)
+					{
+					case olc::DecalMode::NORMAL: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
+					case olc::DecalMode::ADDITIVE: glBlendFunc(GL_SRC_ALPHA, GL_ONE); break;
+					case olc::DecalMode::MULTIPLICATIVE: glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);	break;
+					case olc::DecalMode::STENCIL: glBlendFunc(GL_ZERO, GL_SRC_ALPHA); break;
+					case olc::DecalMode::ILLUMINATE: glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);	break;
+					case olc::DecalMode::WIREFRAME: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	break;
+					}
+
+					nDecalMode = mode;
+				}
+			}
+
+			void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
+			{
+				locBindBuffer(0x8892, m_vbQuad);
+				locVertex verts[4] = {
+					{{-1.0f, -1.0f, 1.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+					{{+1.0f, -1.0f, 1.0}, {1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+					{{-1.0f, +1.0f, 1.0}, {0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+					{{+1.0f, +1.0f, 1.0}, {1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+				};
+
+				locBufferData(0x8892, sizeof(locVertex) * 4, verts, 0x88E0);
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			}
+
+			void DrawDecal(const olc::DecalInstance& decal) override
+			{
+				SetDecalMode(decal.mode);
+				if (decal.decal == nullptr)
+					glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
+				else
+					glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+
+				locBindBuffer(0x8892, m_vbQuad);
+
+				for (uint32_t i = 0; i < decal.points; i++)
+					pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i] }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
+
+				locBufferData(0x8892, sizeof(locVertex) * decal.points, pVertexMem, 0x88E0);
+
+				if (nDecalMode == DecalMode::WIREFRAME)
+					glDrawArrays(GL_LINE_LOOP, 0, decal.points);
+				else
+				{
+					if (decal.structure == olc::DecalStructure::FAN)
+						glDrawArrays(GL_TRIANGLE_FAN, 0, decal.points);
+					else if (decal.structure == olc::DecalStructure::STRIP)
+						glDrawArrays(GL_TRIANGLE_STRIP, 0, decal.points);
+					else if (decal.structure == olc::DecalStructure::LIST)
+						glDrawArrays(GL_TRIANGLES, 0, decal.points);
+				}
+			}
+
+			uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
+			{
+				UNUSED(width);
+				UNUSED(height);
+				uint32_t id = 0;
+				glGenTextures(1, &id);
+				glBindTexture(GL_TEXTURE_2D, id);
+
+				if (filtered)
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				}
+				else
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				}
 
-				nDecalMode = mode;
-			}
-		}
-
-		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
-		{
-			locBindBuffer(0x8892, m_vbQuad);
-			locVertex verts[4] = {
-				{{-1.0f, -1.0f, 1.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
-				{{+1.0f, -1.0f, 1.0}, {1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
-				{{-1.0f, +1.0f, 1.0}, {0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
-				{{+1.0f, +1.0f, 1.0}, {1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
-			};
-
-			locBufferData(0x8892, sizeof(locVertex) * 4, verts, 0x88E0);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		}
-
-		void DrawDecal(const olc::DecalInstance& decal) override
-		{
-			SetDecalMode(decal.mode);
-			if (decal.decal == nullptr)
-				glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
-			else
-				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
-
-			locBindBuffer(0x8892, m_vbQuad);
-
-			for (uint32_t i = 0; i < decal.points; i++)
-				pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i] }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
-
-			locBufferData(0x8892, sizeof(locVertex) * decal.points, pVertexMem, 0x88E0);
-
-			if (nDecalMode == DecalMode::WIREFRAME)
-				glDrawArrays(GL_LINE_LOOP, 0, decal.points);
-			else
-			{
-				if (decal.structure == olc::DecalStructure::FAN)
-					glDrawArrays(GL_TRIANGLE_FAN, 0, decal.points);
-				else if (decal.structure == olc::DecalStructure::STRIP)
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, decal.points);
-				else if (decal.structure == olc::DecalStructure::LIST)
-					glDrawArrays(GL_TRIANGLES, 0, decal.points);
-			}
-		}
-
-		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
-		{
-			UNUSED(width);
-			UNUSED(height);
-			uint32_t id = 0;
-			glGenTextures(1, &id);
-			glBindTexture(GL_TEXTURE_2D, id);
-
-			if (filtered)
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			}
-
-			if (clamp)
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-			}
-			else
-			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			}
+				if (clamp)
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+				}
+				else
+				{
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+				}
 #if !defined(OLC_PLATFORM_EMSCRIPTEN)
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 #endif
-			return id;
-		}
+				return id;
+			}
 
-		uint32_t DeleteTexture(const uint32_t id) override
-		{
-			glDeleteTextures(1, &id);
-			return id;
-		}
+			uint32_t DeleteTexture(const uint32_t id) override
+			{
+				glDeleteTextures(1, &id);
+				return id;
+			}
 
-		void UpdateTexture(uint32_t id, olc::Sprite* spr) override
-		{
-			UNUSED(id);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
-		}
+			void UpdateTexture(uint32_t id, olc::Sprite* spr) override
+			{
+				UNUSED(id);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, spr->width, spr->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			}
 
-		void ReadTexture(uint32_t id, olc::Sprite* spr) override
-		{
-			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
-		}
+			void ReadTexture(uint32_t id, olc::Sprite* spr) override
+			{
+				glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			}
 
-		void ApplyTexture(uint32_t id) override
-		{
-			glBindTexture(GL_TEXTURE_2D, id);
-		}
+			void ApplyTexture(uint32_t id) override
+			{
+				glBindTexture(GL_TEXTURE_2D, id);
+			}
 
-		void ClearBuffer(olc::Pixel p, bool bDepth) override
-		{
-			glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-			if (bDepth) glClear(GL_DEPTH_BUFFER_BIT);
-		}
+			void ClearBuffer(olc::Pixel p, bool bDepth) override
+			{
+				glClearColor(float(p.r) / 255.0f, float(p.g) / 255.0f, float(p.b) / 255.0f, float(p.a) / 255.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				if (bDepth) glClear(GL_DEPTH_BUFFER_BIT);
+			}
 
-		void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
-		{
-			glViewport(pos.x, pos.y, size.x, size.y);
-		}
-	};
-}
+			void UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override
+			{
+				glViewport(pos.x, pos.y, size.x, size.y);
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | END RENDERER: OpenGL 3.3 (3.0 es) (sh-sh-sh-shaders....)                     |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END RENDERER: OpenGL 3.3 (3.0 es) (sh-sh-sh-shaders....)                     |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 // O------------------------------------------------------------------------------O
@@ -5107,114 +8938,114 @@ namespace olc
 #include <objidl.h>
 #include <gdiplus.h>
 #if defined(__MINGW32__) // Thanks Gusgo & Dandistine, but c'mon mingw!! wtf?!
-	#include <gdiplus/gdiplusinit.h>
+#include <gdiplus/gdiplusinit.h>
 #else
-	#include <gdiplusinit.h>
+#include <gdiplusinit.h>
 #endif
 #include <shlwapi.h>
 #undef min
 #undef max
 
 #if !defined(__MINGW32__)
-	#pragma comment(lib, "gdiplus.lib")
-	#pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "gdiplus.lib")
+#pragma comment(lib, "Shlwapi.lib")
 #endif
 
-namespace olc
-{
-	// Thanks @MaGetzUb for this, which allows sprites to be defined
-	// at construction, by initialising the GDI subsystem
-	static class GDIPlusStartup
+	namespace olc
 	{
-	public:
-		GDIPlusStartup()
-		{			
-			Gdiplus::GdiplusStartupInput startupInput;
-			GdiplusStartup(&token, &startupInput, NULL);
-		}
-
-		ULONG_PTR	token;
-		
-		~GDIPlusStartup()
+		// Thanks @MaGetzUb for this, which allows sprites to be defined
+		// at construction, by initialising the GDI subsystem
+		static class GDIPlusStartup
 		{
-			// Well, MarcusTU thought this was important :D
-			Gdiplus::GdiplusShutdown(token);
-		}
-	} gdistartup;
+		public:
+			GDIPlusStartup()
+			{
+				Gdiplus::GdiplusStartupInput startupInput;
+				GdiplusStartup(&token, &startupInput, NULL);
+			}
 
-	class ImageLoader_GDIPlus : public olc::ImageLoader
-	{
-	private:
-		std::wstring ConvertS2W(std::string s)
+			ULONG_PTR	token;
+
+			~GDIPlusStartup()
+			{
+				// Well, MarcusTU thought this was important :D
+				Gdiplus::GdiplusShutdown(token);
+			}
+		} gdistartup;
+
+		class ImageLoader_GDIPlus : public olc::ImageLoader
 		{
+		private:
+			std::wstring ConvertS2W(std::string s)
+			{
 #ifdef __MINGW32__
-			wchar_t* buffer = new wchar_t[s.length() + 1];
-			mbstowcs(buffer, s.c_str(), s.length());
-			buffer[s.length()] = L'\0';
+				wchar_t* buffer = new wchar_t[s.length() + 1];
+				mbstowcs(buffer, s.c_str(), s.length());
+				buffer[s.length()] = L'\0';
 #else
-			int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
-			wchar_t* buffer = new wchar_t[count];
-			MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
+				int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
+				wchar_t* buffer = new wchar_t[count];
+				MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
 #endif
-			std::wstring w(buffer);
-			delete[] buffer;
-			return w;
-		}
-
-	public:
-		ImageLoader_GDIPlus() : ImageLoader()
-		{}
-
-		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
-		{
-			// clear out existing sprite
-			spr->pColData.clear();
-
-			// Open file
-			UNUSED(pack);
-			Gdiplus::Bitmap* bmp = nullptr;
-			if (pack != nullptr)
-			{
-				// Load sprite from input stream
-				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				bmp = Gdiplus::Bitmap::FromStream(SHCreateMemStream((BYTE*)rb.vMemory.data(), UINT(rb.vMemory.size())));
-			}
-			else
-			{
-				// Check file exists
-				if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
-
-				// Load sprite from file
-				bmp = Gdiplus::Bitmap::FromFile(ConvertS2W(sImageFile).c_str());
+				std::wstring w(buffer);
+				delete[] buffer;
+				return w;
 			}
 
-			if (bmp->GetLastStatus() != Gdiplus::Ok) return olc::rcode::FAIL;
-			spr->width = bmp->GetWidth();
-			spr->height = bmp->GetHeight();
+		public:
+			ImageLoader_GDIPlus() : ImageLoader()
+			{}
 
-			spr->pColData.resize(spr->width * spr->height);
+			olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
+			{
+				// clear out existing sprite
+				spr->pColData.clear();
 
-			for (int y = 0; y < spr->height; y++)
-				for (int x = 0; x < spr->width; x++)
+				// Open file
+				UNUSED(pack);
+				Gdiplus::Bitmap* bmp = nullptr;
+				if (pack != nullptr)
 				{
-					Gdiplus::Color c;
-					bmp->GetPixel(x, y, &c);
-					spr->SetPixel(x, y, olc::Pixel(c.GetRed(), c.GetGreen(), c.GetBlue(), c.GetAlpha()));
+					// Load sprite from input stream
+					ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+					bmp = Gdiplus::Bitmap::FromStream(SHCreateMemStream((BYTE*)rb.vMemory.data(), UINT(rb.vMemory.size())));
 				}
-			delete bmp;
-			return olc::rcode::OK;
-		}
+				else
+				{
+					// Check file exists
+					if (!_gfs::exists(sImageFile)) return olc::rcode::NO_FILE;
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
-		{
-			return olc::rcode::OK;
-		}
-	};
-}
+					// Load sprite from file
+					bmp = Gdiplus::Bitmap::FromFile(ConvertS2W(sImageFile).c_str());
+				}
+
+				if (bmp->GetLastStatus() != Gdiplus::Ok) return olc::rcode::FAIL;
+				spr->width = bmp->GetWidth();
+				spr->height = bmp->GetHeight();
+
+				spr->pColData.resize(spr->width * spr->height);
+
+				for (int y = 0; y < spr->height; y++)
+					for (int x = 0; x < spr->width; x++)
+					{
+						Gdiplus::Color c;
+						bmp->GetPixel(x, y, &c);
+						spr->SetPixel(x, y, olc::Pixel(c.GetRed(), c.GetGreen(), c.GetBlue(), c.GetAlpha()));
+					}
+				delete bmp;
+				return olc::rcode::OK;
+			}
+
+			olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+			{
+				return olc::rcode::OK;
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | END IMAGE LOADER: GDI+                                                       |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END IMAGE LOADER: GDI+                                                       |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 #pragma region image_libpng
@@ -5223,122 +9054,122 @@ namespace olc
 // O------------------------------------------------------------------------------O
 #if defined(OLC_IMAGE_LIBPNG)
 #include <png.h>
-namespace olc
-{
-	void pngReadStream(png_structp pngPtr, png_bytep data, png_size_t length)
+	namespace olc
 	{
-		png_voidp a = png_get_io_ptr(pngPtr);
-		((std::istream*)a)->read((char*)data, length);
-	}
-
-	class ImageLoader_LibPNG : public olc::ImageLoader
-	{
-	public:
-		ImageLoader_LibPNG() : ImageLoader()
-		{}
-
-		olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
+		void pngReadStream(png_structp pngPtr, png_bytep data, png_size_t length)
 		{
-			UNUSED(pack);
+			png_voidp a = png_get_io_ptr(pngPtr);
+			((std::istream*)a)->read((char*)data, length);
+		}
 
-			// clear out existing sprite
-			spr->pColData.clear();
+		class ImageLoader_LibPNG : public olc::ImageLoader
+		{
+		public:
+			ImageLoader_LibPNG() : ImageLoader()
+			{}
 
-			////////////////////////////////////////////////////////////////////////////
-			// Use libpng, Thanks to Guillaume Cottenceau
-			// https://gist.github.com/niw/5963798
-			// Also reading png from streams
-			// http://www.piko3d.net/tutorials/libpng-tutorial-loading-png-files-from-streams/
-			png_structp png;
-			png_infop info;
-
-			auto loadPNG = [&]()
+			olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) override
 			{
-				png_read_info(png, info);
-				png_byte color_type;
-				png_byte bit_depth;
-				png_bytep* row_pointers;
-				spr->width = png_get_image_width(png, info);
-				spr->height = png_get_image_height(png, info);
-				color_type = png_get_color_type(png, info);
-				bit_depth = png_get_bit_depth(png, info);
-				if (bit_depth == 16) png_set_strip_16(png);
-				if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-				if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)	png_set_expand_gray_1_2_4_to_8(png);
-				if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
-				if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
-					png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-				if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-					png_set_gray_to_rgb(png);
-				png_read_update_info(png, info);
-				row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * spr->height);
-				for (int y = 0; y < spr->height; y++) {
-					row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png, info));
-				}
-				png_read_image(png, row_pointers);
+				UNUSED(pack);
+
+				// clear out existing sprite
+				spr->pColData.clear();
+
 				////////////////////////////////////////////////////////////////////////////
-				// Create sprite array
-				spr->pColData.resize(spr->width * spr->height);
-				// Iterate through image rows, converting into sprite format
-				for (int y = 0; y < spr->height; y++)
+				// Use libpng, Thanks to Guillaume Cottenceau
+				// https://gist.github.com/niw/5963798
+				// Also reading png from streams
+				// http://www.piko3d.net/tutorials/libpng-tutorial-loading-png-files-from-streams/
+				png_structp png;
+				png_infop info;
+
+				auto loadPNG = [&]()
 				{
-					png_bytep row = row_pointers[y];
-					for (int x = 0; x < spr->width; x++)
-					{
-						png_bytep px = &(row[x * 4]);
-						spr->SetPixel(x, y, Pixel(px[0], px[1], px[2], px[3]));
+					png_read_info(png, info);
+					png_byte color_type;
+					png_byte bit_depth;
+					png_bytep* row_pointers;
+					spr->width = png_get_image_width(png, info);
+					spr->height = png_get_image_height(png, info);
+					color_type = png_get_color_type(png, info);
+					bit_depth = png_get_bit_depth(png, info);
+					if (bit_depth == 16) png_set_strip_16(png);
+					if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+					if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)	png_set_expand_gray_1_2_4_to_8(png);
+					if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+					if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
+						png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+					if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+						png_set_gray_to_rgb(png);
+					png_read_update_info(png, info);
+					row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * spr->height);
+					for (int y = 0; y < spr->height; y++) {
+						row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png, info));
 					}
+					png_read_image(png, row_pointers);
+					////////////////////////////////////////////////////////////////////////////
+					// Create sprite array
+					spr->pColData.resize(spr->width * spr->height);
+					// Iterate through image rows, converting into sprite format
+					for (int y = 0; y < spr->height; y++)
+					{
+						png_bytep row = row_pointers[y];
+						for (int x = 0; x < spr->width; x++)
+						{
+							png_bytep px = &(row[x * 4]);
+							spr->SetPixel(x, y, Pixel(px[0], px[1], px[2], px[3]));
+						}
+					}
+
+					for (int y = 0; y < spr->height; y++) // Thanks maksym33
+						free(row_pointers[y]);
+					free(row_pointers);
+					png_destroy_read_struct(&png, &info, nullptr);
+				};
+
+				png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+				if (!png) goto fail_load;
+
+				info = png_create_info_struct(png);
+				if (!info) goto fail_load;
+
+				if (setjmp(png_jmpbuf(png))) goto fail_load;
+
+				if (pack == nullptr)
+				{
+					FILE* f = fopen(sImageFile.c_str(), "rb");
+					if (!f) return olc::rcode::NO_FILE;
+					png_init_io(png, f);
+					loadPNG();
+					fclose(f);
+				}
+				else
+				{
+					ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
+					std::istream is(&rb);
+					png_set_read_fn(png, (png_voidp)&is, pngReadStream);
+					loadPNG();
 				}
 
-				for (int y = 0; y < spr->height; y++) // Thanks maksym33
-					free(row_pointers[y]);
-				free(row_pointers);
-				png_destroy_read_struct(&png, &info, nullptr);
-			};
+				return olc::rcode::OK;
 
-			png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-			if (!png) goto fail_load;
-
-			info = png_create_info_struct(png);
-			if (!info) goto fail_load;
-
-			if (setjmp(png_jmpbuf(png))) goto fail_load;
-
-			if (pack == nullptr)
-			{
-				FILE* f = fopen(sImageFile.c_str(), "rb");
-				if (!f) return olc::rcode::NO_FILE;
-				png_init_io(png, f);
-				loadPNG();
-				fclose(f);
-			}
-			else
-			{
-				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				std::istream is(&rb);
-				png_set_read_fn(png, (png_voidp)&is, pngReadStream);
-				loadPNG();
+			fail_load:
+				spr->width = 0;
+				spr->height = 0;
+				spr->pColData.clear();
+				return olc::rcode::FAIL;
 			}
 
-			return olc::rcode::OK;
-
-		fail_load:
-			spr->width = 0;
-			spr->height = 0;
-			spr->pColData.clear();
-			return olc::rcode::FAIL;
-		}
-
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
-		{
-			return olc::rcode::OK;
-		}
-	};
-}
+			olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+			{
+				return olc::rcode::OK;
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | END IMAGE LOADER:                                                            |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END IMAGE LOADER:                                                            |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 
@@ -5353,251 +9184,251 @@ namespace olc
 #if defined(OLC_PLATFORM_WINAPI)
 
 #if defined(_WIN32) && !defined(__MINGW32__)
-	#pragma comment(lib, "user32.lib")		// Visual Studio Only
-	#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
-	#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
+#pragma comment(lib, "user32.lib")		// Visual Studio Only
+#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
+#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
 #endif
 
-namespace olc
-{
-	class Platform_Windows : public olc::Platform
+	namespace olc
 	{
-	private:
-		HWND olc_hWnd = nullptr;
-		std::wstring wsAppName;
-
-		std::wstring ConvertS2W(std::string s)
+		class Platform_Windows : public olc::Platform
 		{
+		private:
+			HWND olc_hWnd = nullptr;
+			std::wstring wsAppName;
+
+			std::wstring ConvertS2W(std::string s)
+			{
 #ifdef __MINGW32__
-			wchar_t* buffer = new wchar_t[s.length() + 1];
-			mbstowcs(buffer, s.c_str(), s.length());
-			buffer[s.length()] = L'\0';
+				wchar_t* buffer = new wchar_t[s.length() + 1];
+				mbstowcs(buffer, s.c_str(), s.length());
+				buffer[s.length()] = L'\0';
 #else
-			int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
-			wchar_t* buffer = new wchar_t[count];
-			MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
+				int count = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, NULL, 0);
+				wchar_t* buffer = new wchar_t[count];
+				MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, buffer, count);
 #endif
-			std::wstring w(buffer);
-			delete[] buffer;
-			return w;
-		}
-
-
-
-	public:
-		virtual olc::rcode ApplicationStartUp() override { return olc::rcode::OK; }
-		virtual olc::rcode ApplicationCleanUp() override { return olc::rcode::OK; }
-		virtual olc::rcode ThreadStartUp() override { return olc::rcode::OK; }
-
-		virtual olc::rcode ThreadCleanUp() override
-		{
-			renderer->DestroyDevice();
-			PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
-			return olc::OK;
-		}
-
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
-		{
-			if (renderer->CreateDevice({ olc_hWnd }, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
-			{
-				renderer->UpdateViewport(vViewPos, vViewSize);
-				return olc::rcode::OK;
-			}
-			else
-				return olc::rcode::FAIL;
-		}
-
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
-		{
-			WNDCLASS wc;
-			wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-			wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-			wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-			wc.hInstance = GetModuleHandle(nullptr);
-			wc.lpfnWndProc = olc_WindowEvent;
-			wc.cbClsExtra = 0;
-			wc.cbWndExtra = 0;
-			wc.lpszMenuName = nullptr;
-			wc.hbrBackground = nullptr;
-			wc.lpszClassName = olcT("OLC_PIXEL_GAME_ENGINE");
-			RegisterClass(&wc);
-
-			// Define window furniture
-			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
-
-			olc::vi2d vTopLeft = vWindowPos;
-
-			// Handle Fullscreen
-			if (bFullScreen)
-			{
-				dwExStyle = 0;
-				dwStyle = WS_VISIBLE | WS_POPUP;
-				HMONITOR hmon = MonitorFromWindow(olc_hWnd, MONITOR_DEFAULTTONEAREST);
-				MONITORINFO mi = { sizeof(mi) };
-				if (!GetMonitorInfo(hmon, &mi)) return olc::rcode::FAIL;
-				vWindowSize = { mi.rcMonitor.right, mi.rcMonitor.bottom };
-				vTopLeft.x = 0;
-				vTopLeft.y = 0;
+				std::wstring w(buffer);
+				delete[] buffer;
+				return w;
 			}
 
-			// Keep client size as requested
-			RECT rWndRect = { 0, 0, vWindowSize.x, vWindowSize.y };
-			AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
-			int width = rWndRect.right - rWndRect.left;
-			int height = rWndRect.bottom - rWndRect.top;
 
-			olc_hWnd = CreateWindowEx(dwExStyle, olcT("OLC_PIXEL_GAME_ENGINE"), olcT(""), dwStyle,
-				vTopLeft.x, vTopLeft.y, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
 
-			DragAcceptFiles(olc_hWnd, true);
+		public:
+			virtual olc::rcode ApplicationStartUp() override { return olc::rcode::OK; }
+			virtual olc::rcode ApplicationCleanUp() override { return olc::rcode::OK; }
+			virtual olc::rcode ThreadStartUp() override { return olc::rcode::OK; }
 
-			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys[0x41] = Key::A; mapKeys[0x42] = Key::B; mapKeys[0x43] = Key::C; mapKeys[0x44] = Key::D; mapKeys[0x45] = Key::E;
-			mapKeys[0x46] = Key::F; mapKeys[0x47] = Key::G; mapKeys[0x48] = Key::H; mapKeys[0x49] = Key::I; mapKeys[0x4A] = Key::J;
-			mapKeys[0x4B] = Key::K; mapKeys[0x4C] = Key::L; mapKeys[0x4D] = Key::M; mapKeys[0x4E] = Key::N; mapKeys[0x4F] = Key::O;
-			mapKeys[0x50] = Key::P; mapKeys[0x51] = Key::Q; mapKeys[0x52] = Key::R; mapKeys[0x53] = Key::S; mapKeys[0x54] = Key::T;
-			mapKeys[0x55] = Key::U; mapKeys[0x56] = Key::V; mapKeys[0x57] = Key::W; mapKeys[0x58] = Key::X; mapKeys[0x59] = Key::Y;
-			mapKeys[0x5A] = Key::Z;
-
-			mapKeys[VK_F1] = Key::F1; mapKeys[VK_F2] = Key::F2; mapKeys[VK_F3] = Key::F3; mapKeys[VK_F4] = Key::F4;
-			mapKeys[VK_F5] = Key::F5; mapKeys[VK_F6] = Key::F6; mapKeys[VK_F7] = Key::F7; mapKeys[VK_F8] = Key::F8;
-			mapKeys[VK_F9] = Key::F9; mapKeys[VK_F10] = Key::F10; mapKeys[VK_F11] = Key::F11; mapKeys[VK_F12] = Key::F12;
-
-			mapKeys[VK_DOWN] = Key::DOWN; mapKeys[VK_LEFT] = Key::LEFT; mapKeys[VK_RIGHT] = Key::RIGHT; mapKeys[VK_UP] = Key::UP;
-			//mapKeys[VK_RETURN] = Key::ENTER;// mapKeys[VK_RETURN] = Key::RETURN;
-			
-			mapKeys[VK_BACK] = Key::BACK; mapKeys[VK_ESCAPE] = Key::ESCAPE; mapKeys[VK_RETURN] = Key::ENTER; mapKeys[VK_PAUSE] = Key::PAUSE;
-			mapKeys[VK_SCROLL] = Key::SCROLL; mapKeys[VK_TAB] = Key::TAB; mapKeys[VK_DELETE] = Key::DEL; mapKeys[VK_HOME] = Key::HOME;
-			mapKeys[VK_END] = Key::END; mapKeys[VK_PRIOR] = Key::PGUP; mapKeys[VK_NEXT] = Key::PGDN; mapKeys[VK_INSERT] = Key::INS;
-			mapKeys[VK_SHIFT] = Key::SHIFT; mapKeys[VK_CONTROL] = Key::CTRL;
-			mapKeys[VK_SPACE] = Key::SPACE;
-
-			mapKeys[0x30] = Key::K0; mapKeys[0x31] = Key::K1; mapKeys[0x32] = Key::K2; mapKeys[0x33] = Key::K3; mapKeys[0x34] = Key::K4;
-			mapKeys[0x35] = Key::K5; mapKeys[0x36] = Key::K6; mapKeys[0x37] = Key::K7; mapKeys[0x38] = Key::K8; mapKeys[0x39] = Key::K9;
-
-			mapKeys[VK_NUMPAD0] = Key::NP0; mapKeys[VK_NUMPAD1] = Key::NP1; mapKeys[VK_NUMPAD2] = Key::NP2; mapKeys[VK_NUMPAD3] = Key::NP3; mapKeys[VK_NUMPAD4] = Key::NP4;
-			mapKeys[VK_NUMPAD5] = Key::NP5; mapKeys[VK_NUMPAD6] = Key::NP6; mapKeys[VK_NUMPAD7] = Key::NP7; mapKeys[VK_NUMPAD8] = Key::NP8; mapKeys[VK_NUMPAD9] = Key::NP9;
-			mapKeys[VK_MULTIPLY] = Key::NP_MUL; mapKeys[VK_ADD] = Key::NP_ADD; mapKeys[VK_DIVIDE] = Key::NP_DIV; mapKeys[VK_SUBTRACT] = Key::NP_SUB; mapKeys[VK_DECIMAL] = Key::NP_DECIMAL;
-
-			// Thanks scripticuk
-			mapKeys[VK_OEM_1] = Key::OEM_1;			// On US and UK keyboards this is the ';:' key
-			mapKeys[VK_OEM_2] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
-			mapKeys[VK_OEM_3] = Key::OEM_3;			// On US keyboard this is the '~' key
-			mapKeys[VK_OEM_4] = Key::OEM_4;			// On US and UK keyboards this is the '[{' key
-			mapKeys[VK_OEM_5] = Key::OEM_5;			// On US keyboard this is '\|' key.
-			mapKeys[VK_OEM_6] = Key::OEM_6;			// On US and UK keyboards this is the ']}' key
-			mapKeys[VK_OEM_7] = Key::OEM_7;			// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
-			mapKeys[VK_OEM_8] = Key::OEM_8;			// miscellaneous characters. Varies by keyboard
-			mapKeys[VK_OEM_PLUS] = Key::EQUALS;		// the '+' key on any keyboard
-			mapKeys[VK_OEM_COMMA] = Key::COMMA;		// the comma key on any keyboard
-			mapKeys[VK_OEM_MINUS] = Key::MINUS;		// the minus key on any keyboard
-			mapKeys[VK_OEM_PERIOD] = Key::PERIOD;	// the period key on any keyboard
-			mapKeys[VK_CAPITAL] = Key::CAPS_LOCK;
-			return olc::OK;
-		}
-
-		virtual olc::rcode SetWindowTitle(const std::string& s) override
-		{
-#ifdef UNICODE
-			SetWindowText(olc_hWnd, ConvertS2W(s).c_str());
-#else
-			SetWindowText(olc_hWnd, s.c_str());
-#endif
-			return olc::OK;
-		}
-
-		virtual olc::rcode StartSystemEventLoop() override
-		{
-			MSG msg;
-			while (GetMessage(&msg, NULL, 0, 0) > 0)
+			virtual olc::rcode ThreadCleanUp() override
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+				renderer->DestroyDevice();
+				PostMessage(olc_hWnd, WM_DESTROY, 0, 0);
+				return olc::OK;
 			}
-			return olc::OK;
-		}
 
-		virtual olc::rcode HandleSystemEvent() override { return olc::rcode::FAIL; }
-
-		// Windows Event Handler - this is statically connected to the windows event system
-		static LRESULT CALLBACK olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-		{
-			switch (uMsg)
+			virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
 			{
-			case WM_MOUSEMOVE:
-			{
-				// Thanks @ForAbby (Discord)
-				uint16_t x = lParam & 0xFFFF; uint16_t y = (lParam >> 16) & 0xFFFF;
-				int16_t ix = *(int16_t*)&x;   int16_t iy = *(int16_t*)&y;
-				ptrPGE->olc_UpdateMouse(ix, iy);
-				return 0;
-			}
-			case WM_SIZE:       ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
-			case WM_MOUSEWHEEL:	ptrPGE->olc_UpdateMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));           return 0;
-			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
-			case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
-			case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
-			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
-			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);                     return 0;
-			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);						return 0;
-			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);						return 0;
-			case WM_LBUTTONDOWN:ptrPGE->olc_UpdateMouseState(0, true);                                  return 0;
-			case WM_LBUTTONUP:	ptrPGE->olc_UpdateMouseState(0, false);                                 return 0;
-			case WM_RBUTTONDOWN:ptrPGE->olc_UpdateMouseState(1, true);                                  return 0;
-			case WM_RBUTTONUP:	ptrPGE->olc_UpdateMouseState(1, false);                                 return 0;
-			case WM_MBUTTONDOWN:ptrPGE->olc_UpdateMouseState(2, true);                                  return 0;
-			case WM_MBUTTONUP:	ptrPGE->olc_UpdateMouseState(2, false);                                 return 0;
-			case WM_DROPFILES:
-			{
-				// This is all eww...
-				HDROP drop = (HDROP)wParam;
-				
-				uint32_t nFiles = DragQueryFile(drop, 0xFFFFFFFF, nullptr, 0);
-				std::vector<std::string> vFiles;
-				for (uint32_t i = 0; i < nFiles; i++)
+				if (renderer->CreateDevice({ olc_hWnd }, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
 				{
-					TCHAR dfbuffer[256]{};
-					uint32_t len = DragQueryFile(drop, i, nullptr, 0);
-					DragQueryFile(drop, i, dfbuffer, 256);
-#ifdef UNICODE
-	#ifdef __MINGW32__
-					char* buffer = new char[len + 1];
-					wcstombs(buffer, dfbuffer, len);
-					buffer[len] = '\0';
-	#else
-					int count = WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, NULL, 0, NULL, NULL);
-					char* buffer = new char[count];
-					WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, buffer, count, NULL, NULL);
-	#endif				
-					vFiles.push_back(std::string(buffer));
-					delete[] buffer;
-#else
-					vFiles.push_back(std::string(dbuffer));
-#endif
+					renderer->UpdateViewport(vViewPos, vViewSize);
+					return olc::rcode::OK;
+				}
+				else
+					return olc::rcode::FAIL;
+			}
+
+			virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
+			{
+				WNDCLASS wc;
+				wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+				wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+				wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+				wc.hInstance = GetModuleHandle(nullptr);
+				wc.lpfnWndProc = olc_WindowEvent;
+				wc.cbClsExtra = 0;
+				wc.cbWndExtra = 0;
+				wc.lpszMenuName = nullptr;
+				wc.hbrBackground = nullptr;
+				wc.lpszClassName = olcT("OLC_PIXEL_GAME_ENGINE");
+				RegisterClass(&wc);
+
+				// Define window furniture
+				DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+				DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
+
+				olc::vi2d vTopLeft = vWindowPos;
+
+				// Handle Fullscreen
+				if (bFullScreen)
+				{
+					dwExStyle = 0;
+					dwStyle = WS_VISIBLE | WS_POPUP;
+					HMONITOR hmon = MonitorFromWindow(olc_hWnd, MONITOR_DEFAULTTONEAREST);
+					MONITORINFO mi = { sizeof(mi) };
+					if (!GetMonitorInfo(hmon, &mi)) return olc::rcode::FAIL;
+					vWindowSize = { mi.rcMonitor.right, mi.rcMonitor.bottom };
+					vTopLeft.x = 0;
+					vTopLeft.y = 0;
 				}
 
-				// Even more eww...
-				POINT p; DragQueryPoint(drop, &p);
-				ptrPGE->olc_DropFiles(p.x, p.y, vFiles);
-				DragFinish(drop);
-				return 0;
-			} 
-			break;
+				// Keep client size as requested
+				RECT rWndRect = { 0, 0, vWindowSize.x, vWindowSize.y };
+				AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
+				int width = rWndRect.right - rWndRect.left;
+				int height = rWndRect.bottom - rWndRect.top;
 
+				olc_hWnd = CreateWindowEx(dwExStyle, olcT("OLC_PIXEL_GAME_ENGINE"), olcT(""), dwStyle,
+					vTopLeft.x, vTopLeft.y, width, height, NULL, NULL, GetModuleHandle(nullptr), this);
 
-			case WM_CLOSE:		ptrPGE->olc_Terminate();                                                return 0;
-			case WM_DESTROY:	PostQuitMessage(0); DestroyWindow(hWnd);								return 0;
+				DragAcceptFiles(olc_hWnd, true);
+
+				// Create Keyboard Mapping
+				mapKeys[0x00] = Key::NONE;
+				mapKeys[0x41] = Key::A; mapKeys[0x42] = Key::B; mapKeys[0x43] = Key::C; mapKeys[0x44] = Key::D; mapKeys[0x45] = Key::E;
+				mapKeys[0x46] = Key::F; mapKeys[0x47] = Key::G; mapKeys[0x48] = Key::H; mapKeys[0x49] = Key::I; mapKeys[0x4A] = Key::J;
+				mapKeys[0x4B] = Key::K; mapKeys[0x4C] = Key::L; mapKeys[0x4D] = Key::M; mapKeys[0x4E] = Key::N; mapKeys[0x4F] = Key::O;
+				mapKeys[0x50] = Key::P; mapKeys[0x51] = Key::Q; mapKeys[0x52] = Key::R; mapKeys[0x53] = Key::S; mapKeys[0x54] = Key::T;
+				mapKeys[0x55] = Key::U; mapKeys[0x56] = Key::V; mapKeys[0x57] = Key::W; mapKeys[0x58] = Key::X; mapKeys[0x59] = Key::Y;
+				mapKeys[0x5A] = Key::Z;
+
+				mapKeys[VK_F1] = Key::F1; mapKeys[VK_F2] = Key::F2; mapKeys[VK_F3] = Key::F3; mapKeys[VK_F4] = Key::F4;
+				mapKeys[VK_F5] = Key::F5; mapKeys[VK_F6] = Key::F6; mapKeys[VK_F7] = Key::F7; mapKeys[VK_F8] = Key::F8;
+				mapKeys[VK_F9] = Key::F9; mapKeys[VK_F10] = Key::F10; mapKeys[VK_F11] = Key::F11; mapKeys[VK_F12] = Key::F12;
+
+				mapKeys[VK_DOWN] = Key::DOWN; mapKeys[VK_LEFT] = Key::LEFT; mapKeys[VK_RIGHT] = Key::RIGHT; mapKeys[VK_UP] = Key::UP;
+				//mapKeys[VK_RETURN] = Key::ENTER;// mapKeys[VK_RETURN] = Key::RETURN;
+
+				mapKeys[VK_BACK] = Key::BACK; mapKeys[VK_ESCAPE] = Key::ESCAPE; mapKeys[VK_RETURN] = Key::ENTER; mapKeys[VK_PAUSE] = Key::PAUSE;
+				mapKeys[VK_SCROLL] = Key::SCROLL; mapKeys[VK_TAB] = Key::TAB; mapKeys[VK_DELETE] = Key::DEL; mapKeys[VK_HOME] = Key::HOME;
+				mapKeys[VK_END] = Key::END; mapKeys[VK_PRIOR] = Key::PGUP; mapKeys[VK_NEXT] = Key::PGDN; mapKeys[VK_INSERT] = Key::INS;
+				mapKeys[VK_SHIFT] = Key::SHIFT; mapKeys[VK_CONTROL] = Key::CTRL;
+				mapKeys[VK_SPACE] = Key::SPACE;
+
+				mapKeys[0x30] = Key::K0; mapKeys[0x31] = Key::K1; mapKeys[0x32] = Key::K2; mapKeys[0x33] = Key::K3; mapKeys[0x34] = Key::K4;
+				mapKeys[0x35] = Key::K5; mapKeys[0x36] = Key::K6; mapKeys[0x37] = Key::K7; mapKeys[0x38] = Key::K8; mapKeys[0x39] = Key::K9;
+
+				mapKeys[VK_NUMPAD0] = Key::NP0; mapKeys[VK_NUMPAD1] = Key::NP1; mapKeys[VK_NUMPAD2] = Key::NP2; mapKeys[VK_NUMPAD3] = Key::NP3; mapKeys[VK_NUMPAD4] = Key::NP4;
+				mapKeys[VK_NUMPAD5] = Key::NP5; mapKeys[VK_NUMPAD6] = Key::NP6; mapKeys[VK_NUMPAD7] = Key::NP7; mapKeys[VK_NUMPAD8] = Key::NP8; mapKeys[VK_NUMPAD9] = Key::NP9;
+				mapKeys[VK_MULTIPLY] = Key::NP_MUL; mapKeys[VK_ADD] = Key::NP_ADD; mapKeys[VK_DIVIDE] = Key::NP_DIV; mapKeys[VK_SUBTRACT] = Key::NP_SUB; mapKeys[VK_DECIMAL] = Key::NP_DECIMAL;
+
+				// Thanks scripticuk
+				mapKeys[VK_OEM_1] = Key::OEM_1;			// On US and UK keyboards this is the ';:' key
+				mapKeys[VK_OEM_2] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
+				mapKeys[VK_OEM_3] = Key::OEM_3;			// On US keyboard this is the '~' key
+				mapKeys[VK_OEM_4] = Key::OEM_4;			// On US and UK keyboards this is the '[{' key
+				mapKeys[VK_OEM_5] = Key::OEM_5;			// On US keyboard this is '\|' key.
+				mapKeys[VK_OEM_6] = Key::OEM_6;			// On US and UK keyboards this is the ']}' key
+				mapKeys[VK_OEM_7] = Key::OEM_7;			// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+				mapKeys[VK_OEM_8] = Key::OEM_8;			// miscellaneous characters. Varies by keyboard
+				mapKeys[VK_OEM_PLUS] = Key::EQUALS;		// the '+' key on any keyboard
+				mapKeys[VK_OEM_COMMA] = Key::COMMA;		// the comma key on any keyboard
+				mapKeys[VK_OEM_MINUS] = Key::MINUS;		// the minus key on any keyboard
+				mapKeys[VK_OEM_PERIOD] = Key::PERIOD;	// the period key on any keyboard
+				mapKeys[VK_CAPITAL] = Key::CAPS_LOCK;
+				return olc::OK;
 			}
-			return DefWindowProc(hWnd, uMsg, wParam, lParam);
-		}
-	};
-}
+
+			virtual olc::rcode SetWindowTitle(const std::string& s) override
+			{
+#ifdef UNICODE
+				SetWindowText(olc_hWnd, ConvertS2W(s).c_str());
+#else
+				SetWindowText(olc_hWnd, s.c_str());
 #endif
-// O------------------------------------------------------------------------------O
-// | END PLATFORM: MICROSOFT WINDOWS XP, VISTA, 7, 8, 10                          |
-// O------------------------------------------------------------------------------O
+				return olc::OK;
+			}
+
+			virtual olc::rcode StartSystemEventLoop() override
+			{
+				MSG msg;
+				while (GetMessage(&msg, NULL, 0, 0) > 0)
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+				return olc::OK;
+			}
+
+			virtual olc::rcode HandleSystemEvent() override { return olc::rcode::FAIL; }
+
+			// Windows Event Handler - this is statically connected to the windows event system
+			static LRESULT CALLBACK olc_WindowEvent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+			{
+				switch (uMsg)
+				{
+				case WM_MOUSEMOVE:
+				{
+					// Thanks @ForAbby (Discord)
+					uint16_t x = lParam & 0xFFFF; uint16_t y = (lParam >> 16) & 0xFFFF;
+					int16_t ix = *(int16_t*)&x;   int16_t iy = *(int16_t*)&y;
+					ptrPGE->olc_UpdateMouse(ix, iy);
+					return 0;
+				}
+				case WM_SIZE:       ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
+				case WM_MOUSEWHEEL:	ptrPGE->olc_UpdateMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));           return 0;
+				case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
+				case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
+				case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
+				case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
+				case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);                     return 0;
+				case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);						return 0;
+				case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);						return 0;
+				case WM_LBUTTONDOWN:ptrPGE->olc_UpdateMouseState(0, true);                                  return 0;
+				case WM_LBUTTONUP:	ptrPGE->olc_UpdateMouseState(0, false);                                 return 0;
+				case WM_RBUTTONDOWN:ptrPGE->olc_UpdateMouseState(1, true);                                  return 0;
+				case WM_RBUTTONUP:	ptrPGE->olc_UpdateMouseState(1, false);                                 return 0;
+				case WM_MBUTTONDOWN:ptrPGE->olc_UpdateMouseState(2, true);                                  return 0;
+				case WM_MBUTTONUP:	ptrPGE->olc_UpdateMouseState(2, false);                                 return 0;
+				case WM_DROPFILES:
+				{
+					// This is all eww...
+					HDROP drop = (HDROP)wParam;
+
+					uint32_t nFiles = DragQueryFile(drop, 0xFFFFFFFF, nullptr, 0);
+					std::vector<std::string> vFiles;
+					for (uint32_t i = 0; i < nFiles; i++)
+					{
+						TCHAR dfbuffer[256]{};
+						uint32_t len = DragQueryFile(drop, i, nullptr, 0);
+						DragQueryFile(drop, i, dfbuffer, 256);
+#ifdef UNICODE
+#ifdef __MINGW32__
+						char* buffer = new char[len + 1];
+						wcstombs(buffer, dfbuffer, len);
+						buffer[len] = '\0';
+#else
+						int count = WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, NULL, 0, NULL, NULL);
+						char* buffer = new char[count];
+						WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, buffer, count, NULL, NULL);
+#endif				
+						vFiles.push_back(std::string(buffer));
+						delete[] buffer;
+#else
+						vFiles.push_back(std::string(dbuffer));
+#endif
+					}
+
+					// Even more eww...
+					POINT p; DragQueryPoint(drop, &p);
+					ptrPGE->olc_DropFiles(p.x, p.y, vFiles);
+					DragFinish(drop);
+					return 0;
+				}
+				break;
+
+
+				case WM_CLOSE:		ptrPGE->olc_Terminate();                                                return 0;
+				case WM_DESTROY:	PostQuitMessage(0); DestroyWindow(hWnd);								return 0;
+				}
+				return DefWindowProc(hWnd, uMsg, wParam, lParam);
+			}
+		};
+	}
+#endif
+	// O------------------------------------------------------------------------------O
+	// | END PLATFORM: MICROSOFT WINDOWS XP, VISTA, 7, 8, 10                          |
+	// O------------------------------------------------------------------------------O
 #pragma endregion 
 
 #pragma region platform_linux
@@ -5605,250 +9436,250 @@ namespace olc
 // | START PLATFORM: LINUX                                                        |
 // O------------------------------------------------------------------------------O
 #if defined(OLC_PLATFORM_X11)
-namespace olc
-{
-	class Platform_Linux : public olc::Platform
+	namespace olc
 	{
-	private:
-		X11::Display* olc_Display = nullptr;
-		X11::Window					 olc_WindowRoot;
-		X11::Window					 olc_Window;
-		X11::XVisualInfo* olc_VisualInfo;
-		X11::Colormap                olc_ColourMap;
-		X11::XSetWindowAttributes    olc_SetWindowAttribs;
-
-	public:
-		virtual olc::rcode ApplicationStartUp() override
+		class Platform_Linux : public olc::Platform
 		{
-			return olc::rcode::OK;
-		}
+		private:
+			X11::Display* olc_Display = nullptr;
+			X11::Window					 olc_WindowRoot;
+			X11::Window					 olc_Window;
+			X11::XVisualInfo* olc_VisualInfo;
+			X11::Colormap                olc_ColourMap;
+			X11::XSetWindowAttributes    olc_SetWindowAttribs;
 
-		virtual olc::rcode ApplicationCleanUp() override
-		{
-			XDestroyWindow(olc_Display, olc_Window);
-			return olc::rcode::OK;
-		}
-
-		virtual olc::rcode ThreadStartUp() override
-		{
-			return olc::rcode::OK;
-		}
-
-		virtual olc::rcode ThreadCleanUp() override
-		{
-			renderer->DestroyDevice();
-			return olc::OK;
-		}
-
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
-		{
-			if (renderer->CreateDevice({ olc_Display, &olc_Window, olc_VisualInfo }, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
+		public:
+			virtual olc::rcode ApplicationStartUp() override
 			{
-				renderer->UpdateViewport(vViewPos, vViewSize);
 				return olc::rcode::OK;
 			}
-			else
-				return olc::rcode::FAIL;
-		}
 
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
-		{
-			using namespace X11;
-			XInitThreads();
-
-			// Grab the deafult display and window
-			olc_Display = XOpenDisplay(NULL);
-			olc_WindowRoot = DefaultRootWindow(olc_Display);
-
-			// Based on the display capabilities, configure the appearance of the window
-			GLint olc_GLAttribs[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-			olc_VisualInfo = glXChooseVisual(olc_Display, 0, olc_GLAttribs);
-			olc_ColourMap = XCreateColormap(olc_Display, olc_WindowRoot, olc_VisualInfo->visual, AllocNone);
-			olc_SetWindowAttribs.colormap = olc_ColourMap;
-
-			// Register which events we are interested in receiving
-			olc_SetWindowAttribs.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-				ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | StructureNotifyMask;
-
-			// Create the window
-			olc_Window = XCreateWindow(olc_Display, olc_WindowRoot, vWindowPos.x, vWindowPos.y,
-				vWindowSize.x, vWindowSize.y,
-				0, olc_VisualInfo->depth, InputOutput, olc_VisualInfo->visual,
-				CWColormap | CWEventMask, &olc_SetWindowAttribs);
-
-			Atom wmDelete = XInternAtom(olc_Display, "WM_DELETE_WINDOW", true);
-			XSetWMProtocols(olc_Display, olc_Window, &wmDelete, 1);
-
-			XMapWindow(olc_Display, olc_Window);
-			XStoreName(olc_Display, olc_Window, "OneLoneCoder.com - Pixel Game Engine");
-
-			if (bFullScreen) // Thanks DragonEye, again :D
+			virtual olc::rcode ApplicationCleanUp() override
 			{
-				Atom wm_state;
-				Atom fullscreen;
-				wm_state = XInternAtom(olc_Display, "_NET_WM_STATE", False);
-				fullscreen = XInternAtom(olc_Display, "_NET_WM_STATE_FULLSCREEN", False);
-				XEvent xev{ 0 };
-				xev.type = ClientMessage;
-				xev.xclient.window = olc_Window;
-				xev.xclient.message_type = wm_state;
-				xev.xclient.format = 32;
-				xev.xclient.data.l[0] = (bFullScreen ? 1 : 0);   // the action (0: off, 1: on, 2: toggle)
-				xev.xclient.data.l[1] = fullscreen;             // first property to alter
-				xev.xclient.data.l[2] = 0;                      // second property to alter
-				xev.xclient.data.l[3] = 0;                      // source indication
-				XMapWindow(olc_Display, olc_Window);
-				XSendEvent(olc_Display, DefaultRootWindow(olc_Display), False,
-					SubstructureRedirectMask | SubstructureNotifyMask, &xev);
-				XFlush(olc_Display);
-				XWindowAttributes gwa;
-				XGetWindowAttributes(olc_Display, olc_Window, &gwa);
-				vWindowSize.x = gwa.width;
-				vWindowSize.y = gwa.height;
+				XDestroyWindow(olc_Display, olc_Window);
+				return olc::rcode::OK;
 			}
 
-			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
-			mapKeys[0x66] = Key::F; mapKeys[0x67] = Key::G; mapKeys[0x68] = Key::H; mapKeys[0x69] = Key::I; mapKeys[0x6A] = Key::J;
-			mapKeys[0x6B] = Key::K; mapKeys[0x6C] = Key::L; mapKeys[0x6D] = Key::M; mapKeys[0x6E] = Key::N; mapKeys[0x6F] = Key::O;
-			mapKeys[0x70] = Key::P; mapKeys[0x71] = Key::Q; mapKeys[0x72] = Key::R; mapKeys[0x73] = Key::S; mapKeys[0x74] = Key::T;
-			mapKeys[0x75] = Key::U; mapKeys[0x76] = Key::V; mapKeys[0x77] = Key::W; mapKeys[0x78] = Key::X; mapKeys[0x79] = Key::Y;
-			mapKeys[0x7A] = Key::Z;
-
-			mapKeys[XK_F1] = Key::F1; mapKeys[XK_F2] = Key::F2; mapKeys[XK_F3] = Key::F3; mapKeys[XK_F4] = Key::F4;
-			mapKeys[XK_F5] = Key::F5; mapKeys[XK_F6] = Key::F6; mapKeys[XK_F7] = Key::F7; mapKeys[XK_F8] = Key::F8;
-			mapKeys[XK_F9] = Key::F9; mapKeys[XK_F10] = Key::F10; mapKeys[XK_F11] = Key::F11; mapKeys[XK_F12] = Key::F12;
-
-			mapKeys[XK_Down] = Key::DOWN; mapKeys[XK_Left] = Key::LEFT; mapKeys[XK_Right] = Key::RIGHT; mapKeys[XK_Up] = Key::UP;
-			mapKeys[XK_KP_Enter] = Key::ENTER; mapKeys[XK_Return] = Key::ENTER;
-
-			mapKeys[XK_BackSpace] = Key::BACK; mapKeys[XK_Escape] = Key::ESCAPE; mapKeys[XK_Linefeed] = Key::ENTER;	mapKeys[XK_Pause] = Key::PAUSE;
-			mapKeys[XK_Scroll_Lock] = Key::SCROLL; mapKeys[XK_Tab] = Key::TAB; mapKeys[XK_Delete] = Key::DEL; mapKeys[XK_Home] = Key::HOME;
-			mapKeys[XK_End] = Key::END; mapKeys[XK_Page_Up] = Key::PGUP; mapKeys[XK_Page_Down] = Key::PGDN;	mapKeys[XK_Insert] = Key::INS;
-			mapKeys[XK_Shift_L] = Key::SHIFT; mapKeys[XK_Shift_R] = Key::SHIFT; mapKeys[XK_Control_L] = Key::CTRL; mapKeys[XK_Control_R] = Key::CTRL;
-			mapKeys[XK_space] = Key::SPACE; mapKeys[XK_period] = Key::PERIOD;
-
-			mapKeys[XK_0] = Key::K0; mapKeys[XK_1] = Key::K1; mapKeys[XK_2] = Key::K2; mapKeys[XK_3] = Key::K3; mapKeys[XK_4] = Key::K4;
-			mapKeys[XK_5] = Key::K5; mapKeys[XK_6] = Key::K6; mapKeys[XK_7] = Key::K7; mapKeys[XK_8] = Key::K8; mapKeys[XK_9] = Key::K9;
-
-			mapKeys[XK_KP_0] = Key::NP0; mapKeys[XK_KP_1] = Key::NP1; mapKeys[XK_KP_2] = Key::NP2; mapKeys[XK_KP_3] = Key::NP3; mapKeys[XK_KP_4] = Key::NP4;
-			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
-			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
-
-			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
-			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
-			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
-			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
-			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
-			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
-			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
-			mapKeys[XK_apostrophe] = Key::OEM_7;	// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
-			mapKeys[XK_numbersign] = Key::OEM_8;	// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
-			mapKeys[XK_equal] = Key::EQUALS;		// the '+' key on any keyboard
-			mapKeys[XK_comma] = Key::COMMA;			// the comma key on any keyboard
-			mapKeys[XK_minus] = Key::MINUS;			// the minus key on any keyboard			
-
-			mapKeys[XK_Caps_Lock] = Key::CAPS_LOCK;
-
-			return olc::OK;
-		}
-
-		virtual olc::rcode SetWindowTitle(const std::string& s) override
-		{
-			X11::XStoreName(olc_Display, olc_Window, s.c_str());
-			return olc::OK;
-		}
-
-		virtual olc::rcode StartSystemEventLoop() override
-		{
-			return olc::OK;
-		}
-
-		virtual olc::rcode HandleSystemEvent() override
-		{
-			using namespace X11;
-			// Handle Xlib Message Loop - we do this in the
-			// same thread that OpenGL was created so we dont
-			// need to worry too much about multithreading with X11
-			XEvent xev;
-			while (XPending(olc_Display))
+			virtual olc::rcode ThreadStartUp() override
 			{
-				XNextEvent(olc_Display, &xev);
-				if (xev.type == Expose)
+				return olc::rcode::OK;
+			}
+
+			virtual olc::rcode ThreadCleanUp() override
+			{
+				renderer->DestroyDevice();
+				return olc::OK;
+			}
+
+			virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
+			{
+				if (renderer->CreateDevice({ olc_Display, &olc_Window, olc_VisualInfo }, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
 				{
+					renderer->UpdateViewport(vViewPos, vViewSize);
+					return olc::rcode::OK;
+				}
+				else
+					return olc::rcode::FAIL;
+			}
+
+			virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
+			{
+				using namespace X11;
+				XInitThreads();
+
+				// Grab the deafult display and window
+				olc_Display = XOpenDisplay(NULL);
+				olc_WindowRoot = DefaultRootWindow(olc_Display);
+
+				// Based on the display capabilities, configure the appearance of the window
+				GLint olc_GLAttribs[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+				olc_VisualInfo = glXChooseVisual(olc_Display, 0, olc_GLAttribs);
+				olc_ColourMap = XCreateColormap(olc_Display, olc_WindowRoot, olc_VisualInfo->visual, AllocNone);
+				olc_SetWindowAttribs.colormap = olc_ColourMap;
+
+				// Register which events we are interested in receiving
+				olc_SetWindowAttribs.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+					ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask | StructureNotifyMask;
+
+				// Create the window
+				olc_Window = XCreateWindow(olc_Display, olc_WindowRoot, vWindowPos.x, vWindowPos.y,
+					vWindowSize.x, vWindowSize.y,
+					0, olc_VisualInfo->depth, InputOutput, olc_VisualInfo->visual,
+					CWColormap | CWEventMask, &olc_SetWindowAttribs);
+
+				Atom wmDelete = XInternAtom(olc_Display, "WM_DELETE_WINDOW", true);
+				XSetWMProtocols(olc_Display, olc_Window, &wmDelete, 1);
+
+				XMapWindow(olc_Display, olc_Window);
+				XStoreName(olc_Display, olc_Window, "OneLoneCoder.com - Pixel Game Engine");
+
+				if (bFullScreen) // Thanks DragonEye, again :D
+				{
+					Atom wm_state;
+					Atom fullscreen;
+					wm_state = XInternAtom(olc_Display, "_NET_WM_STATE", False);
+					fullscreen = XInternAtom(olc_Display, "_NET_WM_STATE_FULLSCREEN", False);
+					XEvent xev{ 0 };
+					xev.type = ClientMessage;
+					xev.xclient.window = olc_Window;
+					xev.xclient.message_type = wm_state;
+					xev.xclient.format = 32;
+					xev.xclient.data.l[0] = (bFullScreen ? 1 : 0);   // the action (0: off, 1: on, 2: toggle)
+					xev.xclient.data.l[1] = fullscreen;             // first property to alter
+					xev.xclient.data.l[2] = 0;                      // second property to alter
+					xev.xclient.data.l[3] = 0;                      // source indication
+					XMapWindow(olc_Display, olc_Window);
+					XSendEvent(olc_Display, DefaultRootWindow(olc_Display), False,
+						SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+					XFlush(olc_Display);
 					XWindowAttributes gwa;
 					XGetWindowAttributes(olc_Display, olc_Window, &gwa);
-					ptrPGE->olc_UpdateWindowSize(gwa.width, gwa.height);
+					vWindowSize.x = gwa.width;
+					vWindowSize.y = gwa.height;
 				}
-				else if (xev.type == ConfigureNotify)
-				{
-					XConfigureEvent xce = xev.xconfigure;
-					ptrPGE->olc_UpdateWindowSize(xce.width, xce.height);
-				}
-				else if (xev.type == KeyPress)
-				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
-					XKeyEvent* e = (XKeyEvent*)&xev; // Because DragonEye loves numpads
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
-				}
-				else if (xev.type == KeyRelease)
-				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
-					XKeyEvent* e = (XKeyEvent*)&xev;
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
-				}
-				else if (xev.type == ButtonPress)
-				{
-					switch (xev.xbutton.button)
-					{
-					case 1:	ptrPGE->olc_UpdateMouseState(0, true); break;
-					case 2:	ptrPGE->olc_UpdateMouseState(2, true); break;
-					case 3:	ptrPGE->olc_UpdateMouseState(1, true); break;
-					case 4:	ptrPGE->olc_UpdateMouseWheel(120); break;
-					case 5:	ptrPGE->olc_UpdateMouseWheel(-120); break;
-					default: break;
-					}
-				}
-				else if (xev.type == ButtonRelease)
-				{
-					switch (xev.xbutton.button)
-					{
-					case 1:	ptrPGE->olc_UpdateMouseState(0, false); break;
-					case 2:	ptrPGE->olc_UpdateMouseState(2, false); break;
-					case 3:	ptrPGE->olc_UpdateMouseState(1, false); break;
-					default: break;
-					}
-				}
-				else if (xev.type == MotionNotify)
-				{
-					ptrPGE->olc_UpdateMouse(xev.xmotion.x, xev.xmotion.y);
-				}
-				else if (xev.type == FocusIn)
-				{
-					ptrPGE->olc_UpdateKeyFocus(true);
-				}
-				else if (xev.type == FocusOut)
-				{
-					ptrPGE->olc_UpdateKeyFocus(false);
-				}
-				else if (xev.type == ClientMessage)
-				{
-					ptrPGE->olc_Terminate();
-				}
+
+				// Create Keyboard Mapping
+				mapKeys[0x00] = Key::NONE;
+				mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
+				mapKeys[0x66] = Key::F; mapKeys[0x67] = Key::G; mapKeys[0x68] = Key::H; mapKeys[0x69] = Key::I; mapKeys[0x6A] = Key::J;
+				mapKeys[0x6B] = Key::K; mapKeys[0x6C] = Key::L; mapKeys[0x6D] = Key::M; mapKeys[0x6E] = Key::N; mapKeys[0x6F] = Key::O;
+				mapKeys[0x70] = Key::P; mapKeys[0x71] = Key::Q; mapKeys[0x72] = Key::R; mapKeys[0x73] = Key::S; mapKeys[0x74] = Key::T;
+				mapKeys[0x75] = Key::U; mapKeys[0x76] = Key::V; mapKeys[0x77] = Key::W; mapKeys[0x78] = Key::X; mapKeys[0x79] = Key::Y;
+				mapKeys[0x7A] = Key::Z;
+
+				mapKeys[XK_F1] = Key::F1; mapKeys[XK_F2] = Key::F2; mapKeys[XK_F3] = Key::F3; mapKeys[XK_F4] = Key::F4;
+				mapKeys[XK_F5] = Key::F5; mapKeys[XK_F6] = Key::F6; mapKeys[XK_F7] = Key::F7; mapKeys[XK_F8] = Key::F8;
+				mapKeys[XK_F9] = Key::F9; mapKeys[XK_F10] = Key::F10; mapKeys[XK_F11] = Key::F11; mapKeys[XK_F12] = Key::F12;
+
+				mapKeys[XK_Down] = Key::DOWN; mapKeys[XK_Left] = Key::LEFT; mapKeys[XK_Right] = Key::RIGHT; mapKeys[XK_Up] = Key::UP;
+				mapKeys[XK_KP_Enter] = Key::ENTER; mapKeys[XK_Return] = Key::ENTER;
+
+				mapKeys[XK_BackSpace] = Key::BACK; mapKeys[XK_Escape] = Key::ESCAPE; mapKeys[XK_Linefeed] = Key::ENTER;	mapKeys[XK_Pause] = Key::PAUSE;
+				mapKeys[XK_Scroll_Lock] = Key::SCROLL; mapKeys[XK_Tab] = Key::TAB; mapKeys[XK_Delete] = Key::DEL; mapKeys[XK_Home] = Key::HOME;
+				mapKeys[XK_End] = Key::END; mapKeys[XK_Page_Up] = Key::PGUP; mapKeys[XK_Page_Down] = Key::PGDN;	mapKeys[XK_Insert] = Key::INS;
+				mapKeys[XK_Shift_L] = Key::SHIFT; mapKeys[XK_Shift_R] = Key::SHIFT; mapKeys[XK_Control_L] = Key::CTRL; mapKeys[XK_Control_R] = Key::CTRL;
+				mapKeys[XK_space] = Key::SPACE; mapKeys[XK_period] = Key::PERIOD;
+
+				mapKeys[XK_0] = Key::K0; mapKeys[XK_1] = Key::K1; mapKeys[XK_2] = Key::K2; mapKeys[XK_3] = Key::K3; mapKeys[XK_4] = Key::K4;
+				mapKeys[XK_5] = Key::K5; mapKeys[XK_6] = Key::K6; mapKeys[XK_7] = Key::K7; mapKeys[XK_8] = Key::K8; mapKeys[XK_9] = Key::K9;
+
+				mapKeys[XK_KP_0] = Key::NP0; mapKeys[XK_KP_1] = Key::NP1; mapKeys[XK_KP_2] = Key::NP2; mapKeys[XK_KP_3] = Key::NP3; mapKeys[XK_KP_4] = Key::NP4;
+				mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
+				mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
+
+				// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
+				mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
+				mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
+				mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+				mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
+				mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
+				mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
+				mapKeys[XK_apostrophe] = Key::OEM_7;	// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
+				mapKeys[XK_numbersign] = Key::OEM_8;	// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
+				mapKeys[XK_equal] = Key::EQUALS;		// the '+' key on any keyboard
+				mapKeys[XK_comma] = Key::COMMA;			// the comma key on any keyboard
+				mapKeys[XK_minus] = Key::MINUS;			// the minus key on any keyboard			
+
+				mapKeys[XK_Caps_Lock] = Key::CAPS_LOCK;
+
+				return olc::OK;
 			}
-			return olc::OK;
-		}
-	};
-}
+
+			virtual olc::rcode SetWindowTitle(const std::string& s) override
+			{
+				X11::XStoreName(olc_Display, olc_Window, s.c_str());
+				return olc::OK;
+			}
+
+			virtual olc::rcode StartSystemEventLoop() override
+			{
+				return olc::OK;
+			}
+
+			virtual olc::rcode HandleSystemEvent() override
+			{
+				using namespace X11;
+				// Handle Xlib Message Loop - we do this in the
+				// same thread that OpenGL was created so we dont
+				// need to worry too much about multithreading with X11
+				XEvent xev;
+				while (XPending(olc_Display))
+				{
+					XNextEvent(olc_Display, &xev);
+					if (xev.type == Expose)
+					{
+						XWindowAttributes gwa;
+						XGetWindowAttributes(olc_Display, olc_Window, &gwa);
+						ptrPGE->olc_UpdateWindowSize(gwa.width, gwa.height);
+					}
+					else if (xev.type == ConfigureNotify)
+					{
+						XConfigureEvent xce = xev.xconfigure;
+						ptrPGE->olc_UpdateWindowSize(xce.width, xce.height);
+					}
+					else if (xev.type == KeyPress)
+					{
+						KeySym sym = XLookupKeysym(&xev.xkey, 0);
+						ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
+						XKeyEvent* e = (XKeyEvent*)&xev; // Because DragonEye loves numpads
+						XLookupString(e, NULL, 0, &sym, NULL);
+						ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
+					}
+					else if (xev.type == KeyRelease)
+					{
+						KeySym sym = XLookupKeysym(&xev.xkey, 0);
+						ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
+						XKeyEvent* e = (XKeyEvent*)&xev;
+						XLookupString(e, NULL, 0, &sym, NULL);
+						ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
+					}
+					else if (xev.type == ButtonPress)
+					{
+						switch (xev.xbutton.button)
+						{
+						case 1:	ptrPGE->olc_UpdateMouseState(0, true); break;
+						case 2:	ptrPGE->olc_UpdateMouseState(2, true); break;
+						case 3:	ptrPGE->olc_UpdateMouseState(1, true); break;
+						case 4:	ptrPGE->olc_UpdateMouseWheel(120); break;
+						case 5:	ptrPGE->olc_UpdateMouseWheel(-120); break;
+						default: break;
+						}
+					}
+					else if (xev.type == ButtonRelease)
+					{
+						switch (xev.xbutton.button)
+						{
+						case 1:	ptrPGE->olc_UpdateMouseState(0, false); break;
+						case 2:	ptrPGE->olc_UpdateMouseState(2, false); break;
+						case 3:	ptrPGE->olc_UpdateMouseState(1, false); break;
+						default: break;
+						}
+					}
+					else if (xev.type == MotionNotify)
+					{
+						ptrPGE->olc_UpdateMouse(xev.xmotion.x, xev.xmotion.y);
+					}
+					else if (xev.type == FocusIn)
+					{
+						ptrPGE->olc_UpdateKeyFocus(true);
+					}
+					else if (xev.type == FocusOut)
+					{
+						ptrPGE->olc_UpdateKeyFocus(false);
+					}
+					else if (xev.type == ClientMessage)
+					{
+						ptrPGE->olc_Terminate();
+					}
+				}
+				return olc::OK;
+			}
+		};
+	}
 #endif
-// O------------------------------------------------------------------------------O
-// | END PLATFORM: LINUX                                                          |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END PLATFORM: LINUX                                                          |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 #pragma region platform_glut
@@ -5863,296 +9694,296 @@ namespace olc
 //
 // "MASSIVE MASSIVE THANKS TO MUMFLR" - Javidx9
 #if defined(OLC_PLATFORM_GLUT)
-namespace olc {
+	namespace olc {
 
-	class Platform_GLUT : public olc::Platform
-	{
-	public:
-		static std::atomic<bool>* bActiveRef;
-
-		virtual olc::rcode ApplicationStartUp() override {
-			return olc::rcode::OK;
-		}
-
-		virtual olc::rcode ApplicationCleanUp() override
+		class Platform_GLUT : public olc::Platform
 		{
-			return olc::rcode::OK;
-		}
+		public:
+			static std::atomic<bool>* bActiveRef;
 
-		virtual olc::rcode ThreadStartUp() override
-		{
-			return olc::rcode::OK;
-		}
-
-		virtual olc::rcode ThreadCleanUp() override
-		{
-			renderer->DestroyDevice();
-			return olc::OK;
-		}
-
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
-		{
-			if (renderer->CreateDevice({}, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
-			{
-				renderer->UpdateViewport(vViewPos, vViewSize);
+			virtual olc::rcode ApplicationStartUp() override {
 				return olc::rcode::OK;
 			}
-			else
-				return olc::rcode::FAIL;
-		}
 
-		static void ExitMainLoop() {
-			if (!ptrPGE->OnUserDestroy()) {
-				*bActiveRef = true;
-				return;
+			virtual olc::rcode ApplicationCleanUp() override
+			{
+				return olc::rcode::OK;
 			}
-			platform->ThreadCleanUp();
-			platform->ApplicationCleanUp();
-			exit(0);
-		}
+
+			virtual olc::rcode ThreadStartUp() override
+			{
+				return olc::rcode::OK;
+			}
+
+			virtual olc::rcode ThreadCleanUp() override
+			{
+				renderer->DestroyDevice();
+				return olc::OK;
+			}
+
+			virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
+			{
+				if (renderer->CreateDevice({}, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
+				{
+					renderer->UpdateViewport(vViewPos, vViewSize);
+					return olc::rcode::OK;
+				}
+				else
+					return olc::rcode::FAIL;
+			}
+
+			static void ExitMainLoop() {
+				if (!ptrPGE->OnUserDestroy()) {
+					*bActiveRef = true;
+					return;
+				}
+				platform->ThreadCleanUp();
+				platform->ApplicationCleanUp();
+				exit(0);
+			}
 
 #if defined(__APPLE__)
-		static void scrollWheelUpdate(id selff, SEL _sel, id theEvent) {
-			static const SEL deltaYSel = sel_registerName("deltaY");
+			static void scrollWheelUpdate(id selff, SEL _sel, id theEvent) {
+				static const SEL deltaYSel = sel_registerName("deltaY");
 
 #if defined(__aarch64__) // Thanks ruarq!
-			double deltaY = ((double (*)(id, SEL))objc_msgSend)(theEvent, deltaYSel);
+				double deltaY = ((double (*)(id, SEL))objc_msgSend)(theEvent, deltaYSel);
 #else
-			double deltaY = ((double (*)(id, SEL))objc_msgSend_fpret)(theEvent, deltaYSel);
+				double deltaY = ((double (*)(id, SEL))objc_msgSend_fpret)(theEvent, deltaYSel);
 #endif
 
-			for (int i = 0; i < abs(deltaY); i++) {
-				if (deltaY > 0) {
-					ptrPGE->olc_UpdateMouseWheel(-1);
+				for (int i = 0; i < abs(deltaY); i++) {
+					if (deltaY > 0) {
+						ptrPGE->olc_UpdateMouseWheel(-1);
+					}
+					else if (deltaY < 0) {
+						ptrPGE->olc_UpdateMouseWheel(1);
+					}
 				}
-				else if (deltaY < 0) {
-					ptrPGE->olc_UpdateMouseWheel(1);
+			}
+#endif
+			static void ThreadFunct() {
+#if defined(__APPLE__)
+				static bool hasEnabledCocoa = false;
+				if (!hasEnabledCocoa) {
+					// Objective-C Wizardry
+					Class NSApplicationClass = objc_getClass("NSApplication");
+
+					// NSApp = [NSApplication sharedApplication]
+					SEL sharedApplicationSel = sel_registerName("sharedApplication");
+					id NSApp = ((id(*)(Class, SEL))objc_msgSend)(NSApplicationClass, sharedApplicationSel);
+					// window = [NSApp mainWindow]
+					SEL mainWindowSel = sel_registerName("mainWindow");
+					id window = ((id(*)(id, SEL))objc_msgSend)(NSApp, mainWindowSel);
+
+					// [window setStyleMask: NSWindowStyleMaskClosable | ~NSWindowStyleMaskResizable]
+					SEL setStyleMaskSel = sel_registerName("setStyleMask:");
+					((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 7);
+
+					hasEnabledCocoa = true;
 				}
-			}
-		}
 #endif
-		static void ThreadFunct() {
-#if defined(__APPLE__)
-			static bool hasEnabledCocoa = false;
-			if (!hasEnabledCocoa) {
-				// Objective-C Wizardry
-				Class NSApplicationClass = objc_getClass("NSApplication");
-
-				// NSApp = [NSApplication sharedApplication]
-				SEL sharedApplicationSel = sel_registerName("sharedApplication");
-				id NSApp = ((id(*)(Class, SEL))objc_msgSend)(NSApplicationClass, sharedApplicationSel);
-				// window = [NSApp mainWindow]
-				SEL mainWindowSel = sel_registerName("mainWindow");
-				id window = ((id(*)(id, SEL))objc_msgSend)(NSApp, mainWindowSel);
-
-				// [window setStyleMask: NSWindowStyleMaskClosable | ~NSWindowStyleMaskResizable]
-				SEL setStyleMaskSel = sel_registerName("setStyleMask:");
-				((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 7);
-
-				hasEnabledCocoa = true;
+				if (!*bActiveRef) {
+					ExitMainLoop();
+					return;
+				}
+				glutPostRedisplay();
 			}
-#endif
-			if (!*bActiveRef) {
-				ExitMainLoop();
-				return;
+
+			static void DrawFunct() {
+				ptrPGE->olc_CoreUpdate();
 			}
-			glutPostRedisplay();
-		}
 
-		static void DrawFunct() {
-			ptrPGE->olc_CoreUpdate();
-		}
-
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
-		{
-#if defined(__APPLE__)
-			Class GLUTViewClass = objc_getClass("GLUTView");
-
-			SEL scrollWheelSel = sel_registerName("scrollWheel:");
-			bool resultAddMethod = class_addMethod(GLUTViewClass, scrollWheelSel, (IMP)scrollWheelUpdate, "v@:@");
-			assert(resultAddMethod);
-#endif
-
-			renderer->PrepareDevice();
-
-			if (bFullScreen)
+			virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
 			{
-				vWindowSize.x = glutGet(GLUT_SCREEN_WIDTH);
-				vWindowSize.y = glutGet(GLUT_SCREEN_HEIGHT);
-				glutFullScreen();
-			}
-			else
-			{
-				if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT))
+#if defined(__APPLE__)
+				Class GLUTViewClass = objc_getClass("GLUTView");
+
+				SEL scrollWheelSel = sel_registerName("scrollWheel:");
+				bool resultAddMethod = class_addMethod(GLUTViewClass, scrollWheelSel, (IMP)scrollWheelUpdate, "v@:@");
+				assert(resultAddMethod);
+#endif
+
+				renderer->PrepareDevice();
+
+				if (bFullScreen)
 				{
-					perror("ERROR: The specified window dimensions do not fit on your screen\n");
-					return olc::FAIL;
+					vWindowSize.x = glutGet(GLUT_SCREEN_WIDTH);
+					vWindowSize.y = glutGet(GLUT_SCREEN_HEIGHT);
+					glutFullScreen();
 				}
-				glutReshapeWindow(vWindowSize.x, vWindowSize.y - 1);
+				else
+				{
+					if (vWindowSize.x > glutGet(GLUT_SCREEN_WIDTH) || vWindowSize.y > glutGet(GLUT_SCREEN_HEIGHT))
+					{
+						perror("ERROR: The specified window dimensions do not fit on your screen\n");
+						return olc::FAIL;
+					}
+					glutReshapeWindow(vWindowSize.x, vWindowSize.y - 1);
+				}
+
+				// Create Keyboard Mapping
+				mapKeys[0x00] = Key::NONE;
+				mapKeys['A'] = Key::A; mapKeys['B'] = Key::B; mapKeys['C'] = Key::C; mapKeys['D'] = Key::D; mapKeys['E'] = Key::E;
+				mapKeys['F'] = Key::F; mapKeys['G'] = Key::G; mapKeys['H'] = Key::H; mapKeys['I'] = Key::I; mapKeys['J'] = Key::J;
+				mapKeys['K'] = Key::K; mapKeys['L'] = Key::L; mapKeys['M'] = Key::M; mapKeys['N'] = Key::N; mapKeys['O'] = Key::O;
+				mapKeys['P'] = Key::P; mapKeys['Q'] = Key::Q; mapKeys['R'] = Key::R; mapKeys['S'] = Key::S; mapKeys['T'] = Key::T;
+				mapKeys['U'] = Key::U; mapKeys['V'] = Key::V; mapKeys['W'] = Key::W; mapKeys['X'] = Key::X; mapKeys['Y'] = Key::Y;
+				mapKeys['Z'] = Key::Z;
+
+				mapKeys[GLUT_KEY_F1] = Key::F1; mapKeys[GLUT_KEY_F2] = Key::F2; mapKeys[GLUT_KEY_F3] = Key::F3; mapKeys[GLUT_KEY_F4] = Key::F4;
+				mapKeys[GLUT_KEY_F5] = Key::F5; mapKeys[GLUT_KEY_F6] = Key::F6; mapKeys[GLUT_KEY_F7] = Key::F7; mapKeys[GLUT_KEY_F8] = Key::F8;
+				mapKeys[GLUT_KEY_F9] = Key::F9; mapKeys[GLUT_KEY_F10] = Key::F10; mapKeys[GLUT_KEY_F11] = Key::F11; mapKeys[GLUT_KEY_F12] = Key::F12;
+
+				mapKeys[GLUT_KEY_DOWN] = Key::DOWN; mapKeys[GLUT_KEY_LEFT] = Key::LEFT; mapKeys[GLUT_KEY_RIGHT] = Key::RIGHT; mapKeys[GLUT_KEY_UP] = Key::UP;
+				mapKeys[13] = Key::ENTER;
+
+				mapKeys[127] = Key::BACK; mapKeys[27] = Key::ESCAPE;
+				mapKeys[9] = Key::TAB;  mapKeys[GLUT_KEY_HOME] = Key::HOME;
+				mapKeys[GLUT_KEY_END] = Key::END; mapKeys[GLUT_KEY_PAGE_UP] = Key::PGUP; mapKeys[GLUT_KEY_PAGE_DOWN] = Key::PGDN;    mapKeys[GLUT_KEY_INSERT] = Key::INS;
+				mapKeys[32] = Key::SPACE; mapKeys[46] = Key::PERIOD;
+
+				mapKeys[48] = Key::K0; mapKeys[49] = Key::K1; mapKeys[50] = Key::K2; mapKeys[51] = Key::K3; mapKeys[52] = Key::K4;
+				mapKeys[53] = Key::K5; mapKeys[54] = Key::K6; mapKeys[55] = Key::K7; mapKeys[56] = Key::K8; mapKeys[57] = Key::K9;
+
+				// NOTE: MISSING KEYS :O
+
+				glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
+					switch (glutGetModifiers()) {
+					case 0: //This is when there are no modifiers
+						if ('a' <= key && key <= 'z') key -= 32;
+						break;
+					case GLUT_ACTIVE_SHIFT:
+						ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
+						break;
+					case GLUT_ACTIVE_CTRL:
+						if ('a' <= key && key <= 'z') key -= 32;
+						ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
+						break;
+					case GLUT_ACTIVE_ALT:
+						if ('a' <= key && key <= 'z') key -= 32;
+						break;
+					}
+
+					if (mapKeys[key])
+						ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+					});
+
+				glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
+					switch (glutGetModifiers()) {
+					case 0: //This is when there are no modifiers
+						if ('a' <= key && key <= 'z') key -= 32;
+						break;
+					case GLUT_ACTIVE_SHIFT:
+						ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
+						break;
+					case GLUT_ACTIVE_CTRL:
+						if ('a' <= key && key <= 'z') key -= 32;
+						ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
+						break;
+					case GLUT_ACTIVE_ALT:
+						if ('a' <= key && key <= 'z') key -= 32;
+						//No ALT in PGE
+						break;
+					}
+
+					if (mapKeys[key])
+						ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+					});
+
+				//Special keys
+				glutSpecialFunc([](int key, int x, int y) -> void {
+					if (mapKeys[key])
+						ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+					});
+
+				glutSpecialUpFunc([](int key, int x, int y) -> void {
+					if (mapKeys[key])
+						ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+					});
+
+				glutMouseFunc([](int button, int state, int x, int y) -> void {
+					switch (button) {
+					case GLUT_LEFT_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(0, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(0, true);
+						break;
+					case GLUT_MIDDLE_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(2, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(2, true);
+						break;
+					case GLUT_RIGHT_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(1, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
+						break;
+					}
+					});
+
+				auto mouseMoveCall = [](int x, int y) -> void {
+					ptrPGE->olc_UpdateMouse(x, y);
+				};
+
+				glutMotionFunc(mouseMoveCall);
+				glutPassiveMotionFunc(mouseMoveCall);
+
+				glutEntryFunc([](int state) -> void {
+					if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
+					else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
+					});
+
+				glutDisplayFunc(DrawFunct);
+				glutIdleFunc(ThreadFunct);
+
+				return olc::OK;
 			}
 
-			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys['A'] = Key::A; mapKeys['B'] = Key::B; mapKeys['C'] = Key::C; mapKeys['D'] = Key::D; mapKeys['E'] = Key::E;
-			mapKeys['F'] = Key::F; mapKeys['G'] = Key::G; mapKeys['H'] = Key::H; mapKeys['I'] = Key::I; mapKeys['J'] = Key::J;
-			mapKeys['K'] = Key::K; mapKeys['L'] = Key::L; mapKeys['M'] = Key::M; mapKeys['N'] = Key::N; mapKeys['O'] = Key::O;
-			mapKeys['P'] = Key::P; mapKeys['Q'] = Key::Q; mapKeys['R'] = Key::R; mapKeys['S'] = Key::S; mapKeys['T'] = Key::T;
-			mapKeys['U'] = Key::U; mapKeys['V'] = Key::V; mapKeys['W'] = Key::W; mapKeys['X'] = Key::X; mapKeys['Y'] = Key::Y;
-			mapKeys['Z'] = Key::Z;
+			virtual olc::rcode SetWindowTitle(const std::string& s) override
+			{
+				glutSetWindowTitle(s.c_str());
+				return olc::OK;
+			}
 
-			mapKeys[GLUT_KEY_F1] = Key::F1; mapKeys[GLUT_KEY_F2] = Key::F2; mapKeys[GLUT_KEY_F3] = Key::F3; mapKeys[GLUT_KEY_F4] = Key::F4;
-			mapKeys[GLUT_KEY_F5] = Key::F5; mapKeys[GLUT_KEY_F6] = Key::F6; mapKeys[GLUT_KEY_F7] = Key::F7; mapKeys[GLUT_KEY_F8] = Key::F8;
-			mapKeys[GLUT_KEY_F9] = Key::F9; mapKeys[GLUT_KEY_F10] = Key::F10; mapKeys[GLUT_KEY_F11] = Key::F11; mapKeys[GLUT_KEY_F12] = Key::F12;
+			virtual olc::rcode StartSystemEventLoop() override {
+				glutMainLoop();
+				return olc::OK;
+			}
 
-			mapKeys[GLUT_KEY_DOWN] = Key::DOWN; mapKeys[GLUT_KEY_LEFT] = Key::LEFT; mapKeys[GLUT_KEY_RIGHT] = Key::RIGHT; mapKeys[GLUT_KEY_UP] = Key::UP;
-			mapKeys[13] = Key::ENTER;
+			virtual olc::rcode HandleSystemEvent() override
+			{
+				return olc::OK;
+			}
+		};
 
-			mapKeys[127] = Key::BACK; mapKeys[27] = Key::ESCAPE;
-			mapKeys[9] = Key::TAB;  mapKeys[GLUT_KEY_HOME] = Key::HOME;
-			mapKeys[GLUT_KEY_END] = Key::END; mapKeys[GLUT_KEY_PAGE_UP] = Key::PGUP; mapKeys[GLUT_KEY_PAGE_DOWN] = Key::PGDN;    mapKeys[GLUT_KEY_INSERT] = Key::INS;
-			mapKeys[32] = Key::SPACE; mapKeys[46] = Key::PERIOD;
+		std::atomic<bool>* Platform_GLUT::bActiveRef{ nullptr };
 
-			mapKeys[48] = Key::K0; mapKeys[49] = Key::K1; mapKeys[50] = Key::K2; mapKeys[51] = Key::K3; mapKeys[52] = Key::K4;
-			mapKeys[53] = Key::K5; mapKeys[54] = Key::K6; mapKeys[55] = Key::K7; mapKeys[56] = Key::K8; mapKeys[57] = Key::K9;
-
-			// NOTE: MISSING KEYS :O
-
-			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
-				switch (glutGetModifiers()) {
-				case 0: //This is when there are no modifiers
-					if ('a' <= key && key <= 'z') key -= 32;
-					break;
-				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
-					break;
-				case GLUT_ACTIVE_CTRL:
-					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
-					break;
-				case GLUT_ACTIVE_ALT:
-					if ('a' <= key && key <= 'z') key -= 32;
-					break;
-				}
-
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
-				});
-
-			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
-				switch (glutGetModifiers()) {
-				case 0: //This is when there are no modifiers
-					if ('a' <= key && key <= 'z') key -= 32;
-					break;
-				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
-					break;
-				case GLUT_ACTIVE_CTRL:
-					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
-					break;
-				case GLUT_ACTIVE_ALT:
-					if ('a' <= key && key <= 'z') key -= 32;
-					//No ALT in PGE
-					break;
-				}
-
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
-				});
-
-			//Special keys
-			glutSpecialFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
-				});
-
-			glutSpecialUpFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
-				});
-
-			glutMouseFunc([](int button, int state, int x, int y) -> void {
-				switch (button) {
-				case GLUT_LEFT_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(0, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(0, true);
-					break;
-				case GLUT_MIDDLE_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(2, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(2, true);
-					break;
-				case GLUT_RIGHT_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(1, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
-					break;
-				}
-				});
-
-			auto mouseMoveCall = [](int x, int y) -> void {
-				ptrPGE->olc_UpdateMouse(x, y);
-			};
-
-			glutMotionFunc(mouseMoveCall);
-			glutPassiveMotionFunc(mouseMoveCall);
-
-			glutEntryFunc([](int state) -> void {
-				if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
-				else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
-				});
-
-			glutDisplayFunc(DrawFunct);
-			glutIdleFunc(ThreadFunct);
-
-			return olc::OK;
-		}
-
-		virtual olc::rcode SetWindowTitle(const std::string& s) override
+		//Custom Start
+		olc::rcode PixelGameEngine::Start()
 		{
-			glutSetWindowTitle(s.c_str());
+			if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
+
+			// Construct the window
+			if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+			olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
+
+			if (platform->ThreadStartUp() == olc::FAIL)  return olc::FAIL;
+			olc_PrepareEngine();
+			if (!OnUserCreate()) return olc::FAIL;
+			Platform_GLUT::bActiveRef = &bAtomActive;
+			glutWMCloseFunc(Platform_GLUT::ExitMainLoop);
+			bAtomActive = true;
+			platform->StartSystemEventLoop();
+
+			//This code will not even be run but why not
+			if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
+
 			return olc::OK;
 		}
-
-		virtual olc::rcode StartSystemEventLoop() override {
-			glutMainLoop();
-			return olc::OK;
-		}
-
-		virtual olc::rcode HandleSystemEvent() override
-		{
-			return olc::OK;
-		}
-	};
-
-	std::atomic<bool>* Platform_GLUT::bActiveRef{ nullptr };
-
-	//Custom Start
-	olc::rcode PixelGameEngine::Start()
-	{
-		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
-
-		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
-		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
-
-		if (platform->ThreadStartUp() == olc::FAIL)  return olc::FAIL;
-		olc_PrepareEngine();
-		if (!OnUserCreate()) return olc::FAIL;
-		Platform_GLUT::bActiveRef = &bAtomActive;
-		glutWMCloseFunc(Platform_GLUT::ExitMainLoop);
-		bAtomActive = true;
-		platform->StartSystemEventLoop();
-
-		//This code will not even be run but why not
-		if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
-
-		return olc::OK;
 	}
-}
 
 #endif
-// O------------------------------------------------------------------------------O
-// | END PLATFORM: GLUT                                                           |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END PLATFORM: GLUT                                                           |
+	// O------------------------------------------------------------------------------O
 #pragma endregion 
 
 
@@ -6181,409 +10012,425 @@ namespace olc {
 #include <emscripten/html5.h>
 #include <emscripten/key_codes.h>
 
-extern "C" 
-{
-	EMSCRIPTEN_KEEPALIVE inline int olc_OnPageUnload()
-	{ olc::platform->ApplicationCleanUp(); return 0; }
-}
-
-namespace olc
-{
-	class Platform_Emscripten : public olc::Platform
+	extern "C"
 	{
-	public:
-
-		virtual olc::rcode ApplicationStartUp() override 
-		{ return olc::rcode::OK; }
-
-		virtual olc::rcode ApplicationCleanUp() override 
-		{ ThreadCleanUp(); return olc::rcode::OK; }
-
-		virtual olc::rcode ThreadStartUp() override
-		{ return olc::rcode::OK; }
-
-		virtual olc::rcode ThreadCleanUp() override
-		{ renderer->DestroyDevice(); return olc::OK; }
-
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
+		EMSCRIPTEN_KEEPALIVE inline int olc_OnPageUnload()
 		{
-			if (renderer->CreateDevice({}, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
+			olc::platform->ApplicationCleanUp(); return 0;
+		}
+	}
+
+	namespace olc
+	{
+		class Platform_Emscripten : public olc::Platform
+		{
+		public:
+
+			virtual olc::rcode ApplicationStartUp() override
 			{
-				renderer->UpdateViewport(vViewPos, vViewSize);
 				return olc::rcode::OK;
 			}
-			else
-				return olc::rcode::FAIL;
-		}
 
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
-		{
-			emscripten_set_canvas_element_size("#canvas", vWindowSize.x, vWindowSize.y);
+			virtual olc::rcode ApplicationCleanUp() override
+			{
+				ThreadCleanUp(); return olc::rcode::OK;
+			}
 
-			mapKeys[DOM_PK_UNKNOWN] = Key::NONE;
-			mapKeys[DOM_PK_A] = Key::A; mapKeys[DOM_PK_B] = Key::B; mapKeys[DOM_PK_C] = Key::C; mapKeys[DOM_PK_D] = Key::D;
-			mapKeys[DOM_PK_E] = Key::E; mapKeys[DOM_PK_F] = Key::F; mapKeys[DOM_PK_G] = Key::G; mapKeys[DOM_PK_H] = Key::H;
-			mapKeys[DOM_PK_I] = Key::I; mapKeys[DOM_PK_J] = Key::J; mapKeys[DOM_PK_K] = Key::K; mapKeys[DOM_PK_L] = Key::L;
-			mapKeys[DOM_PK_M] = Key::M; mapKeys[DOM_PK_N] = Key::N; mapKeys[DOM_PK_O] = Key::O; mapKeys[DOM_PK_P] = Key::P;
-			mapKeys[DOM_PK_Q] = Key::Q; mapKeys[DOM_PK_R] = Key::R; mapKeys[DOM_PK_S] = Key::S; mapKeys[DOM_PK_T] = Key::T;
-			mapKeys[DOM_PK_U] = Key::U; mapKeys[DOM_PK_V] = Key::V; mapKeys[DOM_PK_W] = Key::W; mapKeys[DOM_PK_X] = Key::X;
-			mapKeys[DOM_PK_Y] = Key::Y; mapKeys[DOM_PK_Z] = Key::Z;
-			mapKeys[DOM_PK_0] = Key::K0; mapKeys[DOM_PK_1] = Key::K1; mapKeys[DOM_PK_2] = Key::K2;
-			mapKeys[DOM_PK_3] = Key::K3; mapKeys[DOM_PK_4] = Key::K4; mapKeys[DOM_PK_5] = Key::K5;
-			mapKeys[DOM_PK_6] = Key::K6; mapKeys[DOM_PK_7] = Key::K7; mapKeys[DOM_PK_8] = Key::K8;
-			mapKeys[DOM_PK_9] = Key::K9;
-			mapKeys[DOM_PK_F1] = Key::F1; mapKeys[DOM_PK_F2] = Key::F2; mapKeys[DOM_PK_F3] = Key::F3; mapKeys[DOM_PK_F4] = Key::F4;
-			mapKeys[DOM_PK_F5] = Key::F5; mapKeys[DOM_PK_F6] = Key::F6; mapKeys[DOM_PK_F7] = Key::F7; mapKeys[DOM_PK_F8] = Key::F8;
-			mapKeys[DOM_PK_F9] = Key::F9; mapKeys[DOM_PK_F10] = Key::F10; mapKeys[DOM_PK_F11] = Key::F11; mapKeys[DOM_PK_F12] = Key::F12;
-			mapKeys[DOM_PK_ARROW_UP] = Key::UP; mapKeys[DOM_PK_ARROW_DOWN] = Key::DOWN;
-			mapKeys[DOM_PK_ARROW_LEFT] = Key::LEFT; mapKeys[DOM_PK_ARROW_RIGHT] = Key::RIGHT;
-			mapKeys[DOM_PK_SPACE] = Key::SPACE; mapKeys[DOM_PK_TAB] = Key::TAB;
-			mapKeys[DOM_PK_SHIFT_LEFT] = Key::SHIFT; mapKeys[DOM_PK_SHIFT_RIGHT] = Key::SHIFT;
-			mapKeys[DOM_PK_CONTROL_LEFT] = Key::CTRL; mapKeys[DOM_PK_CONTROL_RIGHT] = Key::CTRL;
-			mapKeys[DOM_PK_INSERT] = Key::INS; mapKeys[DOM_PK_DELETE] = Key::DEL; mapKeys[DOM_PK_HOME] = Key::HOME;
-			mapKeys[DOM_PK_END] = Key::END; mapKeys[DOM_PK_PAGE_UP] = Key::PGUP; mapKeys[DOM_PK_PAGE_DOWN] = Key::PGDN;
-			mapKeys[DOM_PK_BACKSPACE] = Key::BACK; mapKeys[DOM_PK_ESCAPE] = Key::ESCAPE;
-			mapKeys[DOM_PK_ENTER] = Key::ENTER; mapKeys[DOM_PK_NUMPAD_EQUAL] = Key::EQUALS;
-			mapKeys[DOM_PK_NUMPAD_ENTER] = Key::ENTER; mapKeys[DOM_PK_PAUSE] = Key::PAUSE;
-			mapKeys[DOM_PK_SCROLL_LOCK] = Key::SCROLL;
-			mapKeys[DOM_PK_NUMPAD_0] = Key::NP0; mapKeys[DOM_PK_NUMPAD_1] = Key::NP1; mapKeys[DOM_PK_NUMPAD_2] = Key::NP2;
-			mapKeys[DOM_PK_NUMPAD_3] = Key::NP3; mapKeys[DOM_PK_NUMPAD_4] = Key::NP4; mapKeys[DOM_PK_NUMPAD_5] = Key::NP5;
-			mapKeys[DOM_PK_NUMPAD_6] = Key::NP6; mapKeys[DOM_PK_NUMPAD_7] = Key::NP7; mapKeys[DOM_PK_NUMPAD_8] = Key::NP8;
-			mapKeys[DOM_PK_NUMPAD_9] = Key::NP9;
-			mapKeys[DOM_PK_NUMPAD_MULTIPLY] = Key::NP_MUL; mapKeys[DOM_PK_NUMPAD_DIVIDE] = Key::NP_DIV;
-			mapKeys[DOM_PK_NUMPAD_ADD] = Key::NP_ADD; mapKeys[DOM_PK_NUMPAD_SUBTRACT] = Key::NP_SUB;
-			mapKeys[DOM_PK_NUMPAD_DECIMAL] = Key::NP_DECIMAL;
-			mapKeys[DOM_PK_PERIOD] = Key::PERIOD; mapKeys[DOM_PK_EQUAL] = Key::EQUALS;
-			mapKeys[DOM_PK_COMMA] = Key::COMMA; mapKeys[DOM_PK_MINUS] = Key::MINUS;
-			mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
-			mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
-			mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
-			mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
+			virtual olc::rcode ThreadStartUp() override
+			{
+				return olc::rcode::OK;
+			}
 
-			// Keyboard Callbacks
-			emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
-			emscripten_set_keyup_callback("#canvas", 0, 1, keyboard_callback);
+			virtual olc::rcode ThreadCleanUp() override
+			{
+				renderer->DestroyDevice(); return olc::OK;
+			}
 
-			// Mouse Callbacks
-			emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
-			emscripten_set_mousedown_callback("#canvas", 0, 1, mouse_callback);
-			emscripten_set_mouseup_callback("#canvas", 0, 1, mouse_callback);
-			emscripten_set_mousemove_callback("#canvas", 0, 1, mouse_callback);
+			virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
+			{
+				if (renderer->CreateDevice({}, bFullScreen, bEnableVSYNC) == olc::rcode::OK)
+				{
+					renderer->UpdateViewport(vViewPos, vViewSize);
+					return olc::rcode::OK;
+				}
+				else
+					return olc::rcode::FAIL;
+			}
 
-			// Touch Callbacks
-			emscripten_set_touchstart_callback("#canvas", 0, 1, touch_callback);
-			emscripten_set_touchmove_callback("#canvas", 0, 1, touch_callback);
-			emscripten_set_touchend_callback("#canvas", 0, 1, touch_callback);
+			virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override
+			{
+				emscripten_set_canvas_element_size("#canvas", vWindowSize.x, vWindowSize.y);
 
-			// Canvas Focus Callbacks
-			emscripten_set_blur_callback("#canvas", 0, 1, focus_callback);
-			emscripten_set_focus_callback("#canvas", 0, 1, focus_callback);
-			
+				mapKeys[DOM_PK_UNKNOWN] = Key::NONE;
+				mapKeys[DOM_PK_A] = Key::A; mapKeys[DOM_PK_B] = Key::B; mapKeys[DOM_PK_C] = Key::C; mapKeys[DOM_PK_D] = Key::D;
+				mapKeys[DOM_PK_E] = Key::E; mapKeys[DOM_PK_F] = Key::F; mapKeys[DOM_PK_G] = Key::G; mapKeys[DOM_PK_H] = Key::H;
+				mapKeys[DOM_PK_I] = Key::I; mapKeys[DOM_PK_J] = Key::J; mapKeys[DOM_PK_K] = Key::K; mapKeys[DOM_PK_L] = Key::L;
+				mapKeys[DOM_PK_M] = Key::M; mapKeys[DOM_PK_N] = Key::N; mapKeys[DOM_PK_O] = Key::O; mapKeys[DOM_PK_P] = Key::P;
+				mapKeys[DOM_PK_Q] = Key::Q; mapKeys[DOM_PK_R] = Key::R; mapKeys[DOM_PK_S] = Key::S; mapKeys[DOM_PK_T] = Key::T;
+				mapKeys[DOM_PK_U] = Key::U; mapKeys[DOM_PK_V] = Key::V; mapKeys[DOM_PK_W] = Key::W; mapKeys[DOM_PK_X] = Key::X;
+				mapKeys[DOM_PK_Y] = Key::Y; mapKeys[DOM_PK_Z] = Key::Z;
+				mapKeys[DOM_PK_0] = Key::K0; mapKeys[DOM_PK_1] = Key::K1; mapKeys[DOM_PK_2] = Key::K2;
+				mapKeys[DOM_PK_3] = Key::K3; mapKeys[DOM_PK_4] = Key::K4; mapKeys[DOM_PK_5] = Key::K5;
+				mapKeys[DOM_PK_6] = Key::K6; mapKeys[DOM_PK_7] = Key::K7; mapKeys[DOM_PK_8] = Key::K8;
+				mapKeys[DOM_PK_9] = Key::K9;
+				mapKeys[DOM_PK_F1] = Key::F1; mapKeys[DOM_PK_F2] = Key::F2; mapKeys[DOM_PK_F3] = Key::F3; mapKeys[DOM_PK_F4] = Key::F4;
+				mapKeys[DOM_PK_F5] = Key::F5; mapKeys[DOM_PK_F6] = Key::F6; mapKeys[DOM_PK_F7] = Key::F7; mapKeys[DOM_PK_F8] = Key::F8;
+				mapKeys[DOM_PK_F9] = Key::F9; mapKeys[DOM_PK_F10] = Key::F10; mapKeys[DOM_PK_F11] = Key::F11; mapKeys[DOM_PK_F12] = Key::F12;
+				mapKeys[DOM_PK_ARROW_UP] = Key::UP; mapKeys[DOM_PK_ARROW_DOWN] = Key::DOWN;
+				mapKeys[DOM_PK_ARROW_LEFT] = Key::LEFT; mapKeys[DOM_PK_ARROW_RIGHT] = Key::RIGHT;
+				mapKeys[DOM_PK_SPACE] = Key::SPACE; mapKeys[DOM_PK_TAB] = Key::TAB;
+				mapKeys[DOM_PK_SHIFT_LEFT] = Key::SHIFT; mapKeys[DOM_PK_SHIFT_RIGHT] = Key::SHIFT;
+				mapKeys[DOM_PK_CONTROL_LEFT] = Key::CTRL; mapKeys[DOM_PK_CONTROL_RIGHT] = Key::CTRL;
+				mapKeys[DOM_PK_INSERT] = Key::INS; mapKeys[DOM_PK_DELETE] = Key::DEL; mapKeys[DOM_PK_HOME] = Key::HOME;
+				mapKeys[DOM_PK_END] = Key::END; mapKeys[DOM_PK_PAGE_UP] = Key::PGUP; mapKeys[DOM_PK_PAGE_DOWN] = Key::PGDN;
+				mapKeys[DOM_PK_BACKSPACE] = Key::BACK; mapKeys[DOM_PK_ESCAPE] = Key::ESCAPE;
+				mapKeys[DOM_PK_ENTER] = Key::ENTER; mapKeys[DOM_PK_NUMPAD_EQUAL] = Key::EQUALS;
+				mapKeys[DOM_PK_NUMPAD_ENTER] = Key::ENTER; mapKeys[DOM_PK_PAUSE] = Key::PAUSE;
+				mapKeys[DOM_PK_SCROLL_LOCK] = Key::SCROLL;
+				mapKeys[DOM_PK_NUMPAD_0] = Key::NP0; mapKeys[DOM_PK_NUMPAD_1] = Key::NP1; mapKeys[DOM_PK_NUMPAD_2] = Key::NP2;
+				mapKeys[DOM_PK_NUMPAD_3] = Key::NP3; mapKeys[DOM_PK_NUMPAD_4] = Key::NP4; mapKeys[DOM_PK_NUMPAD_5] = Key::NP5;
+				mapKeys[DOM_PK_NUMPAD_6] = Key::NP6; mapKeys[DOM_PK_NUMPAD_7] = Key::NP7; mapKeys[DOM_PK_NUMPAD_8] = Key::NP8;
+				mapKeys[DOM_PK_NUMPAD_9] = Key::NP9;
+				mapKeys[DOM_PK_NUMPAD_MULTIPLY] = Key::NP_MUL; mapKeys[DOM_PK_NUMPAD_DIVIDE] = Key::NP_DIV;
+				mapKeys[DOM_PK_NUMPAD_ADD] = Key::NP_ADD; mapKeys[DOM_PK_NUMPAD_SUBTRACT] = Key::NP_SUB;
+				mapKeys[DOM_PK_NUMPAD_DECIMAL] = Key::NP_DECIMAL;
+				mapKeys[DOM_PK_PERIOD] = Key::PERIOD; mapKeys[DOM_PK_EQUAL] = Key::EQUALS;
+				mapKeys[DOM_PK_COMMA] = Key::COMMA; mapKeys[DOM_PK_MINUS] = Key::MINUS;
+				mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
+				mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
+				mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
+				mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
+
+				// Keyboard Callbacks
+				emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
+				emscripten_set_keyup_callback("#canvas", 0, 1, keyboard_callback);
+
+				// Mouse Callbacks
+				emscripten_set_wheel_callback("#canvas", 0, 1, wheel_callback);
+				emscripten_set_mousedown_callback("#canvas", 0, 1, mouse_callback);
+				emscripten_set_mouseup_callback("#canvas", 0, 1, mouse_callback);
+				emscripten_set_mousemove_callback("#canvas", 0, 1, mouse_callback);
+
+				// Touch Callbacks
+				emscripten_set_touchstart_callback("#canvas", 0, 1, touch_callback);
+				emscripten_set_touchmove_callback("#canvas", 0, 1, touch_callback);
+				emscripten_set_touchend_callback("#canvas", 0, 1, touch_callback);
+
+				// Canvas Focus Callbacks
+				emscripten_set_blur_callback("#canvas", 0, 1, focus_callback);
+				emscripten_set_focus_callback("#canvas", 0, 1, focus_callback);
+
 #pragma warning disable format
-			EM_ASM( window.onunload = Module._olc_OnPageUnload; );
+				EM_ASM(window.onunload = Module._olc_OnPageUnload; );
 
-			// IMPORTANT! - Sorry About This...
-			//
-			//	In order to handle certain browser based events, such as resizing and
-			//	going to full screen, we have to effectively inject code into the container
-			//	running the PGE. Yes, I vomited about 11 times too when the others were
-			//	convincing me this is the future. Well, this isnt the future, and if it
-			//	were to be, I want no part of what must be a miserable distopian free
-			//	for all of anarchic code injection to get rudimentary events like "Resize()".
-			//
-			//	Wake up people! Of course theres a spoon. There has to be to keep feeding
-			//	the giant web baby.
-			
+				// IMPORTANT! - Sorry About This...
+				//
+				//	In order to handle certain browser based events, such as resizing and
+				//	going to full screen, we have to effectively inject code into the container
+				//	running the PGE. Yes, I vomited about 11 times too when the others were
+				//	convincing me this is the future. Well, this isnt the future, and if it
+				//	were to be, I want no part of what must be a miserable distopian free
+				//	for all of anarchic code injection to get rudimentary events like "Resize()".
+				//
+				//	Wake up people! Of course theres a spoon. There has to be to keep feeding
+				//	the giant web baby.
 
-			EM_ASM({
 
-			// olc_ApsectRatio
-			// 
-			// Used by olc_ResizeHandler to calculate the viewport from the
-			// dimensions of the canvas container's element.
-			Module.olc_AspectRatio = $0 / $1;
+				EM_ASM({
 
-			// HACK ALERT!
-			// 
-			// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
-			// is using one of the default or minimal emscripten page layouts
-			Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false;
+					// olc_ApsectRatio
+					// 
+					// Used by olc_ResizeHandler to calculate the viewport from the
+					// dimensions of the canvas container's element.
+					Module.olc_AspectRatio = $0 / $1;
 
-			// olc_ResizeHandler
-			// 
-			// Used by olc_Init, and is called when a resize observer and fullscreenchange event is triggered.
-			var olc_ResizeHandler = function()
-			{
-				// are we in fullscreen mode?
-				let isFullscreen = (document.fullscreenElement != null);
+				// HACK ALERT!
+				// 
+				// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
+				// is using one of the default or minimal emscripten page layouts
+				Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false;
 
-				// get the width of the containing element
-				let width  = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-				let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
-
-				// calculate the expected viewport size
-				let viewWidth  = width;
-				let viewHeight = width / Module.olc_AspectRatio;
-
-				// if we're taller than the containing element, recalculate based on height
-				if(viewHeight > height)
+				// olc_ResizeHandler
+				// 
+				// Used by olc_Init, and is called when a resize observer and fullscreenchange event is triggered.
+				var olc_ResizeHandler = function()
 				{
-					viewWidth  = height * Module.olc_AspectRatio;
-					viewHeight = height;
-				}
-    
-				// ensure resulting viewport is in integer space
-				viewWidth  = parseInt(viewWidth);
-				viewHeight = parseInt(viewHeight);
+					// are we in fullscreen mode?
+					let isFullscreen = (document.fullscreenElement != null);
 
-				setTimeout(function()
+					// get the width of the containing element
+					let width = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth : Module.canvas.parentNode.clientWidth;
+					let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+
+					// calculate the expected viewport size
+					let viewWidth = width;
+					let viewHeight = width / Module.olc_AspectRatio;
+
+					// if we're taller than the containing element, recalculate based on height
+					if (viewHeight > height)
+					{
+						viewWidth = height * Module.olc_AspectRatio;
+						viewHeight = height;
+					}
+
+					// ensure resulting viewport is in integer space
+					viewWidth = parseInt(viewWidth);
+					viewHeight = parseInt(viewHeight);
+
+					setTimeout(function()
+					{
+						// if default shells, apply default styles
+						if (Module.olc_AssumeDefaultShells)
+							Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
+
+						// apply viewport dimensions to teh canvas
+						Module.canvas.setAttribute('width', viewWidth);
+						Module.canvas.setAttribute('height', viewHeight);
+						Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px; `);
+
+						// update the PGE window size
+						Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
+
+						// force focus on our PGE canvas
+						Module.canvas.focus();
+					}, 200);
+				};
+
+
+				// olc_Init
+				// 
+				// set up resize observer and fullscreenchange event handler
+				var olc_Init = function()
 				{
-					// if default shells, apply default styles
-					if(Module.olc_AssumeDefaultShells)
-						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
-				
-					// apply viewport dimensions to teh canvas
-					Module.canvas.setAttribute('width', viewWidth);
-					Module.canvas.setAttribute('height', viewHeight);
-					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
-					
-					// update the PGE window size
-					Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
-					
-					// force focus on our PGE canvas
-					Module.canvas.focus();
-				}, 200);
-			};
+					if (Module.olc_AspectRatio == = undefined)
+					{
+						setTimeout(function() { Module.olc_Init(); }, 50);
+						return;
+					}
 
-			
-			// olc_Init
-			// 
-			// set up resize observer and fullscreenchange event handler
-			var olc_Init = function()
-			{
-				if(Module.olc_AspectRatio === undefined)
-				{
-					setTimeout(function() { Module.olc_Init(); }, 50);
-					return;
-				}
-					
-				let resizeObserver = new ResizeObserver(function(entries)
-				{
-					Module.olc_ResizeHandler();
-				}).observe(Module.canvas.parentNode);
+					let resizeObserver = new ResizeObserver(function(entries)
+					{
+						Module.olc_ResizeHandler();
+					}).observe(Module.canvas.parentNode);
 
-				let mutationObserver = new MutationObserver(function(mutationsList, observer)
-				{
-					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
-				}).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false });
+					let mutationObserver = new MutationObserver(function(mutationsList, observer)
+					{
+						setTimeout(function() { Module.olc_ResizeHandler(); },  200);
+					}).observe(Module.canvas.parentNode, { attributes: false, childList : true, subtree : false });
 
-				window.addEventListener('fullscreenchange', function(e)
-				{
-					setTimeout(function() { Module.olc_ResizeHandler();},  200);
-				});
-			};
-			
-			// set up hooks
-			Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
-			Module.olc_Init          = (Module.olc_Init          != undefined) ? Module.olc_Init : olc_Init;
+					window.addEventListener('fullscreenchange', function(e)
+					{
+						setTimeout(function() { Module.olc_ResizeHandler(); },  200);
+					});
+				};
 
-			// run everything!
-			Module.olc_Init();
+				// set up hooks
+				Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
+				Module.olc_Init = (Module.olc_Init != undefined) ? Module.olc_Init : olc_Init;
 
-			}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
+				// run everything!
+				Module.olc_Init();
+
+						}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
 #pragma warning restore format
-			return olc::rcode::OK;
-		}
-
-		// Interface PGE's UpdateWindowSize, for use in Javascript
-		void UpdateWindowSize(int width, int height)
-		{
-			ptrPGE->olc_UpdateWindowSize(width, height);
-		}
-
-		//TY Gorbit
-		static EM_BOOL focus_callback(int eventType, const EmscriptenFocusEvent* focusEvent, void* userData) 
-		{
-			if (eventType == EMSCRIPTEN_EVENT_BLUR)
-			{
-				ptrPGE->olc_UpdateKeyFocus(false);
-				ptrPGE->olc_UpdateMouseFocus(false);
-			}
-			else if (eventType == EMSCRIPTEN_EVENT_FOCUS)
-			{
-				ptrPGE->olc_UpdateKeyFocus(true);
-				ptrPGE->olc_UpdateMouseFocus(true);
+					return olc::rcode::OK;
 			}
 
-			return 0;
-		}
-
-		//TY Moros
-		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
-		{
-			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
-
-			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
-			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
-
-			//Consume keyboard events so that keys like F1 and F5 don't do weird things
-			return EM_TRUE;
-		}
-
-		//TY Moros
-		static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* e, void* userData)
-		{
-			if (eventType == EMSCRIPTEN_EVENT_WHEEL)
-				ptrPGE->olc_UpdateMouseWheel(-1 * e->deltaY);
-
-			return EM_TRUE;
-		}
-
-		//TY Bispoo
-		static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* e, void* userData)
-		{
-			// Move
-			if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE)
+			// Interface PGE's UpdateWindowSize, for use in Javascript
+			void UpdateWindowSize(int width, int height)
 			{
-				ptrPGE->olc_UpdateMouse(e->touches->targetX, e->touches->targetY);
+				ptrPGE->olc_UpdateWindowSize(width, height);
 			}
 
-			// Start
-			if (eventType == EMSCRIPTEN_EVENT_TOUCHSTART)
+			//TY Gorbit
+			static EM_BOOL focus_callback(int eventType, const EmscriptenFocusEvent* focusEvent, void* userData)
 			{
-				ptrPGE->olc_UpdateMouse(e->touches->targetX, e->touches->targetY);
-				ptrPGE->olc_UpdateMouseState(0, true);
+				if (eventType == EMSCRIPTEN_EVENT_BLUR)
+				{
+					ptrPGE->olc_UpdateKeyFocus(false);
+					ptrPGE->olc_UpdateMouseFocus(false);
+				}
+				else if (eventType == EMSCRIPTEN_EVENT_FOCUS)
+				{
+					ptrPGE->olc_UpdateKeyFocus(true);
+					ptrPGE->olc_UpdateMouseFocus(true);
+				}
+
+				return 0;
 			}
 
-			// End
-			if (eventType == EMSCRIPTEN_EVENT_TOUCHEND)
+			//TY Moros
+			static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 			{
-				ptrPGE->olc_UpdateMouseState(0, false);
-			}
+				if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
+					ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
 
-			return EM_TRUE;
-		}
+				// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
+				if (eventType == EMSCRIPTEN_EVENT_KEYUP)
+					ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
 
-		//TY Moros
-		static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* e, void* userData)
-		{
-			//Mouse Movement
-			if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE)
-				ptrPGE->olc_UpdateMouse(e->targetX, e->targetY);
-
-
-			//Mouse button press
-			if (e->button == 0) // left click
-			{
-				if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
-					ptrPGE->olc_UpdateMouseState(0, true);
-				else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
-					ptrPGE->olc_UpdateMouseState(0, false);
-			}
-
-			if (e->button == 2) // right click
-			{
-				if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
-					ptrPGE->olc_UpdateMouseState(1, true);
-				else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
-					ptrPGE->olc_UpdateMouseState(1, false);
-
-			}
-
-			if (e->button == 1) // middle click
-			{
-				if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
-					ptrPGE->olc_UpdateMouseState(2, true);
-				else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
-					ptrPGE->olc_UpdateMouseState(2, false);
-
-				//at the moment only middle mouse needs to consume events.
+				//Consume keyboard events so that keys like F1 and F5 don't do weird things
 				return EM_TRUE;
 			}
 
-			return EM_FALSE;
-		}
-
-
-		virtual olc::rcode SetWindowTitle(const std::string& s) override
-		{ emscripten_set_window_title(s.c_str()); return olc::OK; }
-
-		virtual olc::rcode StartSystemEventLoop() override 
-		{ return olc::OK; }
-
-		virtual olc::rcode HandleSystemEvent() override
-		{ return olc::OK; }
-
-		static void MainLoop()
-		{
-			olc::Platform::ptrPGE->olc_CoreUpdate();
-			if (!ptrPGE->olc_IsRunning())
+			//TY Moros
+			static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* e, void* userData)
 			{
-				if (ptrPGE->OnUserDestroy())
+				if (eventType == EMSCRIPTEN_EVENT_WHEEL)
+					ptrPGE->olc_UpdateMouseWheel(-1 * e->deltaY);
+
+				return EM_TRUE;
+			}
+
+			//TY Bispoo
+			static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* e, void* userData)
+			{
+				// Move
+				if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE)
 				{
-					emscripten_cancel_main_loop();
-					platform->ApplicationCleanUp();
+					ptrPGE->olc_UpdateMouse(e->touches->targetX, e->touches->targetY);
 				}
-				else
+
+				// Start
+				if (eventType == EMSCRIPTEN_EVENT_TOUCHSTART)
 				{
-					ptrPGE->olc_Reanimate();
+					ptrPGE->olc_UpdateMouse(e->touches->targetX, e->touches->targetY);
+					ptrPGE->olc_UpdateMouseState(0, true);
+				}
+
+				// End
+				if (eventType == EMSCRIPTEN_EVENT_TOUCHEND)
+				{
+					ptrPGE->olc_UpdateMouseState(0, false);
+				}
+
+				return EM_TRUE;
+			}
+
+			//TY Moros
+			static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* e, void* userData)
+			{
+				//Mouse Movement
+				if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE)
+					ptrPGE->olc_UpdateMouse(e->targetX, e->targetY);
+
+
+				//Mouse button press
+				if (e->button == 0) // left click
+				{
+					if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
+						ptrPGE->olc_UpdateMouseState(0, true);
+					else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
+						ptrPGE->olc_UpdateMouseState(0, false);
+				}
+
+				if (e->button == 2) // right click
+				{
+					if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
+						ptrPGE->olc_UpdateMouseState(1, true);
+					else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
+						ptrPGE->olc_UpdateMouseState(1, false);
+
+				}
+
+				if (e->button == 1) // middle click
+				{
+					if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN)
+						ptrPGE->olc_UpdateMouseState(2, true);
+					else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP)
+						ptrPGE->olc_UpdateMouseState(2, false);
+
+					//at the moment only middle mouse needs to consume events.
+					return EM_TRUE;
+				}
+
+				return EM_FALSE;
+			}
+
+
+			virtual olc::rcode SetWindowTitle(const std::string& s) override
+			{
+				emscripten_set_window_title(s.c_str()); return olc::OK;
+			}
+
+			virtual olc::rcode StartSystemEventLoop() override
+			{
+				return olc::OK;
+			}
+
+			virtual olc::rcode HandleSystemEvent() override
+			{
+				return olc::OK;
+			}
+
+			static void MainLoop()
+			{
+				olc::Platform::ptrPGE->olc_CoreUpdate();
+				if (!ptrPGE->olc_IsRunning())
+				{
+					if (ptrPGE->OnUserDestroy())
+					{
+						emscripten_cancel_main_loop();
+						platform->ApplicationCleanUp();
+					}
+					else
+					{
+						ptrPGE->olc_Reanimate();
+					}
 				}
 			}
+		};
+
+		//Emscripten needs a special Start function
+		//Much of this is usually done in EngineThread, but that isn't used here
+		olc::rcode PixelGameEngine::Start()
+		{
+			if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
+
+			// Construct the window
+			if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+			olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
+
+			// Some implementations may form an event loop here
+			if (platform->ThreadStartUp() == olc::FAIL)	return olc::FAIL;
+
+			// Do engine context specific initialisation
+			olc_PrepareEngine();
+
+			// Consider the "thread" started
+			bAtomActive = true;
+
+			// Create user resources as part of this thread
+			for (auto& ext : vExtensions) ext->OnBeforeUserCreate();
+			if (!OnUserCreate()) bAtomActive = false;
+			for (auto& ext : vExtensions) ext->OnAfterUserCreate();
+
+			platform->StartSystemEventLoop();
+
+			//This causes a heap memory corruption in Emscripten for some reason
+			//Platform_Emscripten::bActiveRef = &bAtomActive;
+			emscripten_set_main_loop(&Platform_Emscripten::MainLoop, 0, 1);
+
+			// Wait for thread to be exited
+			if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
+			return olc::OK;
 		}
-	};
-
-	//Emscripten needs a special Start function
-	//Much of this is usually done in EngineThread, but that isn't used here
-	olc::rcode PixelGameEngine::Start()
-	{
-		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
-
-		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
-		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
-
-		// Some implementations may form an event loop here
-		if (platform->ThreadStartUp() == olc::FAIL)	return olc::FAIL;
-
-		// Do engine context specific initialisation
-		olc_PrepareEngine();
-
-		// Consider the "thread" started
-		bAtomActive = true;
-
-		// Create user resources as part of this thread
-		for (auto& ext : vExtensions) ext->OnBeforeUserCreate();
-		if (!OnUserCreate()) bAtomActive = false;
-		for (auto& ext : vExtensions) ext->OnAfterUserCreate();
-
-		platform->StartSystemEventLoop();
-
-		//This causes a heap memory corruption in Emscripten for some reason
-		//Platform_Emscripten::bActiveRef = &bAtomActive;
-		emscripten_set_main_loop(&Platform_Emscripten::MainLoop, 0, 1);
-
-		// Wait for thread to be exited
-		if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
-		return olc::OK;
 	}
-}
 
-extern "C" 
-{
-	EMSCRIPTEN_KEEPALIVE inline void olc_PGE_UpdateWindowSize(int width, int height)
+	extern "C"
 	{
-		emscripten_set_canvas_element_size("#canvas", width, height);
-		// Thanks slavka
-		((olc::Platform_Emscripten*)olc::platform.get())->UpdateWindowSize(width, height);
+		EMSCRIPTEN_KEEPALIVE inline void olc_PGE_UpdateWindowSize(int width, int height)
+		{
+			emscripten_set_canvas_element_size("#canvas", width, height);
+			// Thanks slavka
+			((olc::Platform_Emscripten*)olc::platform.get())->UpdateWindowSize(width, height);
+		}
 	}
-}
 
 #endif
-// O------------------------------------------------------------------------------O
-// | END PLATFORM: Emscripten                                                     |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END PLATFORM: Emscripten                                                     |
+	// O------------------------------------------------------------------------------O
 #pragma endregion
 
 
@@ -6593,100 +10440,100 @@ extern "C"
 // | olcPixelGameEngine Auto-Configuration                                        |
 // O------------------------------------------------------------------------------O
 #pragma region pge_config
-namespace olc
-{
-	void PixelGameEngine::olc_ConfigureSystem()
+	namespace olc
 	{
+		void PixelGameEngine::olc_ConfigureSystem()
+		{
 
-//#if !defined(OLC_PGE_HEADLESS)
+			//#if !defined(OLC_PGE_HEADLESS)
 
-		olc::Sprite::loader = nullptr;
+			olc::Sprite::loader = nullptr;
 
 #if defined(OLC_IMAGE_GDI)
-		olc::Sprite::loader = std::make_unique<olc::ImageLoader_GDIPlus>();
+			olc::Sprite::loader = std::make_unique<olc::ImageLoader_GDIPlus>();
 #endif
 
 #if defined(OLC_IMAGE_LIBPNG)
-		olc::Sprite::loader = std::make_unique<olc::ImageLoader_LibPNG>();
+			olc::Sprite::loader = std::make_unique<olc::ImageLoader_LibPNG>();
 #endif
 
 #if defined(OLC_IMAGE_STB)
-		olc::Sprite::loader = std::make_unique<olc::ImageLoader_STB>();
+			olc::Sprite::loader = std::make_unique<olc::ImageLoader_STB>();
 #endif
 
 #if defined(OLC_IMAGE_CUSTOM_EX)
-		olc::Sprite::loader = std::make_unique<OLC_IMAGE_CUSTOM_EX>();
+			olc::Sprite::loader = std::make_unique<OLC_IMAGE_CUSTOM_EX>();
 #endif
 
 
 #if defined(OLC_PLATFORM_HEADLESS)
-		platform = std::make_unique<olc::Platform_Headless>();
+			platform = std::make_unique<olc::Platform_Headless>();
 #endif
 
 #if defined(OLC_PLATFORM_WINAPI)
-		platform = std::make_unique<olc::Platform_Windows>();
+			platform = std::make_unique<olc::Platform_Windows>();
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-		platform = std::make_unique<olc::Platform_Linux>();
+			platform = std::make_unique<olc::Platform_Linux>();
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-		platform = std::make_unique<olc::Platform_GLUT>();
+			platform = std::make_unique<olc::Platform_GLUT>();
 #endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-		platform = std::make_unique<olc::Platform_Emscripten>();
+			platform = std::make_unique<olc::Platform_Emscripten>();
 #endif
 
 #if defined(OLC_PLATFORM_CUSTOM_EX)
-		platform = std::make_unique<OLC_PLATFORM_CUSTOM_EX>();
+			platform = std::make_unique<OLC_PLATFORM_CUSTOM_EX>();
 #endif
 
 #if defined(OLC_GFX_HEADLESS)
-		renderer = std::make_unique<olc::Renderer_Headless>();
+			renderer = std::make_unique<olc::Renderer_Headless>();
 #endif
 
 #if defined(OLC_GFX_OPENGL10)
-		renderer = std::make_unique<olc::Renderer_OGL10>();
+			renderer = std::make_unique<olc::Renderer_OGL10>();
 #endif
 
 #if defined(OLC_GFX_OPENGL33)
-		renderer = std::make_unique<olc::Renderer_OGL33>();
+			renderer = std::make_unique<olc::Renderer_OGL33>();
 #endif
 
 #if defined(OLC_GFX_OPENGLES2)
-		renderer = std::make_unique<olc::Renderer_OGLES2>();
+			renderer = std::make_unique<olc::Renderer_OGLES2>();
 #endif
 
 #if defined(OLC_GFX_DIRECTX10)
-		renderer = std::make_unique<olc::Renderer_DX10>();
+			renderer = std::make_unique<olc::Renderer_DX10>();
 #endif
 
 #if defined(OLC_GFX_DIRECTX11)
-		renderer = std::make_unique<olc::Renderer_DX11>();
+			renderer = std::make_unique<olc::Renderer_DX11>();
 #endif
 
 #if defined(OLC_GFX_CUSTOM_EX)
-		renderer = std::make_unique<OLC_RENDERER_CUSTOM_EX>();
+			renderer = std::make_unique<OLC_RENDERER_CUSTOM_EX>();
 #endif
 
-		// Associate components with PGE instance
-		platform->ptrPGE = this;
-		renderer->ptrPGE = this;
-//#else
-//		olc::Sprite::loader = nullptr;
-//		platform = nullptr;
-//		renderer = nullptr;
-//#endif
+			// Associate components with PGE instance
+			platform->ptrPGE = this;
+			renderer->ptrPGE = this;
+			//#else
+			//		olc::Sprite::loader = nullptr;
+			//		platform = nullptr;
+			//		renderer = nullptr;
+			//#endif
+		}
 	}
-}
 
 #pragma endregion
 
 #endif // End OLC_PGE_APPLICATION
 
-// O------------------------------------------------------------------------------O
-// | END OF OLC_PGE_APPLICATION                                                   |
-// O------------------------------------------------------------------------------O
+	// O------------------------------------------------------------------------------O
+	// | END OF OLC_PGE_APPLICATION                                                   |
+	// O------------------------------------------------------------------------------O
 
