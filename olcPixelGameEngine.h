@@ -2359,6 +2359,15 @@ namespace X11
 
 		Sprite::~Sprite()
 		{
+			// John Galvin, Ensures no memory leak should 'Store Sub Sprites' are enabled
+			for (int i = 0; i < vecSubSprites.size(); i++)
+			{
+				Sprite* spr = std::get<4>(vecSubSprites[i]);
+				spr->~Sprite();
+			}
+
+			vecSubSprites.clear();
+
 			pColData.clear();
 		}
 
