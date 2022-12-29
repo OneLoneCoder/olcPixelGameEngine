@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.21              |
+	|           OneLoneCoder Pixel Game Engine v2.22              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -197,7 +197,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, �OneLoneCoder 2018, 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022
 */
 #pragma endregion
 
@@ -315,6 +315,7 @@
 		  +FillTexturedTriangle() - Software rasterizes a textured, coloured, triangle
 		  +FillTexturedPolygon() - Hijacks DecalStructure for configuration
 		  +olc::vf2d arguments for Sprite::Sample() functions
+	2.22: = Fix typo on dragged file buffers for unicode builds
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -394,7 +395,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 221
+#define PGE_VER 222
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -5574,7 +5575,7 @@ namespace olc
 					vFiles.push_back(std::string(buffer));
 					delete[] buffer;
 #else
-					vFiles.push_back(std::string(dbuffer));
+					vFiles.push_back(std::string(dfbuffer));
 #endif
 				}
 
