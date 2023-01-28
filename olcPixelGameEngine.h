@@ -5657,117 +5657,53 @@ namespace olc
 
 	void PixelGameEngine::Clear_SSE(int VecStartIndex, int VecEndIndex, Pixel p)
 	{
-		// Get a pointer to the pColData (Pixel colour vector data)
-		int* pVecB = (int*)pDrawTarget->pColData.data();
-
 		int nVecA = 0;
 
 		int nReplacePixel = (int)p.n; // Get the int value of the pixel
 
-		__m128i _replacepixel, _compare, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+		__m128i _replacepixel; // instance a 128bit register which can hold 4 uint32_t slots 
 
-		//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
+		//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 4 slots
 		_replacepixel = _mm_set1_epi32(nReplacePixel);
-		_compare = _mm_set1_epi32(0);
-		_vecA = _mm_set1_epi32(0);
-		_xorNot = _mm_set1_epi32(0xffffffff);
 
-		for (int i = VecStartIndex; i < VecEndIndex; i += 4, pVecB += 4, nVecA += 4)
+		for (int i = VecStartIndex; i < VecEndIndex; i += 4, nVecA += 4)
 		{
-			// Load the vector into a 128BIT REGISTER*
-			_vecA = _mm_load_si128((const __m128i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
-
-			// check if the pixel is already the same, if not no need to write to the momory location
-			// Do this:
-			//_compare = _mm_cmpeq_epi32(_vecA, _replacepixel);
-			//_compare = _mm_xor_si128 (_compare, _xorNot);
-			// or do this:
-			//I didn't check wich one is faster 
-			_compare = _mm_xor_si128(_xorNot, _mm_cmpeq_epi32(_vecA, _replacepixel));
-
-			// write the only the changed values to vector in MEMORY*
-			_mm_maskstore_epi32(pVecB, _compare, _replacepixel);
-
-			// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
-			// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
-			// therefore we use the pointer MEMORY to the vector location to write the result to the vector
-			// we use the _compare (MASK) to see if we need to write any
-
-
+			_mm_storeu_epi32(pDrawTarget->pColData.data() + nVecA, _replacepixel);
 		}
 	}
 
 	void PixelGameEngine::Clear_AVX256(int VecStartIndex, int VecEndIndex, Pixel p)
 	{
-		// Get a pointer to the pColData (Pixel colour vector data)
-		int* pVecB = (int*)pDrawTarget->pColData.data();
-
 		int nVecA = 0;
 
 		int nReplacePixel = (int)p.n; // Get the int value of the pixel
 
-		__m256i _replacepixel, _compare, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+		__m256i _replacepixel; // instance a 256bit register which can hold 8 uint32_t slots 
 
 		//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
 		_replacepixel = _mm256_set1_epi32(nReplacePixel);
-		_compare = _mm256_set1_epi32(0);
-		_vecA = _mm256_set1_epi32(0);
-		_xorNot = _mm256_set1_epi32(0xffffffff);
 
-		for (int i = VecStartIndex; i < VecEndIndex; i += 8, pVecB += 8, nVecA += 8)
+		for (int i = VecStartIndex; i < VecEndIndex; i += 8, nVecA += 8)
 		{
-			// Load the vector into a 256BIT REGISTER*
-			_vecA = _mm256_load_si256((const __m256i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
-
-			// check if the pixel is already the same, if not no need to write to the momory location
-			// Do this:
-			//_compare = _mm256_cmpeq_epi32(_vecA, _replacepixel);
-			//_compare = _mm256_xor_si256 (_compare, _xorNot);
-			// or do this:
-			//I didn't check wich one is faster 
-			_compare = _mm256_xor_si256(_xorNot, _mm256_cmpeq_epi32(_vecA, _replacepixel));
-
-			// write the only the changed values to vector in MEMORY*
-			_mm256_maskstore_epi32(pVecB, _compare, _replacepixel);
-
-			// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
-			// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
-			// therefore we use the pointer MEMORY to the vector location to write the result to the vector
-			// we use the _compare (MASK) to see if we need to write any
-
+			_mm256_storeu_epi32(pDrawTarget->pColData.data() + nVecA, _replacepixel);
 
 		}
 	}
 
 	void PixelGameEngine::Clear_AVX512(int VecStartIndex, int VecEndIndex, Pixel p)
 	{
-		// Get a pointer to the pColData (Pixel colour vector data)
-		int* pVecB = (int*)pDrawTarget->pColData.data();
-
 		int nVecA = 0;
 
 		int nReplacePixel = (int)p.n; // Get the int value of the pixel
 
-		__m512i _replacepixel, _xorNot, _vecA; // instance a 256bit register which can hold 8 uint32_t slots 
+		__m512i _replacepixel, _xorNot, _vecA; // instance a 512bit register which can hold 16 uint32_t slots 
 
-		//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 8 slots
+		//_replacepixel = | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel | uint32_t nReplacePixel |... 16 slots
 		_replacepixel = _mm512_set1_epi32(nReplacePixel);
-		_vecA = _mm512_set1_epi32(0);
-		_xorNot = _mm512_set1_epi32(0xffffffff);
 
-		for (int i = VecStartIndex; i < VecEndIndex; i += 16, pVecB += 16, nVecA += 16)
+		for (int i = VecStartIndex; i < VecEndIndex; i += 16, nVecA += 16)
 		{
-			// Load the vector into a 256BIT REGISTER*
-			_vecA = _mm512_load_si512((const __m512i*)((olc::Pixel*)pDrawTarget->pColData.data() + nVecA));
-
-			// write the only the changed values to vector in MEMORY*
-			_mm512_mask_store_epi32(pVecB, _mm512_cmpneq_epi32_mask(_vecA, _replacepixel), _replacepixel);
-
-			// * NOTE: Although we are loading/writing to the same vector, they are affectly in two locations
-			// _vecA loads a block of vector pixels into a SIMD register, we cannot write a result to this as it will be lost
-			// therefore we use the pointer MEMORY to the vector location to write the result to the vector
-			// we use the _mm512_cmpneq_epi32_mask(_vecA, _replacepixel) (MASK) to see if we need to write any
-
+			_mm512_storeu_epi32(pDrawTarget->pColData.data() + nVecA, _replacepixel);
 
 		}
 	}
