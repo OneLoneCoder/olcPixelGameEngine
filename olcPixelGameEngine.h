@@ -4595,17 +4595,17 @@ namespace olc
 //	#include <OpenGL/glu.h>
 //#endif
 
-//#if defined(OLC_PLATFORM_EMSCRIPTEN)
-//	#include <EGL/egl.h>
-//	#include <GLES2/gl2.h>
-//	#define GL_GLEXT_PROTOTYPES
-//	#include <GLES2/gl2ext.h>
-//	#include <emscripten/emscripten.h>
-//	#define CALLSTYLE
-//	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-//	#define GL_CLAMP GL_CLAMP_TO_EDGE
-//	#define OGL_LOAD(t, n) n;
-//#endif
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+	#include <EGL/egl.h>
+	#include <GLES2/gl2.h>
+	#define GL_GLEXT_PROTOTYPES
+	#include <GLES2/gl2ext.h>
+	#include <emscripten/emscripten.h>
+	#define CALLSTYLE
+	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+	#define GL_CLAMP GL_CLAMP_TO_EDGE
+	#define OGL_LOAD(t, n) n;
+#endif
 
 namespace olc
 {
