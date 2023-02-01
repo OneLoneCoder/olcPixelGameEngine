@@ -6319,8 +6319,8 @@ namespace olc
 				let isFullscreen = (document.fullscreenElement != null);
 
 				// get the width of the containing element
-				let width  = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-				let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+				let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
+				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
 
 				// calculate the expected viewport size
 				let viewWidth  = width;
