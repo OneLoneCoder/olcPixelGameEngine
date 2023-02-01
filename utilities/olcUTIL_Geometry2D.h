@@ -287,15 +287,15 @@ namespace olc::utils::geom2d
 	inline olc::v2d_generic<T2> closest(const line<T1>& l, const olc::v2d_generic<T2>& p)
 	{		
 		auto d = l.vector();
-		double u = std::clamp(double(d.dot(p - l.start) / d.mag2()), 0.0, 1.0);
-		return l.start + d * u;
+		double u = std::clamp(double(d.dot(p - l.start)) / d.mag2(), 0.0, 1.0);
+		return l.start + u * d;
 	}
 
 	// Returns closest point on circle to point
 	template<typename T1, typename T2>
 	inline olc::v2d_generic<T2> closest(const circle<T1>& c, const olc::v2d_generic<T2>& p)
 	{		
-		return c.pos + (p - c.pos).norm() * c.radius;
+		return c.pos + olc::vd2d(p - c.pos).norm() * c.radius;
 	}
 
 	// Returns closest point on rectangle to point
