@@ -1358,8 +1358,9 @@ namespace olc
 	#endif
 
 	#if defined(OLC_PLATFORM_X11)
-		namespace X11
-		{#include <GL/glx.h>}
+		namespace X11 {
+			#include <GL/glx.h>
+		}
 		#define CALLSTYLE 
 	#endif
 
