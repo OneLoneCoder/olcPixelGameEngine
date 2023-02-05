@@ -277,43 +277,60 @@ namespace olc::utils::geom2d
 
 	// Returns closest point to point
 	template<typename T1, typename T2>
-	inline olc::v2d_generic<T2> closest(const olc::v2d_generic<T1>& p1, const olc::v2d_generic<T2>& p2)
+	inline olc::v2d_generic<T1> closest(const olc::v2d_generic<T1>& p1, const olc::v2d_generic<T2>& p2)
 	{
 		return p1;
 	}
 
 	// Returns closest point on line to point
 	template<typename T1, typename T2>
-	inline olc::v2d_generic<T2> closest(const line<T1>& l, const olc::v2d_generic<T2>& p)
+	inline olc::v2d_generic<T1> closest(const line<T1>& l, const olc::v2d_generic<T2>& p)
 	{		
 		auto d = l.vector();
-		double u = std::clamp(double(d.dot(p - l.start) / d.mag2()), 0.0, 1.0);
-		return l.start + d * u;
+		double u = std::clamp(double(d.dot(p - l.start)) / d.mag2(), 0.0, 1.0);
+		return l.start + u * d;
 	}
 
 	// Returns closest point on circle to point
 	template<typename T1, typename T2>
-	inline olc::v2d_generic<T2> closest(const circle<T1>& c, const olc::v2d_generic<T2>& p)
+	inline olc::v2d_generic<T1> closest(const circle<T1>& c, const olc::v2d_generic<T2>& p)
 	{		
-		return c.pos + (p - c.pos).norm() * c.radius;
+		return c.pos + olc::vd2d(p - c.pos).norm() * c.radius;
 	}
 
 	// Returns closest point on rectangle to point
 	template<typename T1, typename T2>
-	inline olc::v2d_generic<T2> closest(const rect<T1>& r, const olc::v2d_generic<T2>& p)
+	inline olc::v2d_generic<T1> closest(const rect<T1>& r, const olc::v2d_generic<T2>& p)
 	{
 		// This could be a "constrain" function hmmmm
 		// TODO: Not quite what i wanted, should restrain to boundary
-		return olc::v2d_generic<T2>{ std::clamp(p.x, r.pos.x, r.pos.x + r.size.x), std::clamp(p.y, r.pos.y, r.pos.y + r.size.y) };
+		return olc::v2d_generic<T1>{ std::clamp(p.x, r.pos.x, r.pos.x + r.size.x), std::clamp(p.y, r.pos.y, r.pos.y + r.size.y) };
 		
 	}
 
 	// Returns closest point on triangle to point
 	template<typename T1, typename T2>
-	inline olc::v2d_generic<T2> closest(const triangle<T1>& t, const olc::v2d_generic<T2>& p)
+	inline olc::v2d_generic<T1> closest(const triangle<T1>& t, const olc::v2d_generic<T2>& p)
 	{
-		// TODO:
-		return olc::v2d_generic<T2>();
+		olc::utils::geom2d::line<T1> l{t.pos[0], t.pos[1]};
+		auto p0 = closest(l, p);
+		auto d0 = (p0 - p).mag2();
+
+		l.end = t.pos[2];
+		auto p1 = closest(l, p);
+		auto d1 = (p1 - p).mag2();
+
+		l.start = t.pos[1];
+		auto p2 = closest(l, p);
+		auto d2 = (p2 - p).mag2();
+
+		if((d0 <= d1) && (d0 <= d2)) {
+			return p0;
+		} else if((d1 <= d0) && (d1 <= d2)) {
+			return p1;
+		} else {
+			return p2;
+		}
 	}
 
 
