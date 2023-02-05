@@ -1358,8 +1358,9 @@ namespace olc
 	#endif
 
 	#if defined(OLC_PLATFORM_X11)
-		namespace X11
-		{#include <GL/glx.h>}
+		namespace X11 {
+			#include <GL/glx.h>
+		}
 		#define CALLSTYLE 
 	#endif
 
@@ -4595,17 +4596,17 @@ namespace olc
 //	#include <OpenGL/glu.h>
 //#endif
 
-//#if defined(OLC_PLATFORM_EMSCRIPTEN)
-//	#include <EGL/egl.h>
-//	#include <GLES2/gl2.h>
-//	#define GL_GLEXT_PROTOTYPES
-//	#include <GLES2/gl2ext.h>
-//	#include <emscripten/emscripten.h>
-//	#define CALLSTYLE
-//	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-//	#define GL_CLAMP GL_CLAMP_TO_EDGE
-//	#define OGL_LOAD(t, n) n;
-//#endif
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+	#include <EGL/egl.h>
+	#include <GLES2/gl2.h>
+	#define GL_GLEXT_PROTOTYPES
+	#include <GLES2/gl2ext.h>
+	#include <emscripten/emscripten.h>
+	#define CALLSTYLE
+	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+	#define GL_CLAMP GL_CLAMP_TO_EDGE
+	#define OGL_LOAD(t, n) n;
+#endif
 
 namespace olc
 {
@@ -6319,8 +6320,8 @@ namespace olc
 				let isFullscreen = (document.fullscreenElement != null);
 
 				// get the width of the containing element
-				let width  = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-				let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+				let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
+				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
 
 				// calculate the expected viewport size
 				let viewWidth  = width;
