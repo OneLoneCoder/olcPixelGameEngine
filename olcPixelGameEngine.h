@@ -316,6 +316,8 @@
 		  +FillTexturedPolygon() - Hijacks DecalStructure for configuration
 		  +olc::vf2d arguments for Sprite::Sample() functions
 	2.22: = Fix typo on dragged file buffers for unicode builds
+	2.23: Fixed Emscripten host sizing errors - Thanks Moros
+		  Fixed v2d_generic.clamp() function
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -395,7 +397,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 222
+#define PGE_VER 223
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -683,7 +685,7 @@ namespace olc
 		v2d_generic  min(const v2d_generic& v) const { return v2d_generic(std::min(x, v.x), std::min(y, v.y)); }
 		v2d_generic  cart() { return { std::cos(y) * x, std::sin(y) * x }; }
 		v2d_generic  polar() { return { mag(), std::atan2(y, x) }; }
-		v2d_generic  clamp(const v2d_generic& v1, const v2d_generic& v2) const { return this->max(v1)->min(v2); }
+		v2d_generic  clamp(const v2d_generic& v1, const v2d_generic& v2) const { return this->max(v1).min(v2); }
 		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1.0 - t)) + (v1 * T(t)); }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
@@ -1358,8 +1360,9 @@ namespace olc
 	#endif
 
 	#if defined(OLC_PLATFORM_X11)
-		namespace X11
-		{#include <GL/glx.h>}
+		namespace X11 {
+			#include <GL/glx.h>
+		}
 		#define CALLSTYLE 
 	#endif
 
@@ -4595,17 +4598,17 @@ namespace olc
 //	#include <OpenGL/glu.h>
 //#endif
 
-//#if defined(OLC_PLATFORM_EMSCRIPTEN)
-//	#include <EGL/egl.h>
-//	#include <GLES2/gl2.h>
-//	#define GL_GLEXT_PROTOTYPES
-//	#include <GLES2/gl2ext.h>
-//	#include <emscripten/emscripten.h>
-//	#define CALLSTYLE
-//	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-//	#define GL_CLAMP GL_CLAMP_TO_EDGE
-//	#define OGL_LOAD(t, n) n;
-//#endif
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+	#include <EGL/egl.h>
+	#include <GLES2/gl2.h>
+	#define GL_GLEXT_PROTOTYPES
+	#include <GLES2/gl2ext.h>
+	#include <emscripten/emscripten.h>
+	#define CALLSTYLE
+	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+	#define GL_CLAMP GL_CLAMP_TO_EDGE
+	#define OGL_LOAD(t, n) n;
+#endif
 
 namespace olc
 {
@@ -6319,8 +6322,8 @@ namespace olc
 				let isFullscreen = (document.fullscreenElement != null);
 
 				// get the width of the containing element
-				let width  = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-				let height = (isFullscreen || !Module.olc_AssumeDefaultShells) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+				let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
+				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
 
 				// calculate the expected viewport size
 				let viewWidth  = width;
