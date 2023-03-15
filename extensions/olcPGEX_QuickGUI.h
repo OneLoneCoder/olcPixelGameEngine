@@ -48,7 +48,7 @@
 	Homepage:	https://www.onelonecoder.com
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020, 2021, 2022
 	Changes
 	~~~~~~~
 	v1.01	+Moved Slider::fGrabRad into "theme"
@@ -974,7 +974,7 @@ namespace olc::QuickGUI
 #pragma endregion
 
 #pragma region ListBox
-	ListBox::ListBox(olc::QuickGUI::Manager& manager, std::vector<std::string>& vList, const olc::vf2d& pos, const olc::vf2d& size, bool invert)
+	ListBox::ListBox(olc::QuickGUI::Manager& manager, std::vector<std::string>& vList, const olc::vf2d& pos, const olc::vf2d& size, bool invert = false)
 		: BaseControl(manager), m_vList(vList)
 	{
 		m_group.CopyThemeFrom(m_manager);
