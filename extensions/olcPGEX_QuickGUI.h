@@ -1,7 +1,8 @@
+
 /*
 	OneLoneCoder - QuickGUI v1.02
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	A semi-immediate mode GUI for very simple GUI stuff. 
+	A semi-immediate mode GUI for very simple GUI stuff.
 	Includes:
 		Label		 - Displays a single-line string
 		TextBox		 - Click to enter/edit single-line text
@@ -11,28 +12,21 @@
 		ImageCheckBox- A CheckBox with an image instead of text
 		Slider		 - An omnidirectional draggable handle between two values
 		ListBox		 - A list of strings, that can be scrolled and an item selected
-
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
-
 	Copyright 2018 - 2021 OneLoneCoder.com
-
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
-
 	1. Redistributions or derivations of source code must retain the above
 	copyright notice, this list of conditions and the following disclaimer.
-
 	2. Redistributions or derivative works in binary form must reproduce
 	the above copyright notice. This list of conditions and the following
 	disclaimer must be reproduced in the documentation and/or other
 	materials provided with the distribution.
-
 	3. Neither the name of the copyright holder nor the names of its
 	contributors may be used to endorse or promote products derived
 	from this software without specific prior written permission.
-
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -44,7 +38,6 @@
 	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 	Links
 	~~~~~
 	YouTube:	https://www.youtube.com/javidx9
@@ -53,11 +46,9 @@
 	Twitch:		https://www.twitch.tv/javidx9
 	GitHub:		https://www.github.com/onelonecoder
 	Homepage:	https://www.onelonecoder.com
-
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
-
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020, 2021, 2022
 	Changes
 	~~~~~~~
 	v1.01	+Moved Slider::fGrabRad into "theme"
@@ -68,7 +59,6 @@
 			+ListBox::bSelectionChanged flag, true when list selected item changes
 			=Fix - Text box mouse behaviours, mouse release is now meaningless
 			+CheckBox Fix for decal display
-
 */
 
 #ifndef OLC_PGEX_QUICKGUI_H
@@ -120,7 +110,7 @@ namespace olc::QuickGUI
 		// Hover - currently under the users mouse focus
 		// Click - user is interacting with the control
 		enum class State { Disabled, Normal, Hover, Click } m_state = State::Normal;
-		
+
 		// To add a "swish" to things, controls can fade between states
 		float m_fTransition = 0.0;
 	};
@@ -134,7 +124,7 @@ namespace olc::QuickGUI
 		// given to this manager via AddControl() if true
 		Manager(const bool bCleanUpForMe = true);
 		virtual ~Manager();
-	
+
 	public:
 		// Add a gui element derived form BaseControl to this manager
 		void AddControl(BaseControl* control);
@@ -144,7 +134,7 @@ namespace olc::QuickGUI
 		void Draw(olc::PixelGameEngine* pge);
 		// Draws as "decal" all controls this manager operates
 		void DrawDecal(olc::PixelGameEngine* pge);
-		
+
 	public: // This managers "Theme" can be set here
 		// Various element colours
 		olc::Pixel colNormal = olc::DARK_BLUE;
@@ -192,7 +182,9 @@ namespace olc::QuickGUI
 		bool bHasBackground = false;
 		// Where should the text be positioned?
 		enum class Alignment
-		{Left, Centre, Right} nAlign = Alignment::Centre;
+		{
+			Left, Centre, Right
+		} nAlign = Alignment::Centre;
 
 	public: // BaseControl overrides
 		void Update(olc::PixelGameEngine* pge) override;
@@ -226,10 +218,10 @@ namespace olc::QuickGUI
 			const std::string& text,			// Text to display
 			const olc::vf2d& pos,				// Location of button top-left
 			const olc::vf2d& size);				// Size of button
-				
+
 	public:
 		// Position of button
-		olc::vf2d vPos;	
+		olc::vf2d vPos;
 		// Size of button
 		olc::vf2d vSize;
 		// Text displayed on button
@@ -264,7 +256,7 @@ namespace olc::QuickGUI
 	{
 	public:
 		ImageButton(olc::QuickGUI::Manager& manager,	// Associate with a Manager
-			const olc::Renderable &icon,			// Text to display			
+			const olc::Renderable& icon,			// Text to display			
 			const olc::vf2d& pos,					// Location of button top-left
 			const olc::vf2d& size);					// Size of button
 
@@ -330,21 +322,24 @@ namespace olc::QuickGUI
 	{
 	public:
 		ListBox(olc::QuickGUI::Manager& manager,	// Associate with a Manager
-			std::vector<std::string>& vList,			
+			std::vector<std::string>& vList,
 			const olc::vf2d& pos,					// Location of list top-left
-			const olc::vf2d& size);					// Size of list
+			const olc::vf2d& size,                  // Size of list
+			bool invert);							//determines the orientation of text and the slider
 
 		// Position of list
 		olc::vf2d vPos;
 		// Size of list
 		olc::vf2d vSize;
+		//Go from top to bottom(false) or from bottom to top(true)
+		bool bInvert;
 		// Show a border?
 		bool bHasBorder = true;
 		// Show a background?
 		bool bHasBackground = true;
-		
+
 	public:
-		Slider *m_pSlider = nullptr;
+		Slider* m_pSlider = nullptr;
 		Manager m_group;
 		size_t  m_nVisibleItems = 0;
 		std::vector<std::string>& m_vList;
@@ -457,7 +452,7 @@ namespace olc::QuickGUI
 		this->colText = manager.colText;
 		this->fGrabRad = manager.fGrabRad;
 		this->fHoverSpeedOff = manager.fHoverSpeedOff;
-		this->fHoverSpeedOn = manager.fHoverSpeedOn;		
+		this->fHoverSpeedOn = manager.fHoverSpeedOn;
 	}
 #pragma endregion
 
@@ -467,7 +462,7 @@ namespace olc::QuickGUI
 	{
 		vPos = pos; vSize = size; sText = text;
 	}
-	
+
 	void Label::Update(olc::PixelGameEngine* pge)
 	{
 
@@ -483,14 +478,14 @@ namespace olc::QuickGUI
 			pge->FillRect(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colNormal);
 		}
 
-		if(bHasBorder)
+		if (bHasBorder)
 			pge->DrawRect(vPos, vSize - olc::vf2d(1, 1), m_manager.colBorder);
 
 		olc::vf2d vText = pge->GetTextSizeProp(sText);
 		switch (nAlign)
 		{
 		case Alignment::Left:
-			pge->DrawStringProp(olc::vf2d( vPos.x + 2.0f, vPos.y + (vSize.y - vText.y) * 0.5f ), sText, m_manager.colText);
+			pge->DrawStringProp(olc::vf2d(vPos.x + 2.0f, vPos.y + (vSize.y - vText.y) * 0.5f), sText, m_manager.colText);
 			break;
 		case Alignment::Centre:
 			pge->DrawStringProp(vPos + (vSize - vText) * 0.5f, sText, m_manager.colText);
@@ -514,7 +509,7 @@ namespace olc::QuickGUI
 		if (bHasBorder)
 		{
 			pge->SetDecalMode(olc::DecalMode::WIREFRAME);
-			pge->FillRectDecal(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2,2), m_manager.colBorder);
+			pge->FillRectDecal(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colBorder);
 			pge->SetDecalMode(olc::DecalMode::NORMAL);
 		}
 
@@ -551,9 +546,9 @@ namespace olc::QuickGUI
 
 		bPressed = false;
 		bReleased = false;
-	
+
 		olc::vf2d vMouse = pge->GetMousePos();
-		
+
 		if (vMouse.x >= vPos.x && vMouse.x < vPos.x + vSize.x &&
 			vMouse.y >= vPos.y && vMouse.y < vPos.y + vSize.y)
 		{
@@ -567,16 +562,16 @@ namespace olc::QuickGUI
 				pge->TextEntryEnable(false);
 			}
 
-			
+
 			if (bPressed && !pge->IsTextEntryEnabled() && !m_bTextEdit)
-			{				
+			{
 				pge->TextEntryEnable(true, sText);
 				m_bTextEdit = true;
 			}
 
 			bHeld = pge->GetMouse(olc::Mouse::LEFT).bHeld;
 
-			
+
 		}
 		else
 		{
@@ -584,14 +579,14 @@ namespace olc::QuickGUI
 			bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;
 			bReleased = pge->GetMouse(olc::Mouse::LEFT).bReleased;
 			bHeld = pge->GetMouse(olc::Mouse::LEFT).bHeld;
-			
+
 			if (bPressed && m_bTextEdit)
 			{
 				sText = pge->TextEntryGetString();
 				pge->TextEntryEnable(false);
 				m_bTextEdit = false;
 			}
-		}	
+		}
 
 		if (m_bTextEdit && pge->IsTextEntryEnabled())
 			sText = pge->TextEntryGetString();
@@ -617,11 +612,11 @@ namespace olc::QuickGUI
 			olc::vf2d vCursorPos = pge->GetTextSizeProp(sText.substr(0, i));
 			pge->FillRect(olc::vf2d(vPos.x + 2.0f + vCursorPos.x, (vPos.y + (vSize.y - 10.0f) * 0.5f)), { 2, 10 }, m_manager.colText);
 		}
-		
+
 		// Draw Text
 		olc::vf2d vText = pge->GetTextSizeProp(sText);
 		pge->DrawStringProp(olc::vf2d(vPos.x + 2.0f, vPos.y + (vSize.y - vText.y) * 0.5f), sText, m_manager.colText);
-				
+
 	}
 
 	void TextBox::DrawDecal(olc::PixelGameEngine* pge)
@@ -656,7 +651,7 @@ namespace olc::QuickGUI
 #pragma endregion
 
 #pragma region Button
-	Button::Button(olc::QuickGUI::Manager& manager, const std::string& text, const olc::vf2d& pos, const olc::vf2d& size) 
+	Button::Button(olc::QuickGUI::Manager& manager, const std::string& text, const olc::vf2d& pos, const olc::vf2d& size)
 		: BaseControl(manager)
 	{
 		vPos = pos; vSize = size; sText = text;
@@ -680,7 +675,7 @@ namespace olc::QuickGUI
 				m_fTransition += fElapsedTime * m_manager.fHoverSpeedOn;
 				m_state = State::Hover;
 
-				bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;				
+				bPressed = pge->GetMouse(olc::Mouse::LEFT).bPressed;
 				if (bPressed)
 				{
 					m_state = State::Click;
@@ -695,7 +690,7 @@ namespace olc::QuickGUI
 			}
 		}
 		else
-		{	
+		{
 			bHeld = pge->GetMouse(olc::Mouse::LEFT).bHeld;
 			bReleased = pge->GetMouse(olc::Mouse::LEFT).bReleased;
 			if (bReleased) m_state = State::Normal;
@@ -762,7 +757,7 @@ namespace olc::QuickGUI
 	{
 
 	}
-	
+
 	void ImageButton::Draw(olc::PixelGameEngine* pge)
 	{
 		Button::Draw(pge);
@@ -866,7 +861,7 @@ namespace olc::QuickGUI
 #pragma endregion
 
 #pragma region Slider
-	Slider::Slider(olc::QuickGUI::Manager& manager, const olc::vf2d& posmin, const olc::vf2d& posmax, const float valmin, const float valmax, const float value) 
+	Slider::Slider(olc::QuickGUI::Manager& manager, const olc::vf2d& posmin, const olc::vf2d& posmax, const float valmin, const float valmax, const float value)
 		: BaseControl(manager)
 	{
 		vPosMin = posmin; vPosMax = posmax; fMin = valmin; fMax = valmax; fValue = value;
@@ -876,7 +871,7 @@ namespace olc::QuickGUI
 	{
 		if (m_state == State::Disabled || !bVisible)
 			return;
-		
+
 		float fElapsedTime = pge->GetElapsedTime();
 
 		olc::vf2d vMouse = pge->GetMousePos();
@@ -915,7 +910,7 @@ namespace olc::QuickGUI
 		{
 			m_fTransition -= fElapsedTime * m_manager.fHoverSpeedOff;
 			m_state = State::Normal;
-			bHeld = false;		
+			bHeld = false;
 		}
 
 		fValue = std::clamp(fValue, fMin, fMax);
@@ -979,14 +974,29 @@ namespace olc::QuickGUI
 #pragma endregion
 
 #pragma region ListBox
-	ListBox::ListBox(olc::QuickGUI::Manager& manager, std::vector<std::string>& vList, const olc::vf2d& pos, const olc::vf2d& size)
+	ListBox::ListBox(olc::QuickGUI::Manager& manager, std::vector<std::string>& vList, const olc::vf2d& pos, const olc::vf2d& size, bool invert = false)
 		: BaseControl(manager), m_vList(vList)
 	{
 		m_group.CopyThemeFrom(m_manager);
 		vPos = pos;
 		vSize = size;
-		m_pSlider = new Slider(m_group, { pos.x + size.x - m_manager.fGrabRad - 1, pos.y + m_manager.fGrabRad + 1 },
-			{ pos.x + size.x - m_manager.fGrabRad - 1, pos.y + size.y - m_manager.fGrabRad - 1 }, 0, float(m_vList.size()), 0);		
+		bInvert = invert;
+		float yValueMin, yValueMax;
+		double sliderMaxVal, sliderInitVal;
+		if (bInvert) {
+			yValueMin = pos.y - m_manager.fGrabRad - 1 + size.y;
+			yValueMax = pos.y + m_manager.fGrabRad + 1;
+			sliderMaxVal = 0;
+			sliderInitVal = float(m_vList.size());
+		}
+		else {
+			yValueMin = pos.y + m_manager.fGrabRad + 1;
+			yValueMax = pos.y + size.y - m_manager.fGrabRad - 1;
+			sliderMaxVal = float(m_vList.size());
+			sliderInitVal = 0;
+		}
+		m_pSlider = new Slider(m_group, { pos.x + size.x - m_manager.fGrabRad - 1, yValueMin },
+			{ pos.x + size.x - m_manager.fGrabRad - 1, yValueMax }, 0, sliderMaxVal, sliderInitVal);
 	}
 
 	void ListBox::Update(olc::PixelGameEngine* pge)
@@ -996,25 +1006,29 @@ namespace olc::QuickGUI
 
 
 		nPreviouslySelectedItem = nSelectedItem;
-		olc::vf2d vMouse = pge->GetMousePos() - vPos + olc::vi2d(2,0);
+		olc::vf2d vMouse = pge->GetMousePos() - vPos + olc::vi2d(2, 0);
 		if (pge->GetMouse(olc::Mouse::LEFT).bPressed)
 		{
 			if (vMouse.x >= 0 && vMouse.x < vSize.x - (m_group.fGrabRad * 2) && vMouse.y >= 0 && vMouse.y < vSize.y)
 			{
-				
-				nSelectedItem = size_t(m_pSlider->fValue + vMouse.y / 10);
+				float sliderOffSet = (bInvert) ? m_pSlider->fValue : m_pSlider->fValue;
+				float mouseYPosAdjusted = (bInvert) ? ((m_pSlider->vPosMin.y - 25) - vMouse.y) / 10 : (vMouse.y / 10);
+				nSelectedItem = size_t(mouseYPosAdjusted + sliderOffSet);
 			}
 		}
 
-		nSelectedItem = std::clamp(nSelectedItem, size_t(0), m_vList.size()-1);
+		nSelectedItem = std::clamp(nSelectedItem, size_t(0), m_vList.size() - 1);
 
 		bSelectionChanged = nSelectedItem != nPreviouslySelectedItem;
 
 
 		m_pSlider->fMax = float(m_vList.size());
-		m_group.Update(pge);		
+		m_group.Update(pge);
 	}
 
+	//Notes for c8080 version of this
+	//This method so that the ListBox shows the oldest entries in the vector at the top. The newest at the bottom
+	//This is to resemble an actual commandLine
 	void ListBox::Draw(olc::PixelGameEngine* pge)
 	{
 		if (!bVisible)
@@ -1032,13 +1046,22 @@ namespace olc::QuickGUI
 		size_t idx0 = size_t(m_pSlider->fValue);
 		size_t idx1 = std::min(idx0 + size_t((vSize.y - 4) / 10), m_vList.size());
 
-		olc::vf2d vTextPos = vPos + olc::vf2d(2,2);
+		//for invert
+		olc::vf2d vTextAdjust, vTextPos;
+		if (bInvert) {
+			vTextAdjust = { 0, vSize.y - 15 };
+		}
+		else {
+			vTextAdjust = { 0, 0 };
+		}
+		vTextPos = vPos + olc::vf2d(2, 2) + vTextAdjust;
+		int yPositionDelta = (bInvert) ? -10 : 10;
 		for (size_t idx = idx0; idx < idx1; idx++)
 		{
 			if (idx == nSelectedItem)
-				pge->FillRect(vTextPos - olc::vi2d(1,1), {int32_t(vSize.x - m_group.fGrabRad * 2), 10}, m_group.colHover);
-			pge->DrawStringProp(vTextPos, m_vList[idx]);
-			vTextPos.y += 10;
+				pge->FillRect(vTextPos - olc::vi2d(1, 1), { int32_t(vSize.x - m_group.fGrabRad * 2), 10 }, m_group.colHover);
+			pge->DrawStringProp(vTextPos, m_vList[(bInvert) ? (m_vList.size() - 1) - idx : idx]);
+			vTextPos.y += yPositionDelta;
 		}
 
 		m_group.Draw(pge);
@@ -1055,13 +1078,23 @@ namespace olc::QuickGUI
 		size_t idx0 = size_t(m_pSlider->fValue);
 		size_t idx1 = std::min(idx0 + size_t((vSize.y - 4) / 10), m_vList.size());
 
-		olc::vf2d vTextPos = vPos + olc::vf2d(2, 2);
+		//for invert
+		olc::vf2d vTextAdjust, vTextPos;
+		if (bInvert) {
+			vTextAdjust = { 0, vSize.y - 15 };
+		}
+		else {
+			vTextAdjust = { 0, 0 };
+		}
+		vTextPos = vPos + olc::vf2d(2, 2) + vTextAdjust;
+		int yPositionDelta = (bInvert) ? -10 : 10;
+
 		for (size_t idx = idx0; idx < idx1; idx++)
 		{
 			if (idx == nSelectedItem)
 				pge->FillRectDecal(vTextPos - olc::vi2d(1, 1), { vSize.x - m_group.fGrabRad * 2.0f, 10.0f }, m_group.colHover);
-			pge->DrawStringPropDecal(vTextPos, m_vList[idx]);
-			vTextPos.y += 10;
+			pge->DrawStringPropDecal(vTextPos, m_vList[(bInvert) ? (m_vList.size() - 1) - idx : idx]);
+			vTextPos.y += yPositionDelta;
 		}
 
 		if (bHasBorder)
@@ -1084,13 +1117,13 @@ namespace olc::QuickGUI
 		// Create File Open Dialog
 		olc::vi2d vScreenSize = pge->GetScreenSize();
 
-		m_listDirectory = new ListBox(m_manFileSelect, m_vDirectory, olc::vf2d(20, 20), olc::vf2d(300, 500));
-		m_listFiles = new ListBox(m_manFileSelect, m_vFiles, olc::vf2d(330, 20), olc::vf2d(300, 500));
+		m_listDirectory = new ListBox(m_manFileSelect, m_vDirectory, olc::vf2d(20, 20), olc::vf2d(300, 500), false);
+		m_listFiles = new ListBox(m_manFileSelect, m_vFiles, olc::vf2d(330, 20), olc::vf2d(300, 500), false);
 
 		m_path = "/";
 		for (auto const& dir_entry : std::filesystem::directory_iterator{ m_path })
 		{
-			if(dir_entry.is_directory())
+			if (dir_entry.is_directory())
 				m_vDirectory.push_back(dir_entry.path().filename().string());
 			else
 				m_vFiles.push_back(dir_entry.path().filename().string());
@@ -1104,7 +1137,7 @@ namespace olc::QuickGUI
 
 	bool ModalDialog::OnBeforeUserUpdate(float& fElapsedTime)
 	{
-		if(!m_bShowDialog) return false;
+		if (!m_bShowDialog) return false;
 
 		m_manFileSelect.Update(this->pge);
 
@@ -1122,14 +1155,14 @@ namespace olc::QuickGUI
 				m_path = m_path.parent_path().string() + "/";
 			else
 				m_path += sDirectory+ "/";*/
-			
+
 
 			m_path += sDirectory + "/";
 			// Reconstruct Lists
 			m_vDirectory.clear();
-			
+
 			m_vFiles.clear();
-			
+
 
 			for (auto const& dir_entry : std::filesystem::directory_iterator{ m_path })
 			{
@@ -1146,7 +1179,7 @@ namespace olc::QuickGUI
 
 		}
 
-			pge->DrawStringDecal({ 0,0 }, m_path.string());
+		pge->DrawStringDecal({ 0,0 }, m_path.string());
 
 
 
