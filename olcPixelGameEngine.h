@@ -1248,7 +1248,6 @@ namespace olc
 		// Command Console Specific
 		bool bConsoleShow = false;
 		bool bConsoleSuspendTime = false;
-		bool bConsoleCapturingStdOut = false;
 		olc::Key keyConsoleExit = olc::Key::F1;
 		std::stringstream ssConsoleOutput;
 		std::streambuf* sbufOldCout = nullptr;
@@ -3487,10 +3486,11 @@ namespace olc
 
 	void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
 	{
-		if (bConsoleCapturingStdOut == bCapture)
+		if (ssConsoleOutput.rdbuf() == std::cout.rdbuf() && bCapture == true)
 			return;
 
-		bConsoleCapturingStdOut = bCapture;
+		if (ssConsoleOutput.rdbuf() != std::cout.rdbuf() && bCapture == false)
+			return;
 
 		if (bCapture)
 			sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
