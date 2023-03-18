@@ -639,7 +639,7 @@ namespace olc
 		NP_MUL, NP_DIV, NP_ADD, NP_SUB, NP_DECIMAL, PERIOD,
 		EQUALS, COMMA, MINUS,
 		OEM_1, OEM_2, OEM_3, OEM_4, OEM_5, OEM_6, OEM_7, OEM_8,
-		CAPS_LOCK, ENUM_END
+		CAPS_LOCK, ENUM_END, ALT
 	};
 
 	namespace Mouse
@@ -5499,6 +5499,7 @@ namespace olc
 			mapKeys[VK_OEM_MINUS] = Key::MINUS;		// the minus key on any keyboard
 			mapKeys[VK_OEM_PERIOD] = Key::PERIOD;	// the period key on any keyboard
 			mapKeys[VK_CAPITAL] = Key::CAPS_LOCK;
+			mapKeys[VK_MENU] = Key::ALT;
 			return olc::OK;
 		}
 
