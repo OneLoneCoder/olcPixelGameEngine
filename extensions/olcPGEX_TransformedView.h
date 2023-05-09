@@ -59,7 +59,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020, 2021, 2022
 
 	Revisions:
 	1.00:	Initial Release
@@ -73,7 +73,9 @@
 	1.06:	Fixed error in DrawLine() - Thanks CraisyDaisyRecords (& Fern)!
 	1.07:   +DrawRectDecal()
 			+GetPGE()
-	1.08:  +DrawPolygonDecal() with tint overload, akin to PGE
+    1.08:	Added port offset for allowing user to move the screen port - by @creator
+			+SetPortOffset()
+			+GetPortOffset()
 */
 
 #pragma once
@@ -99,9 +101,11 @@ namespace olc
 		void MoveWorldOffset(const olc::vf2d& vDeltaOffset);
 		void SetWorldScale(const olc::vf2d& vScale);
 		void SetViewArea(const olc::vi2d& vViewArea);
+		void SetPortOffset(const olc::vi2d& vPortOffset);
 		olc::vf2d GetWorldTL() const;
 		olc::vf2d GetWorldBR() const;
 		olc::vf2d GetWorldVisibleArea() const;
+		olc::vi2d GetPortOffset() const;
 		void ZoomAtScreenPos(const float fDeltaZoom, const olc::vi2d& vPos);
 		void SetZoom(const float fZoom, const olc::vf2d& vPos);
 		void StartPan(const olc::vi2d& vPos);
@@ -124,6 +128,7 @@ namespace olc
 		bool m_bPanning = false;
 		olc::vf2d m_vStartPan = { 0.0f, 0.0f };
 		olc::vi2d m_vViewArea;
+		olc::vi2d m_vPortOffset = { 0, 0 };
 
 	public: // Hopefully, these should look familiar!
 		// Plots a single point
@@ -191,8 +196,7 @@ namespace olc
 		// Draws an arbitrary convex textured polygon using GPU
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		void DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p = olc::WHITE);
-		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>&pos, const std::vector<olc::vf2d>&uv, const std::vector<olc::Pixel> &tint);
-		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint);
+		void DrawPolygonDecal(olc::Decal * decal, const std::vector<olc::vf2d>&pos, const std::vector<olc::vf2d>&uv, const std::vector<olc::Pixel> &tint);
 
 
 #if defined(OLC_PGEX_SHADER)
@@ -260,19 +264,29 @@ namespace olc
 		m_vViewArea = vViewArea;
 	}
 
+	void TransformedView::SetPortOffset(const olc::vi2d& vPortOffset)
+	{
+		m_vPortOffset = vPortOffset;
+	}
+
 	olc::vf2d TransformedView::GetWorldTL() const
 	{
-		return TransformedView::ScreenToWorld({ 0,0 });
+		return TransformedView::ScreenToWorld(olc::vf2d(m_vPortOffset));
 	}
 
 	olc::vf2d TransformedView::GetWorldBR() const
 	{
-		return TransformedView::ScreenToWorld(m_vViewArea);
+		return TransformedView::ScreenToWorld(olc::vf2d(m_vPortOffset + m_vViewArea));
 	}
 
 	olc::vf2d TransformedView::GetWorldVisibleArea() const
 	{
 		return GetWorldBR() - GetWorldTL();
+	}
+
+	olc::vi2d TransformedView::GetPortOffset() const
+	{
+		return m_vPortOffset;
 	}
 
 	void TransformedView::ZoomAtScreenPos(const float fDeltaZoom, const olc::vi2d& vPos)
@@ -324,14 +338,14 @@ namespace olc
 
 	olc::vf2d TransformedView::WorldToScreen(const olc::vf2d& vWorldPos) const
 	{
-		olc::vf2d vFloat = ((vWorldPos - m_vWorldOffset) * m_vWorldScale);
+		olc::vf2d vFloat = ((vWorldPos - m_vWorldOffset) * m_vWorldScale) + olc::vf2d(m_vPortOffset);
 		//vFloat = { std::floor(vFloat.x + 0.5f), std::floor(vFloat.y + 0.5f) };
 		return vFloat;
 	}
 
 	olc::vf2d TransformedView::ScreenToWorld(const olc::vf2d& vScreenPos) const
 	{
-		return (olc::vf2d(vScreenPos) / m_vWorldScale) + m_vWorldOffset;
+		return ((vScreenPos - olc::vf2d(m_vPortOffset)) / m_vWorldScale) + m_vWorldOffset;
 	}
 
 	olc::vf2d TransformedView::ScaleToWorld(const olc::vf2d& vScreenSize) const
@@ -669,15 +683,6 @@ namespace olc
 			vTransformed[n] = WorldToScreen(pos[n]);
 		pge->DrawPolygonDecal(decal, vTransformed, uv, tint);
 	}
-
-	void TransformedView::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint)
-	{
-		std::vector<olc::vf2d> vTransformed(pos.size());
-		for (uint32_t n = 0; n < pos.size(); n++)
-			vTransformed[n] = WorldToScreen(pos[n]);
-		pge->DrawPolygonDecal(decal, vTransformed, uv, colours, tint);
-	}
-
 
 
 #if defined (OLC_PGEX_SHADER)
