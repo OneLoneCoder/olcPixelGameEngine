@@ -560,6 +560,7 @@ int main()
 	#endif
 
 	#include <windows.h>
+	#include <shellapi.h>
 	#undef _WINSOCKAPI_
 #endif
 
