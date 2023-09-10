@@ -6301,14 +6301,6 @@ namespace olc
 			
 			((void)emscripten_asm_const_int(CODE_EXPR("{ Module.olc_AspectRatio = $0 / $1; Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false; var olc_ResizeHandler = function() { let isFullscreen = (document.fullscreenElement != null); let width  = (isFullscreen) ? window.innerWidth : Module.canvas.parentNode.clientWidth; let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight; let viewWidth  = width; let viewHeight = width / Module.olc_AspectRatio; if(viewHeight > height) { viewWidth  = height * Module.olc_AspectRatio; viewHeight = height; } viewWidth  = parseInt(viewWidth); viewHeight = parseInt(viewHeight); setTimeout(function() { if(Module.olc_AssumeDefaultShells) Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;'); Module.canvas.setAttribute('width', viewWidth); Module.canvas.setAttribute('height', viewHeight); Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`); Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight); Module.canvas.focus(); }, 200); }; var olc_Init = function() { if(Module.olc_AspectRatio === undefined) { setTimeout(function() { Module.olc_Init(); }, 50); return; } let resizeObserver = new ResizeObserver(function(entries) { Module.olc_ResizeHandler(); }).observe(Module.canvas.parentNode); let mutationObserver = new MutationObserver(function(mutationsList, observer) { setTimeout(function() { Module.olc_ResizeHandler(); },  200); }).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false }); window.addEventListener('fullscreenchange', function(e) { setTimeout(function() { Module.olc_ResizeHandler();},  200); }); }; Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler; Module.olc_Init = (Module.olc_Init != undefined) ? Module.olc_Init : olc_Init; Module.olc_Init(); }"), __em_asm_sig_builder<__typeof__(__em_asm_make_type_tuple(vWindowSize.x, vWindowSize.y))>::buffer, vWindowSize.x, vWindowSize.y));
 
-
-/*
-
-
-*/
-
-
-
 #pragma warning restore format
 			return olc::rcode::OK;
 		}
