@@ -395,6 +395,7 @@ int main()
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <memory>
 #pragma endregion
 
 #define PGE_VER 223
@@ -570,7 +571,7 @@ namespace olc
 	// Pixel Game Engine Advanced Configuration
 	constexpr uint8_t  nMouseButtons = 5;
 	constexpr uint8_t  nDefaultAlpha = 0xFF;
-	constexpr uint32_t nDefaultPixel = (nDefaultAlpha << 24);
+	constexpr uint32_t nDefaultPixel = 0x000000FF;
 	constexpr uint8_t  nTabSizeInSpaces = 4;
 	constexpr size_t OLC_MAX_VERTS = 128;
 	enum rcode { FAIL = 0, OK = 1, NO_FILE = -1 };
@@ -590,7 +591,7 @@ namespace olc
 
 		Pixel();
 		Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = nDefaultAlpha);
-		Pixel(uint32_t p);
+		explicit Pixel(uint32_t p);
 		Pixel& operator = (const Pixel& v) = default;
 		bool   operator ==(const Pixel& p) const;
 		bool   operator !=(const Pixel& p) const;
@@ -789,7 +790,7 @@ namespace olc
 	{
 	public:
 		Sprite();
-		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
+		explicit Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		Sprite(int32_t w, int32_t h);
 		Sprite(const olc::Sprite&) = delete;
 		~Sprite();
@@ -829,8 +830,8 @@ namespace olc
 	class Decal
 	{
 	public:
-		Decal(olc::Sprite* spr, bool filter = false, bool clamp = true);
-		Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr);
+		explicit Decal(olc::Sprite* spr, bool filter = false, bool clamp = true);
+		Decal(const uint32_t nExistingTextureResource, const olc::Sprite* spr);
 		virtual ~Decal();
 		void Update();
 		void UpdateSprite();
@@ -1269,12 +1270,12 @@ namespace olc
 		// State of keyboard		
 		bool		pKeyNewState[256] = { 0 };
 		bool		pKeyOldState[256] = { 0 };
-		HWButton	pKeyboardState[256] = { 0 };
+		HWButton	pKeyboardState[256] = {};
 
 		// State of mouse
 		bool		pMouseNewState[nMouseButtons] = { 0 };
 		bool		pMouseOldState[nMouseButtons] = { 0 };
-		HWButton	pMouseState[nMouseButtons] = { 0 };
+		HWButton	pMouseState[nMouseButtons] = {};
 
 		// The main engine thread
 		void		EngineThread();
@@ -1327,7 +1328,7 @@ namespace olc
 	{
 		friend class olc::PixelGameEngine;
 	public:
-		PGEX(bool bHook = false);
+		explicit PGEX(bool bHook = false);
 
 	protected:
 		virtual void OnBeforeUserCreate();
@@ -1580,7 +1581,7 @@ namespace olc
 	{		
 		width = w;		height = h;
 		pColData.resize(width * height);
-		pColData.resize(width * height, nDefaultPixel);
+		pColData.resize(width * height, Pixel(nDefaultPixel));
 	}
 
 	Sprite::~Sprite()
@@ -1707,7 +1708,7 @@ namespace olc
 		Update();
 	}
 
-	Decal::Decal(const uint32_t nExistingTextureResource, olc::Sprite* spr)
+	Decal::Decal(const uint32_t nExistingTextureResource, const olc::Sprite* spr)
 	{
 		if (spr == nullptr) return;
 		id = nExistingTextureResource;
@@ -1928,8 +1929,10 @@ namespace olc
 	{
 		if (key.empty()) return data;
 		std::vector<char> o;
+		o.resize(data.size());
 		size_t c = 0;
-		for (auto s : data)	o.push_back(s ^ key[(c++) % key.size()]);
+		std::transform(data.begin(), data.end(), o.begin(),
+					   [&key, &c](const char& s){ return s ^ key[(c++) % key.size()];});
 		return o;
 	};
 
@@ -1944,8 +1947,8 @@ namespace olc
 	// | olc::PixelGameEngine IMPLEMENTATION                                          |
 	// O------------------------------------------------------------------------------O
 	PixelGameEngine::PixelGameEngine()
+	  : sAppName("Undefined")
 	{
-		sAppName = "Undefined";
 		olc::PGEX::pge = this;
 
 		// Bring in relevant Platform & Rendering systems depending
@@ -2181,7 +2184,7 @@ namespace olc
 
 	void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p, uint32_t pattern)
 	{
-		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+		int x, y, dx, dy, dx1, dy1, px, py;
 		dx = x2 - x1; dy = y2 - y1;
 
 		auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
@@ -2212,6 +2215,7 @@ namespace olc
 		px = 2 * dy1 - dx1;	py = 2 * dx1 - dy1;
 		if (dy1 <= dx1)
 		{
+			int xe;
 			if (dx >= 0)
 			{
 				x = x1; y = y1; xe = x2;
@@ -2223,9 +2227,8 @@ namespace olc
 
 			if (rol()) Draw(x, y, p);
 
-			for (i = 0; x < xe; i++)
+			for (; x < xe; x++)
 			{
-				x = x + 1;
 				if (px < 0)
 					px = px + 2 * dy1;
 				else
@@ -2238,6 +2241,7 @@ namespace olc
 		}
 		else
 		{
+			int ye;
 			if (dy >= 0)
 			{
 				x = x1; y = y1; ye = y2;
@@ -2249,9 +2253,8 @@ namespace olc
 
 			if (rol()) Draw(x, y, p);
 
-			for (i = 0; y < ye; i++)
+			for (; y < ye; y++)
 			{
-				y = y + 1;
 				if (py <= 0)
 					py = py + 2 * dx1;
 				else
@@ -2550,7 +2553,7 @@ namespace olc
 				}
 				if (changed1) break;
 				else   	   	  t1x += signx1;
-				if (i < dx1) i++;
+				i++;
 			}
 		next3:
 			// process second line until y value is about to change
@@ -2751,7 +2754,7 @@ namespace olc
 			return;
 
 		int32_t fxs = 0, fxm = 1, fx = 0;
-		int32_t fys = 0, fym = 1, fy = 0;
+		int32_t fys = 0, fym = 1;
 		if (flip & olc::Sprite::Flip::HORIZ) { fxs = sprite->width - 1; fxm = -1; }
 		if (flip & olc::Sprite::Flip::VERT) { fys = sprite->height - 1; fym = -1; }
 
@@ -2760,7 +2763,7 @@ namespace olc
 			fx = fxs;
 			for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
 			{
-				fy = fys;
+				int fy = fys;
 				for (int32_t j = 0; j < sprite->height; j++, fy += fym)
 					for (uint32_t is = 0; is < scale; is++)
 						for (uint32_t js = 0; js < scale; js++)
@@ -2772,7 +2775,7 @@ namespace olc
 			fx = fxs;
 			for (int32_t i = 0; i < sprite->width; i++, fx += fxm)
 			{
-				fy = fys;
+				int fy = fys;
 				for (int32_t j = 0; j < sprite->height; j++, fy += fym)
 					Draw(x + i, y + j, sprite->GetPixel(fx, fy));
 			}
@@ -2788,7 +2791,7 @@ namespace olc
 			return;
 
 		int32_t fxs = 0, fxm = 1, fx = 0;
-		int32_t fys = 0, fym = 1, fy = 0;
+		int32_t fys = 0, fym = 1;
 		if (flip & olc::Sprite::Flip::HORIZ) { fxs = w - 1; fxm = -1; }
 		if (flip & olc::Sprite::Flip::VERT) { fys = h - 1; fym = -1; }
 
@@ -2797,7 +2800,7 @@ namespace olc
 			fx = fxs;
 			for (int32_t i = 0; i < w; i++, fx += fxm)
 			{
-				fy = fys;
+				int fy = fys;
 				for (int32_t j = 0; j < h; j++, fy += fym)
 					for (uint32_t is = 0; is < scale; is++)
 						for (uint32_t js = 0; js < scale; js++)
@@ -2809,7 +2812,7 @@ namespace olc
 			fx = fxs;
 			for (int32_t i = 0; i < w; i++, fx += fxm)
 			{
-				fy = fys;
+				int fy = fys;
 				for (int32_t j = 0; j < h; j++, fy += fym)
 					Draw(x + i, y + j, sprite->GetPixel(fx + ox, fy + oy));
 			}
@@ -3616,7 +3619,7 @@ namespace olc
 			if (!sCommandHistory.empty())
 			{
 				if (sCommandHistoryIt != sCommandHistory.begin())
-					sCommandHistoryIt--;
+					--sCommandHistoryIt;
 
 				nTextEntryCursor = int32_t(sCommandHistoryIt->size());
 				sTextEntryString = *sCommandHistoryIt;
@@ -3629,7 +3632,7 @@ namespace olc
 			{
 				if (sCommandHistoryIt != sCommandHistory.end())
 				{
-					sCommandHistoryIt++;
+					++sCommandHistoryIt;
 					if (sCommandHistoryIt != sCommandHistory.end())
 					{
 						nTextEntryCursor = int32_t(sCommandHistoryIt->size());
@@ -3919,7 +3922,7 @@ namespace olc
 					renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
 
 					// Display Decals in order for this layer
-					for (auto& decal : layer->vecDecalInstance)
+					for (auto&& decal : layer->vecDecalInstance)
 						renderer->DrawDecal(decal);
 					layer->vecDecalInstance.clear();
 				}
@@ -3982,7 +3985,7 @@ namespace olc
 
 			for (int i = 0; i < 24; i++)
 			{
-				int k = r & (1 << i) ? 255 : 0;
+				int k = (r & (1 << i)) ? 255 : 0;
 				fontRenderable.Sprite()->SetPixel(px, py, olc::Pixel(k, k, k, k));
 				if (++py == 48) { px++; py = 0; }
 			}
@@ -3998,7 +4001,9 @@ namespace olc
 			0x24,0x18,0x17,0x17,0x17,0x17,0x17,0x17,0x17,0x33,0x17,0x17,0x33,0x18,0x17,0x17,
 			0x17,0x17,0x17,0x17,0x07,0x17,0x17,0x18,0x18,0x17,0x17,0x07,0x33,0x07,0x08,0x00, } };
 
-		for (auto c : vSpacing) vFontSpacing.push_back({ c >> 4, c & 15 });
+		vFontSpacing.resize(vSpacing.size());
+		std::transform(vSpacing.begin(), vSpacing.end(), vFontSpacing.begin(),
+					   [](const uint8_t c){ return olc::vi2d{ c >> 4, c & 15 };});
 
 		// UK Standard Layout
 #ifdef OLC_KEYBOARD_UK
@@ -4059,36 +4064,36 @@ namespace olc
 	class Renderer_Headless : public olc::Renderer
 	{
 	public:
-		virtual void       PrepareDevice() {};
-		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK;		}
-		virtual olc::rcode DestroyDevice() { return olc::rcode::OK; }
-		virtual void       DisplayFrame() {}
-		virtual void       PrepareDrawing() {}
-		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
+		virtual void       PrepareDevice() override {};
+		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) override { return olc::rcode::OK;		}
+		virtual olc::rcode DestroyDevice() override { return olc::rcode::OK; }
+		virtual void       DisplayFrame() override {}
+		virtual void       PrepareDrawing() override {}
+		virtual void	   SetDecalMode(const olc::DecalMode& mode) override {}
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
-		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
-		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) {return 1;};
-		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
-		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
-		virtual uint32_t   DeleteTexture(const uint32_t id) {return 1;}
-		virtual void       ApplyTexture(uint32_t id) {}
-		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) {}
-		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) {}
+		virtual void       DrawDecal(const olc::DecalInstance& decal) override {}
+		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) override {return 1;};
+		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) override {}
+		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) override {}
+		virtual uint32_t   DeleteTexture(const uint32_t id) override {return 1;}
+		virtual void       ApplyTexture(uint32_t id) override {}
+		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) override {}
+		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) override {}
 	};
 #endif
 #if defined(OLC_PLATFORM_HEADLESS)
 	class Platform_Headless : public olc::Platform
 	{
 	public:
-		virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
-		virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
-		virtual olc::rcode ThreadStartUp() { return olc::rcode::OK; }
-		virtual olc::rcode ThreadCleanUp() { return olc::rcode::OK; }
-		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) { return olc::rcode::OK; }
-		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) { return olc::rcode::OK; }
-		virtual olc::rcode SetWindowTitle(const std::string& s) { return olc::rcode::OK; }
-		virtual olc::rcode StartSystemEventLoop() { return olc::rcode::OK; }
-		virtual olc::rcode HandleSystemEvent() { return olc::rcode::OK; }
+		virtual olc::rcode ApplicationStartUp() override { return olc::rcode::OK; }
+		virtual olc::rcode ApplicationCleanUp() override { return olc::rcode::OK; }
+		virtual olc::rcode ThreadStartUp() override { return olc::rcode::OK; }
+		virtual olc::rcode ThreadCleanUp() override { return olc::rcode::OK; }
+		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override { return olc::rcode::OK; }
+		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) override { return olc::rcode::OK; }
+		virtual olc::rcode SetWindowTitle(const std::string& s) override { return olc::rcode::OK; }
+		virtual olc::rcode StartSystemEventLoop() override { return olc::rcode::OK; }
+		virtual olc::rcode HandleSystemEvent() override { return olc::rcode::OK; }
 	};
 #endif
 }
@@ -4359,7 +4364,7 @@ namespace olc
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
-		void SetDecalMode(const olc::DecalMode& mode)
+		void SetDecalMode(const olc::DecalMode& mode) override
 		{
 			if (mode != nDecalMode)
 			{
@@ -4709,7 +4714,7 @@ namespace olc
 			olc::Pixel col;
 		};
 
-		locVertex pVertexMem[OLC_MAX_VERTS];
+		locVertex pVertexMem[OLC_MAX_VERTS] = {};
 
 		olc::Renderable rendBlankQuad;
 
@@ -5149,7 +5154,7 @@ namespace olc
 	class ImageLoader_GDIPlus : public olc::ImageLoader
 	{
 	private:
-		std::wstring ConvertS2W(std::string s)
+		std::wstring ConvertS2W(const std::string &s)
 		{
 #ifdef __MINGW32__
 			wchar_t* buffer = new wchar_t[s.length() + 1];
@@ -5370,7 +5375,7 @@ namespace olc
 		HWND olc_hWnd = nullptr;
 		std::wstring wsAppName;
 
-		std::wstring ConvertS2W(std::string s)
+		std::wstring ConvertS2W(const std::string &s)
 		{
 #ifdef __MINGW32__
 			wchar_t* buffer = new wchar_t[s.length() + 1];
@@ -5617,7 +5622,7 @@ namespace olc
 		X11::Display* olc_Display = nullptr;
 		X11::Window					 olc_WindowRoot;
 		X11::Window					 olc_Window;
-		X11::XVisualInfo* olc_VisualInfo;
+		X11::XVisualInfo* olc_VisualInfo = nullptr;
 		X11::Colormap                olc_ColourMap;
 		X11::XSetWindowAttributes    olc_SetWindowAttribs;
 
@@ -5697,7 +5702,7 @@ namespace olc
 				xev.xclient.window = olc_Window;
 				xev.xclient.message_type = wm_state;
 				xev.xclient.format = 32;
-				xev.xclient.data.l[0] = (bFullScreen ? 1 : 0);   // the action (0: off, 1: on, 2: toggle)
+				xev.xclient.data.l[0] = 1; // bFullScreen always true in this if() // (bFullScreen ? 1 : 0);   // the action (0: off, 1: on, 2: toggle)
 				xev.xclient.data.l[1] = fullscreen;             // first property to alter
 				xev.xclient.data.l[2] = 0;                      // second property to alter
 				xev.xclient.data.l[3] = 0;                      // source indication
