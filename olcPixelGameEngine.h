@@ -4257,11 +4257,12 @@ namespace olc
 				PFD_MAIN_PLANE, 0, 0, 0, 0
 			};
 
-			int pf = 0;
-			if (!(pf = ChoosePixelFormat(glDeviceContext, &pfd))) return olc::FAIL;
+			int pf = ChoosePixelFormat(glDeviceContext, &pfd);
+			if (!pf) return olc::FAIL;
 			SetPixelFormat(glDeviceContext, pf, &pfd);
-
-			if (!(glRenderContext = wglCreateContext(glDeviceContext))) return olc::FAIL;
+			
+			glRenderContext = wglCreateContext(glDeviceContext);
+			if (!glRenderContext) return olc::FAIL;
 			wglMakeCurrent(glDeviceContext, glRenderContext);
 
 			// Remove Frame cap
@@ -6693,4 +6694,3 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | END OF OLC_PGE_APPLICATION                                                   |
 // O------------------------------------------------------------------------------O
-
