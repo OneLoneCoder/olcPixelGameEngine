@@ -193,11 +193,11 @@
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
 
-
+	- In Memory of SaladinAkara 25.06.2023 -
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022, 2023, 2024
 */
 #pragma endregion
 
@@ -398,7 +398,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 223
+#define PGE_VER 224
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
