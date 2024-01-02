@@ -17,7 +17,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2022 OneLoneCoder.com
+	Copyright 2018 - 2024 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -58,7 +58,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
 
 	Revisions:
 	1.00:	Initial Release
@@ -210,8 +210,8 @@ namespace olc
 				pge->DrawPartialDecal(vScale * vBoom[y * spr.Sprite()->width + x].first * 2.0f, spr.Decal(), olc::vf2d(x, y), { 1, 1 }, vScale * 2.0f, olc::PixelF(1.0f, 1.0f, 1.0f, std::min(1.0f, std::max(4.0f - fParticleTime, 0.0f))));
 			}
 
-		olc::vi2d vSize = pge->GetTextSizeProp("Copyright OneLoneCoder.com 2022");
-		pge->DrawStringPropDecal(olc::vf2d(float(pge->ScreenWidth()/2) - vSize.x/2, float(pge->ScreenHeight()) - vSize.y * 3.0f), "Copyright OneLoneCoder.com 2022", olc::PixelF(1.0f, 1.0f, 1.0f, 0.5f), olc::vf2d(1.0, 2.0f));
+		olc::vi2d vSize = pge->GetTextSizeProp("Copyright OneLoneCoder.com 2024");
+		pge->DrawStringPropDecal(olc::vf2d(float(pge->ScreenWidth()/2) - vSize.x/2, float(pge->ScreenHeight()) - vSize.y * 3.0f), "Copyright OneLoneCoder.com 2023", olc::PixelF(1.0f, 1.0f, 1.0f, 0.5f), olc::vf2d(1.0, 2.0f));
 		return true;
 	}
 

@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - QuickGUI v1.02
+	OneLoneCoder - QuickGUI v1.03
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A semi-immediate mode GUI for very simple GUI stuff. 
 	Includes:
@@ -15,7 +15,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2021 OneLoneCoder.com
+	Copyright 2018 - 2024 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -56,7 +56,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
 
 	Changes
 	~~~~~~~
@@ -68,6 +68,7 @@
 			+ListBox::bSelectionChanged flag, true when list selected item changes
 			=Fix - Text box mouse behaviours, mouse release is now meaningless
 			+CheckBox Fix for decal display
+	v1.03	=Fix ImageCheckBox
 
 */
 
@@ -807,6 +808,12 @@ namespace olc::QuickGUI
 			return;
 
 		ImageButton::DrawDecal(pge);
+		
+		if (bChecked)
+		{
+			pge->FillRectDecal(vPos + olc::vf2d(1, 1), vSize - olc::vf2d(2, 2), m_manager.colClick);
+			pge->DrawDecal(vPos + olc::vi2d(4, 4), pIcon.Decal());
+		}
 
 		pge->SetDecalMode(olc::DecalMode::WIREFRAME);
 		pge->FillRectDecal(vPos + olc::vf2d(2, 2), vSize - olc::vf2d(4, 4), m_manager.colBorder);
