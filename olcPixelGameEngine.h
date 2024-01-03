@@ -691,7 +691,7 @@ namespace olc
 		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1.0 - t)) + (v1 * T(t)); }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
-		T dist(const v2d_generic& rhs) const { return std::sqrt(this->x - rhs.x * this->x - rhs.x + this->y - rhs.y * this->y - rhs.y); }
+		T dist(const v2d_generic& rhs) const { return std::sqrt((this->x - rhs.x) * (this->x - rhs.x) + (this->y - rhs.y) * (this->y - rhs.y)); }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
 		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
 		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
