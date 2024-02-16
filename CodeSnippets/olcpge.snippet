@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+    <CodeSnippet Format="1.0.0">
+        <Header>
+            <Title>olcpge</Title>
+            <Shortcut>olcpge</Shortcut>
+            <Description>Code snippet for One Lone Coder Pixel Game Engine</Description>
+            <SnippetTypes>
+              <SnippetType>Expansion</SnippetType>
+              <SnippetType>SurroundsWith</SnippetType>
+            </SnippetTypes>
+        </Header>
+        <Snippet>
+          <Declarations>
+            <Literal>
+              <ID>name</ID>
+              <ToolTip>Class name</ToolTip>
+              <Default>MyClass</Default>
+            </Literal>
+            <Literal>
+              <ID>title</ID>
+              <ToolTip>Game title</ToolTip>
+              <Default>My Game</Default>
+            </Literal>
+            <Literal>
+              <ID>screen_width</ID>
+              <ToolTip>Screen width</ToolTip>
+              <Default>256</Default>
+            </Literal>
+            <Literal>
+              <ID>screen_height</ID>
+              <ToolTip>Screen height</ToolTip>
+              <Default>240</Default>
+            </Literal>
+            <Literal>
+              <ID>pixel_width</ID>
+              <ToolTip>Pixel width</ToolTip>
+              <Default>4</Default>
+            </Literal>
+            <Literal>
+              <ID>pixel_height</ID>
+              <ToolTip>Pixel height</ToolTip>
+              <Default>4</Default>
+            </Literal>
+          </Declarations>
+            <Code Language="cpp">
+                <![CDATA[#define OLC_PGE_APPLICATION
+#include "olcPixelGameEngine.h"
+
+class $name$ : public olc::PixelGameEngine
+{
+public:
+	$name$()
+	{
+		sAppName = "$title$";
+	}
+
+protected:
+	virtual bool OnUserCreate() override
+	{
+		return true;
+	}
+
+	virtual bool OnUserUpdate(float fElapsedTime) override
+	{
+		Clear(olc::BLACK);
+
+		return true;
+	}
+};
+
+int main()
+{
+	$name$ game;
+	if (game.Construct($screen_width$, $screen_height$, $pixel_width$, $pixel_height$))
+		game.Start();
+	return 0;
+}
+                ]]>
+            </Code>
+        </Snippet>
+    </CodeSnippet>
+</CodeSnippets>
