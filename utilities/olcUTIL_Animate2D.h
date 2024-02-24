@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - Animate2D v1.00
+	OneLoneCoder - Animate2D v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Handles animated Sprites efficiently
 
@@ -7,7 +7,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2022 OneLoneCoder.com
+	Copyright 2018 - 2024 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -48,14 +48,19 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
 
+
+	Versions
+	~~~~~~~~
+	1.01	+PingPong Style Animation
 */
 
 #pragma once
 
 #include "olcPixelGameEngine.h"
 #include "utilities/olcUTIL_Geometry2D.h"
+#include <unordered_map>
 
 namespace olc::utils::Animate2D
 {
@@ -141,7 +146,11 @@ namespace olc::utils::Animate2D
 				return std::clamp(size_t(fTime * m_fFrameRate), size_t(0), m_vFrames.size() - 1);
 				break;
 			case Style::PingPong:
-				// TODO
+				{
+					// Thanks @sigonasr2 (discord)
+					size_t frame = size_t(m_fFrameRate * fTime) % (m_vFrames.size() * 2 - 1);
+					return frame >= m_vFrames.size() ? m_vFrames.size() - frame % m_vFrames.size() - 1 : frame;
+				}
 				break;
 			case Style::Reverse:
 				return (m_vFrames.size() - 1) - (size_t(fTime * m_fFrameRate) % m_vFrames.size());
