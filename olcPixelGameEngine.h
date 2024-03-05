@@ -969,7 +969,7 @@ namespace olc
 	public:
 		olc::rcode Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h,
 			bool full_screen = false, bool vsync = false, bool cohesion = false);
-		olc::rcode Start();
+		olc::rcode Start(const olc::vi2d& vWindowPosition);
 
 	public: // User Override Interfaces
 		// Called once on application startup, use to load your resources
@@ -1999,12 +1999,12 @@ namespace olc
 	}
 
 #if !defined(PGE_USE_CUSTOM_START)
-	olc::rcode PixelGameEngine::Start()
+	olc::rcode PixelGameEngine::Start(const olc::vi2d& vWindowPosition = { 30, 30 })
 	{
 		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
 
 		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+		if (platform->CreateWindowPane(vWindowPosition, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
 		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
 
 		// Start the thread
@@ -6185,12 +6185,12 @@ namespace olc {
 	std::atomic<bool>* Platform_GLUT::bActiveRef{ nullptr };
 
 	//Custom Start
-	olc::rcode PixelGameEngine::Start()
+	olc::rcode PixelGameEngine::Start(const olc::vi2d& vWindowPosition = {30, 30})
 	{
 		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
 
 		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+		if (platform->CreateWindowPane(vWindowPosition, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
 		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
 
 		if (platform->ThreadStartUp() == olc::FAIL)  return olc::FAIL;
@@ -6595,12 +6595,12 @@ namespace olc
 
 	//Emscripten needs a special Start function
 	//Much of this is usually done in EngineThread, but that isn't used here
-	olc::rcode PixelGameEngine::Start()
+	olc::rcode PixelGameEngine::Start(const olc::vi2d& vWindowPosition = { 30, 30 })
 	{
 		if (platform->ApplicationStartUp() != olc::OK) return olc::FAIL;
 
 		// Construct the window
-		if (platform->CreateWindowPane({ 30,30 }, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
+		if (platform->CreateWindowPane(vWindowPosition, vWindowSize, bFullScreen) != olc::OK) return olc::FAIL;
 		olc_UpdateWindowSize(vWindowSize.x, vWindowSize.y);
 
 		// Some implementations may form an event loop here
