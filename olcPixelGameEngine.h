@@ -527,6 +527,7 @@ int main()
 
 	#include <windows.h>
 	#undef _WINSOCKAPI_
+	#include <shellapi.h>
 #endif
 
 #if defined(OLC_PLATFORM_X11)
@@ -692,6 +693,7 @@ namespace olc
 		v2d_generic	 lerp(const v2d_generic& v1, const double t) { return this->operator*(T(1.0 - t)) + (v1 * T(t)); }
 		T dot(const v2d_generic& rhs) const { return this->x * rhs.x + this->y * rhs.y; }
 		T cross(const v2d_generic& rhs) const { return this->x * rhs.y - this->y * rhs.x; }
+		T dist(const v2d_generic& rhs) const { return T(std::sqrt((this->x - rhs.x) * (this->x - rhs.x) + (this->y - rhs.y) * (this->y - rhs.y))); }
 		v2d_generic  operator +  (const v2d_generic& rhs) const { return v2d_generic(this->x + rhs.x, this->y + rhs.y); }
 		v2d_generic  operator -  (const v2d_generic& rhs) const { return v2d_generic(this->x - rhs.x, this->y - rhs.y); }
 		v2d_generic  operator *  (const T& rhs)           const { return v2d_generic(this->x * rhs, this->y * rhs); }
@@ -3971,7 +3973,7 @@ namespace olc
 
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
-		renderer->ClearBuffer(olc::BLACK, true);
+		//renderer->ClearBuffer(olc::BLACK, true);
 
 		// Layer 0 must always exist
 		vLayers[0].bUpdate = true;
