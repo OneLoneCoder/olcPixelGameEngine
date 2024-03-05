@@ -157,6 +157,8 @@
 #ifndef OLC_PGEX_POPUPMENU_H
 #define OLC_PGEX_POPUPMENU_H
 
+#include "olcPixelGameEngine.h"
+
 #include <cstdint>
 
 namespace olc

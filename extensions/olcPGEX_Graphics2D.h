@@ -56,7 +56,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2019
 */
 
 /*
@@ -71,6 +71,8 @@
 
 #ifndef OLC_PGEX_GFX2D
 #define OLC_PGEX_GFX2D
+
+#include "olcPixelGameEngine.h"
 
 #include <algorithm>
 #undef min
