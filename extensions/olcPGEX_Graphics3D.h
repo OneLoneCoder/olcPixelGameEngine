@@ -61,7 +61,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018
 */
 
 
@@ -925,10 +925,16 @@ namespace olc
 						char c = s.get();
 						if (c == ' ' || c == '/')
 						{
-							if (tokens[nTokenCount].size() > 0)
+							// nTokenCount starts in -1
+							if (nTokenCount > 0)
 							{
-								nTokenCount++;
+								if (tokens[nTokenCount].size() > 0)
+								{
+									nTokenCount++;
+								}
 							}
+							else
+								nTokenCount++;
 						}
 						else
 							tokens[nTokenCount].append(1, c);
