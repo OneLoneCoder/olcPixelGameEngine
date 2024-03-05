@@ -869,7 +869,8 @@ namespace olc
 	{
 	public:
 		Renderable() = default;		
-		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal)) {}		
+		Renderable(Renderable&& r) = default;		
+		Renderable& operator=(Renderable&& r) = default;
 		Renderable(const Renderable&) = delete;
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false, bool clamp = true);
 		void Create(uint32_t width, uint32_t height, bool filter = false, bool clamp = true);
@@ -966,6 +967,9 @@ namespace olc
 	public:
 		PixelGameEngine();
 		virtual ~PixelGameEngine();
+		PixelGameEngine(PixelGameEngine&&) = default;
+		PixelGameEngine& operator=(PixelGameEngine&&) = default;
+
 	public:
 		olc::rcode Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h,
 			bool full_screen = false, bool vsync = false, bool cohesion = false);
@@ -4435,7 +4439,7 @@ namespace olc
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
-		void SetDecalMode(const olc::DecalMode& mode)
+		void SetDecalMode(const olc::DecalMode& mode) override
 		{
 			if (mode != nDecalMode)
 			{
