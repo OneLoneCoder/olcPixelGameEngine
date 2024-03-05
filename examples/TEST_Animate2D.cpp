@@ -45,7 +45,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2019, 2020, 2021, 2022
 
 */
 
@@ -108,7 +108,11 @@ public:
 		// For this appliaction I have a single image that contains
 		// 28x2 unique characters, each character contains 8 animations of 3
 		// frames each. Each frame is 26x36 pixels
-		gfxAll.Load("./assets/MegaSprite1.png");
+		if (gfxAll.Load("./assets/MegaSprite1.png") != olc::rcode::OK)
+		{
+			std::cout << "Could not load ./assets/MegaSprite1.png\n";
+			return false;
+		}
 
 		// Thats A LOT of individual graphics, but they all follow a similar pattern
 		// because the asset was created usefully (take note certain popular asset creators)
