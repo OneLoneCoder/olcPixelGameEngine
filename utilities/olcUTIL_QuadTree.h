@@ -48,7 +48,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020, 2021, 2022
 
 
 	Changes
@@ -202,7 +202,13 @@ namespace olc::utils
 		{
 			clear();
 			m_rect = rArea;
-			olc::v2d_generic<CTYPE> vChildSize = m_rect.size / CTYPE(2);
+
+			#if !defined(OLC_IGNORE_VEC2D)
+				olc::v2d_generic<CTYPE> vChildSize = m_rect.size / CTYPE(2);
+			#else
+				olc::v_2d<CTYPE> vChildSize = m_rect.size / CTYPE(2);
+			#endif
+
 			m_rChild =
 			{
 				geom2d::rect<CTYPE>(m_rect.pos, vChildSize),
