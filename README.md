@@ -1,11 +1,3 @@
-# GERALD's NOTES
-
-Alight, to learn C++, to learn Graphics, to learn rendering and all the low level and fundamental stuff. There will be a lot of playing around. 
-
-
-________________
-# ORIGINAL README
-
 <p align="center">
   <a href="https://discord.gg/WhwHUMV"> <img src="https://img.shields.io/discord/380484403458998276?logo=discord"> </a>
 </p>
