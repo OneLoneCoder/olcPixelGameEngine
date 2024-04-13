@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.25              |
+	|           OneLoneCoder Pixel Game Engine v2.26              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -29,7 +29,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2022 OneLoneCoder.com
+	Copyright 2018 - 2024 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
@@ -320,6 +320,10 @@
 		  Fixed v2d_generic.clamp() function
 	2.24: Fix FillTexturedTriangle() to remove const-ref
 	2.25: +DrawPolygonDecal(pos, tex, w, col)
+	2.26: Window Manipulation Update! (MS Windows only right now... need volunteers!)
+		  +1:1 "Real Window" mode which follows resizing - Construct(...)
+		  +SetWindowSize() - Sets Position/Size of window
+		  +ShowWindowFrame() - Enables/Disables window furniture
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -399,7 +403,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 225
+#define PGE_VER 226
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -820,6 +824,7 @@ namespace olc
 		olc::Sprite* Duplicate();
 		olc::Sprite* Duplicate(const olc::vi2d& vPos, const olc::vi2d& vSize);
 		olc::vi2d Size() const;
+		void SetSize(int32_t w, int32_t h);
 		std::vector<olc::Pixel> pColData;
 		Mode modeSample = Mode::NORMAL;
 
@@ -869,7 +874,7 @@ namespace olc
 	{
 	public:
 		Renderable() = default;		
-		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal)) {}		
+		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal))  {}		
 		Renderable(const Renderable&) = delete;
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false, bool clamp = true);
 		void Create(uint32_t width, uint32_t height, bool filter = false, bool clamp = true);
@@ -946,6 +951,8 @@ namespace olc
 		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) = 0;
 		virtual olc::rcode CreateWindowPane(const olc::vi2d& vWindowPos, olc::vi2d& vWindowSize, bool bFullScreen) = 0;
 		virtual olc::rcode SetWindowTitle(const std::string& s) = 0;
+		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) = 0;
+		virtual olc::rcode SetWindowSize(const olc::vi2d& vWindowPos, const olc::vi2d& vWindowSize) = 0;
 		virtual olc::rcode StartSystemEventLoop() = 0;
 		virtual olc::rcode HandleSystemEvent() = 0;
 		static olc::PixelGameEngine* ptrPGE;
@@ -968,7 +975,7 @@ namespace olc
 		virtual ~PixelGameEngine();
 	public:
 		olc::rcode Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h,
-			bool full_screen = false, bool vsync = false, bool cohesion = false);
+			bool full_screen = false, bool vsync = false, bool cohesion = false, bool realwindow = false);
 		olc::rcode Start();
 
 	public: // User Override Interfaces
@@ -1004,6 +1011,10 @@ namespace olc
 		const olc::vi2d& GetMousePos() const;
 
 		static const std::map<size_t, uint8_t>& GetKeyMap() { return mapKeys; }
+
+		// Muck about with the GUI
+		olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize);
+		olc::rcode ShowWindowFrame(const bool bShowFrame);
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
@@ -1233,6 +1244,9 @@ namespace olc
 		bool		bHasInputFocus = false;
 		bool		bHasMouseFocus = false;
 		bool		bEnableVSYNC = false;
+		bool		bRealWindowMode = false;
+		bool		bResizeRequested = false;
+		olc::vi2d	vResizeRequested = { 0, 0 };
 		float		fFrameTimer = 1.0f;
 		float		fLastElapsed = 0.0f;
 		int			nFrameCount = 0;		
@@ -1586,8 +1600,12 @@ namespace olc
 
 	Sprite::Sprite(int32_t w, int32_t h)
 	{		
+		SetSize(w, h);
+	}
+
+	void Sprite::SetSize(int32_t w, int32_t h)
+	{
 		width = w;		height = h;
-		pColData.resize(width * height);
 		pColData.resize(width * height, nDefaultPixel);
 	}
 
@@ -1965,9 +1983,10 @@ namespace olc
 	{}
 
 
-	olc::rcode PixelGameEngine::Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h, bool full_screen, bool vsync, bool cohesion)
+	olc::rcode PixelGameEngine::Construct(int32_t screen_w, int32_t screen_h, int32_t pixel_w, int32_t pixel_h, bool full_screen, bool vsync, bool cohesion, bool realwindow)
 	{
 		bPixelCohesion = cohesion;
+		bRealWindowMode = realwindow;
 		vScreenSize = { screen_w, screen_h };
 		vInvScreenSize = { 1.0f / float(screen_w), 1.0f / float(screen_h) };
 		vPixelSize = { pixel_w, pixel_h };
@@ -1992,9 +2011,13 @@ namespace olc
 			layer.bUpdate = true;
 		}
 		SetDrawTarget(nullptr);
-		renderer->ClearBuffer(olc::BLACK, true);
-		renderer->DisplayFrame();
-		renderer->ClearBuffer(olc::BLACK, true);
+		if (!bRealWindowMode)
+		{
+			// Flush backbuffer
+			renderer->ClearBuffer(olc::BLACK, true);
+			renderer->DisplayFrame();
+			renderer->ClearBuffer(olc::BLACK, true);
+		}
 		renderer->UpdateViewport(vViewPos, vViewSize);
 	}
 
@@ -2032,7 +2055,8 @@ namespace olc
 		else
 		{
 			nTargetLayer = 0;
-			pDrawTarget = vLayers[0].pDrawTarget.Sprite();
+			if(!vLayers.empty())
+				pDrawTarget = vLayers[0].pDrawTarget.Sprite();
 		}
 	}
 
@@ -3757,9 +3781,35 @@ namespace olc
 	void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
 	bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
 	
+
+	olc::rcode PixelGameEngine::SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize)
+	{
+		if (platform)
+			return platform->SetWindowSize(vPos, vSize);
+		else
+			return olc::FAIL;
+	}
+	
+	olc::rcode PixelGameEngine::ShowWindowFrame(const bool bShowFrame)
+	{
+		if (platform)
+			return platform->ShowWindowFrame(bShowFrame);
+		else
+			return olc::FAIL;
+	}
+
+
 	// Externalised API
 	void PixelGameEngine::olc_UpdateViewport()
 	{
+		if (bRealWindowMode)
+		{
+			vPixelSize = { 1,1 };
+			vViewSize = vScreenSize;
+			vViewPos = { 0,0 };
+			return;
+		}
+
 		int32_t ww = vScreenSize.x * vPixelSize.x;
 		int32_t wh = vScreenSize.y * vPixelSize.y;
 		float wasp = (float)ww / (float)wh;
@@ -3787,6 +3837,13 @@ namespace olc
 	void PixelGameEngine::olc_UpdateWindowSize(int32_t x, int32_t y)
 	{
 		vWindowSize = { x, y };
+
+		if (bRealWindowMode)
+		{
+			vResizeRequested = vWindowSize;
+			bResizeRequested = true;			
+		}
+
 		olc_UpdateViewport();
 	}
 
@@ -3967,7 +4024,12 @@ namespace olc
 			UpdateConsole();
 		}
 
-		
+		if (bRealWindowMode)
+		{
+			vPixelSize = { 1,1 };
+			vViewSize = vScreenSize;
+			vViewPos = { 0,0 };
+		}
 
 		// Display Frame
 		renderer->UpdateViewport(vViewPos, vViewSize);
@@ -4011,6 +4073,13 @@ namespace olc
 
 		// Present Graphics to screen
 		renderer->DisplayFrame();
+
+		if (bResizeRequested)
+		{
+			bResizeRequested = false;
+			SetScreenSize(vWindowSize.x, vWindowSize.y);
+			renderer->UpdateViewport({ 0,0 }, vWindowSize);
+		}
 
 		// Update Title Bar
 		fFrameTimer += fElapsedTime;
@@ -4156,6 +4225,12 @@ namespace olc
 	class Platform_Headless : public olc::Platform
 	{
 	public:
+		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
+		{ return olc::rcode::OK; }
+
+		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
+		{ return olc::rcode::OK; }
+
 		virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
 		virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
 		virtual olc::rcode ThreadStartUp() { return olc::rcode::OK; }
@@ -5424,6 +5499,8 @@ namespace olc
 	private:
 		HWND olc_hWnd = nullptr;
 		std::wstring wsAppName;
+		inline static olc::vi2d vWinPos;
+		inline static olc::vi2d vWinSize;
 
 		std::wstring ConvertS2W(std::string s)
 		{
@@ -5480,6 +5557,9 @@ namespace olc
 			wc.hbrBackground = nullptr;
 			wc.lpszClassName = olcT("OLC_PIXEL_GAME_ENGINE");
 			RegisterClass(&wc);
+
+			vWinPos = vWindowPos;
+			vWinSize = vWindowSize;
 
 			// Define window furniture
 			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
@@ -5567,6 +5647,64 @@ namespace olc
 			return olc::OK;
 		}
 
+		olc::rcode ShowWindowFrame(const bool bShowFrame)
+		{
+			// Oooooooof... yeah....
+			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
+			
+			RECT rWndRect, rWndRectNow;
+			GetWindowRect(olc_hWnd, &rWndRectNow);
+			
+			if (!bShowFrame)
+			{
+				LONG_PTR lp = GetWindowLongPtr(olc_hWnd, GWL_STYLE);
+				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp & ~(WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW | WS_THICKFRAME));								
+				lp = GetWindowLongPtr(olc_hWnd, GWL_EXSTYLE);
+				SetWindowLongPtr(olc_hWnd, GWL_EXSTYLE, lp & ~(WS_EX_WINDOWEDGE));
+				dwExStyle = WS_EX_APPWINDOW;
+				dwStyle = 0;			
+			}
+			else
+			{
+				LONG_PTR lp = GetWindowLongPtr(olc_hWnd, GWL_STYLE);
+				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp | (WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW|WS_THICKFRAME));
+				lp = GetWindowLongPtr(olc_hWnd, GWL_EXSTYLE);
+				SetWindowLongPtr(olc_hWnd, GWL_EXSTYLE, lp | (WS_EX_WINDOWEDGE));
+			}
+
+			
+			rWndRectNow.right = rWndRectNow.left + vWinSize.x;
+			rWndRectNow.bottom = rWndRectNow.top + vWinSize.y;
+			rWndRect = rWndRectNow;
+			AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
+			int width = rWndRect.right - rWndRect.left;
+			int height = rWndRect.bottom - rWndRect.top;
+			SetWindowPos(olc_hWnd, NULL, rWndRectNow.left, rWndRectNow.top, width, height, SWP_SHOWWINDOW);
+
+
+			return olc::OK;
+		}
+
+		olc::rcode SetWindowSize(const olc::vi2d& vWindowPos, const olc::vi2d& vWindowSize)
+		{
+			vWinPos = vWindowPos;
+			vWinSize = vWindowSize;
+			RECT rWndRect;
+			rWndRect.left = vWinPos.x;
+			rWndRect.top = vWinPos.y;
+			rWndRect.right = rWndRect.left + vWinSize.x;
+			rWndRect.bottom = rWndRect.top + vWinSize.y;
+			rWndRect = rWndRect;
+			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
+			AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
+			int width = rWndRect.right - rWndRect.left;
+			int height = rWndRect.bottom - rWndRect.top;
+			SetWindowPos(olc_hWnd, NULL, vWinPos.x, vWinPos.y, width, height, SWP_SHOWWINDOW);
+			return olc::OK;
+		}
+
 		virtual olc::rcode StartSystemEventLoop() override
 		{
 			MSG msg;
@@ -5593,7 +5731,7 @@ namespace olc
 				ptrPGE->olc_UpdateMouse(ix, iy);
 				return 0;
 			}
-			case WM_SIZE:       ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
+			case WM_SIZE:       vWinSize = olc::vi2d(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);  ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
 			case WM_MOUSEWHEEL:	ptrPGE->olc_UpdateMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));           return 0;
 			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
 			case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
@@ -5819,6 +5957,17 @@ namespace olc
 			return olc::OK;
 		}
 
+		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
+		{
+			return olc::rcode::OK;
+		}
+
+		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
+		{
+			return olc::rcode::OK;
+		}
+
+
 		virtual olc::rcode StartSystemEventLoop() override
 		{
 			return olc::OK;
@@ -5928,6 +6077,17 @@ namespace olc {
 	{
 	public:
 		static std::atomic<bool>* bActiveRef;
+
+		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
+		{
+			return olc::rcode::OK;
+		}
+
+		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
+		{
+			return olc::rcode::OK;
+		}
+
 
 		virtual olc::rcode ApplicationStartUp() override {
 			return olc::rcode::OK;
@@ -6251,6 +6411,12 @@ namespace olc
 	class Platform_Emscripten : public olc::Platform
 	{
 	public:
+
+		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
+		{ return olc::rcode::OK; }
+
+		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
+		{ return olc::rcode::OK; }
 
 		virtual olc::rcode ApplicationStartUp() override 
 		{ return olc::rcode::OK; }
