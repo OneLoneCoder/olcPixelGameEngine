@@ -159,6 +159,8 @@
 
 #include <cstdint>
 
+#include "olcPixelGameEngine.h"
+
 namespace olc
 {
 	namespace popup
