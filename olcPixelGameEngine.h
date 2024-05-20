@@ -3989,7 +3989,7 @@ namespace olc
 		SetDecalMode(DecalMode::NORMAL);
 		renderer->PrepareDrawing();
 
-		vInvScreenSize = 1.0f / viewSize;
+		vInvScreenSize = 1.0f / olc::vf2d(viewSize);
 	}
 
 	void PixelGameEngine::adv_FlushLayer(const size_t nLayerID)
