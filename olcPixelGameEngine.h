@@ -3976,7 +3976,7 @@ namespace olc
 
 	void PixelGameEngine::adv_ManualRenderEnable(const bool bEnable)
 	{
-		bManualRenderEnable = true;
+		bManualRenderEnable = bEnable;
 	}
 
 	void PixelGameEngine::adv_PrepareBuffer(const bool bClear, const olc::vi2d & viewPos, const olc::vi2d & viewSize)
