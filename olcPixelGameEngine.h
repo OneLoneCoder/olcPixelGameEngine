@@ -324,6 +324,11 @@
 		  +1:1 "Real Window" mode which follows resizing - Construct(...)
 		  +SetWindowSize() - Sets Position/Size of window
 		  +ShowWindowFrame() - Enables/Disables window furniture
+		  +olc_UpdateWindowPos() - Break in to set position of window
+		  +adv_ManualRenderEnable() - [ADVANCED] To be PGE or not be PGE...
+		  +adv_PrepareBuffer() - [ADVANCED] Specify target clip region
+		  +adv_FlushLayer() - [ADVANCED] Force layer update to buffer
+		  +adv_FlushLayerDecals() - [ADVANCED] Force layer's decal render to buffer
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -1038,6 +1043,8 @@ namespace olc
 		float GetElapsedTime() const;
 		// Gets Actual Window size
 		const olc::vi2d& GetWindowSize() const;
+		// Gets Actual Window position
+		const olc::vi2d& GetWindowPos() const;
 		// Gets pixel scale
 		const olc::vi2d& GetPixelSize() const;
 		// Gets actual pixel scale
@@ -1073,7 +1080,12 @@ namespace olc
 		// Change the blend factor from between 0.0f to 1.0f;
 		void SetPixelBlend(float fBlend);
 
-
+		// [ADVANCED] For those that really want to dick about with PGE :P
+		// Note: Normal use of olc::PGE does not require you use these functions
+		void adv_ManualRenderEnable(const bool bEnable);
+		void adv_PrepareBuffer(const bool bClear, const olc::vi2d& viewPos, const olc::vi2d& viewSize);
+		void adv_FlushLayer(const size_t nLayerID);
+		void adv_FlushLayerDecals(const size_t nLayerID);
 
 	public: // DRAWING ROUTINES
 		// Draws a single Pixel
@@ -1236,6 +1248,7 @@ namespace olc
 		olc::vi2d	vMousePosCache = { 0, 0 };
 		olc::vi2d   vMouseWindowPos = { 0, 0 };
 		int32_t		nMouseWheelDeltaCache = 0;
+		olc::vi2d	vWindowPos = { 0, 0 };
 		olc::vi2d	vWindowSize = { 0, 0 };
 		olc::vi2d	vViewPos = { 0, 0 };
 		olc::vi2d	vViewSize = { 0,0 };
@@ -1255,6 +1268,7 @@ namespace olc
 		std::vector<LayerDesc> vLayers;
 		uint8_t		nTargetLayer = 0;
 		uint32_t	nLastFPS = 0;
+		bool		bManualRenderEnable = false;
 		bool        bPixelCohesion = false;
 		DecalMode   nDecalMode = DecalMode::NORMAL;
 		DecalStructure nDecalStructure = DecalStructure::FAN;
@@ -1309,6 +1323,7 @@ namespace olc
 		// "Break In" Functions
 		void olc_UpdateMouse(int32_t x, int32_t y);
 		void olc_UpdateMouseWheel(int32_t delta);
+		void olc_UpdateWindowPos(int32_t x, int32_t y);
 		void olc_UpdateWindowSize(int32_t x, int32_t y);
 		void olc_UpdateViewport();
 		void olc_ConstructFontSheet();
@@ -2156,6 +2171,9 @@ namespace olc
 
 	const olc::vi2d& PixelGameEngine::GetWindowSize() const
 	{ return vWindowSize; }
+
+	const olc::vi2d& PixelGameEngine::GetWindowPos() const
+	{ return vWindowPos; }
 
 	const olc::vi2d& PixelGameEngine::GetPixelSize() const
 	{ return vPixelSize; }
@@ -3834,6 +3852,12 @@ namespace olc
 		vViewPos = (vWindowSize - vViewSize) / 2;
 	}
 
+	void PixelGameEngine::olc_UpdateWindowPos(int32_t x, int32_t y)
+	{
+		vWindowPos = { x, y };	
+		olc_UpdateViewport();
+	}
+
 	void PixelGameEngine::olc_UpdateWindowSize(int32_t x, int32_t y)
 	{
 		vWindowSize = { x, y };
@@ -3950,6 +3974,60 @@ namespace olc
 	}
 
 
+	void PixelGameEngine::adv_ManualRenderEnable(const bool bEnable)
+	{
+		bManualRenderEnable = true;
+	}
+
+	void PixelGameEngine::adv_PrepareBuffer(const bool bClear, const olc::vi2d & viewPos, const olc::vi2d & viewSize)
+	{
+		renderer->UpdateViewport(viewPos, viewSize);
+
+		if (bClear)
+			renderer->ClearBuffer(olc::BLACK, true);
+
+		SetDecalMode(DecalMode::NORMAL);
+		renderer->PrepareDrawing();
+
+		vInvScreenSize = 1.0f / viewSize;
+	}
+
+	void PixelGameEngine::adv_FlushLayer(const size_t nLayerID)
+	{
+		auto& layer = vLayers[nLayerID];
+
+		if (layer.bShow)
+		{
+			if (layer.funcHook == nullptr)
+			{
+				renderer->ApplyTexture(layer.pDrawTarget.Decal()->id);
+				if (!bSuspendTextureTransfer && layer.bUpdate)
+				{
+					layer.pDrawTarget.Decal()->Update();
+					layer.bUpdate = false;
+				}
+
+				renderer->DrawLayerQuad(layer.vOffset, layer.vScale, layer.tint);			
+			}
+			else
+			{
+				// Mwa ha ha.... Have Fun!!!
+				layer.funcHook();
+			}
+		}
+	}
+
+	void PixelGameEngine::adv_FlushLayerDecals(const size_t nLayerID)
+	{
+		// Display Decals in order for this layer
+		auto& layer = vLayers[nLayerID];
+		for (auto& decal : layer.vecDecalInstance)
+			renderer->DrawDecal(decal);
+		layer.vecDecalInstance.clear();
+	}
+
+
+
 	void PixelGameEngine::olc_CoreUpdate()
 	{
 		// Handle Timing
@@ -4018,11 +4096,7 @@ namespace olc
 		}
 		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
 
-		if (bConsoleShow)
-		{
-			SetDrawTarget((uint8_t)0);
-			UpdateConsole();
-		}
+		
 
 		if (bRealWindowMode)
 		{
@@ -4031,45 +4105,52 @@ namespace olc
 			vViewPos = { 0,0 };
 		}
 
-		// Display Frame
-		renderer->UpdateViewport(vViewPos, vViewSize);
-		renderer->ClearBuffer(olc::BLACK, true);
-
-		// Layer 0 must always exist
-		vLayers[0].bUpdate = true;
-		vLayers[0].bShow = true;
-		SetDecalMode(DecalMode::NORMAL);
-		renderer->PrepareDrawing();
-
-		for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
+		if (!bManualRenderEnable)
 		{
-			if (layer->bShow)
+			if (bConsoleShow)
 			{
-				if (layer->funcHook == nullptr)
+				SetDrawTarget((uint8_t)0);
+				UpdateConsole();
+			}
+
+			// Display Frame
+			renderer->UpdateViewport(vViewPos, vViewSize);
+			renderer->ClearBuffer(olc::BLACK, true);
+
+			// Layer 0 must always exist
+			vLayers[0].bUpdate = true;
+			vLayers[0].bShow = true;
+			SetDecalMode(DecalMode::NORMAL);
+			renderer->PrepareDrawing();
+
+			for (auto layer = vLayers.rbegin(); layer != vLayers.rend(); ++layer)
+			{
+				if (layer->bShow)
 				{
-					renderer->ApplyTexture(layer->pDrawTarget.Decal()->id);
-					if (!bSuspendTextureTransfer && layer->bUpdate)
+					if (layer->funcHook == nullptr)
 					{
-						layer->pDrawTarget.Decal()->Update();
-						layer->bUpdate = false;
+						renderer->ApplyTexture(layer->pDrawTarget.Decal()->id);
+						if (!bSuspendTextureTransfer && layer->bUpdate)
+						{
+							layer->pDrawTarget.Decal()->Update();
+							layer->bUpdate = false;
+						}
+
+						renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
+
+						// Display Decals in order for this layer
+						for (auto& decal : layer->vecDecalInstance)
+							renderer->DrawDecal(decal);
+						layer->vecDecalInstance.clear();
 					}
-
-					renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
-
-					// Display Decals in order for this layer
-					for (auto& decal : layer->vecDecalInstance)
-						renderer->DrawDecal(decal);
-					layer->vecDecalInstance.clear();
-				}
-				else
-				{
-					// Mwa ha ha.... Have Fun!!!
-					layer->funcHook();
+					else
+					{
+						// Mwa ha ha.... Have Fun!!!
+						layer->funcHook();
+					}
 				}
 			}
-		}
-
-		
+		}	
 
 		// Present Graphics to screen
 		renderer->DisplayFrame();
@@ -5680,6 +5761,8 @@ namespace olc
 			AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
 			int width = rWndRect.right - rWndRect.left;
 			int height = rWndRect.bottom - rWndRect.top;
+			vWinPos = { rWndRect.left, rWndRect.top };
+			vWinSize = { width, height };
 			SetWindowPos(olc_hWnd, NULL, rWndRectNow.left, rWndRectNow.top, width, height, SWP_SHOWWINDOW);
 
 
@@ -5701,6 +5784,8 @@ namespace olc
 			AdjustWindowRectEx(&rWndRect, dwStyle, FALSE, dwExStyle);
 			int width = rWndRect.right - rWndRect.left;
 			int height = rWndRect.bottom - rWndRect.top;
+			vWinPos = { rWndRect.left, rWndRect.top };
+			vWinSize = { width, height };
 			SetWindowPos(olc_hWnd, NULL, vWinPos.x, vWinPos.y, width, height, SWP_SHOWWINDOW);
 			return olc::OK;
 		}
@@ -5731,6 +5816,7 @@ namespace olc
 				ptrPGE->olc_UpdateMouse(ix, iy);
 				return 0;
 			}
+			case WM_MOVE:       vWinPos = olc::vi2d(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);  ptrPGE->olc_UpdateWindowPos(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
 			case WM_SIZE:       vWinSize = olc::vi2d(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);  ptrPGE->olc_UpdateWindowSize(lParam & 0xFFFF, (lParam >> 16) & 0xFFFF);	return 0;
 			case WM_MOUSEWHEEL:	ptrPGE->olc_UpdateMouseWheel(GET_WHEEL_DELTA_WPARAM(wParam));           return 0;
 			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
