@@ -61,7 +61,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, Â©OneLoneCoder 2018
 */
 
 
@@ -74,6 +74,9 @@
 #include <sstream>
 #include <string>
 #include <cstdint>
+
+#include "olcPixelGameEngine.h"
+
 #undef min
 #undef max
 
@@ -203,7 +206,7 @@ namespace olc
 			void SetTransform(olc::GFX3D::mat4x4 &transform);
 			void SetTexture(olc::Sprite *texture);
 			//void SetMipMapTexture(olc::GFX3D::MipMap *texture);
-			void SetLightSource(uint32_t nSlot, uint32_t nType, olc::Pixel col, olc::GFX3D::vec3d pos, olc::GFX3D::vec3d dir = { 0.0f, 0.0f, 1.0f }, float fParam = 0.0f);
+			void SetLightSource(uint32_t nSlot, uint32_t nType, olc::Pixel col, olc::GFX3D::vec3d pos, olc::GFX3D::vec3d dir = { 0.0f, 0.0f, 1.0f, 1.0f }, float fParam = 0.0f);
 			uint32_t Render(std::vector<olc::GFX3D::triangle> &triangles, uint32_t flags = RENDER_CULL_CW | RENDER_TEXTURED | RENDER_DEPTH);
 			uint32_t Render(std::vector<olc::GFX3D::triangle> &triangles, uint32_t flags, int nOffset, int nCount);
 			uint32_t RenderLine(olc::GFX3D::vec3d &p1, olc::GFX3D::vec3d &p2, olc::Pixel col = olc::WHITE);
