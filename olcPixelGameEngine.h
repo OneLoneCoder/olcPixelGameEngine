@@ -4032,13 +4032,38 @@ namespace olc
 			if (layer.funcHook == nullptr)
 			{
 				renderer->ApplyTexture(layer.pDrawTarget.Decal()->id);
-				if (!bSuspendTextureTransfer && layer.bUpdate)
+				if (!bSuspendTextureTransfer)
 				{
 					layer.pDrawTarget.Decal()->Update();
 					layer.bUpdate = false;
 				}
 
-				renderer->DrawLayerQuad(layer.vOffset, layer.vScale, layer.tint);			
+				// Can't use this as it assumes full screen coords
+				// renderer->DrawLayerQuad(layer.vOffset, layer.vScale, layer.tint);			
+				// Instead, render a textured decal
+
+				olc::vf2d vScreenSpacePos =
+				{
+					(layer.vOffset.x  * vInvScreenSize.x) * 2.0f - 1.0f,
+					((layer.vOffset.y  * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+				};
+
+				olc::vf2d vScreenSpaceDim =
+				{
+					vScreenSpacePos.x + (2.0f * (float(layer.pDrawTarget.Sprite()->width) * vInvScreenSize.x)) * layer.vScale.x,
+					vScreenSpacePos.y - (2.0f * (float(layer.pDrawTarget.Sprite()->height) * vInvScreenSize.y)) * layer.vScale.y
+				};
+
+				DecalInstance di;
+				di.decal = layer.pDrawTarget.Decal();
+				di.points = 4;
+				di.tint = { olc::WHITE, olc::WHITE, olc::WHITE, olc::WHITE };
+				di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
+				di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
+				di.w = { 1, 1, 1, 1 };
+				di.mode = DecalMode::NORMAL;
+				di.structure = DecalStructure::FAN;
+				renderer->DrawDecal(di);
 			}
 			else
 			{
