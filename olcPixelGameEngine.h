@@ -326,7 +326,7 @@
 		  +ShowWindowFrame() - Enables/Disables window furniture
 		  +olc_UpdateWindowPos() - Break in to set position of window
 		  +adv_ManualRenderEnable() - [ADVANCED] To be PGE or not be PGE...
-		  +adv_PrepareBuffer() - [ADVANCED] Specify target clip region
+		  +adv_HardwareClip() - [ADVANCED] Specify target clip region
 		  +adv_FlushLayer() - [ADVANCED] Force layer update to buffer
 		  +adv_FlushLayerDecals() - [ADVANCED] Force layer's decal render to buffer
 		  +FillTriangleDecal() - Draws a triangle decal
@@ -1092,7 +1092,7 @@ namespace olc
 		// [ADVANCED] For those that really want to dick about with PGE :P
 		// Note: Normal use of olc::PGE does not require you use these functions
 		void adv_ManualRenderEnable(const bool bEnable);
-		void adv_PrepareBuffer(const bool bClear, const olc::vi2d& viewPos, const olc::vi2d& viewSize);
+		void adv_HardwareClip(const bool bScale, const olc::vi2d& viewPos, const olc::vi2d& viewSize, const bool bClear = false);
 		void adv_FlushLayer(const size_t nLayerID);
 		void adv_FlushLayerDecals(const size_t nLayerID);
 
@@ -4008,7 +4008,7 @@ namespace olc
 		bManualRenderEnable = bEnable;
 	}
 
-	void PixelGameEngine::adv_PrepareBuffer(const bool bClear, const olc::vi2d & viewPos, const olc::vi2d & viewSize)
+	void PixelGameEngine::adv_HardwareClip(const bool bClipAndScale, const olc::vi2d & viewPos, const olc::vi2d & viewSize, const bool bClear)
 	{
 		olc::vf2d vNewSize = olc::vf2d(viewSize) / olc::vf2d(vScreenSize);
 		olc::vf2d vNewPos = olc::vf2d(viewPos) / olc::vf2d(vScreenSize);
@@ -4020,7 +4020,10 @@ namespace olc
 		SetDecalMode(DecalMode::NORMAL);
 		renderer->PrepareDrawing();
 
-		vInvScreenSize = 1.0f / olc::vf2d(viewSize);
+		if(!bClipAndScale)
+			vInvScreenSize = 1.0f / olc::vf2d(viewSize);
+		else
+			vInvScreenSize = 1.0f / olc::vf2d(vViewSize);
 	}
 
 	void PixelGameEngine::adv_FlushLayer(const size_t nLayerID)
