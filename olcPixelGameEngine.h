@@ -329,6 +329,8 @@
 		  +adv_PrepareBuffer() - [ADVANCED] Specify target clip region
 		  +adv_FlushLayer() - [ADVANCED] Force layer update to buffer
 		  +adv_FlushLayerDecals() - [ADVANCED] Force layer's decal render to buffer
+		  +FillTriangleDecal() - Draws a triangle decal
+		  +GradientTriangleDecal() - Draws a triangle decal with unique vertex colours
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -1166,7 +1168,11 @@ namespace olc
 		void DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
-		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
+		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);		
+		// Draws a single shaded filled triangle as a decal
+		void FillTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel col = olc::WHITE);
+		// Draws a corner shaded triangle as a decal
+		void GradientTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel c0, const olc::Pixel c1, const olc::Pixel c2);
 		// Draws an arbitrary convex textured polygon using GPU
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<float>& depth, const std::vector<olc::vf2d>& uv, const olc::Pixel tint = olc::WHITE);
@@ -3206,6 +3212,22 @@ namespace olc
 		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0},{0,0}} };
 		std::array<olc::Pixel, 4> cols = { {colTL, colBL, colBR, colTR} };
 		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 4);
+	}
+
+	void PixelGameEngine::FillTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel col)
+	{		
+		std::array<olc::vf2d, 4> points = { { p0, p1, p2 } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {col, col, col} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 3);
+	}
+
+	void PixelGameEngine::GradientTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel c0, const olc::Pixel c1, const olc::Pixel c2)
+	{
+		std::array<olc::vf2d, 4> points = { { p0, p1, p2 } };
+		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0}} };
+		std::array<olc::Pixel, 4> cols = { {c0, c1, c2} };
+		DrawExplicitDecal(nullptr, points.data(), uvs.data(), cols.data(), 3);
 	}
 
 	void PixelGameEngine::DrawRotatedDecal(const olc::vf2d& pos, olc::Decal* decal, const float fAngle, const olc::vf2d& center, const olc::vf2d& scale, const olc::Pixel& tint)
