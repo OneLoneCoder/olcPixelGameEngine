@@ -3981,7 +3981,9 @@ namespace olc
 
 	void PixelGameEngine::adv_PrepareBuffer(const bool bClear, const olc::vi2d & viewPos, const olc::vi2d & viewSize)
 	{
-		renderer->UpdateViewport(viewPos, viewSize);
+		olc::vf2d vNewSize = olc::vf2d(viewSize) / olc::vf2d(vScreenSize);
+		olc::vf2d vNewPos = olc::vf2d(viewPos) / olc::vf2d(vScreenSize);
+		renderer->UpdateViewport(vViewPos + vNewPos * vViewSize, vNewSize * vViewSize);
 
 		if (bClear)
 			renderer->ClearBuffer(olc::BLACK, true);
