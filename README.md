@@ -23,6 +23,7 @@ olcPixelGameEngine is easily extended! for example:
  * Controller input
  * Sound
  * Hardware interfaces
+ * Networking
  
 olcPixelGameEngine is easy to port! Runs on:
  * Windows (all)
