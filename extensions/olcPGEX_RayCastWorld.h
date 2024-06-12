@@ -64,7 +64,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2019, 2020
 
 	Revisions:
 	1.00:	Initial Release
@@ -74,6 +74,8 @@
 
 #ifndef OLC_PGEX_RAYCASTWORLD_H
 #define OLC_PGEX_RAYCASTWORLD_H
+
+#include "olcPixelGameEngine.h"
 
 #include <unordered_map>
 #include <algorithm>

@@ -61,12 +61,14 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2018
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2018
 */
 
 
 #ifndef OLC_PGEX_GFX3D
 #define OLC_PGEX_GFX3D
+
+#include "olcPixelGameEngine.h"
 
 #include <algorithm>
 #include <vector>
