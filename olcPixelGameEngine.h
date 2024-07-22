@@ -888,12 +888,14 @@ namespace olc
 	{
 	public:
 		Renderable() = default;		
-		Renderable(Renderable&& r) : pSprite(std::move(r.pSprite)), pDecal(std::move(r.pDecal))  {}		
+		Renderable(Renderable&& r) = default; 
+		Renderable& operator=(Renderable&& r) = default;
 		Renderable(const Renderable&) = delete;
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false, bool clamp = true);
 		void Create(uint32_t width, uint32_t height, bool filter = false, bool clamp = true);
 		olc::Decal* Decal() const;
 		olc::Sprite* Sprite() const;
+
 
 	private:
 		std::unique_ptr<olc::Sprite> pSprite = nullptr;
@@ -4023,7 +4025,7 @@ namespace olc
 		if(!bClipAndScale)
 			vInvScreenSize = 1.0f / olc::vf2d(viewSize);
 		else
-			vInvScreenSize = 1.0f / olc::vf2d(vViewSize);
+			vInvScreenSize = 1.0f / olc::vf2d(vScreenSize);
 	}
 
 	void PixelGameEngine::adv_FlushLayer(const size_t nLayerID)
