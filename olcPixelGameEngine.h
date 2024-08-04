@@ -119,7 +119,7 @@
 	Compiling with Emscripten (New & Experimental)
 	~~~~~~~~~~~~~~~~~~~~~~~~~
 	Emscripten compiler will turn your awesome C++ PixelGameEngine project into WASM!
-	This means you can run your application in teh browser, great for distributing
+	This means you can run your application in the browser, great for distributing
 	and submission in to jams and things! It's a bit new at the moment. 
 
 	em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 ./YourSource.cpp -o pge.html
