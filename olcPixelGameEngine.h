@@ -331,7 +331,7 @@
 		  +adv_FlushLayerDecals() - [ADVANCED] Force layer's decal render to buffer
 		  +FillTriangleDecal() - Draws a triangle decal
 		  +GradientTriangleDecal() - Draws a triangle decal with unique vertex colours
-	2.27: 
+	2.27: Added Apple MAC support for OLC_GFX_OPENGL33
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -1418,12 +1418,18 @@ namespace olc
 		#define CALLSTYLE 
 	#endif
 
-	#if defined(__APPLE__)
-		#define GL_SILENCE_DEPRECATION
-		#include <OpenGL/OpenGL.h>
-		#include <OpenGL/gl.h>
-		#include <OpenGL/glu.h>
-	#endif
+    #if defined(__APPLE__)                  // John Galvin: Added Apple Mac support OLC_GFX_OPENGL33
+        #define GL_SILENCE_DEPRECATION
+        #define CALLSTYLE
+        #define OGL_LOAD(t, n) n;
+        #define GL_GLEXT_PROTOTYPES
+        #include <OpenGL/OpenGL.h>
+        #include <OpenGl/gl3ext.h>
+        #include <OpenGL/gl3.h>
+        #include <OpenGL/glu.h>
+        #include <OpenGL/gltypes.h>
+
+    #endif
 
 	#if defined(OLC_PLATFORM_EMSCRIPTEN)
 		#include <EGL/egl.h>
@@ -1481,7 +1487,21 @@ namespace olc
 	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
 	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
 #else
-	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+
+#if defined(__APPLE__)              // John Galvin: Added Apple Mac support OLC_GFX_OPENGL33
+    typedef int EGLBoolean;
+    typedef int32_t EGLint;
+    typedef void *EGLDisplay;
+    typedef void *EGLConfig;
+    typedef void *EGLSurface;
+    typedef void *EGLContext;
+
+    typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, GLint interval);
+    typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+#else
+    typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+#endif
+
 #endif
 
 } // olc namespace
@@ -4493,10 +4513,18 @@ namespace olc
 #endif
 
 #if defined(__APPLE__)
-	#define GL_SILENCE_DEPRECATION
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
+    #define GL_SILENCE_DEPRECATION
+#if defined (OLC_GFX_OPENGL33)          // John Galvin: Added Apple Mac support OLC_GFX_OPENGL33
+    #include <OpenGL/OpenGL.h>
+    #include <OpenGL/gl3.h>
+    #include <OpenGL/gl3ext.h>
+    #include <OpenGL/glu.h>
+#else
+    #include <OpenGL/OpenGL.h>
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glext.h>
+    #include <OpenGL/glu.h>
+#endif
 #endif
 
 namespace olc
@@ -4996,7 +5024,12 @@ namespace olc
 			glutInit(&argc, argv);
 			glutInitWindowPosition(0, 0);
 			glutInitWindowSize(512, 512);
-			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+			
+#if defined(__APPLE__)  // John Galvin : (A big thank you to Dense Dance) Added Apple Mac support OLC_GFX_OPENGL33
+            glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA | GLUT_3_2_CORE_PROFILE);
+#else
+            glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+#endif
 			// Creates the window and the OpenGL context for it
 			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
@@ -5703,7 +5736,7 @@ namespace olc
 
 			vWinPos = vWindowPos;
 			vWinSize = vWindowSize;
-
+			
 			// Define window furniture
 			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
