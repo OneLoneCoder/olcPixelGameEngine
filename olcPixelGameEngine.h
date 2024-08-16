@@ -409,6 +409,9 @@ int main()
 #include <algorithm>
 #include <array>
 #include <cstring>
+#if defined (__APPLE__)		// John Galvin: @Ciarán, Added Apple Mac support OLC_GFX_OPENGL33
+#include <cassert>		
+#endif
 #pragma endregion
 
 #define PGE_VER 227
