@@ -553,6 +553,7 @@ int main()
 	{
 		#include <X11/X.h>
 		#include <X11/Xlib.h>
+		#include <X11/Xatom.h>
 	}
 #endif
 
@@ -6033,18 +6034,7 @@ namespace olc
 				Atom fullscreen;
 				wm_state = XInternAtom(olc_Display, "_NET_WM_STATE", False);
 				fullscreen = XInternAtom(olc_Display, "_NET_WM_STATE_FULLSCREEN", False);
-				XEvent xev{ 0 };
-				xev.type = ClientMessage;
-				xev.xclient.window = olc_Window;
-				xev.xclient.message_type = wm_state;
-				xev.xclient.format = 32;
-				xev.xclient.data.l[0] = (bFullScreen ? 1 : 0);   // the action (0: off, 1: on, 2: toggle)
-				xev.xclient.data.l[1] = fullscreen;             // first property to alter
-				xev.xclient.data.l[2] = 0;                      // second property to alter
-				xev.xclient.data.l[3] = 0;                      // source indication
-				XMapWindow(olc_Display, olc_Window);
-				XSendEvent(olc_Display, DefaultRootWindow(olc_Display), False,
-					SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+				XChangeProperty(olc_Display, olc_Window, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char *)&fullscreen, 1);
 				XFlush(olc_Display);
 				XWindowAttributes gwa;
 				XGetWindowAttributes(olc_Display, olc_Window, &gwa);
