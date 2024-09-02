@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - QuadTree v1.01
+	OneLoneCoder - QuadTree v1.02
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A Dynamic Quad-Tree implementation to store objects in a 2D space
 	with a fast retrieval.
@@ -54,6 +54,8 @@
 	Changes
 	~~~~~~~
 	v1.01:		Bug fix clear() function
+	v1.02:		File Restructure
+				+Added insertion return iterator
 
 */
 
@@ -73,17 +75,16 @@
 
 #pragma once
 
-#include "olcPixelGameEngine.h"
-#include "olcUTIL_Geometry2D.h"
-
-
+#include <olcUTIL_Geometry2D.h>
 
 namespace olc::utils
 {
 	template <typename T, typename CTYPE = float>
 	struct QuadTreeItemLocation
 	{
+		// Pointer to Top-Level Container
 		typename std::list<std::pair<geom2d::rect<CTYPE>, T>>* container = nullptr;
+		// Iterator that points to item in Top-Level Container
 		typename std::list<std::pair<geom2d::rect<CTYPE>, T>>::iterator iterator;
 	};
 
@@ -202,7 +203,7 @@ namespace olc::utils
 		{
 			clear();
 			m_rect = rArea;
-			olc::v2d_generic<CTYPE> vChildSize = m_rect.size / CTYPE(2);
+			olc::v_2d<CTYPE> vChildSize = m_rect.size / CTYPE(2);
 			m_rChild =
 			{
 				geom2d::rect<CTYPE>(m_rect.pos, vChildSize),
@@ -265,7 +266,7 @@ namespace olc::utils
 		}
 
 		// Inserts an item into the quadtree
-		void insert(const T& item, const geom2d::rect<CTYPE>& itemsize)
+		typename IQuadtreeContainer::iterator insert(const T& item, const geom2d::rect<CTYPE>& itemsize)
 		{
 			QuadTreeItem<T> newItem;
 			newItem.item = item;
@@ -275,6 +276,8 @@ namespace olc::utils
 
 			// Pointer/Area of item is stored in geom2d::rect<CTYPE> tree
 			m_allItems.back().pItem = root.insert(std::prev(m_allItems.end()), itemsize);
+
+			return std::prev(m_allItems.end());
 		}
 
 		// Returns a std::list of pointers to items within the search area
