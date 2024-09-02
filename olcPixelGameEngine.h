@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.26              |
+	|           OneLoneCoder Pixel Game Engine v2.27              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -331,6 +331,13 @@
 		  +adv_FlushLayerDecals() - [ADVANCED] Force layer's decal render to buffer
 		  +FillTriangleDecal() - Draws a triangle decal
 		  +GradientTriangleDecal() - Draws a triangle decal with unique vertex colours
+	2.27: Restructuring of connected files (post-jam clean up)
+		  +Guarding olc::v_2d with less faff
+		  +Updated olcUTIL_Geometry2D.h
+		  +Updated olcUTIL_QuadTree.h
+		  +Updated olcUTIL_Animate2D.h
+		  +Updated olcUTIL_SplashScreen.h
+		  +File Resolution for PGEtinker.com
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -410,7 +417,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 226
+#define PGE_VER 227
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -686,7 +693,7 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 	// | olc::vX2d - A generic 2D vector type                                         |
 	// O------------------------------------------------------------------------------O
-#if !defined(OLC_IGNORE_VEC2D)
+#if !defined(OLC_VECTOR2D_DEFINED)
 	template <class T>
 	struct v2d_generic
 	{
@@ -758,6 +765,8 @@ namespace olc
 	typedef v2d_generic<uint32_t> vu2d;
 	typedef v2d_generic<float> vf2d;
 	typedef v2d_generic<double> vd2d;
+
+#define OLC_VECTOR2D_DEFINED 1
 #endif
 
 
