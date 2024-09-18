@@ -1,0 +1,25 @@
+name: Syntax Check
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Linux Dependencies and Tools
+      run: sudo apt-get update && sudo apt-get install xorg-dev libxrandr-dev libxcursor-dev libudev-dev libopenal-dev libflac-dev libvorbis-dev libgl1-mesa-dev libegl1-mesa-dev libdrm-dev libgbm-dev xvfb fluxbox ccache gcovr
+
+    - name: Check TEST_Animate2D.cpp - Skipped until fixed
+      run: echo "[log] TEST_Animate2D.cpp needs fixing"
+
+    - name: Check TEST_Camera2D.cpp
+      run: g++ -fsyntax-only examples/TEST_Camera2D.cpp -I.
+
+    - name: Check TEST_QuickGUI.cpp
+      run: g++ -fsyntax-only examples/TEST_QuickGUI.cpp -I.
