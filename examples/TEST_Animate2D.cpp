@@ -45,15 +45,16 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2019, 2020, 2021, 2022
 
 */
 
 
 #define OLC_PGE_APPLICATION
+#define OLC_IGNORE_VEC2D
+#include "utilities/olcUTIL_Animate2D.h"
 #include "olcPixelGameEngine.h"
 
-#include "utilities/olcUTIL_Animate2D.h"
 
 class TEST_Animate2D : public olc::PixelGameEngine
 {
@@ -108,7 +109,7 @@ public:
 		// For this appliaction I have a single image that contains
 		// 28x2 unique characters, each character contains 8 animations of 3
 		// frames each. Each frame is 26x36 pixels
-		gfxAll.Load("./assets/MegaSprite1.png");
+		gfxAll.Load("./assets/example_creative_commons.png");
 
 		// Thats A LOT of individual graphics, but they all follow a similar pattern
 		// because the asset was created usefully (take note certain popular asset creators)

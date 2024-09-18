@@ -48,7 +48,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
+	David Barr, aka javidx9, ï¿½OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
 
 
 	Versions
