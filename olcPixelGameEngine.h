@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.28              |
+	|           OneLoneCoder Pixel Game Engine v2.29              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -339,6 +339,8 @@
 		  +Updated olcUTIL_SplashScreen.h
 		  +File Resolution for PGEtinker.com
 	2.28: Brought olc::v_2d inline with other sources
+	2.29: Added polylines as drawable decal	structures
+		  Updated Geometry2D to support non-segment line intersections
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
