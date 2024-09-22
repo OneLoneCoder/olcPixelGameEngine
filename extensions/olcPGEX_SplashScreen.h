@@ -165,7 +165,7 @@ namespace olc
 		for (int y = 0; y < spr.Sprite()->height; y++)
 			for (int x = 0; x < spr.Sprite()->width; x++)
 				vBoom[y * spr.Sprite()->width + x] = std::make_pair(
-					vPosition + olc::vf2d(x, y),
+					vPosition + olc::vf2d(float(x), float(y)),
 					olc::vf2d(
 						(float(rand()) / float(RAND_MAX)) * 10.0f - 5.0f,
 						(float(rand()) / float(RAND_MAX)) * 10.0f - 5.0f)
@@ -207,11 +207,11 @@ namespace olc
 					bComplete = true;
 				}
 
-				pge->DrawPartialDecal(vScale * vBoom[y * spr.Sprite()->width + x].first * 2.0f, spr.Decal(), olc::vf2d(x, y), { 1, 1 }, vScale * 2.0f, olc::PixelF(1.0f, 1.0f, 1.0f, std::min(1.0f, std::max(4.0f - fParticleTime, 0.0f))));
+				pge->DrawPartialDecal(vScale * vBoom[y * spr.Sprite()->width + x].first * 2.0f, spr.Decal(), olc::vf2d(float(x), float(y)), { 1, 1 }, vScale * 2.0f, olc::PixelF(1.0f, 1.0f, 1.0f, std::min(1.0f, std::max(4.0f - fParticleTime, 0.0f))));
 			}
 
 		olc::vi2d vSize = pge->GetTextSizeProp("Copyright OneLoneCoder.com 2024");
-		pge->DrawStringPropDecal(olc::vf2d(float(pge->ScreenWidth()/2) - vSize.x/2, float(pge->ScreenHeight()) - vSize.y * 3.0f), "Copyright OneLoneCoder.com 2023", olc::PixelF(1.0f, 1.0f, 1.0f, 0.5f), olc::vf2d(1.0, 2.0f));
+		pge->DrawStringPropDecal(olc::vf2d(float(pge->ScreenWidth()/2) - vSize.x/2, float(pge->ScreenHeight()) - vSize.y * 3.0f), "Copyright OneLoneCoder.com 2024", olc::PixelF(1.0f, 1.0f, 1.0f, 0.5f), olc::vf2d(1.0, 2.0f));
 		return true;
 	}
 
