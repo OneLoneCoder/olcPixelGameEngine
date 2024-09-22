@@ -4722,6 +4722,8 @@ namespace olc
 					glBegin(GL_TRIANGLE_STRIP);
 				else if(decal.structure == olc::DecalStructure::LIST)
 					glBegin(GL_TRIANGLES);
+				else if (decal.structure == olc::DecalStructure::LINE)
+					glBegin(GL_LINE_STRIP);
 			}
 
 			if (decal.depth)
