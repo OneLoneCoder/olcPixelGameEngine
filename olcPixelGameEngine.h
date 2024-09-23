@@ -1052,7 +1052,10 @@ namespace olc
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		Sprite(int32_t w, int32_t h);
 		Sprite(const olc::Sprite&) = delete;
+		Sprite(olc::Sprite&&);
 		~Sprite();
+		Sprite& operator=(const olc::Sprite&) = delete;
+		Sprite& operator=(olc::Sprite&&);
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
@@ -1870,6 +1873,32 @@ namespace olc
 	Sprite::Sprite(int32_t w, int32_t h)
 	{		
 		SetSize(w, h);
+	}
+
+	Sprite::Sprite(olc::Sprite&& spr)
+	{
+		width = spr.width;
+		spr.width = 0;
+
+		height = spr.height;
+		spr.height = 0;
+
+		pColData = std::move(spr.pColData);
+
+		modeSample = spr.modeSample;
+	}
+
+	Sprite& Sprite::operator=(olc::Sprite&& spr)
+	{
+		std::swap(width, spr.width);
+
+		std::swap(height, spr.height);
+
+		std::swap(pColData, spr.pColData);
+
+		std::swap(modeSample, spr.modeSample);
+
+		return *this;
 	}
 
 	void Sprite::SetSize(int32_t w, int32_t h)
