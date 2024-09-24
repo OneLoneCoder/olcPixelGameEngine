@@ -1101,6 +1101,8 @@ namespace olc
 
 	public: // But dont touch
 		int32_t id = -1;
+		int32_t width = 0;
+		int32_t height = 0;
 		olc::Sprite* sprite = nullptr;
 		olc::vf2d vUVScale = { 1.0f, 1.0f };
 	};
@@ -2026,6 +2028,8 @@ namespace olc
 	{
 		id = -1;
 		if (spr == nullptr) return;
+		width = spr->width;
+		height = spr->height;
 		sprite = spr;
 		id = renderer->CreateTexture(sprite->width, sprite->height, filter, clamp);
 		Update();
@@ -2040,7 +2044,9 @@ namespace olc
 	void Decal::Update()
 	{
 		if (sprite == nullptr) return;
-		vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
+		width = sprite->width;
+		height = sprite->height;
+		vUVScale = { 1.0f / float(width), 1.0f / float(height) };
 		renderer->ApplyTexture(id);
 		renderer->UpdateTexture(id, sprite);
 	}
@@ -2048,6 +2054,7 @@ namespace olc
 	void Decal::UpdateSprite()
 	{
 		if (sprite == nullptr) return;
+		sprite->SetSize(width, height);
 		renderer->ApplyTexture(id);
 		renderer->ReadTexture(id, sprite);
 	}
@@ -3227,8 +3234,8 @@ namespace olc
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * (float(decal->sprite->width) * vInvScreenSize.x)) * scale.x,
-			vScreenSpacePos.y - (2.0f * (float(decal->sprite->height) * vInvScreenSize.y)) * scale.y
+			vScreenSpacePos.x + (2.0f * (float(decal->width) * vInvScreenSize.x)) * scale.x,
+			vScreenSpacePos.y - (2.0f * (float(decal->height) * vInvScreenSize.y)) * scale.y
 		};
 
 		DecalInstance di;
