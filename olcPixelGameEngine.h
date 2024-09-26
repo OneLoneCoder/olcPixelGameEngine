@@ -4030,6 +4030,43 @@ namespace olc
 			}
 		}
 
+#if defined(OLC_PLATFORM_WINAPI)	
+		if (GetMouse(1).bPressed)
+		{
+			const auto GetClipboardText = []() -> std::string
+			{
+				// Try opening the clipboard
+				if (!OpenClipboard(nullptr))
+					return "";
+
+				// Get handle of clipboard object for ANSI text
+				HANDLE hData = GetClipboardData(CF_TEXT);
+				if (hData == nullptr)
+					return "";
+
+				// Lock the handle to get the actual text pointer
+				char* pszText = static_cast<char*>(GlobalLock(hData));
+				if (pszText == nullptr)
+					return "";
+
+				// Save text in a string class instance
+				std::string text(pszText);
+
+				// Release the lock
+				GlobalUnlock(hData);
+
+				// Release the clipboard
+				CloseClipboard();
+
+				return text;
+			};
+
+			std::string data = GetClipboardText();
+			sTextEntryString.insert(nTextEntryCursor, data);
+			nTextEntryCursor += (int32_t)data.size();
+		}
+#endif
+
 		if (GetKey(olc::Key::ENTER).bPressed)
 		{
 			if (bConsoleShow)
