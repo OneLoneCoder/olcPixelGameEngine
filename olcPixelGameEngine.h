@@ -6893,7 +6893,8 @@ namespace olc
 			emscripten_set_focus_callback("#canvas", 0, 1, focus_callback);
 			
 #pragma warning disable format
-			EM_ASM( window.onunload = Module._olc_OnPageUnload; );
+			
+			((void)emscripten_asm_const_int(CODE_EXPR("window.onunload = Module._olc_OnPageUnload;"), __em_asm_sig_builder<__typeof__(__em_asm_make_type_tuple())>::buffer));
 
 			// IMPORTANT! - Sorry About This...
 			//
@@ -6907,103 +6908,8 @@ namespace olc
 			//	Wake up people! Of course theres a spoon. There has to be to keep feeding
 			//	the giant web baby.
 			
+			((void)emscripten_asm_const_int(CODE_EXPR("{ Module.olc_AspectRatio = $0 / $1; Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false; var olc_ResizeHandler = function() { let isFullscreen = (document.fullscreenElement != null); let width  = (isFullscreen) ? window.innerWidth : Module.canvas.parentNode.clientWidth; let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight; let viewWidth  = width; let viewHeight = width / Module.olc_AspectRatio; if(viewHeight > height) { viewWidth  = height * Module.olc_AspectRatio; viewHeight = height; } viewWidth  = parseInt(viewWidth); viewHeight = parseInt(viewHeight); setTimeout(function() { if(Module.olc_AssumeDefaultShells) Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;'); Module.canvas.setAttribute('width', viewWidth); Module.canvas.setAttribute('height', viewHeight); Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`); Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight); Module.canvas.focus(); }, 200); }; var olc_Init = function() { if(Module.olc_AspectRatio === undefined) { setTimeout(function() { Module.olc_Init(); }, 50); return; } let resizeObserver = new ResizeObserver(function(entries) { Module.olc_ResizeHandler(); }).observe(Module.canvas.parentNode); let mutationObserver = new MutationObserver(function(mutationsList, observer) { setTimeout(function() { Module.olc_ResizeHandler(); },  200); }).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false }); window.addEventListener('fullscreenchange', function(e) { setTimeout(function() { Module.olc_ResizeHandler();},  200); }); }; Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler; Module.olc_Init = (Module.olc_Init != undefined) ? Module.olc_Init : olc_Init; Module.olc_Init(); }"), __em_asm_sig_builder<__typeof__(__em_asm_make_type_tuple(vWindowSize.x, vWindowSize.y))>::buffer, vWindowSize.x, vWindowSize.y));
 
-			EM_ASM({
-
-			// olc_ApsectRatio
-			// 
-			// Used by olc_ResizeHandler to calculate the viewport from the
-			// dimensions of the canvas container's element.
-			Module.olc_AspectRatio = $0 / $1;
-
-			// HACK ALERT!
-			// 
-			// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
-			// is using one of the default or minimal emscripten page layouts
-			Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false;
-
-			// olc_ResizeHandler
-			// 
-			// Used by olc_Init, and is called when a resize observer and fullscreenchange event is triggered.
-			var olc_ResizeHandler = function()
-			{
-				// are we in fullscreen mode?
-				let isFullscreen = (document.fullscreenElement != null);
-
-				// get the width of the containing element
-				let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
-				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
-
-				// calculate the expected viewport size
-				let viewWidth  = width;
-				let viewHeight = width / Module.olc_AspectRatio;
-
-				// if we're taller than the containing element, recalculate based on height
-				if(viewHeight > height)
-				{
-					viewWidth  = height * Module.olc_AspectRatio;
-					viewHeight = height;
-				}
-    
-				// ensure resulting viewport is in integer space
-				viewWidth  = parseInt(viewWidth);
-				viewHeight = parseInt(viewHeight);
-
-				setTimeout(function()
-				{
-					// if default shells, apply default styles
-					if(Module.olc_AssumeDefaultShells)
-						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
-				
-					// apply viewport dimensions to teh canvas
-					Module.canvas.setAttribute('width', viewWidth);
-					Module.canvas.setAttribute('height', viewHeight);
-					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
-					
-					// update the PGE window size
-					Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
-					
-					// force focus on our PGE canvas
-					Module.canvas.focus();
-				}, 200);
-			};
-
-			
-			// olc_Init
-			// 
-			// set up resize observer and fullscreenchange event handler
-			var olc_Init = function()
-			{
-				if(Module.olc_AspectRatio === undefined)
-				{
-					setTimeout(function() { Module.olc_Init(); }, 50);
-					return;
-				}
-					
-				let resizeObserver = new ResizeObserver(function(entries)
-				{
-					Module.olc_ResizeHandler();
-				}).observe(Module.canvas.parentNode);
-
-				let mutationObserver = new MutationObserver(function(mutationsList, observer)
-				{
-					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
-				}).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false });
-
-				window.addEventListener('fullscreenchange', function(e)
-				{
-					setTimeout(function() { Module.olc_ResizeHandler();},  200);
-				});
-			};
-			
-			// set up hooks
-			Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
-			Module.olc_Init          = (Module.olc_Init          != undefined) ? Module.olc_Init : olc_Init;
-
-			// run everything!
-			Module.olc_Init();
-
-			}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
 #pragma warning restore format
 			return olc::rcode::OK;
 		}
