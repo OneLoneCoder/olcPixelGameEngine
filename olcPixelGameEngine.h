@@ -6829,45 +6829,43 @@ namespace olc
 		{
 			emscripten_set_canvas_element_size("#canvas", vWindowSize.x, vWindowSize.y);
 
-			mapKeys[DOM_PK_UNKNOWN] = Key::NONE;
-			mapKeys[DOM_PK_A] = Key::A; mapKeys[DOM_PK_B] = Key::B; mapKeys[DOM_PK_C] = Key::C; mapKeys[DOM_PK_D] = Key::D;
-			mapKeys[DOM_PK_E] = Key::E; mapKeys[DOM_PK_F] = Key::F; mapKeys[DOM_PK_G] = Key::G; mapKeys[DOM_PK_H] = Key::H;
-			mapKeys[DOM_PK_I] = Key::I; mapKeys[DOM_PK_J] = Key::J; mapKeys[DOM_PK_K] = Key::K; mapKeys[DOM_PK_L] = Key::L;
-			mapKeys[DOM_PK_M] = Key::M; mapKeys[DOM_PK_N] = Key::N; mapKeys[DOM_PK_O] = Key::O; mapKeys[DOM_PK_P] = Key::P;
-			mapKeys[DOM_PK_Q] = Key::Q; mapKeys[DOM_PK_R] = Key::R; mapKeys[DOM_PK_S] = Key::S; mapKeys[DOM_PK_T] = Key::T;
-			mapKeys[DOM_PK_U] = Key::U; mapKeys[DOM_PK_V] = Key::V; mapKeys[DOM_PK_W] = Key::W; mapKeys[DOM_PK_X] = Key::X;
-			mapKeys[DOM_PK_Y] = Key::Y; mapKeys[DOM_PK_Z] = Key::Z;
-			mapKeys[DOM_PK_0] = Key::K0; mapKeys[DOM_PK_1] = Key::K1; mapKeys[DOM_PK_2] = Key::K2;
-			mapKeys[DOM_PK_3] = Key::K3; mapKeys[DOM_PK_4] = Key::K4; mapKeys[DOM_PK_5] = Key::K5;
-			mapKeys[DOM_PK_6] = Key::K6; mapKeys[DOM_PK_7] = Key::K7; mapKeys[DOM_PK_8] = Key::K8;
-			mapKeys[DOM_PK_9] = Key::K9;
-			mapKeys[DOM_PK_F1] = Key::F1; mapKeys[DOM_PK_F2] = Key::F2; mapKeys[DOM_PK_F3] = Key::F3; mapKeys[DOM_PK_F4] = Key::F4;
-			mapKeys[DOM_PK_F5] = Key::F5; mapKeys[DOM_PK_F6] = Key::F6; mapKeys[DOM_PK_F7] = Key::F7; mapKeys[DOM_PK_F8] = Key::F8;
-			mapKeys[DOM_PK_F9] = Key::F9; mapKeys[DOM_PK_F10] = Key::F10; mapKeys[DOM_PK_F11] = Key::F11; mapKeys[DOM_PK_F12] = Key::F12;
-			mapKeys[DOM_PK_ARROW_UP] = Key::UP; mapKeys[DOM_PK_ARROW_DOWN] = Key::DOWN;
-			mapKeys[DOM_PK_ARROW_LEFT] = Key::LEFT; mapKeys[DOM_PK_ARROW_RIGHT] = Key::RIGHT;
-			mapKeys[DOM_PK_SPACE] = Key::SPACE; mapKeys[DOM_PK_TAB] = Key::TAB;
-			mapKeys[DOM_PK_SHIFT_LEFT] = Key::SHIFT; mapKeys[DOM_PK_SHIFT_RIGHT] = Key::SHIFT;
-			mapKeys[DOM_PK_CONTROL_LEFT] = Key::CTRL; mapKeys[DOM_PK_CONTROL_RIGHT] = Key::CTRL;
-			mapKeys[DOM_PK_INSERT] = Key::INS; mapKeys[DOM_PK_DELETE] = Key::DEL; mapKeys[DOM_PK_HOME] = Key::HOME;
-			mapKeys[DOM_PK_END] = Key::END; mapKeys[DOM_PK_PAGE_UP] = Key::PGUP; mapKeys[DOM_PK_PAGE_DOWN] = Key::PGDN;
-			mapKeys[DOM_PK_BACKSPACE] = Key::BACK; mapKeys[DOM_PK_ESCAPE] = Key::ESCAPE;
-			mapKeys[DOM_PK_ENTER] = Key::ENTER; mapKeys[DOM_PK_NUMPAD_EQUAL] = Key::EQUALS;
-			mapKeys[DOM_PK_NUMPAD_ENTER] = Key::ENTER; mapKeys[DOM_PK_PAUSE] = Key::PAUSE;
-			mapKeys[DOM_PK_SCROLL_LOCK] = Key::SCROLL;
-			mapKeys[DOM_PK_NUMPAD_0] = Key::NP0; mapKeys[DOM_PK_NUMPAD_1] = Key::NP1; mapKeys[DOM_PK_NUMPAD_2] = Key::NP2;
-			mapKeys[DOM_PK_NUMPAD_3] = Key::NP3; mapKeys[DOM_PK_NUMPAD_4] = Key::NP4; mapKeys[DOM_PK_NUMPAD_5] = Key::NP5;
-			mapKeys[DOM_PK_NUMPAD_6] = Key::NP6; mapKeys[DOM_PK_NUMPAD_7] = Key::NP7; mapKeys[DOM_PK_NUMPAD_8] = Key::NP8;
-			mapKeys[DOM_PK_NUMPAD_9] = Key::NP9;
-			mapKeys[DOM_PK_NUMPAD_MULTIPLY] = Key::NP_MUL; mapKeys[DOM_PK_NUMPAD_DIVIDE] = Key::NP_DIV;
-			mapKeys[DOM_PK_NUMPAD_ADD] = Key::NP_ADD; mapKeys[DOM_PK_NUMPAD_SUBTRACT] = Key::NP_SUB;
-			mapKeys[DOM_PK_NUMPAD_DECIMAL] = Key::NP_DECIMAL;
-			mapKeys[DOM_PK_PERIOD] = Key::PERIOD; mapKeys[DOM_PK_EQUAL] = Key::EQUALS;
-			mapKeys[DOM_PK_COMMA] = Key::COMMA; mapKeys[DOM_PK_MINUS] = Key::MINUS;
-			mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
-			mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
-			mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
-			mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
+			mapKeys[DOM_VK_A] = Key::A; mapKeys[DOM_VK_B] = Key::B; mapKeys[DOM_VK_C] = Key::C; mapKeys[DOM_VK_D] = Key::D;
+			mapKeys[DOM_VK_E] = Key::E; mapKeys[DOM_VK_F] = Key::F; mapKeys[DOM_VK_G] = Key::G; mapKeys[DOM_VK_H] = Key::H;
+			mapKeys[DOM_VK_I] = Key::I; mapKeys[DOM_VK_J] = Key::J; mapKeys[DOM_VK_K] = Key::K; mapKeys[DOM_VK_L] = Key::L;
+			mapKeys[DOM_VK_M] = Key::M; mapKeys[DOM_VK_N] = Key::N; mapKeys[DOM_VK_O] = Key::O; mapKeys[DOM_VK_P] = Key::P;
+			mapKeys[DOM_VK_Q] = Key::Q; mapKeys[DOM_VK_R] = Key::R; mapKeys[DOM_VK_S] = Key::S; mapKeys[DOM_VK_T] = Key::T;
+			mapKeys[DOM_VK_U] = Key::U; mapKeys[DOM_VK_V] = Key::V; mapKeys[DOM_VK_W] = Key::W; mapKeys[DOM_VK_X] = Key::X;
+			mapKeys[DOM_VK_Y] = Key::Y; mapKeys[DOM_VK_Z] = Key::Z;
+			mapKeys[DOM_VK_0] = Key::K0; mapKeys[DOM_VK_1] = Key::K1; mapKeys[DOM_VK_2] = Key::K2;
+			mapKeys[DOM_VK_3] = Key::K3; mapKeys[DOM_VK_4] = Key::K4; mapKeys[DOM_VK_5] = Key::K5;
+			mapKeys[DOM_VK_6] = Key::K6; mapKeys[DOM_VK_7] = Key::K7; mapKeys[DOM_VK_8] = Key::K8;
+			mapKeys[DOM_VK_9] = Key::K9;
+			mapKeys[DOM_VK_F1] = Key::F1; mapKeys[DOM_VK_F2] = Key::F2; mapKeys[DOM_VK_F3] = Key::F3; mapKeys[DOM_VK_F4] = Key::F4;
+			mapKeys[DOM_VK_F5] = Key::F5; mapKeys[DOM_VK_F6] = Key::F6; mapKeys[DOM_VK_F7] = Key::F7; mapKeys[DOM_VK_F8] = Key::F8;
+			mapKeys[DOM_VK_F9] = Key::F9; mapKeys[DOM_VK_F10] = Key::F10; mapKeys[DOM_VK_F11] = Key::F11; mapKeys[DOM_VK_F12] = Key::F12;
+			mapKeys[DOM_VK_UP] = Key::UP; mapKeys[DOM_VK_DOWN] = Key::DOWN;
+			mapKeys[DOM_VK_LEFT] = Key::LEFT; mapKeys[DOM_VK_RIGHT] = Key::RIGHT;
+			mapKeys[DOM_VK_SPACE] = Key::SPACE; mapKeys[DOM_VK_TAB] = Key::TAB;
+			mapKeys[DOM_VK_SHIFT] = Key::SHIFT; mapKeys[DOM_VK_SHIFT] = Key::SHIFT;
+			mapKeys[DOM_VK_CONTROL] = Key::CTRL; mapKeys[DOM_VK_CONTROL] = Key::CTRL;
+			mapKeys[DOM_VK_INSERT] = Key::INS; mapKeys[DOM_VK_DELETE] = Key::DEL; mapKeys[DOM_VK_HOME] = Key::HOME;
+			mapKeys[DOM_VK_END] = Key::END; mapKeys[DOM_VK_PAGE_UP] = Key::PGUP; mapKeys[DOM_VK_PAGE_DOWN] = Key::PGDN;
+			mapKeys[DOM_VK_BACK_SPACE] = Key::BACK; mapKeys[DOM_VK_ESCAPE] = Key::ESCAPE;
+			mapKeys[DOM_VK_ENTER] = Key::ENTER;
+			mapKeys[DOM_VK_PAUSE] = Key::PAUSE;
+			mapKeys[DOM_VK_SCROLL_LOCK] = Key::SCROLL;
+			mapKeys[DOM_VK_NUMPAD0] = Key::NP0; mapKeys[DOM_VK_NUMPAD1] = Key::NP1; mapKeys[DOM_VK_NUMPAD2] = Key::NP2;
+			mapKeys[DOM_VK_NUMPAD3] = Key::NP3; mapKeys[DOM_VK_NUMPAD4] = Key::NP4; mapKeys[DOM_VK_NUMPAD5] = Key::NP5;
+			mapKeys[DOM_VK_NUMPAD6] = Key::NP6; mapKeys[DOM_VK_NUMPAD7] = Key::NP7; mapKeys[DOM_VK_NUMPAD8] = Key::NP8;
+			mapKeys[DOM_VK_NUMPAD9] = Key::NP9;
+			mapKeys[DOM_VK_MULTIPLY] = Key::NP_MUL; mapKeys[DOM_VK_DIVIDE] = Key::NP_DIV;
+			mapKeys[DOM_VK_ADD] = Key::NP_ADD; mapKeys[DOM_VK_SUBTRACT] = Key::NP_SUB;
+			mapKeys[DOM_VK_DECIMAL] = Key::NP_DECIMAL;
+			mapKeys[DOM_VK_PERIOD] = Key::PERIOD; mapKeys[DOM_VK_EQUALS] = Key::EQUALS;
+			mapKeys[DOM_VK_CAPS_LOCK] = Key::CAPS_LOCK;
+			mapKeys[DOM_VK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_VK_SLASH] = Key::OEM_2; mapKeys[DOM_VK_BACK_QUOTE] = Key::OEM_3;
+			mapKeys[DOM_VK_OPEN_BRACKET] = Key::OEM_4; mapKeys[DOM_VK_BACK_SLASH] = Key::OEM_5; mapKeys[DOM_VK_CLOSE_BRACKET] = Key::OEM_6;
+			mapKeys[DOM_VK_QUOTE] = Key::OEM_7; mapKeys[DOM_VK_BACK_SLASH] = Key::OEM_8;
 
 			// Keyboard Callbacks
 			emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
@@ -7031,11 +7029,11 @@ namespace olc
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
+				ptrPGE->olc_UpdateKeyState(mapKeys[e->keyCode], true);
 
 			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
+				ptrPGE->olc_UpdateKeyState(mapKeys[e->keyCode], false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
