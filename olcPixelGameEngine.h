@@ -6343,6 +6343,11 @@ namespace olc
 			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
 			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
 
+			// These map the keypad when NUMLOCK is off
+			mapKeys[XK_KP_Home] = Key::HOME; mapKeys[XK_KP_End] = Key::END; mapKeys[XK_KP_Up] = Key::UP;
+			mapKeys[XK_KP_Down] = Key::DOWN; mapKeys[XK_KP_Left] = Key::LEFT; mapKeys[XK_KP_Right] = Key::RIGHT;
+			mapKeys[XK_KP_Page_Up] = Key::PGUP; mapKeys[XK_KP_Page_Down] = Key::PGDN; mapKeys[XK_KP_Insert] = Key::INS;
+			mapKeys[XK_KP_Delete] = Key::DEL;
 			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
