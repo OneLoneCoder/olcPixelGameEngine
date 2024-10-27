@@ -1450,6 +1450,12 @@ namespace olc
 		bool IsTextEntryEnabled() const;
 
 
+		// KeyPress Cache
+		const std::vector<int32_t>& GetKeyPressCache()
+		{
+			// Return prior-switch cache
+			return vKeyPressCache[nKeyPressCacheTarget ^ 0x01];
+		}
 
 	private:
 		void UpdateTextEntry();
@@ -1562,6 +1568,9 @@ namespace olc
 		bool		pMouseNewState[nMouseButtons] = { 0 };
 		bool		pMouseOldState[nMouseButtons] = { 0 };
 		HWButton	pMouseState[nMouseButtons] = { 0 };
+
+		std::vector<int32_t>	vKeyPressCache[2];
+		uint32_t				nKeyPressCacheTarget = 0;
 
 		// The main engine thread
 		void		EngineThread();
@@ -4163,7 +4172,10 @@ namespace olc
 	{ pMouseNewState[button] = state; }
 
 	void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
-	{ pKeyNewState[key] = state; }
+	{ 
+		pKeyNewState[key] = state; 
+		if(state) vKeyPressCache[nKeyPressCacheTarget].push_back(key);
+	}
 
 	void PixelGameEngine::olc_UpdateMouseFocus(bool state)
 	{ bHasMouseFocus = state; }
@@ -4384,6 +4396,11 @@ namespace olc
 			UpdateTextEntry();
 		}
 
+		// Swap Keypress cache
+		nKeyPressCacheTarget ^= 0x01;
+
+		
+
 		// Handle Frame Update
 		bool bExtensionBlockFrame = false;		
 		for (auto& ext : vExtensions) bExtensionBlockFrame |= ext->OnBeforeUserUpdate(fElapsedTime);
@@ -4394,7 +4411,8 @@ namespace olc
 		}
 		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
 
-		
+		// Clear prior keypress cache
+		vKeyPressCache[nKeyPressCacheTarget ^ 0x01].clear();
 
 		if (bRealWindowMode)
 		{
