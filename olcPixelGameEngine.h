@@ -6398,19 +6398,21 @@ namespace olc
 				}
 				else if (xev.type == KeyPress)
 				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
-					XKeyEvent* e = (XKeyEvent*)&xev; // Because DragonEye loves numpads
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
+				    KeySym ks;
+
+					// DragonEye still loves numpads, but this is a better way
+					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
+					
+					if(ks != NoSymbol)
+						ptrPGE->olc_UpdateKeyState(mapKeys[ks], true);
 				}
 				else if (xev.type == KeyRelease)
 				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
-					XKeyEvent* e = (XKeyEvent*)&xev;
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
+				    KeySym ks;
+					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
+					
+					if(ks != NoSymbol)
+						ptrPGE->olc_UpdateKeyState(mapKeys[ks], false);
 				}
 				else if (xev.type == ButtonPress)
 				{
