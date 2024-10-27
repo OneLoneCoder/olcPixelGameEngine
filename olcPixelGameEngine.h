@@ -6307,13 +6307,21 @@ namespace olc
 			}
 
 			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
-			mapKeys[0x66] = Key::F; mapKeys[0x67] = Key::G; mapKeys[0x68] = Key::H; mapKeys[0x69] = Key::I; mapKeys[0x6A] = Key::J;
-			mapKeys[0x6B] = Key::K; mapKeys[0x6C] = Key::L; mapKeys[0x6D] = Key::M; mapKeys[0x6E] = Key::N; mapKeys[0x6F] = Key::O;
-			mapKeys[0x70] = Key::P; mapKeys[0x71] = Key::Q; mapKeys[0x72] = Key::R; mapKeys[0x73] = Key::S; mapKeys[0x74] = Key::T;
-			mapKeys[0x75] = Key::U; mapKeys[0x76] = Key::V; mapKeys[0x77] = Key::W; mapKeys[0x78] = Key::X; mapKeys[0x79] = Key::Y;
-			mapKeys[0x7A] = Key::Z;
+			mapKeys[NoSymbol] = Key::NONE;
+			
+			// There are separate KeySyms for uppercase and lowercase letters, let's loop 'em
+			{
+				int keyTracker = (int)Key::A;
+				size_t key;
+				size_t key2;
+
+				for(key = (size_t)XK_A, key2 = (size_t)XK_a; key <= (size_t)XK_Z; ++key, ++key2)
+				{
+					mapKeys[key] = (Key)keyTracker;
+					mapKeys[key2] = (Key)keyTracker;
+					++keyTracker;
+				}
+			}
 
 			mapKeys[XK_F1] = Key::F1; mapKeys[XK_F2] = Key::F2; mapKeys[XK_F3] = Key::F3; mapKeys[XK_F4] = Key::F4;
 			mapKeys[XK_F5] = Key::F5; mapKeys[XK_F6] = Key::F6; mapKeys[XK_F7] = Key::F7; mapKeys[XK_F8] = Key::F8;
