@@ -6348,10 +6348,12 @@ namespace olc
 			mapKeys[XK_KP_Down] = Key::DOWN; mapKeys[XK_KP_Left] = Key::LEFT; mapKeys[XK_KP_Right] = Key::RIGHT;
 			mapKeys[XK_KP_Page_Up] = Key::PGUP; mapKeys[XK_KP_Page_Down] = Key::PGDN; mapKeys[XK_KP_Insert] = Key::INS;
 			mapKeys[XK_KP_Delete] = Key::DEL;
+
 			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
 			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+			mapKeys[XK_grave] = Key::OEM_3;	// On US keyboard this is the '`' key
 			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
 			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
 			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
