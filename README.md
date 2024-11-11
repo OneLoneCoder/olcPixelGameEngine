@@ -3,6 +3,9 @@
 </p>
 Hang on! I'm looking for Javidx9's video source code! It's moved here: https://github.com/OneLoneCoder/Javidx9
 
+# Shameless Promotion
+There is a feature rich and working fork of this repo aimed at Android & IOS development: https://github.com/Johnnyg63/OLCPGEMobileVisualStudio
+
 # olcPixelGameEngine
 The official distribution of olcPixelGameEngine, a tool used in javidx9's YouTube videos and projects.
 

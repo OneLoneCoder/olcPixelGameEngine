@@ -27,6 +27,10 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 ## MacOS Support
 * These will potentially be absorbed into main build
   * https://github.com/MumflrFumperdink/olcPGEMac
+ 
+## Android & IOS Support
+* Fiddlier to setup, but pretty cool once going
+  * https://github.com/Johnnyg63/OLCPGEMobileVisualStudio
 
 ## Build Systems
 * Meson (https://mesonbuild.com/index.html)
