@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.28              |
+	|           OneLoneCoder Pixel Game Engine v2.29              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -342,6 +342,8 @@
 	x.xx: +GetKeyPressCache() - [ADVANCED] Returns vector of keycodes encountered this frame (thanks discord/carbon13)
 		  +ConvertKeycode() - [ADVANCED] Converts system keycode to olc::Key
 		  +GetKeySymbol() - [ADVANCED] Returns 'character' associated with an olc::Key (with modifiers)
+  2.29: Added polylines as drawable decal	structures
+		  Updated Geometry2D to support non-segment line intersections
 
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -5074,6 +5076,8 @@ namespace olc
 					glBegin(GL_TRIANGLE_STRIP);
 				else if(decal.structure == olc::DecalStructure::LIST)
 					glBegin(GL_TRIANGLES);
+				else if (decal.structure == olc::DecalStructure::LINE)
+					glBegin(GL_LINE_STRIP);
 			}
 
 			if (decal.depth)

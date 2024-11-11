@@ -1313,27 +1313,49 @@ namespace olc::utils::geom2d
 	// intersects(l,l)
 	// Get intersection points where line segment intersects with line segment
 	template<typename T1, typename T2>
-	inline std::vector<olc::v_2d<T2>> intersects(const line<T1>& l1, const line<T2>& l2)
+	inline std::vector<olc::v_2d<T2>> intersects(const line<T1>& l1, const line<T2>& l2, bool infinite = false)
 	{
-		float rd = l1.vector().cross(l2.vector());
-		if (rd == 0) return {}; // Parallel or Colinear TODO: Return two points
+		if (infinite)
+		{
+			float rd = l1.vector().cross(l2.vector());
+			if (rd == 0) return {}; // Parallel or Colinear TODO: Return two points
 
-		//Inverse rd product
-		rd = 1.f / rd;
+			//Inverse rd product
+			rd = 1.f / rd;
 
-		//Cross products: 
-		//rn = (b1b2 x b1a1)
-		float rn = ((l2.end.x - l2.start.x) * (l1.start.y - l2.start.y) - (l2.end.y - l2.start.y) * (l1.start.x - l2.start.x)) * rd;
-		//sn = (a1a2 x b1a1)
-		float sn = ((l1.end.x - l1.start.x) * (l1.start.y - l2.start.y) - (l1.end.y - l1.start.y) * (l1.start.x - l2.start.x)) * rd;
+			//Cross products: 
+			//rn = (b1b2 x b1a1)
+			float rn = ((l2.end.x - l2.start.x) * (l1.start.y - l2.start.y) - (l2.end.y - l2.start.y) * (l1.start.x - l2.start.x)) * rd;
+			//sn = (a1a2 x b1a1)
+			float sn = ((l1.end.x - l1.start.x) * (l1.start.y - l2.start.y) - (l1.end.y - l1.start.y) * (l1.start.x - l2.start.x)) * rd;
 
-		//Return the intersection depth
-		//if (d) *d = rn;
+			//Return the intersection depth
+			//if (d) *d = rn;
 
-		if (rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)
-			return {}; // Intersection not within line segment
+			return { l1.start + rn * l1.vector() };
+		}
+		else
+		{
+			float rd = l1.vector().cross(l2.vector());
+			if (rd == 0) return {}; // Parallel or Colinear TODO: Return two points
 
-		return { l1.start + rn * l1.vector() };
+			//Inverse rd product
+			rd = 1.f / rd;
+
+			//Cross products: 
+			//rn = (b1b2 x b1a1)
+			float rn = ((l2.end.x - l2.start.x) * (l1.start.y - l2.start.y) - (l2.end.y - l2.start.y) * (l1.start.x - l2.start.x)) * rd;
+			//sn = (a1a2 x b1a1)
+			float sn = ((l1.end.x - l1.start.x) * (l1.start.y - l2.start.y) - (l1.end.y - l1.start.y) * (l1.start.x - l2.start.x)) * rd;
+
+			//Return the intersection depth
+			//if (d) *d = rn;
+
+			if (rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f)
+				return {}; // Intersection not within line segment
+
+			return { l1.start + rn * l1.vector() };
+		}
 	}
 
 	// intersects(r,l)
