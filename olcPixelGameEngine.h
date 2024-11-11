@@ -6409,13 +6409,22 @@ namespace olc
 			}
 
 			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
-			mapKeys[0x66] = Key::F; mapKeys[0x67] = Key::G; mapKeys[0x68] = Key::H; mapKeys[0x69] = Key::I; mapKeys[0x6A] = Key::J;
-			mapKeys[0x6B] = Key::K; mapKeys[0x6C] = Key::L; mapKeys[0x6D] = Key::M; mapKeys[0x6E] = Key::N; mapKeys[0x6F] = Key::O;
-			mapKeys[0x70] = Key::P; mapKeys[0x71] = Key::Q; mapKeys[0x72] = Key::R; mapKeys[0x73] = Key::S; mapKeys[0x74] = Key::T;
-			mapKeys[0x75] = Key::U; mapKeys[0x76] = Key::V; mapKeys[0x77] = Key::W; mapKeys[0x78] = Key::X; mapKeys[0x79] = Key::Y;
-			mapKeys[0x7A] = Key::Z;
+			mapKeys[NoSymbol] = Key::NONE;
+
+			// There are separate KeySyms for uppercase and lowercase letters, let's loop 'em
+			{
+				int keyTracker = (int)Key::A;
+				size_t key;
+				size_t key2;
+
+				for(key = (size_t)XK_A, key2 = (size_t)XK_a; key <= (size_t)XK_Z; ++key, ++key2)
+				{
+					mapKeys[key] = (Key)keyTracker;
+					mapKeys[key2] = (Key)keyTracker;
+					++keyTracker;
+				}
+			}
+
 
 			mapKeys[XK_F1] = Key::F1; mapKeys[XK_F2] = Key::F2; mapKeys[XK_F3] = Key::F3; mapKeys[XK_F4] = Key::F4;
 			mapKeys[XK_F5] = Key::F5; mapKeys[XK_F6] = Key::F6; mapKeys[XK_F7] = Key::F7; mapKeys[XK_F8] = Key::F8;
@@ -6437,10 +6446,17 @@ namespace olc
 			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
 			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
 
+			// These map the keypad when NUMLOCK is off
+			mapKeys[XK_KP_Home] = Key::HOME; mapKeys[XK_KP_End] = Key::END; mapKeys[XK_KP_Up] = Key::UP;
+			mapKeys[XK_KP_Down] = Key::DOWN; mapKeys[XK_KP_Left] = Key::LEFT; mapKeys[XK_KP_Right] = Key::RIGHT;
+			mapKeys[XK_KP_Page_Up] = Key::PGUP; mapKeys[XK_KP_Page_Down] = Key::PGDN; mapKeys[XK_KP_Insert] = Key::INS;
+			mapKeys[XK_KP_Delete] = Key::DEL;
+
 			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
 			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+			mapKeys[XK_grave] = Key::OEM_3;	// On US keyboard this is the '`' key
 			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
 			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
 			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
