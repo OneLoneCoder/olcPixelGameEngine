@@ -339,6 +339,10 @@
 		  +Updated olcUTIL_SplashScreen.h
 		  +File Resolution for PGEtinker.com
 	2.28: Brought olc::v_2d inline with other sources
+	x.xx: +GetKeyPressCache() - [ADVANCED] Returns vector of keycodes encountered this frame (thanks discord/carbon13)
+		  +ConvertKeycode() - [ADVANCED] Converts system keycode to olc::Key
+		  +GetKeySymbol() - [ADVANCED] Returns 'character' associated with an olc::Key (with modifiers)
+
 		  
     !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -968,7 +972,7 @@ namespace olc
 #endif
 	// Thanks to scripticuk and others for updating the key maps
 	// NOTE: The GLUT platform will need updating, open to contributions ;)
-	enum Key
+	enum class Key : uint8_t
 	{
 		NONE,
 		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
@@ -1216,7 +1220,7 @@ namespace olc
 	// The Static Twins (plus one)
 	static std::unique_ptr<Renderer> renderer;
 	static std::unique_ptr<Platform> platform;
-	static std::map<size_t, uint8_t> mapKeys;
+	inline std::map<size_t, olc::Key> mapKeys;
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine - The main BASE class for your application              |
@@ -1262,8 +1266,8 @@ namespace olc
 		const olc::vi2d& GetWindowMouse() const;
 		// Gets the mouse as a vector to keep Tarriest happy
 		const olc::vi2d& GetMousePos() const;
-
-		static const std::map<size_t, uint8_t>& GetKeyMap() { return mapKeys; }
+		
+		const std::map<size_t, olc::Key>& GetKeyMap() const { return mapKeys; }
 
 		// Muck about with the GUI
 		olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize);
@@ -1451,11 +1455,10 @@ namespace olc
 
 
 		// KeyPress Cache
-		const std::vector<int32_t>& GetKeyPressCache()
-		{
-			// Return prior-switch cache
-			return vKeyPressCache[nKeyPressCacheTarget ^ 0x01];
-		}
+		const std::vector<int32_t>& GetKeyPressCache() const;
+		olc::Key ConvertKeycode(const int keycode) const;
+		const std::string GetKeySymbol(const olc::Key pgekey, const bool modShift = false, const bool modCtrl = false, const bool modAlt = false) const;
+
 
 	private:
 		void UpdateTextEntry();
@@ -1555,7 +1558,7 @@ namespace olc
 		bool bTextEntryEnable = false;
 		std::string sTextEntryString = "";
 		int32_t nTextEntryCursor = 0;
-		std::vector<std::tuple<olc::Key, std::string, std::string>> vKeyboardMap;
+		std::unordered_map<olc::Key, std::tuple<std::string, std::string, std::string, std::string>> vKeyboardMap;
 
 
 
@@ -1591,7 +1594,7 @@ namespace olc
 		void olc_CoreUpdate();
 		void olc_PrepareEngine();
 		void olc_UpdateMouseState(int32_t button, bool state);
-		void olc_UpdateKeyState(int32_t key, bool state);
+		void olc_UpdateKeyState(int32_t keycode, bool state);
 		void olc_UpdateMouseFocus(bool state);
 		void olc_UpdateKeyFocus(bool state);
 		void olc_Terminate();
@@ -2404,7 +2407,7 @@ namespace olc
 	{ return bHasInputFocus; }
 
 	HWButton PixelGameEngine::GetKey(Key k) const
-	{ return pKeyboardState[k];	}
+	{ return pKeyboardState[uint8_t(k)];	}
 
 	HWButton PixelGameEngine::GetMouse(uint32_t b) const
 	{ return pMouseState[b]; }
@@ -3871,9 +3874,9 @@ namespace olc
 		bConsoleSuspendTime = bSuspendTime;
 		TextEntryEnable(true);
 		keyConsoleExit = keyExit;
-		pKeyboardState[keyConsoleExit].bHeld = false;
-		pKeyboardState[keyConsoleExit].bPressed = false;
-		pKeyboardState[keyConsoleExit].bReleased = true;
+		pKeyboardState[uint8_t(keyConsoleExit)].bHeld = false;
+		pKeyboardState[uint8_t(keyConsoleExit)].bPressed = false;
+		pKeyboardState[uint8_t(keyConsoleExit)].bReleased = true;
 	}
 	
 	void PixelGameEngine::ConsoleClear()
@@ -3986,76 +3989,80 @@ namespace olc
 	void PixelGameEngine::UpdateTextEntry()
 	{
 		// Check for typed characters
-		for (const auto& key : vKeyboardMap)
-			if (GetKey(std::get<0>(key)).bPressed)
-			{
-				sTextEntryString.insert(nTextEntryCursor, GetKey(olc::Key::SHIFT).bHeld ? std::get<2>(key) : std::get<1>(key));
-				nTextEntryCursor++;
-			}
-
-		// Check for command characters
-		if (GetKey(olc::Key::LEFT).bPressed)
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		if (GetKey(olc::Key::RIGHT).bPressed)
-			nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
-		if (GetKey(olc::Key::BACK).bPressed && nTextEntryCursor > 0)
+		for (const auto& key : GetKeyPressCache())
 		{
-			sTextEntryString.erase(nTextEntryCursor-1, 1);
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		}
-		if (GetKey(olc::Key::DEL).bPressed && size_t(nTextEntryCursor) < sTextEntryString.size())
-			sTextEntryString.erase(nTextEntryCursor, 1);	
+			const auto& sym = GetKeySymbol(ConvertKeycode(key), GetKey(olc::Key::SHIFT).bHeld, GetKey(olc::Key::CTRL).bHeld);
+			
 
-		if (GetKey(olc::Key::UP).bPressed)
-		{
-			if (!sCommandHistory.empty())
+
+			// Check for command characters
+			if (sym == "_L")
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+			else if (sym == "_R")
+				nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
+			else if (sym == "\b" && nTextEntryCursor > 0)
 			{
-				if (sCommandHistoryIt != sCommandHistory.begin())
-					sCommandHistoryIt--;
-
-				nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-				sTextEntryString = *sCommandHistoryIt;
+				sTextEntryString.erase(nTextEntryCursor - 1, 1);
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
 			}
-		}
-
-		if (GetKey(olc::Key::DOWN).bPressed)
-		{	
-			if (!sCommandHistory.empty())
+			else if (sym == "_X" && size_t(nTextEntryCursor) < sTextEntryString.size())
+				sTextEntryString.erase(nTextEntryCursor, 1);
+			else if (sym == "_U")
 			{
-				if (sCommandHistoryIt != sCommandHistory.end())
+				if (!sCommandHistory.empty())
 				{
-					sCommandHistoryIt++;
+					if (sCommandHistoryIt != sCommandHistory.begin())
+						sCommandHistoryIt--;
+
+					nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+					sTextEntryString = *sCommandHistoryIt;
+				}
+			}
+
+			else if (sym == "_D")
+			{
+				if (!sCommandHistory.empty())
+				{
 					if (sCommandHistoryIt != sCommandHistory.end())
 					{
-						nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-						sTextEntryString = *sCommandHistoryIt;
-					}
-					else
-					{
-						nTextEntryCursor = 0;
-						sTextEntryString = "";
+						sCommandHistoryIt++;
+						if (sCommandHistoryIt != sCommandHistory.end())
+						{
+							nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+							sTextEntryString = *sCommandHistoryIt;
+						}
+						else
+						{
+							nTextEntryCursor = 0;
+							sTextEntryString = "";
+						}
 					}
 				}
 			}
-		}
 
-		if (GetKey(olc::Key::ENTER).bPressed)
-		{
-			if (bConsoleShow)
+			else if (sym == "\n")
 			{
-				std::cout << ">" + sTextEntryString + "\n";
-				if (OnConsoleCommand(sTextEntryString))
+				if (bConsoleShow)
 				{
-					sCommandHistory.push_back(sTextEntryString);
-					sCommandHistoryIt = sCommandHistory.end();
+					std::cout << ">" + sTextEntryString + "\n";
+					if (OnConsoleCommand(sTextEntryString))
+					{
+						sCommandHistory.push_back(sTextEntryString);
+						sCommandHistoryIt = sCommandHistory.end();
+					}
+					sTextEntryString.clear();
+					nTextEntryCursor = 0;
 				}
-				sTextEntryString.clear();
-				nTextEntryCursor = 0;
+				else
+				{
+					OnTextEntryComplete(sTextEntryString);
+					TextEntryEnable(false);
+				}
 			}
-			else
+			else if (sym.size() == 1)
 			{
-				OnTextEntryComplete(sTextEntryString);
-				TextEntryEnable(false);
+				sTextEntryString.insert(nTextEntryCursor, sym);
+				nTextEntryCursor++;
 			}
 		}
 	}
@@ -4171,10 +4178,10 @@ namespace olc
 	void PixelGameEngine::olc_UpdateMouseState(int32_t button, bool state)
 	{ pMouseNewState[button] = state; }
 
-	void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
+	void PixelGameEngine::olc_UpdateKeyState(int32_t keycode, bool state)
 	{ 
-		pKeyNewState[key] = state; 
-		if(state) vKeyPressCache[nKeyPressCacheTarget].push_back(key);
+		pKeyNewState[uint8_t(mapKeys[keycode])] = state;
+		if(state) vKeyPressCache[nKeyPressCacheTarget].push_back(keycode);
 	}
 
 	void PixelGameEngine::olc_UpdateMouseFocus(bool state)
@@ -4391,15 +4398,15 @@ namespace olc
 		vDroppedFilesPoint = vDroppedFilesPointCache;
 		vDroppedFilesCache.clear();
 
-		if (bTextEntryEnable)
-		{
-			UpdateTextEntry();
-		}
+		
 
 		// Swap Keypress cache
 		nKeyPressCacheTarget ^= 0x01;
 
-		
+		if (bTextEntryEnable)
+		{
+			UpdateTextEntry();
+		}
 
 		// Handle Frame Update
 		bool bExtensionBlockFrame = false;		
@@ -4546,28 +4553,119 @@ namespace olc
 #ifdef OLC_KEYBOARD_UK
 		vKeyboardMap =
 		{
-			{olc::Key::A, "a", "A"}, {olc::Key::B, "b", "B"}, {olc::Key::C, "c", "C"}, {olc::Key::D, "d", "D"}, {olc::Key::E, "e", "E"},
-			{olc::Key::F, "f", "F"}, {olc::Key::G, "g", "G"}, {olc::Key::H, "h", "H"}, {olc::Key::I, "i", "I"}, {olc::Key::J, "j", "J"},
-			{olc::Key::K, "k", "K"}, {olc::Key::L, "l", "L"}, {olc::Key::M, "m", "M"}, {olc::Key::N, "n", "N"}, {olc::Key::O, "o", "O"},
-			{olc::Key::P, "p", "P"}, {olc::Key::Q, "q", "Q"}, {olc::Key::R, "r", "R"}, {olc::Key::S, "s", "S"}, {olc::Key::T, "t", "T"},
-			{olc::Key::U, "u", "U"}, {olc::Key::V, "v", "V"}, {olc::Key::W, "w", "W"}, {olc::Key::X, "x", "X"}, {olc::Key::Y, "y", "Y"},
-			{olc::Key::Z, "z", "Z"},
+			// PGE Key, no mods, shift mod, ctrl mod, alt mod
+			{olc::Key::A, {"a", "A", "a", "a"}}, 
+			{olc::Key::B, {"b", "B", "b", "b"}}, 
+			{olc::Key::C, {"c", "C", "c", "c"}}, 
+			{olc::Key::D, {"d", "D", "d", "d"}}, 
+			{olc::Key::E, {"e", "E", "e", "e"}},
+			{olc::Key::F, {"f", "F", "f", "f"}}, 
+			{olc::Key::G, {"g", "G", "g", "g"}}, 
+			{olc::Key::H, {"h", "H", "h", "h"}}, 
+			{olc::Key::I, {"i", "I", "i", "i"}}, 
+			{olc::Key::J, {"j", "J", "j", "j"}},
+			{olc::Key::K, {"k", "K", "k", "k"}}, 
+			{olc::Key::L, {"l", "L", "l", "l"}}, 
+			{olc::Key::M, {"m", "M", "m", "m"}}, 
+			{olc::Key::N, {"n", "N", "n", "n"}}, 
+			{olc::Key::O, {"o", "O", "o", "o"}},
+			{olc::Key::P, {"p", "P", "p", "p"}}, 
+			{olc::Key::Q, {"q", "Q", "q", "q"}}, 
+			{olc::Key::R, {"r", "R", "r", "r"}}, 
+			{olc::Key::S, {"s", "S", "s", "s"}}, 
+			{olc::Key::T, {"t", "T", "t", "t"}},
+			{olc::Key::U, {"u", "U", "u", "u"}}, 
+			{olc::Key::V, {"v", "V", "v", "v"}}, 
+			{olc::Key::W, {"w", "W", "w", "w"}}, 
+			{olc::Key::X, {"x", "X", "x", "x"}}, 
+			{olc::Key::Y, {"y", "Y", "y", "y"}},
+			{olc::Key::Z, {"z", "Z", "z", "z"}},
 
-			{olc::Key::K0, "0", ")"}, {olc::Key::K1, "1", "!"}, {olc::Key::K2, "2", "\""}, {olc::Key::K3, "3", "#"},	{olc::Key::K4, "4", "$"},
-			{olc::Key::K5, "5", "%"}, {olc::Key::K6, "6", "^"}, {olc::Key::K7, "7", "&"}, {olc::Key::K8, "8", "*"},	{olc::Key::K9, "9", "("},
+			{olc::Key::K0, {"0", ")", "0", "0"}},
+			{olc::Key::K1, {"1", "!", "1", "1"}},
+			{olc::Key::K2, {"2", "\"","2", "2"}},
+			{olc::Key::K3, {"3", "#", "3", "3"}},
+			{olc::Key::K4, {"4", "$", "4", "4"}},
+			{olc::Key::K5, {"5", "%", "5", "5"}},
+			{olc::Key::K6, {"6", "^", "6", "6"}},
+			{olc::Key::K7, {"7", "&", "7", "7"}},
+			{olc::Key::K8, {"8", "*", "8", "8"}},
+			{olc::Key::K9, {"9", "(", "9", "9"}},
 
-			{olc::Key::NP0, "0", "0"}, {olc::Key::NP1, "1", "1"}, {olc::Key::NP2, "2", "2"}, {olc::Key::NP3, "3", "3"},	{olc::Key::NP4, "4", "4"},
-			{olc::Key::NP5, "5", "5"}, {olc::Key::NP6, "6", "6"}, {olc::Key::NP7, "7", "7"}, {olc::Key::NP8, "8", "8"},	{olc::Key::NP9, "9", "9"},
-			{olc::Key::NP_MUL, "*", "*"}, {olc::Key::NP_DIV, "/", "/"}, {olc::Key::NP_ADD, "+", "+"}, {olc::Key::NP_SUB, "-", "-"},	{olc::Key::NP_DECIMAL, ".", "."},
+			{olc::Key::NP0, {"0", "0", "0", "0"}}, 
+			{olc::Key::NP1, {"1", "1", "1", "1"}}, 
+			{olc::Key::NP2, {"2", "2", "2", "2"}}, 
+			{olc::Key::NP3, {"3", "3", "3", "3"}},	
+			{olc::Key::NP4, {"4", "4", "4", "4"}},
+			{olc::Key::NP5, {"5", "5", "5", "5"}}, 
+			{olc::Key::NP6, {"6", "6", "6", "6"}}, 
+			{olc::Key::NP7, {"7", "7", "7", "7"}}, 
+			{olc::Key::NP8, {"8", "8", "8", "8"}},	
+			{olc::Key::NP9, {"9", "9", "9", "9"}},
+			{olc::Key::NP_MUL, {"*", "*", "", ""}},
+			{olc::Key::NP_DIV, {"/", "/", "", ""}}, 
+			{olc::Key::NP_ADD, {"+", "+", "", ""}}, 
+			{olc::Key::NP_SUB, {"-", "-", "", ""}},	
+			{olc::Key::NP_DECIMAL, {".", ".", "", ""}},
 
-			{olc::Key::PERIOD, ".", ">"}, {olc::Key::EQUALS, "=", "+"}, {olc::Key::COMMA, ",", "<"}, {olc::Key::MINUS, "-", "_"}, {olc::Key::SPACE, " ", " "},
+			{olc::Key::PERIOD, {".", ">", "", ""}},
+			{olc::Key::EQUALS, {"=", "+", "", ""}}, 
+			{olc::Key::COMMA, {",", "<", "", ""}}, 
+			{olc::Key::MINUS, {"-", "_", "", ""}}, 
+			{olc::Key::SPACE, {" ", " ", "", ""}},
+			{olc::Key::ENTER, {"\n", "\n ", "\n", "\n"}},
 
-			{olc::Key::OEM_1, ";", ":"}, {olc::Key::OEM_2, "/", "?"}, {olc::Key::OEM_3, "\'", "@"}, {olc::Key::OEM_4, "[", "{"},
-			{olc::Key::OEM_5, "\\", "|"}, {olc::Key::OEM_6, "]", "}"}, {olc::Key::OEM_7, "#", "~"}, 
+			{olc::Key::OEM_1, {";", ":", "", ""}}, 
+			{olc::Key::OEM_2, {"/", "?", "", ""}}, 
+			{olc::Key::OEM_3, {"\'","@", "", ""}}, 
+			{olc::Key::OEM_4, {"[", "{", "", ""}},
+			{olc::Key::OEM_5, {"\\", "|", "", ""}}, 
+			{olc::Key::OEM_6, {"]", "}", "", ""}}, 
+			{olc::Key::OEM_7, {"#", "~", "", ""}},
 			
-			// {olc::Key::TAB, "\t", "\t"}
+			{olc::Key::TAB, {"\t", "\t", "\t", "\t"}},
+			{olc::Key::BACK, {"\b", "\b", "\b", "\b"}},
+			{olc::Key::DEL, {"_X", "_X", "_X", "_X"}},
+
+
+			{olc::Key::LEFT, {"_L", "_L", "_L", "_L"}},
+			{olc::Key::RIGHT, {"_R", "_R", "_R", "_R"}},
+			{olc::Key::UP, {"_U", "_U", "_U", "_U"}},
+			{olc::Key::DOWN, {"_D", "_D", "_D", "_D"}},
 		};
 #endif
+	}
+
+
+	// KeyPress Cache
+	const std::vector<int32_t>& PixelGameEngine::GetKeyPressCache() const
+	{
+		// Return prior-switch cache
+		return vKeyPressCache[nKeyPressCacheTarget ^ 0x01];
+	}
+
+	olc::Key PixelGameEngine::ConvertKeycode(const int keycode) const
+	{
+		if (mapKeys.count(size_t(keycode)) > 0)
+		{
+			return mapKeys.at(keycode);
+		}
+
+		return olc::Key::NONE;
+	}
+
+	const std::string PixelGameEngine::GetKeySymbol(const olc::Key pgekey, const bool modShift, const bool modCtrl, const bool modAlt) const
+	{
+		if (vKeyboardMap.count(pgekey) > 0)
+		{
+			const auto& [sym, sym_s, sym_c, sym_a] = vKeyboardMap.at(pgekey);
+			if (modShift) return sym_s;
+			if (modCtrl) return sym_c;
+			if (modAlt) return sym_a;
+			return sym;
+		}
+		else
+			return "";
 	}
 
 	void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
@@ -6138,10 +6236,10 @@ namespace olc
 			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
 			case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
 			case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
-			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
-			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);                     return 0;
-			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);						return 0;
-			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);						return 0;
+			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(int32_t(wParam), true);                      return 0;
+			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(int32_t(wParam), false);                     return 0;
+			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(int32_t(wParam), true);						return 0;
+			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(int32_t(wParam), false);						return 0;
 			case WM_LBUTTONDOWN:ptrPGE->olc_UpdateMouseState(0, true);                                  return 0;
 			case WM_LBUTTONUP:	ptrPGE->olc_UpdateMouseState(0, false);                                 return 0;
 			case WM_RBUTTONDOWN:ptrPGE->olc_UpdateMouseState(1, true);                                  return 0;
@@ -6404,7 +6502,7 @@ namespace olc
 					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
 					
 					if(ks != NoSymbol)
-						ptrPGE->olc_UpdateKeyState(mapKeys[ks], true);
+						ptrPGE->olc_UpdateKeyState(ks, true);
 				}
 				else if (xev.type == KeyRelease)
 				{
@@ -6412,7 +6510,7 @@ namespace olc
 					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
 					
 					if(ks != NoSymbol)
-						ptrPGE->olc_UpdateKeyState(mapKeys[ks], false);
+						ptrPGE->olc_UpdateKeyState(ks, false);
 				}
 				else if (xev.type == ButtonPress)
 				{
@@ -6640,25 +6738,30 @@ namespace olc {
 
 			// NOTE: MISSING KEYS :O
 
+			// JAVIDX9 WOZ ERE - Rethinking some keyboad stuff has required
+			// some changes. MOst of them are trivial, but I'm not sure
+			// what's going on here and have no readily available testing
+			// suite either - its for MAC users. However broken as of 2.29
+
 			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
 				switch (glutGetModifiers()) {
 				case 0: //This is when there are no modifiers
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
+				//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
+				//	ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
 					break;
 				case GLUT_ACTIVE_ALT:
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				}
 
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+				//if (mapKeys[key])
+					ptrPGE->olc_UpdateKeyState(key, true);
 				});
 
 			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
@@ -6667,11 +6770,11 @@ namespace olc {
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
+				//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
+				//	ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
 					break;
 				case GLUT_ACTIVE_ALT:
 					if ('a' <= key && key <= 'z') key -= 32;
@@ -6679,19 +6782,19 @@ namespace olc {
 					break;
 				}
 
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+				//if (mapKeys[key])
+					ptrPGE->olc_UpdateKeyState(key, false);
 				});
 
 			//Special keys
 			glutSpecialFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+				//if (mapKeys[key])
+					ptrPGE->olc_UpdateKeyState(key, true);
 				});
 
 			glutSpecialUpFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+				//if (mapKeys[key])
+					ptrPGE->olc_UpdateKeyState(key, false);
 				});
 
 			glutMouseFunc([](int button, int state, int x, int y) -> void {
@@ -7051,11 +7154,11 @@ namespace olc
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
 
 			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
