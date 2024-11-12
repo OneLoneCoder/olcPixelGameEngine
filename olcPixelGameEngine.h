@@ -7203,17 +7203,18 @@ namespace olc
 						break;
 				}
 			}
+
 			// check for keydown + numlock and act appropriately
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN && pk_code == DOM_PK_NUM_LOCK)
 			{
 				numPadActive = !numPadActive;
 			}
-			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
 
-			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
+				ptrPGE->olc_UpdateKeyState(pk_code, true);
+
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), false);
+				ptrPGE->olc_UpdateKeyState(pk_code, false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
