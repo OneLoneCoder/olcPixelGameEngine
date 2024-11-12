@@ -7010,7 +7010,7 @@ namespace olc
 			mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
 			mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
 			mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
-			mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
+			mapKeys[DOM_PK_QUOTE] = Key::OEM_7;
 
 			// Keyboard Callbacks
 			emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
