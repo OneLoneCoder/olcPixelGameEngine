@@ -7173,6 +7173,41 @@ namespace olc
 		//TY Moros
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
+			// we maintain our own state for teh number pad, default true
+			static bool numPadActive = true;
+			
+			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
+			int pk_code = emscripten_compute_dom_pk_code(e->code);
+			
+			if(!numPadActive)
+			{
+				/**
+				 * we need to react differently if the numlock is not
+				 * active. this block ensures uniform behavior with
+				 * windows and linux, MacOS is a lost cause due to GLUT.
+				 */
+				switch(pk_code)
+				{
+					case DOM_PK_NUMPAD_7: pk_code = DOM_PK_HOME; break;
+					case DOM_PK_NUMPAD_8: pk_code = DOM_PK_ARROW_UP; break;
+					case DOM_PK_NUMPAD_9: pk_code = DOM_PK_PAGE_UP; break;
+					case DOM_PK_NUMPAD_4: pk_code = DOM_PK_ARROW_LEFT; break;
+					case DOM_PK_NUMPAD_5: pk_code = DOM_PK_UNKNOWN; break;
+					case DOM_PK_NUMPAD_6: pk_code = DOM_PK_ARROW_RIGHT; break;
+					case DOM_PK_NUMPAD_1: pk_code = DOM_PK_END; break;
+					case DOM_PK_NUMPAD_2: pk_code = DOM_PK_ARROW_DOWN; break;
+					case DOM_PK_NUMPAD_3: pk_code = DOM_PK_PAGE_DOWN; break;
+					case DOM_PK_NUMPAD_0: pk_code = DOM_PK_INSERT; break;
+					case DOM_PK_NUMPAD_DECIMAL: pk_code = DOM_PK_DELETE; break;
+					default:
+						break;
+				}
+			}
+			// check for keydown + numlock and act appropriately
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN && pk_code == DOM_PK_NUM_LOCK)
+			{
+				numPadActive = !numPadActive;
+			}
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
 				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
 
