@@ -137,7 +137,15 @@
 
 	Before including the olcPixelGameEngine.h header file. stb_image.h works on many systems
 	and can be downloaded here: https://github.com/nothings/stb/blob/master/stb_image.h
+	If you want to write png images, you will also need "stb_image_write.h", which can be
+	downloaded here: https://github.com/nothings/stb/blob/master/stb_image_write.h
 
+	To use stb_image_write.h specify:
+
+	#define OLC_IMAGE_STB_WRITE
+
+	Before including the olcPixelGameEngine.h header file. Note that this only is meaningful
+	if you already use stb_image.h.
 
 
 	Multiple cpp file projects?
@@ -515,7 +523,7 @@ int main()
 		#if defined(_WIN32)
 			#define	OLC_IMAGE_GDI
 		#endif
-		#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+		#if (defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)) && !defined(OLC_IMAGE_STB)
 			#define	OLC_IMAGE_LIBPNG
 		#endif
 	#endif
@@ -552,6 +560,7 @@ int main()
 	#endif
 
 	#include <windows.h>
+	#include <shellapi.h>
 	#undef _WINSOCKAPI_
 #endif
 
@@ -1036,7 +1045,7 @@ namespace olc
 		ImageLoader() = default;
 		virtual ~ImageLoader() = default;
 		virtual olc::rcode LoadImageResource(olc::Sprite* spr, const std::string& sImageFile, olc::ResourcePack* pack) = 0;
-		virtual olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) = 0;
+		virtual olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) = 0;
 	};
 
 
@@ -1054,6 +1063,7 @@ namespace olc
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
+		olc::rcode SaveToFile(const std::string& sImageFile) const;
 
 	public:
 		int32_t width = 0;
@@ -1964,6 +1974,10 @@ namespace olc
 	{
 		UNUSED(pack);
 		return loader->LoadImageResource(this, sImageFile, pack);
+	}
+	olc::rcode Sprite::SaveToFile(const std::string& sImageFile) const
+	{
+		return loader->SaveImageResource(this, sImageFile);
 	}
 
 	olc::Sprite* Sprite::Duplicate()
@@ -4642,7 +4656,19 @@ namespace olc
 
 #if defined(OLC_IMAGE_STB)
 #define STB_IMAGE_IMPLEMENTATION
+#if defined(_WIN32) && defined(UNICODE)
+#define STBI_WINDOWS_UTF8
+#endif
 #include "stb_image.h"
+
+#if defined(OLC_IMAGE_STB_WRITE)
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#if defined(_WIN32) && defined(UNICODE)
+#define STBIW_WINDOWS_UTF8
+#endif
+#include "stb_image_write.h"
+#endif
+
 namespace olc
 {
 	class ImageLoader_STB : public olc::ImageLoader
@@ -4679,9 +4705,16 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
-			return olc::rcode::OK;
+#if !defined(OLC_IMAGE_STB_WRITE)
+			return olc::rcode::FAIL;
+#else
+			if (spr == nullptr)
+				return olc::rcode::FAIL;
+			int res = stbi_write_png(sImageFile.c_str(), spr->width, spr->height, 4, spr->pColData.data(), spr->width * sizeof(olc::Pixel));
+			return res == 0 ? olc::rcode::OK : olc::rcode::FAIL;
+#endif
 		}
 	};
 }
@@ -5718,9 +5751,42 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
-			return olc::rcode::OK;
+			if (spr == nullptr)
+				return olc::rcode::FAIL;
+
+			UINT numEncoders = 0;
+			UINT byteSize = 0;
+			if (Gdiplus::GetImageEncodersSize(&numEncoders, &byteSize) != Gdiplus::Status::Ok)
+				return olc::rcode::FAIL;
+
+			// Round up or use one more element
+			int requiredSpace = static_cast<int>(byteSize / sizeof(Gdiplus::ImageCodecInfo) + 1);
+			std::vector<Gdiplus::ImageCodecInfo> infos(requiredSpace);
+			if (Gdiplus::GetImageEncoders(numEncoders, byteSize, &infos[0]) != Gdiplus::Status::Ok)
+				return olc::rcode::FAIL;
+			infos.resize(numEncoders);
+
+			// Search for PNG codec
+			auto pngIt = std::find_if(infos.begin(), infos.end(), [](const Gdiplus::ImageCodecInfo& ci) {
+				return wcscmp(ci.MimeType, L"image/png") == 0;
+				});
+
+			if (pngIt == infos.end()) return olc::rcode::FAIL;
+
+			Gdiplus::Bitmap bmp(spr->width, spr->height, PixelFormat32bppARGB);
+
+			for (int y = 0; y < spr->height; y++)
+				for (int x = 0; x < spr->width; x++)
+				{
+					Pixel p = spr->GetPixel(x, y);
+					Gdiplus::Color c(p.a, p.r, p.g, p.b);
+					if (bmp.SetPixel(x, y, c) != Gdiplus::Status::Ok)
+						return olc::rcode::FAIL;
+				}
+
+			return bmp.Save(ConvertS2W(sImageFile).c_str(), &pngIt->Clsid) == Gdiplus::Status::Ok ? olc::rcode::OK : olc::rcode::FAIL;
 		}
 	};
 }
@@ -5842,8 +5908,104 @@ namespace olc
 			return olc::rcode::FAIL;
 		}
 
-		olc::rcode SaveImageResource(olc::Sprite* spr, const std::string& sImageFile) override
+		olc::rcode SaveImageResource(const olc::Sprite* spr, const std::string& sImageFile) override
 		{
+			if (spr == nullptr)
+				return olc::rcode::FAIL;
+
+			// RAII wrapper for FILE pointer
+			struct FileWrapper
+			{
+				FILE* f = nullptr;
+
+				FileWrapper(const std::string& sImageFile)
+				{
+					f = fopen(sImageFile.c_str(), "wb");
+				}
+
+				FileWrapper(const FileWrapper&) = delete;
+				FileWrapper(FileWrapper&&) = delete;
+				FileWrapper& operator=(const FileWrapper&) = delete;
+				FileWrapper& operator=(FileWrapper&&) = delete;
+
+				~FileWrapper()
+				{
+					if (f != nullptr)
+						fclose(f);
+				}
+
+				bool Good() const
+				{
+					return f != nullptr;
+				}
+			};
+
+			// RAII wrapper for png_struct and png_info pointers
+			struct PNGStructWrapper
+			{
+				struct PNGError
+				{};
+
+				png_structp png_ptr = nullptr;
+				png_infop info_ptr = nullptr;
+
+				PNGStructWrapper()
+				{
+					png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, PNGStructWrapper::user_error_handling_func, PNGStructWrapper::user_warn_func);
+					if (png_ptr != nullptr)
+						info_ptr = png_create_info_struct(png_ptr);
+				}
+
+				PNGStructWrapper(const PNGStructWrapper&) = delete;
+				PNGStructWrapper(PNGStructWrapper&&) = delete;
+				PNGStructWrapper& operator=(const PNGStructWrapper&) = delete;
+				PNGStructWrapper& operator=(PNGStructWrapper&&) = delete;
+
+				~PNGStructWrapper()
+				{
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+				}
+
+				bool Good() const
+				{
+					return png_ptr != nullptr && info_ptr != nullptr;
+				}
+
+				static void user_error_handling_func(png_structp, png_const_charp error_msg) {
+					fprintf(stderr, "%s\n", error_msg);
+					throw PNGError{}; // Function must not return control to caller
+				}
+				static void user_warn_func(png_structp, png_const_charp warning_msg) {
+					fprintf(stderr, "%s\n", warning_msg);
+				}
+			};
+
+			try
+			{
+				FileWrapper file(sImageFile);
+				if (!file.Good())
+				{
+					return olc::rcode::FAIL;
+				}
+				PNGStructWrapper png;
+				if (!png.Good())
+				{
+					return olc::rcode::FAIL;
+				}
+				png_init_io(png.png_ptr, file.f);
+				png_set_IHDR(png.png_ptr, png.info_ptr, spr->width, spr->height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+				std::unique_ptr<png_bytep[]> png_rows = std::make_unique<png_bytep[]>(spr->height);
+				for (int y = 0; y < spr->height; y++)
+					png_rows[y] = (png_bytep)(spr->pColData.data() + std::ptrdiff_t(y) * spr->width);
+
+				png_set_rows(png.png_ptr, png.info_ptr, png_rows.get());
+				png_write_png(png.png_ptr, png.info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+			}
+			catch (PNGStructWrapper::PNGError&)
+			{
+				return olc::rcode::FAIL;
+			}
+
 			return olc::rcode::OK;
 		}
 	};
