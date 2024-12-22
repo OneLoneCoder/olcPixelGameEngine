@@ -119,7 +119,7 @@
 	Compiling with Emscripten (New & Experimental)
 	~~~~~~~~~~~~~~~~~~~~~~~~~
 	Emscripten compiler will turn your awesome C++ PixelGameEngine project into WASM!
-	This means you can run your application in teh browser, great for distributing
+	This means you can run your application in the browser, great for distributing
 	and submission in to jams and things! It's a bit new at the moment. 
 
 	em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 ./YourSource.cpp -o pge.html
@@ -186,9 +186,12 @@
 	SaladinAkara.......Aseprite, Inside, Quern: Undying Thoughts, Outer Wilds
 	AlterEgo...........Final Fantasy XII - The Zodiac Age
 	SlicEnDicE.........Noita, Inside
-	TGD................Voucher Gift
+	TGD................Several Voucher Gifts*
 	Dragoneye..........Lucas Arts Adventure Game Pack
 	Anonymous Pirate...Return To Monkey Island
+
+	*Sponsored a new mouse and several OLC studio bits, mic mounts, cables etc
+	and is a proponent of PGE, and you know what? a jolly nice chap too!	
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
@@ -7094,7 +7097,7 @@ namespace olc
 					if(Module.olc_AssumeDefaultShells)
 						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
 				
-					// apply viewport dimensions to teh canvas
+					// apply viewport dimensions to the canvas
 					Module.canvas.setAttribute('width', viewWidth);
 					Module.canvas.setAttribute('height', viewHeight);
 					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
