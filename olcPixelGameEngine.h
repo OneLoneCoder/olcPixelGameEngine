@@ -1656,7 +1656,7 @@ namespace olc
 #if defined(OLC_GFX_OPENGL33)
 
 	#if defined(OLC_PLATFORM_WINAPI)
-		#include <gl/GL.h>
+		#include <GL/gl.h>
 		#define CALLSTYLE __stdcall
 	#endif
 
