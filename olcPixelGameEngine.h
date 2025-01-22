@@ -535,7 +535,7 @@ int main()
 #if !defined(OLC_PGE_HEADLESS)
 #if defined(OLC_PLATFORM_WINAPI)	
 	#define _WINSOCKAPI_ // Thanks Cornchipss
-		#if !defined(VC_EXTRALEAN)
+	#if !defined(VC_EXTRALEAN)
 		#define VC_EXTRALEAN
 	#endif
 	#if !defined(NOMINMAX)
