@@ -3889,7 +3889,13 @@ namespace olc
 
 	void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
 	{
-		if(bCapture)
+		if (ssConsoleOutput.rdbuf() == std::cout.rdbuf() && bCapture == true)
+			return;
+
+		if (ssConsoleOutput.rdbuf() != std::cout.rdbuf() && bCapture == false)
+			return;
+
+		if (bCapture)
 			sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
 		else
 			std::cout.rdbuf(sbufOldCout);
