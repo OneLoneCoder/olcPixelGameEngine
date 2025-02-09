@@ -29,7 +29,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2024 OneLoneCoder.com
+	Copyright 2018 - 2025 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
@@ -200,7 +200,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022, 2023, 2024
+	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 */
 #pragma endregion
 
@@ -340,13 +340,22 @@
 		  +Updated olcUTIL_QuadTree.h
 		  +Updated olcUTIL_Animate2D.h
 		  +Updated olcUTIL_SplashScreen.h
-		  +File Resolution for PGEtinker.com
+		  +File Resolution for PGEtinker.com							   
 	2.28: Brought olc::v_2d inline with other sources
-	x.xx: +GetKeyPressCache() - [ADVANCED] Returns vector of keycodes encountered this frame (thanks discord/carbon13)
+	2.29: Hardware 3D Rendering & Efficient Keyboard Interrogation
+		  +GetKeyPressCache() - [ADVANCED] Returns vector of keycodes encountered this frame (thanks discord/carbon13)
 		  +ConvertKeycode() - [ADVANCED] Converts system keycode to olc::Key
-		  +GetKeySymbol() - [ADVANCED] Returns 'character' associated with an olc::Key (with modifiers)
-  2.29: Added polylines as drawable decal	structures
+		  +GetKeySymbol() - [ADVANCED] Returns 'character' associated with an olc::Key (with modifiers)    
+		  +HW3D_Projection() - Sets a hardware projection matrix for 3D rendering
+		  +HW3D_EnableDepthTest - Sets whether 3D rendered objects should be depth tested
+		  +HW3D_SetCullMode - Sets which faces of a 3D rendered model are visible
+		  +HW3D_DrawObject - Draw a 3D mesh using hardware
+		  +HW3D_DrawLine - Draw a 3D line usingh hardware
+		  +HW3D_DrawLineBox	- Draw a 3D box using hardware
+		  +adv_FlushLayerGPUTasks - [ADVANCED] Prematurely drain GPUTasks for immediate buffer update
+		  Added polylines as drawable decal	structures
 		  Updated Geometry2D to support non-segment line intersections
+		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
 
 
 	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -1172,6 +1181,13 @@ namespace olc
 		bool depth = false;
 	};
 
+	enum class CullMode : uint8_t
+	{
+		NONE = 0,
+		CW = 1,
+		CCW = 2
+	};
+
 	struct GPUTask
 	{
 		//   x      y      z      w      u      v       rgb
@@ -1187,6 +1203,7 @@ namespace olc
 				0, 0, 1, 0,
 				0, 0, 0, 1
 			} };
+		olc::CullMode cull = olc::CullMode::NONE;
 	};
 
 	struct LayerDesc
@@ -1368,6 +1385,7 @@ namespace olc
 		void adv_HardwareClip(const bool bScale, const olc::vi2d& viewPos, const olc::vi2d& viewSize, const bool bClear = false);
 		void adv_FlushLayer(const size_t nLayerID);
 		void adv_FlushLayerDecals(const size_t nLayerID);
+		void adv_FlushLayerGPUTasks(const size_t nLayerID);
 
 	public: // DRAWING ROUTINES
 		// Draws a single Pixel
@@ -1495,18 +1513,13 @@ namespace olc
 		void UpdateConsole();
 
 	public:
-
-		// Experimental Lightweight 3D Routines ================
-#ifdef OLC_ENABLE_EXPERIMENTAL
-		// Set Manual View Matrix
+		// HW3D - Lightweight 3D Rendering 
+		// Set Manual Projection Matrix
 		void HW3D_Projection(const std::array<float, 16>& m);
-
-		// Draws a 3D Quad
-		void HW3D_DrawQuad3D(
-			olc::Decal* decal,
-			const std::array<float, 16>& matModelView,
-			const std::vector<std::array<float, 3>>& pos,
-			const olc::Pixel& tint);
+		// 3D Rendering is tested against depth buffer
+		void HW3D_EnableDepthTest(const bool bEnableDepth);
+		// 3D Rendering cull faces depending on winding order
+		void HW3D_SetCullMode(const olc::CullMode mode);
 
 		// Draws a 3D Mesh structure (as defined by olc::DecalStructure)
 		void HW3D_DrawObject(
@@ -1518,22 +1531,20 @@ namespace olc
 			const std::vector<olc::Pixel>& col,
 			const olc::Pixel tint = olc::WHITE);
 
+		// Draws a 3D line from pos1 to pos2
 		void HW3D_DrawLine(
 			const std::array<float, 16>& matModelView,
 			const std::array<float, 4>& pos1,
 			const std::array<float, 4>& pos2,
 			const olc::Pixel col = olc::WHITE);
 
+		// Draws a 3D line box at pos, and dimensions size
 		void HW3D_DrawLineBox(
 			const std::array<float, 16>& matModelView,
-			const std::array<float, 4>& pos1,
-			const std::array<float, 4>& pos2,
+			const std::array<float, 4>& pos,
+			const std::array<float, 4>& size,
 			const olc::Pixel col = olc::WHITE);
 
-		// 3D Rendering Flags
-		void HW3D_EnableDepthTest(const bool bEnableDepth);
-		void HW3D_EnableBackfaceCulling(const bool bEnableCull);
-#endif
 	public: // Branding
 		std::string sAppName;
 
@@ -1574,9 +1585,13 @@ namespace olc
 		bool        bPixelCohesion = false;
 		DecalMode   nDecalMode = DecalMode::NORMAL;
 		DecalStructure nDecalStructure = DecalStructure::FAN;
+		CullMode	nHW3DCullMode = CullMode::NONE;
+		bool		bHW3DDepthTest = true;
+		
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 		std::chrono::time_point<std::chrono::system_clock> m_tp1, m_tp2;
 		std::vector<olc::vi2d> vFontSpacing;
+		
 		std::vector<std::string> vDroppedFiles;
 		std::vector<std::string> vDroppedFilesCache;
 		olc::vi2d vDroppedFilesPoint;
@@ -3496,95 +3511,19 @@ namespace olc
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
-#ifdef OLC_ENABLE_EXPERIMENTAL
-	// Lightweight 3D
-	//void PixelGameEngine::LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col)
-	//{
-	//	DecalInstance di;
-	//	di.decal = decal;
-	//	di.points = uint32_t(3);
-	//	di.pos.resize(di.points);
-	//	di.uv.resize(di.points);
-	//	di.w.resize(di.points);
-	//	di.z.resize(di.points);
-	//	di.tint.resize(di.points);
-	//	for (uint32_t i = 0; i < di.points; i++)
-	//	{
-	//		di.pos[i] = { pos[i][0], pos[i][1] };
-	//		di.w[i] = 1.0f;// pos[i][2];
-	//		di.z[i] = pos[i][2];
-	//		di.uv[i] = tex[i];
-	//		di.tint[i] = col[i];			
-	//	}
-	//	di.mode = nDecalMode;
-	//	di.structure = DecalStructure::LIST;
-	//	di.depth = true;
-	//	vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	//}
-
-	//void PixelGameEngine::LW3D_DrawWarpedDecal(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const olc::Pixel& tint)
-	//{
-	//	// Thanks Nathan Reed, a brilliant article explaining whats going on here
-	//	// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
-	//	DecalInstance di;
-	//	di.points = 4;
-	//	di.decal = decal;
-	//	di.tint = { tint, tint, tint, tint };
-	//	di.w = { 1, 1, 1, 1 };
-	//	di.z = { 1, 1, 1, 1 };
-	//	di.pos.resize(4);
-	//	di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-	//	olc::vf2d center;
-	//	float rd = ((pos[2][0] - pos[0][0]) * (pos[3][1] - pos[1][1]) - (pos[3][0] - pos[1][0]) * (pos[2][1] - pos[0][1]));
-	//	if (rd != 0)
-	//	{
-	//		rd = 1.0f / rd;
-	//		float rn = ((pos[3][0] - pos[1][0]) * (pos[0][1] - pos[1][1]) - (pos[3][1] - pos[1][1]) * (pos[0][0] - pos[1][0])) * rd;
-	//		float sn = ((pos[2][0] - pos[0][0]) * (pos[0][1] - pos[1][1]) - (pos[2][1] - pos[0][1]) * (pos[0][0] - pos[1][0])) * rd;
-	//		if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f))
-	//		{
-	//			center.x = pos[0][0] + rn * (pos[2][0] - pos[0][0]);
-	//			center.y = pos[0][1] + rn * (pos[2][1] - pos[0][1]);
-	//		}
-	//		float d[4];
-	//		for (int i = 0; i < 4; i++)
-	//			d[i] = std::sqrt((pos[i][0] - center.x) * (pos[i][0] - center.x) + (pos[i][1] - center.y) * (pos[i][1] - center.y));
-
-	//		for (int i = 0; i < 4; i++)
-	//		{
-	//			float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
-	//			di.uv[i] *= q; 
-	//			di.w[i] *= q;
-	//			di.z[i] = pos[i][2];
-	//			di.pos[i] = { (pos[i][0] * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i][1] * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-	//		}
-	//		di.mode = nDecalMode;
-	//		di.structure = nDecalStructure;
-	//		di.depth = true;
-	//		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-	//	}
-	//}
-
 	void PixelGameEngine::HW3D_Projection(const std::array<float, 16>& m)
 	{
 		renderer->Set3DProjection(m);
 	}
 
-	void PixelGameEngine::HW3D_DrawQuad3D(olc::Decal* decal, const std::array<float, 16>& matModelView, const std::vector<std::array<float, 3>>& pos, const olc::Pixel& tint)
+	void PixelGameEngine::HW3D_EnableDepthTest(const bool bEnableDepth)
 	{
-		GPUTask task;
-		task.decal = decal;
-		task.mode = nDecalMode;
-		task.structure = nDecalStructure;
-		task.depth = true;
-		task.mvp = matModelView;
-		task.vb = {
-			{pos[0][0], pos[0][1], pos[0][2], 1.0f, 0.0f, 0.0f, tint.n},
-			{pos[1][0], pos[1][1], pos[1][2], 1.0f, 0.0f, 1.0f, tint.n},
-			{pos[2][0], pos[2][1], pos[2][2], 1.0f, 1.0f, 1.0f, tint.n},
-			{pos[3][0], pos[3][1], pos[3][2], 1.0f, 1.0f, 0.0f, tint.n},
-		};
-		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
+		bHW3DDepthTest = bEnableDepth;
+	}
+
+	void PixelGameEngine::HW3D_SetCullMode(const olc::CullMode mode)
+	{
+		nHW3DCullMode = mode;
 	}
 
 	void PixelGameEngine::HW3D_DrawObject(const std::array<float, 16>& matModelView, olc::Decal* decal, const olc::DecalStructure layout, const std::vector<std::array<float, 4>>& pos, const std::vector<std::array<float, 2>>& uv, const std::vector<olc::Pixel>& col, const olc::Pixel tint)
@@ -3593,7 +3532,8 @@ namespace olc
 		task.decal = decal;
 		task.mode = nDecalMode;
 		task.structure = layout;
-		task.depth = true;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
 		task.vb.resize(pos.size());
 
@@ -3609,7 +3549,8 @@ namespace olc
 		task.decal = nullptr;
 		task.mode = olc::DecalMode::WIREFRAME;
 		task.structure = olc::DecalStructure::LINE;
-		task.depth = true;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
 		task.vb =
 		{
@@ -3620,21 +3561,22 @@ namespace olc
 		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
 	}
 
-	void PixelGameEngine::HW3D_DrawLineBox(const std::array<float, 16>& matModelView, const std::array<float, 4>& pos1, const std::array<float, 4>& pos2, const olc::Pixel col)
+	void PixelGameEngine::HW3D_DrawLineBox(const std::array<float, 16>& matModelView, const std::array<float, 4>& pos, const std::array<float, 4>& size, const olc::Pixel col)
 	{
 		GPUTask task;
 		task.decal = nullptr;
 		task.mode = nDecalMode;
 		task.structure = olc::DecalStructure::LINE;
-		task.depth = true;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
 
-		const float ox = pos1[0];
-		const float oy = pos1[1];
-		const float oz = pos1[2];
-		const float sx = pos2[0];
-		const float sy = pos2[1];
-		const float sz = pos2[2];
+		const float ox = pos[0];
+		const float oy = pos[1];
+		const float oz = pos[2];
+		const float sx = size[0];
+		const float sy = size[1];
+		const float sz = size[2];
 
 		const std::array<float, 3> p0 = { {ox, oy, oz} };
 		const std::array<float, 3> p1 = { {ox+sx, oy, oz} };
@@ -3665,34 +3607,12 @@ namespace olc
 		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
 	}
 
-
-#endif
-
 	void PixelGameEngine::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
 	{
 		auto m = nDecalMode;
 		nDecalMode = olc::DecalMode::WIREFRAME;
 		DrawPolygonDecal(nullptr, { pos1, pos2 }, { {0, 0}, {0,0} }, p);
 		nDecalMode = m;
-
-		/*DecalInstance di;
-		di.decal = nullptr;
-		di.points = uint32_t(2);
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		di.pos[0] = { (pos1.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos1.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[0] = { 0.0f, 0.0f };
-		di.tint[0] = p;
-		di.w[0] = 1.0f;
-		di.pos[1] = { (pos2.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos2.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[1] = { 0.0f, 0.0f };
-		di.tint[1] = p;
-		di.w[1] = 1.0f;
-		di.mode = olc::DecalMode::WIREFRAME;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);*/
 	}
 
 	void PixelGameEngine::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
@@ -4669,6 +4589,15 @@ namespace olc
 		layer.vecDecalInstance.clear();
 	}
 
+	void PixelGameEngine::adv_FlushLayerGPUTasks(const size_t nLayerID)
+	{
+		// Display Decals in order for this layer
+		auto& layer = vLayers[nLayerID];
+		for (auto& decal : layer.vecGPUTasks)
+			renderer->DoGPUTask(decal);
+		layer.vecGPUTasks.clear();
+	}
+
 
 
 	void PixelGameEngine::olc_CoreUpdate()
@@ -5339,6 +5268,7 @@ namespace olc
 			nDecalMode = DecalMode::NORMAL;
 			nDecalStructure = DecalStructure::FAN;
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_CULL_FACE);
 		}
 
 		void SetDecalMode(const olc::DecalMode& mode)
@@ -5373,6 +5303,7 @@ namespace olc
 
 		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
 		{
+			glDisable(GL_CULL_FACE);
 			glBegin(GL_QUADS);
 			glColor4ub(tint.r, tint.g, tint.b, tint.a);
 			glTexCoord2f(0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
@@ -5394,6 +5325,8 @@ namespace olc
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
 				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
+
+			glDisable(GL_CULL_FACE);
 
 			if (decal.depth)
 			{
@@ -5466,6 +5399,22 @@ namespace olc
 																	
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
+
+			if (task.cull == olc::CullMode::NONE)
+			{
+				glCullFace(GL_FRONT);
+				glDisable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CW)
+			{
+				glCullFace(GL_FRONT);
+				glEnable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CCW)
+			{
+				glCullFace(GL_BACK);
+				glEnable(GL_CULL_FACE);
+			}
 
 			if (task.depth)
 			{
@@ -6062,6 +6011,7 @@ namespace olc
 
 			locUniform1i(m_uniIs3D, 0);
 			locUniformMatrix4fv(m_uniMVP, 1, false, matProjection.data());
+			glDisable(GL_CULL_FACE);
 		}
 
 		void SetDecalMode(const olc::DecalMode& mode) override
@@ -6084,6 +6034,7 @@ namespace olc
 
 		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
 		{
+			glDisable(GL_CULL_FACE);
 			locBindBuffer(0x8892, m_vbQuad);
 			locVertex verts[4] = {
 				{{-1.0f, -1.0f, 1.0, 0.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
@@ -6100,6 +6051,7 @@ namespace olc
 
 		void DrawDecal(const olc::DecalInstance& decal) override
 		{
+			glDisable(GL_CULL_FACE);
 			SetDecalMode(decal.mode);
 			if (decal.decal == nullptr)
 				glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
@@ -6233,21 +6185,38 @@ namespace olc
 					+ matProjection[3 * 4 + r] * task.mvp[c * 4 + 3];
 			locUniformMatrix4fv(m_uniMVP, 1, false, matMVP.data());
 
+			
+			if (task.cull == olc::CullMode::NONE)
+			{
+				glCullFace(GL_FRONT);
+				glDisable(GL_CULL_FACE);
+			}
+			else if(task.cull == olc::CullMode::CW)
+			{
+				glCullFace(GL_FRONT);
+				glEnable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CCW)
+			{
+				glCullFace(GL_BACK);
+				glEnable(GL_CULL_FACE);
+			}
+
 			if(task.depth)
 				glEnable(GL_DEPTH_TEST);
 
 			if (nDecalMode == DecalMode::WIREFRAME)
-				glDrawArrays(GL_LINE_LOOP, 0, task.vb.size());
+				glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)task.vb.size());
 			else
 			{
 				if (task.structure == olc::DecalStructure::FAN)
-					glDrawArrays(GL_TRIANGLE_FAN, 0, task.vb.size());
+					glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)task.vb.size());
 				else if (task.structure == olc::DecalStructure::STRIP)
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, task.vb.size());
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)task.vb.size());
 				else if (task.structure == olc::DecalStructure::LIST)
-					glDrawArrays(GL_TRIANGLES, 0, task.vb.size());
+					glDrawArrays(GL_TRIANGLES, 0, (GLsizei)task.vb.size());
 				else if (task.structure == olc::DecalStructure::LINE)
-					glDrawArrays(GL_LINES, 0, task.vb.size());
+					glDrawArrays(GL_LINES, 0, (GLsizei)task.vb.size());
 			}
 
 			if(task.depth)
