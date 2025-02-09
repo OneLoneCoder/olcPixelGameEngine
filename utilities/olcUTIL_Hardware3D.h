@@ -55,7 +55,8 @@
 	dandistine
 
 	Changes:
-	v1.0:		Here we go, 3D stuff but fast! (ish)				
+	v1.0:		Here we go, 3D stuff but fast! (ish)	
+				+CreateCube() - Creates a 6-face fully defined cuboid of a set size (with optional offset)
 */
 
 
@@ -702,10 +703,48 @@ namespace olc::utils::hw3d
 		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
 		m.pos.push_back(verts[2].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
 		m.pos.push_back(verts[0].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
-		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
 		m.pos.push_back(verts[2].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
-		
+		m.pos.push_back(verts[3].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
 
+		// East
+		m.pos.push_back(verts[3].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[2].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[6].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[3].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[6].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[7].a()); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
+		
+		// North
+		m.pos.push_back(verts[7].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[6].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[5].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[7].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[5].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[4].a()); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
+
+		// West
+		m.pos.push_back(verts[4].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[5].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[1].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[4].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[1].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[0].a()); m.norm.push_back({-1, 0, 0, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
+
+		// Top
+		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[5].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[6].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[6].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[2].a()); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
+
+		// Bottom
+		m.pos.push_back(verts[7].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[3].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[0].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[7].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[0].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[4].a()); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 1, 1 }); m.col.push_back(olc::WHITE);
 
 		return m;
 	}
