@@ -5821,7 +5821,7 @@ namespace olc
 #endif		
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_NONE };
+			EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 16, EGL_NONE };
 			EGLint const context_config[] = { EGL_CONTEXT_CLIENT_VERSION , 2, EGL_NONE };
 			EGLint num_config;
 
@@ -6012,6 +6012,7 @@ namespace olc
 			locUniform1i(m_uniIs3D, 0);
 			locUniformMatrix4fv(m_uniMVP, 1, false, matProjection.data());
 			glDisable(GL_CULL_FACE);
+			glDepthFunc(GL_LESS);
 		}
 
 		void SetDecalMode(const olc::DecalMode& mode) override
@@ -6204,6 +6205,8 @@ namespace olc
 
 			if(task.depth)
 				glEnable(GL_DEPTH_TEST);
+
+			
 
 			if (nDecalMode == DecalMode::WIREFRAME)
 				glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)task.vb.size());

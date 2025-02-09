@@ -228,6 +228,10 @@ namespace olc
 		// Assignment operator
 		inline constexpr v_2d& operator=(const v_2d& v) = default;
 
+		inline constexpr std::array<T, 2> a() const
+		{
+			return std::array<T, 2>{x, y};
+		}
 
 		// Returns rectangular area of vector
 		inline constexpr auto area() const

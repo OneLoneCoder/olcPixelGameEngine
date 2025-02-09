@@ -1,6 +1,70 @@
+/*
+	OneLoneCoder - Hardware3D v1.0
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Some assitive utilities for working with the hybrid Hardware3D rendering 
+	functions.
+
+
+	License (OLC-3)
+	~~~~~~~~~~~~~~~
+
+	Copyright 2018 - 2025 OneLoneCoder.com
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions
+	are met:
+
+	1. Redistributions or derivations of source code must retain the above
+	copyright notice, this list of conditions and the following disclaimer.
+
+	2. Redistributions or derivative works in binary form must reproduce
+	the above copyright notice. This list of conditions and the following
+	disclaimer must be reproduced in the documentation and/or other
+	materials provided with the distribution.
+
+	3. Neither the name of the copyright holder nor the names of its
+	contributors may be used to endorse or promote products derived
+	from this software without specific prior written permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+	A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+	HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+	SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+	LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+	Links
+	~~~~~
+	YouTube:	https://www.youtube.com/javidx9
+	Discord:	https://discord.gg/WhwHUMV
+	Twitter:	https://www.twitter.com/javidx9
+	Twitch:		https://www.twitch.tv/javidx9
+	GitHub:		https://www.github.com/onelonecoder
+	Homepage:	https://www.onelonecoder.com
+
+	Authors
+	~~~~~~~
+	David Barr, aka javidx9, (c) OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024, 2025
+
+	With significant contributions from:
+	dandistine
+
+	Changes:
+	v1.0:		Here we go, 3D stuff but fast! (ish)				
+*/
+
+
 #pragma once
 
 #include <olcPixelGameEngine.h>
+
+#include <optional>
+#include <sstream>
 
 #if !defined(OLC_VECTOR3D_DEFINED)
 namespace olc
@@ -609,6 +673,42 @@ namespace olc::utils::hw3d
 		std::vector<olc::Pixel> col;
 		olc::DecalStructure layout = olc::DecalStructure::LIST;
 	};
+
+	olc::utils::hw3d::mesh CreateCube(const olc::vf3d& vSize, const olc::vf3d& vOffset = { 0,0,0 })
+	{
+		olc::utils::hw3d::mesh m;
+
+
+		/*			 5		   6
+				1        2
+		
+					 4		   7
+				0		 3
+		
+		*/
+
+		std::vector<olc::vf3d> verts;
+		verts.push_back(olc::vf3d(0, 0, 0) + vOffset);
+		verts.push_back(olc::vf3d(0, vSize.y, 0) + vOffset);
+		verts.push_back(olc::vf3d(vSize.x, vSize.y, 0) + vOffset);
+		verts.push_back(olc::vf3d(vSize.x, 0, 0) + vOffset);
+		verts.push_back(olc::vf3d(0, 0, vSize.z) + vOffset);
+		verts.push_back(olc::vf3d(0, vSize.y, vSize.z) + vOffset);
+		verts.push_back(olc::vf3d(vSize.x, vSize.y, vSize.z) + vOffset);
+		verts.push_back(olc::vf3d(vSize.x, 0, vSize.z) + vOffset);
+
+		// South
+		m.pos.push_back(verts[0].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[2].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[0].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 1 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[1].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0, 0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back(verts[2].a()); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 1, 0 }); m.col.push_back(olc::WHITE);
+		
+
+
+		return m;
+	}
 
 	std::optional<olc::utils::hw3d::mesh> LoadObj(const std::string& path)
 	{
