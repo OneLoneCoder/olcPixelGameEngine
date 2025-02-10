@@ -1204,6 +1204,7 @@ namespace olc
 				0, 0, 0, 1
 			} };
 		olc::CullMode cull = olc::CullMode::NONE;
+		olc::Pixel tint = olc::WHITE;
 	};
 
 	struct LayerDesc
@@ -1764,6 +1765,7 @@ namespace olc
 	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
 	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
 	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+	typedef void CALLSTYLE locUniform4fv_t(GLint location, GLsizei count, const GLfloat* value);
 	typedef void CALLSTYLE locUniformMatrix4fv_t(GLint location, GLsizei count, GLboolean trasnpose, const GLfloat* value);
 	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
 	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
@@ -3535,6 +3537,7 @@ namespace olc
 		task.depth = bHW3DDepthTest;
 		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
+		task.tint = tint;
 		task.vb.resize(pos.size());
 
 		for (size_t i = 0; i < pos.size(); i++)
@@ -3552,6 +3555,7 @@ namespace olc
 		task.depth = bHW3DDepthTest;
 		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
+		task.tint = olc::WHITE;
 		task.vb =
 		{
 			{ pos1[0], pos1[1], pos1[2], 1.0f, 0.0f, 0.0f, col.n},
@@ -3570,6 +3574,7 @@ namespace olc
 		task.depth = bHW3DDepthTest;
 		task.cull = nHW3DCullMode;
 		task.mvp = matModelView;
+		task.tint = olc::WHITE;
 
 		const float ox = pos[0];
 		const float oy = pos[1];
@@ -5453,42 +5458,24 @@ namespace olc
 			//                           x      y      z      w      u      v       rgb
 			//std::vector<std::tuple<float, float, float, float, float, float, uint32_t>> vb;
 
+			float f[4] = { float(task.tint.r) / 255.0f, float(task.tint.g) / 255.0f, float(task.tint.b) / 255.0f, float(task.tint.a) / 255.0f };
+
 			if (task.depth)
 			{
-
-				//// Render as 3D Spatial Entity
-				//for (uint32_t n = 0; n < decal.points; n++)
-				//{
-				//	glColor4ub(decal.tint[n].r, decal.tint[n].g, decal.tint[n].b, decal.tint[n].a);
-				//	glTexCoord4f(decal.uv[n].x, decal.uv[n].y, 0.0f, decal.w[n]);
-				//	glVertex3f(decal.pos[n].x, decal.pos[n].y, decal.z[n]);
-				//}
-
 				for (uint32_t n = 0; n < task.vb.size(); n++)
 				{
 					olc::Pixel p = task.vb[n].c;
-					glColor4ub(p.r, p.g, p.b, p.a);
+					glColor4ub(GLubyte(p.r * f[0]), GLubyte(p.g * f[1]), GLubyte(p.b * f[2]), GLubyte(p.a * f[3]));
 					glTexCoord2f(task.vb[n].p[4], task.vb[n].p[5]);
 					glVertex4f(task.vb[n].p[0], task.vb[n].p[1], task.vb[n].p[2], task.vb[n].p[3]);
 				}
 			}
 			else
 			{
-
-
-				//// Render as 2D Spatial entity
-				//for (uint32_t n = 0; n < task.vb.size(); n++)
-				//{
-				//	olc::Pixel p = std::get<6>(task.vb[n]);
-				//	glColor4ub(p.r, p.g, p.b, p.a);
-				//	glTexCoord4f(std::get<4>(task.vb[n]), std::get<5>(task.vb[n]), 0.0f, std::get<3>(task.vb[n]));
-				//	glVertex2f(std::get<0>(task.vb[n]), std::get<1>(task.vb[n]));
-				//}
-
 				for (uint32_t n = 0; n < task.vb.size(); n++)
 				{
 					olc::Pixel p = task.vb[n].c;
-					glColor4ub(p.r, p.g, p.b, p.a);
+					glColor4ub(GLubyte(p.r * f[0]), GLubyte(p.g * f[1]), GLubyte(p.b * f[2]), GLubyte(p.a * f[3]));
 					glVertex4f(task.vb[n].p[4], task.vb[n].p[5], 0.0f, task.vb[n].p[3]);
 					glTexCoord2f(task.vb[n].p[0], task.vb[n].p[1]);
 				}
@@ -5724,6 +5711,7 @@ namespace olc
 		locGetUniformLocation_t* locGetUniformLocation = nullptr;
 		locUniformMatrix4fv_t* locUniformMatrix4fv = nullptr;
 		locUniform1i_t* locUniform1i = nullptr;
+		locUniform4fv_t* locUniform4fv = nullptr;
 
 		uint32_t m_nFS = 0;
 		uint32_t m_nVS = 0;
@@ -5733,6 +5721,7 @@ namespace olc
 
 		uint32_t m_uniMVP = 0;
 		uint32_t m_uniIs3D = 0;
+		uint32_t m_uniTint = 0;
 
 		struct locVertex
 		{
@@ -5871,6 +5860,7 @@ namespace olc
 			locUseProgram = OGL_LOAD(locUseProgram_t, glUseProgram);
 			locGetShaderInfoLog = OGL_LOAD(locGetShaderInfoLog_t, glGetShaderInfoLog);
 			locUniform1i = OGL_LOAD(locUniform1i_t, glUniform1i);
+			locUniform4fv = OGL_LOAD(locUniform4fv_t, glUniform4fv);
 			locUniformMatrix4fv = OGL_LOAD(locUniformMatrix4fv_t, glUniformMatrix4fv);
 			locGetUniformLocation = OGL_LOAD(locGetUniformLocation_t, glGetUniformLocation);
 #if !defined(OLC_PLATFORM_EMSCRIPTEN)
@@ -5911,9 +5901,10 @@ namespace olc
 				"layout(location = 2) in vec4 aCol;\n"
 				"uniform mat4 mvp;\n"
 				"uniform int is3d;\n"
+				"uniform vec4 tint;\n"
 				"out vec2 oTex;\n"
 				"out vec4 oCol;\n"
-				"void main(){ if(is3d!=0) {gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0); oTex = aTex;} else {float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex;} oCol = aCol;}";
+				"void main(){ if(is3d!=0) {gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0); oTex = aTex;} else {float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex;} oCol = aCol * tint;}";
 			locShaderSource(m_nVS, 1, &strVS, NULL);
 			locCompileShader(m_nVS);
 
@@ -5924,8 +5915,11 @@ namespace olc
 
 			m_uniMVP = locGetUniformLocation(m_nQuadShader, "mvp");
 			m_uniIs3D = locGetUniformLocation(m_nQuadShader, "is3d");
+			m_uniTint = locGetUniformLocation(m_nQuadShader, "tint");
 			locUniform1i(m_uniIs3D, 0);
-			locUniformMatrix4fv(m_uniMVP, 1, false, matProjection.data());
+			locUniformMatrix4fv(m_uniMVP, 16, false, matProjection.data());
+			float f[4] = { 100.0f, 100.0f, 100.0f, 100.0f };
+			locUniform4fv(m_uniTint, 4, f);
 
 			// Create Quad
 			locGenBuffers(1, &m_vbQuad);
@@ -6002,6 +5996,8 @@ namespace olc
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			locUseProgram(m_nQuadShader);
 			locBindVertexArray(m_vaQuad);
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
 			locVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
@@ -6047,6 +6043,8 @@ namespace olc
 			locBufferData(0x8892, sizeof(locVertex) * 4, verts, 0x88E0);
 
 			locUniform1i(m_uniIs3D, 0);
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 
@@ -6066,6 +6064,10 @@ namespace olc
 
 			locBufferData(0x8892, sizeof(locVertex) * decal.points, pVertexMem, 0x88E0);
 			locUniform1i(m_uniIs3D, 0);
+
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
+
 			if (nDecalMode == DecalMode::WIREFRAME)
 				glDrawArrays(GL_LINE_LOOP, 0, decal.points);
 			else
@@ -6185,6 +6187,9 @@ namespace olc
 					+ matProjection[2 * 4 + r] * task.mvp[c * 4 + 2]
 					+ matProjection[3 * 4 + r] * task.mvp[c * 4 + 3];
 			locUniformMatrix4fv(m_uniMVP, 1, false, matMVP.data());
+
+			float f[4] = { float(task.tint.r) / 255.0f, float(task.tint.g) / 255.0f, float(task.tint.b) / 255.0f, float(task.tint.a) / 255.0f };
+			locUniform4fv(m_uniTint, 1, f);
 
 			
 			if (task.cull == olc::CullMode::NONE)
