@@ -55,8 +55,11 @@
 	dandistine
 
 	Changes:
-	v1.0:		Here we go, 3D stuff but fast! (ish)	
+	v1.00:		Here we go, 3D stuff but fast! (ish)	
 				+CreateCube() - Creates a 6-face fully defined cuboid of a set size (with optional offset)
+	v1.01:		+CreateSanityCube() - stops insanity
+				+Rudimentary Camera
+				+Made OBJ file loader convert to LH on load
 */
 
 
@@ -496,11 +499,11 @@ namespace olc
 			identity();
 			auto& me = (*this);
 			T invFOV = T(1) / tan(fov * T(0.5));
-			me(0, 0) = ratio * invFOV;
+			me(0, 0) = -invFOV / ratio;
 			me(1, 1) = invFOV;
-			me(2, 2) = farplane / (farplane - nearplane);
-			me(3, 2) = (-farplane * nearplane) / (farplane - nearplane);
-			me(2, 3) = T(1);
+			me(2, 2) = -farplane / (farplane - nearplane);
+			me(3, 2) = -(farplane * nearplane) / (farplane - nearplane);
+			me(2, 3) = T(-1);
 			me(3, 3) = T(0);
 		}
 
@@ -675,6 +678,62 @@ namespace olc::utils::hw3d
 		olc::DecalStructure layout = olc::DecalStructure::LIST;
 	};
 
+
+	olc::utils::hw3d::mesh CreateSanityCube()
+	{
+		olc::utils::hw3d::mesh m;
+
+		// South
+		m.pos.push_back({ 0,0,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.25, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.5, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.5, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.25, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.5, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,0 }); m.norm.push_back({ 0, 0, -1, 0 }); m.uv.push_back({ 0.25, 0.25 }); m.col.push_back(olc::WHITE);
+		
+		// East
+		m.pos.push_back({ 1,0,0 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.5, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,1 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.75, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,1 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.75, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,0 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.5, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,1 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.75, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,0 }); m.norm.push_back({ 1, 0, 0, 0 }); m.uv.push_back({ 0.5, 0.25 }); m.col.push_back(olc::WHITE);
+
+		// North
+		m.pos.push_back({ 1,0,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0.75, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1.0, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1.0, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0.75, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 1.0, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,1 }); m.norm.push_back({ 0, 0, 1, 0 }); m.uv.push_back({ 0.75, 0.25 }); m.col.push_back(olc::WHITE);
+
+		// West
+		m.pos.push_back({ 0,0,1 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.0, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,0 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.25, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,0 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.25, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,1 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.0, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,0 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.25, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,1 }); m.norm.push_back({ -1, 0, 0, 0 }); m.uv.push_back({ 0.0, 0.25 }); m.col.push_back(olc::WHITE);
+
+		// Top
+		m.pos.push_back({ 0,1,0 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.25, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,0 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.5, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,1 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.5, 0.0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,0 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.25, 0.25 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,1,1 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.5, 0.0 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,1,1 }); m.norm.push_back({ 0, 1, 0, 0 }); m.uv.push_back({ 0.25, 0.0 }); m.col.push_back(olc::WHITE);
+
+		// Bottom
+		m.pos.push_back({ 0,0,1 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.25, 0.75 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,1 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.5, 0.75 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,0 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.5, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,1 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.25, 0.75 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 1,0,0 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.5, 0.5 }); m.col.push_back(olc::WHITE);
+		m.pos.push_back({ 0,0,0 }); m.norm.push_back({ 0, -1, 0, 0 }); m.uv.push_back({ 0.25, 0.5 }); m.col.push_back(olc::WHITE);
+
+		return m;
+	}
+
 	olc::utils::hw3d::mesh CreateCube(const olc::vf3d& vSize, const olc::vf3d& vOffset = { 0,0,0 })
 	{
 		olc::utils::hw3d::mesh m;
@@ -782,13 +841,13 @@ namespace olc::utils::hw3d
 				{
 					// Line is a 3D normal					
 					s >> junk >> junk >> x >> y >> z;
-					norms.push_back({ x, y, z });
+					norms.push_back({ -x, y, z });
 				}
 				else
 				{
 					// Line is a 3D vertex
 					s >> junk >> x >> y >> z;
-					verts.push_back({ x, y, z });
+					verts.push_back({ -x, y, z });
 				}
 			}
 
@@ -829,10 +888,13 @@ namespace olc::utils::hw3d
 		}
 
 		// Process into mesh
-		for (const auto& face : faces)
+		for (auto& face : faces)
 		{
 			if (face.size() == 3)
 			{
+
+				//std::reverse(face.begin(), face.end());
+
 				// Triangle
 				for (const auto& index : face)
 				{
@@ -867,5 +929,175 @@ namespace olc::utils::hw3d
 
 		return m;
 	}
+
+
+
+	class Camera3D
+	{
+	public:
+		Camera3D()
+		{
+			vecPosition = &vecLocalPosition;
+			vecTarget = &vecLocalTarget;
+			RegenerateProjectionMatrix();
+			RegenerateViewMatrix();
+		}
+		
+	protected:
+		
+
+		
+		olc::vf3d* vecPosition = nullptr;
+		olc::vf3d vecLocalPosition = { 0,0,0 };
+		olc::vf3d* vecTarget = nullptr;
+		olc::vf3d vecLocalTarget = { 0,0,1 };		
+
+		olc::mf4d matView;
+		olc::vf3d vecViewUp;
+		olc::vf3d vecViewForward;
+		olc::vf3d vecViewRight;
+		
+		olc::mf4d matProjection;
+		float fProjection_FieldOfView = 3.14159f;
+		float fProjection_AspectRatio = 1.333333f;		
+		float fProjection_NearPlane = 0.1f;
+		float fProjection_FarPlane = 1000.0f;
+
+		void RegenerateProjectionMatrix()
+		{
+			matProjection.projection(
+				fProjection_FieldOfView, 
+				fProjection_AspectRatio, 
+				fProjection_NearPlane, 
+				fProjection_FarPlane
+			);
+		}
+
+		void RegenerateViewMatrix()
+		{
+			// Reframe Coordinate System
+			const auto& pos = GetPosition();
+			vecViewForward = (GetTarget() - pos).norm();
+			vecViewUp = (olc::vf3d(0.0f, 1.0f, 0.0) - (olc::vf3d(0.0f, 1.0f, 0.0f).dot(vecViewForward) * vecViewForward)).norm();
+			vecViewRight = vecViewUp.cross(vecViewForward);
+
+			// Manual "Point-At" Matrix
+			matView(0,0) = vecViewRight.x;		matView(0,1) = vecViewRight.y;		matView(0,2) = vecViewRight.z;		matView(0,3) = 0.0f;
+			matView(1,0) = vecViewUp.x;			matView(1,1) = vecViewUp.y;			matView(1,2) = vecViewUp.z;			matView(1,3) = 0.0f;
+			matView(2,0) = vecViewForward.x;	matView(2,1) = vecViewForward.y;	matView(2,2) = vecViewForward.z;	matView(2,3) = 0.0f;
+			matView(3,0) = pos.x;				matView(3,1) = pos.y;				matView(3,2) = pos.z;				matView(3,3) = 1.0f;
+
+			//matView(0, 0) = vecViewRight.x;		matView(1, 0) = vecViewRight.y;		matView(2, 0) = vecViewRight.z;		matView(3, 0) = 0.0f;
+			//matView(0, 1) = vecViewUp.x;		matView(1, 1) = vecViewUp.y;		matView(2, 1) = vecViewUp.z;		matView(3, 1) = 0.0f;
+			//matView(0, 2) = vecViewForward.x;	matView(1, 2) = vecViewForward.y;	matView(2, 2) = vecViewForward.z;	matView(3, 2) = 0.0f;
+			//matView(0, 3) = pos.x;				matView(1, 3) = pos.y;				matView(2, 3) = pos.z;				matView(3, 3) = 1.0f;
+
+
+
+			// "Look-At" Matrix
+			matView = matView.quickinvert();
+		}
+
+	public:
+		const olc::mf4d& GetProjectionMatrix() const
+		{
+			return matProjection;
+		}
+
+		const olc::mf4d& GetViewMatrix() const
+		{
+			return matView;
+		}
+
+		const olc::vf3d& GetViewUp() const
+		{
+			return vecViewUp;
+		}
+
+		const olc::vf3d& GetViewRight() const
+		{
+			return vecViewRight;
+		}
+
+		const olc::vf3d& GetViewForward() const
+		{
+			return vecViewForward;
+		}
+
+		inline void SetPosition(olc::vf3d& vPosition)
+		{
+			vecPosition = &vPosition;
+		}
+		
+		inline void SetPosition(const olc::vf3d&& vPosition)
+		{
+			vecLocalPosition = vPosition;
+			vecPosition = &vecLocalPosition;
+		}
+
+		inline void SetPosition(const float x, const float y, const float z)
+		{
+			SetPosition({ x, y, z });
+		}
+
+		const olc::vf3d& GetPosition() const
+		{
+			return *vecPosition;
+		}
+
+
+		inline void SetTarget(olc::vf3d& vTarget)
+		{
+			vecTarget = &vTarget;
+		}
+
+		inline void SetTarget(const olc::vf3d&& vTarget)
+		{
+			vecLocalTarget = vTarget;
+			vecTarget = &vecLocalTarget;
+		}
+
+		inline void SetTarget(const float x, const float y, const float z)
+		{
+			SetTarget({ x, y, z });
+		}
+
+		const olc::vf3d& GetTarget() const
+		{
+			return *vecTarget;
+		}
+
+		void Update()
+		{
+			RegenerateViewMatrix();
+		}
+
+
+
+		void SetFieldOfView(const float fTheta)
+		{
+			fProjection_FieldOfView = fTheta;
+			RegenerateProjectionMatrix();
+		}
+
+		void SetAspectRatio(const float fRatio)
+		{
+			fProjection_AspectRatio = fRatio;
+			RegenerateProjectionMatrix();
+		}
+
+		void SetClippingPlanes(const float fNear, const float fFar)
+		{
+			fProjection_NearPlane = fNear;
+			fProjection_FarPlane = fFar;
+			RegenerateProjectionMatrix();
+		}
+
+		
+
+
+	protected:
+		
+	};
 
 }
