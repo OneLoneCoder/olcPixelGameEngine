@@ -1,8 +1,28 @@
 /*
-	OneLoneCoder - Hardware3D v1.0
+	OneLoneCoder - Hardware3D v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Some assitive utilities for working with the hybrid Hardware3D rendering 
 	functions.
+
+	NOTICE 1:	This Utility is highly "Work-In-Progress" and is subject
+				to breaking changes. Always review the changes.
+
+	NOTICE 2:	A small portion of this utility is derived from the p5.js
+				project because they had a nice trick with some maths.
+				This derivation is identified below and could be subject to
+				the p5.js project's license. If that license is unsuitable
+				for your needs, then don't use:	"Camera3D_Orbit::Update()".
+				I believe the algorithm involved is firmly established anyway, 
+				already published and is not subject to ownership, however I've
+				included this notice as I always cite my sources, even if they
+				are purely inspirational.
+
+	NOTICE 3:	This utility imposes a way of doing things that suits the needs
+				and styles of the author - me! It is not a full 3D rendering 
+				pipeline. It is not especially performant. It has severely
+				restricted flexibility in terms of structural definitions. That 
+				being said, it is a capable 3D graphics rendering tool when 
+				combined with olc::PixelGameEngine.
 
 
 	License (OLC-3)
@@ -57,9 +77,14 @@
 	Changes:
 	v1.00:		Here we go, 3D stuff but fast! (ish)	
 				+CreateCube() - Creates a 6-face fully defined cuboid of a set size (with optional offset)
-	v1.01:		+CreateSanityCube() - stops insanity
-				+Rudimentary Camera
-				+Made OBJ file loader convert to LH on load
+	v1.01:		+CreateSanityCube() - stops insanity				
+				+LoadObj() - OBJ file loader, converts to LH on load - maybe...
+				+RayVsPlane()
+				+RayVsTriangle()
+				+RayVsMesh()
+				+Camera3D
+				+Camera3D_SimpleFPS
+				+Camera3D_Orbit
 */
 
 
@@ -67,6 +92,7 @@
 
 #include <olcPixelGameEngine.h>
 
+#include <numbers>
 #include <optional>
 #include <sstream>
 
@@ -507,23 +533,23 @@ namespace olc
 			me(3, 3) = T(0);
 		}
 
-		// Create "projection" matrix
-		template<typename Q>
-		inline constexpr void frustum(const olc::v_3d<Q>& vLeftTopNear, const olc::v_3d<Q>& vRightBottomFar)
-		{
-			// https://learn.microsoft.com/en-us/windows/win32/opengl/glfrustum
-			identity();
-			auto& me = (*this);
-			me(0, 0) = (T(2) * vLeftTopNear.z) / (vRightBottomFar.x - vLeftTopNear.x);
-			me(1, 1) = (T(2) * vLeftTopNear.z) / (vLeftTopNear.y - vRightBottomFar.y);
-			me(2, 2) = -((vRightBottomFar.z + vLeftTopNear.z) / (vRightBottomFar.z - vLeftTopNear.z));
-			me(2, 0) = (vRightBottomFar.x + vLeftTopNear.x) / (vRightBottomFar.x - vLeftTopNear.x);
-			me(2, 1) = (vLeftTopNear.y + vRightBottomFar.y) / (vLeftTopNear.y - vRightBottomFar.y);
-			me(3, 2) = -((T(2) * vLeftTopNear.z * vRightBottomFar.z) / (vRightBottomFar.z - vLeftTopNear.z));
-			me(2, 3) = T(-1);
-			me(3, 3) = T(0);
+		// Create "projection" matrix - doesnt quite work
+		//template<typename Q>
+		//inline constexpr void frustum(const olc::v_3d<Q>& vLeftTopNear, const olc::v_3d<Q>& vRightBottomFar)
+		//{
+		//	// https://learn.microsoft.com/en-us/windows/win32/opengl/glfrustum
+		//	identity();
+		//	auto& me = (*this);
+		//	me(0, 0) = (T(2) * vLeftTopNear.z) / (vRightBottomFar.x - vLeftTopNear.x);
+		//	me(1, 1) = (T(2) * vLeftTopNear.z) / (vLeftTopNear.y - vRightBottomFar.y);
+		//	me(2, 2) = -((vRightBottomFar.z + vLeftTopNear.z) / (vRightBottomFar.z - vLeftTopNear.z));
+		//	me(2, 0) = (vRightBottomFar.x + vLeftTopNear.x) / (vRightBottomFar.x - vLeftTopNear.x);
+		//	me(2, 1) = (vLeftTopNear.y + vRightBottomFar.y) / (vLeftTopNear.y - vRightBottomFar.y);
+		//	me(3, 2) = -((T(2) * vLeftTopNear.z * vRightBottomFar.z) / (vRightBottomFar.z - vLeftTopNear.z));
+		//	me(2, 3) = T(-1);
+		//	me(3, 3) = T(0);
 
-		}
+		//}
 
 		// Create rotation around x-axis matrix with radians
 		template<typename Q>
@@ -609,26 +635,26 @@ namespace olc
 			// ...yeah... dont do this very often
 			olc::m_4d<T> out;
 
-			out[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
-			out[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
-			out[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
-			out[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
-			out[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
-			out[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
-			out[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
-			out[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
-			out[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
-			out[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
-			out[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
-			out[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
-			out[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
-			out[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
-			out[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
-			out[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
+			out.m[0] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
+			out.m[4] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
+			out.m[8] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
+			out.m[12] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
+			out.m[1] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
+			out.m[5] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
+			out.m[9] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
+			out.m[13] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
+			out.m[2] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7] - m[13] * m[3] * m[6];
+			out.m[6] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7] + m[12] * m[3] * m[6];
+			out.m[10] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7] - m[12] * m[3] * m[5];
+			out.m[14] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6] + m[12] * m[2] * m[5];
+			out.m[3] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11] - m[5] * m[3] * m[10] - m[9] * m[2] * m[7] + m[9] * m[3] * m[6];
+			out.m[7] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11] + m[4] * m[3] * m[10] + m[8] * m[2] * m[7] - m[8] * m[3] * m[6];
+			out.m[11] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11] - m[4] * m[3] * m[9] - m[8] * m[1] * m[7] + m[8] * m[3] * m[5];
+			out.m[15] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10] + m[4] * m[2] * m[9] + m[8] * m[1] * m[6] - m[8] * m[2] * m[5];
 
-			T det = m[0] * out[0] + m[1] * out[4] + m[2] * out[8] + m[3] * out[12];
+			T det = m[0] * out.m[0] + m[1] * out.m[4] + m[2] * out.m[8] + m[3] * out.m[12];
 			T invdet = T(1) / det;
-			for (int i = 0; i < 16; i++) out[i] *= invdet;
+			for (int i = 0; i < 16; i++) out.m[i] *= invdet;
 			return out;
 		}
 
@@ -679,7 +705,7 @@ namespace olc::utils::hw3d
 	};
 
 
-	olc::utils::hw3d::mesh CreateSanityCube()
+	inline olc::utils::hw3d::mesh CreateSanityCube()
 	{
 		olc::utils::hw3d::mesh m;
 
@@ -734,7 +760,7 @@ namespace olc::utils::hw3d
 		return m;
 	}
 
-	olc::utils::hw3d::mesh CreateCube(const olc::vf3d& vSize, const olc::vf3d& vOffset = { 0,0,0 })
+	inline olc::utils::hw3d::mesh CreateCube(const olc::vf3d& vSize, const olc::vf3d& vOffset = { 0,0,0 })
 	{
 		olc::utils::hw3d::mesh m;
 
@@ -808,7 +834,7 @@ namespace olc::utils::hw3d
 		return m;
 	}
 
-	std::optional<olc::utils::hw3d::mesh> LoadObj(const std::string& path)
+	inline std::optional<olc::utils::hw3d::mesh> LoadObj(const std::string& path)
 	{
 		olc::utils::hw3d::mesh m;
 
@@ -835,7 +861,7 @@ namespace olc::utils::hw3d
 				{
 					// Line is 2D texture coordinate
 					s >> junk >> junk >> u >> v;
-					texs.push_back({ u, v });
+					texs.push_back({ u, 1.0f-v });
 				}
 				else if (sLine[1] == 'n')
 				{
@@ -930,6 +956,105 @@ namespace olc::utils::hw3d
 		return m;
 	}
 
+	// Thank you Wikipedia!
+	inline std::optional<std::pair<olc::vf3d, float>> RayVsTriangle(
+		const olc::vf3d& ray_origin,
+		const olc::vf3d& ray_vector,
+		const olc::vf3d& ta, const olc::vf3d& tb, const olc::vf3d& tc)
+	{
+		constexpr float epsilon = std::numeric_limits<float>::epsilon();
+
+		olc::vf3d edge1 = tb - ta;
+		olc::vf3d edge2 = tc - ta;
+		olc::vf3d ray_cross_e2 = ray_vector.cross(edge2);
+		float det = edge1.dot(ray_cross_e2);
+
+		if (det > -epsilon && det < epsilon)
+			return {};
+
+		float inv_det = 1.0f / det;
+		olc::vf3d s = ray_origin - ta;
+		float u = inv_det * s.dot(ray_cross_e2);
+
+		if ((u < 0 && abs(u) > epsilon) || (u > 1 && abs(u - 1) > epsilon))
+			return {};
+
+		olc::vf3d s_cross_e1 = s.cross(edge1);
+		float v = inv_det * ray_vector.dot(s_cross_e1);
+
+		if ((v < 0 && abs(v) > epsilon) || (u + v > 1 && abs(u + v - 1) > epsilon))
+			return {};
+
+		float t = inv_det * edge2.dot(s_cross_e1);
+
+		if (t > epsilon) // ray intersection
+		{
+			return { {olc::vf3d(ray_origin + ray_vector * t), t} };
+		}
+		else
+			return {};
+	}
+
+	inline std::optional<olc::vf3d> RayVsPlane(const olc::vf3d& vRayOrigin, const olc::vf3d& vRayDir, const olc::vf3d& vPlaneP, const olc::vf3d& vPlaneN)
+	{
+		constexpr float epsilon = std::numeric_limits<float>::epsilon();
+
+		float plane_d = -vPlaneN.dot(vPlaneP);
+		float ad = vRayOrigin.dot(vPlaneN);
+		float bd = (vRayOrigin + vRayDir).dot(vPlaneN);
+		float det = (bd - ad);
+		if (det > -epsilon && det < epsilon)
+			return {};
+
+		float t = (-plane_d - ad) / det;		
+		return { vRayOrigin + vRayDir * t };
+	}
+
+
+	inline std::vector<std::tuple<float, size_t, size_t, size_t>> RayVsMesh(const olc::vf3d& vRayOrigin, const olc::vf3d& vRayDir, const olc::utils::hw3d::mesh& m, const bool bSort = true)
+	{
+		std::vector<std::tuple<float, size_t, size_t, size_t>> vecHits;
+
+		if (m.layout == olc::DecalStructure::LIST)
+		{
+			for (size_t i = 0; i < m.pos.size(); i += 3)
+			{
+				const auto& p0 = m.pos[i + 0];
+				const auto& p1 = m.pos[i + 1];
+				const auto& p2 = m.pos[i + 2];
+
+				auto hit = RayVsTriangle(
+					vRayOrigin, vRayDir,
+					{ p0[0], p0[1], p0[2] },
+					{ p1[0], p1[1], p1[2] },
+					{ p2[0], p2[1], p2[2] }
+				);
+
+				if (hit) vecHits.push_back({ hit->second, i + 0, i + 1, i + 2 });
+			}
+		}
+
+		if (m.layout == olc::DecalStructure::FAN)
+		{
+			// TODO:
+		}
+
+		if (m.layout == olc::DecalStructure::STRIP)
+		{
+			// TODO:
+		}
+
+		if(bSort)
+			std::sort(vecHits.begin(), vecHits.end(), 
+				[](const auto& a, const auto& b) 
+				{ 
+					return std::get<0>(a) < std::get<0>(b); 
+				}
+			);
+
+		return vecHits;
+	}
+
 
 
 	class Camera3D
@@ -937,8 +1062,8 @@ namespace olc::utils::hw3d
 	public:
 		Camera3D()
 		{
-			vecPosition = &vecLocalPosition;
-			vecTarget = &vecLocalTarget;
+			vecPosition = { 0,0,0 };
+			vecTarget = { 0,0,1 };
 			RegenerateProjectionMatrix();
 			RegenerateViewMatrix();
 		}
@@ -947,17 +1072,21 @@ namespace olc::utils::hw3d
 		
 
 		
-		olc::vf3d* vecPosition = nullptr;
-		olc::vf3d vecLocalPosition = { 0,0,0 };
-		olc::vf3d* vecTarget = nullptr;
-		olc::vf3d vecLocalTarget = { 0,0,1 };		
+		olc::vf3d vecPosition  = { 0,0,0 };
+		olc::vf3d vecTarget = { 0,0,1 };		
 
 		olc::mf4d matView;
-		olc::vf3d vecViewUp;
+		olc::mf4d matViewInv;
+		olc::vf3d vecViewUp = { 0,1,0 };
+		olc::vf3d vecAxisUp = { 0,1,0 };
+		olc::vf3d vecAxisRight = { 1,0,0 };
+		olc::vf3d vecAxisForward = { 0,0,1 };
 		olc::vf3d vecViewForward;
 		olc::vf3d vecViewRight;
 		
 		olc::mf4d matProjection;
+		olc::mf4d matProjectionInv;
+		olc::vf2d vScreenSize;
 		float fProjection_FieldOfView = 3.14159f;
 		float fProjection_AspectRatio = 1.333333f;		
 		float fProjection_NearPlane = 0.1f;
@@ -971,31 +1100,26 @@ namespace olc::utils::hw3d
 				fProjection_NearPlane, 
 				fProjection_FarPlane
 			);
+
+			matProjectionInv = matProjection.invert();
 		}
 
 		void RegenerateViewMatrix()
 		{
 			// Reframe Coordinate System
 			const auto& pos = GetPosition();
-			vecViewForward = (GetTarget() - pos).norm();
-			vecViewUp = (olc::vf3d(0.0f, 1.0f, 0.0) - (olc::vf3d(0.0f, 1.0f, 0.0f).dot(vecViewForward) * vecViewForward)).norm();
+			vecViewForward = -(GetTarget() - pos).norm();
+			vecViewUp = (vecAxisUp - (vecAxisUp.dot(vecViewForward) * vecViewForward)).norm();
 			vecViewRight = vecViewUp.cross(vecViewForward);
 
 			// Manual "Point-At" Matrix
-			matView(0,0) = vecViewRight.x;		matView(0,1) = vecViewRight.y;		matView(0,2) = vecViewRight.z;		matView(0,3) = 0.0f;
-			matView(1,0) = vecViewUp.x;			matView(1,1) = vecViewUp.y;			matView(1,2) = vecViewUp.z;			matView(1,3) = 0.0f;
-			matView(2,0) = vecViewForward.x;	matView(2,1) = vecViewForward.y;	matView(2,2) = vecViewForward.z;	matView(2,3) = 0.0f;
-			matView(3,0) = pos.x;				matView(3,1) = pos.y;				matView(3,2) = pos.z;				matView(3,3) = 1.0f;
-
-			//matView(0, 0) = vecViewRight.x;		matView(1, 0) = vecViewRight.y;		matView(2, 0) = vecViewRight.z;		matView(3, 0) = 0.0f;
-			//matView(0, 1) = vecViewUp.x;		matView(1, 1) = vecViewUp.y;		matView(2, 1) = vecViewUp.z;		matView(3, 1) = 0.0f;
-			//matView(0, 2) = vecViewForward.x;	matView(1, 2) = vecViewForward.y;	matView(2, 2) = vecViewForward.z;	matView(3, 2) = 0.0f;
-			//matView(0, 3) = pos.x;				matView(1, 3) = pos.y;				matView(2, 3) = pos.z;				matView(3, 3) = 1.0f;
-
-
+			matViewInv(0,0) = vecViewRight.x;		matViewInv(0,1) = vecViewRight.y;		matViewInv(0,2) = vecViewRight.z;		matViewInv(0,3) = 0.0f;
+			matViewInv(1,0) = vecViewUp.x;			matViewInv(1,1) = vecViewUp.y;			matViewInv(1,2) = vecViewUp.z;			matViewInv(1,3) = 0.0f;
+			matViewInv(2,0) = vecViewForward.x;	    matViewInv(2,1) = vecViewForward.y;	    matViewInv(2,2) = vecViewForward.z;	    matViewInv(2,3) = 0.0f;
+			matViewInv(3,0) = pos.x;				matViewInv(3,1) = pos.y;				matViewInv(3,2) = pos.z;				matViewInv(3,3) = 1.0f;
 
 			// "Look-At" Matrix
-			matView = matView.quickinvert();
+			matView = matViewInv.quickinvert();
 		}
 
 	public:
@@ -1016,25 +1140,19 @@ namespace olc::utils::hw3d
 
 		const olc::vf3d& GetViewRight() const
 		{
-			return vecViewRight;
+			return -vecViewRight;
 		}
 
 		const olc::vf3d& GetViewForward() const
 		{
-			return vecViewForward;
+			return -vecViewForward;	// ?? To thunk about 
 		}
 
-		inline void SetPosition(olc::vf3d& vPosition)
+		inline void SetPosition(const olc::vf3d& vPosition)
 		{
-			vecPosition = &vPosition;
+			vecPosition = vPosition;
 		}
-		
-		inline void SetPosition(const olc::vf3d&& vPosition)
-		{
-			vecLocalPosition = vPosition;
-			vecPosition = &vecLocalPosition;
-		}
-
+	
 		inline void SetPosition(const float x, const float y, const float z)
 		{
 			SetPosition({ x, y, z });
@@ -1042,19 +1160,13 @@ namespace olc::utils::hw3d
 
 		const olc::vf3d& GetPosition() const
 		{
-			return *vecPosition;
+			return vecPosition;
 		}
 
 
-		inline void SetTarget(olc::vf3d& vTarget)
+		inline void SetTarget(const olc::vf3d& vTarget)
 		{
-			vecTarget = &vTarget;
-		}
-
-		inline void SetTarget(const olc::vf3d&& vTarget)
-		{
-			vecLocalTarget = vTarget;
-			vecTarget = &vecLocalTarget;
+			vecTarget = vTarget;
 		}
 
 		inline void SetTarget(const float x, const float y, const float z)
@@ -1064,10 +1176,10 @@ namespace olc::utils::hw3d
 
 		const olc::vf3d& GetTarget() const
 		{
-			return *vecTarget;
+			return vecTarget;
 		}
 
-		void Update()
+		virtual void Update()
 		{
 			RegenerateViewMatrix();
 		}
@@ -1080,9 +1192,10 @@ namespace olc::utils::hw3d
 			RegenerateProjectionMatrix();
 		}
 
-		void SetAspectRatio(const float fRatio)
+		void SetScreenSize(const olc::vi2d& vSize)
 		{
-			fProjection_AspectRatio = fRatio;
+			vScreenSize = vSize;
+			fProjection_AspectRatio = vScreenSize.x / vScreenSize.y;
 			RegenerateProjectionMatrix();
 		}
 
@@ -1093,11 +1206,184 @@ namespace olc::utils::hw3d
 			RegenerateProjectionMatrix();
 		}
 
+
+		// Converts a mouse coordinate into a ray cast from screen location into 
+		// distance along a line that is obscured by mouse pointer
+		olc::vf3d ScreenRay(const olc::vf2d& vScreenPos) const
+		{
+			// Create parallel ray from screen along projected depth
+			olc::vf3d ray_parallel = {
+				(2.0f * vScreenPos.x) / vScreenSize.x - 1.0f,
+				1.0f - (2.0f * vScreenPos.y) / vScreenSize.y,
+				1.0f, 1.0f
+			};
+			// Invert that screen point into view space
+			olc::vf3d ray_projected = matProjectionInv * ray_parallel;
+			ray_projected.w = 0.0f;
+			// Invert into world space (relative to 0,0,0)
+			olc::vf3d ray_world = matViewInv * ray_projected;
+			ray_world.w = 0.0f;
+			// Return normalised ray to be tidy
+			return ray_world.norm();
+		}
 		
-
-
 	protected:
 		
 	};
 
+	class Camera3D_SimpleFPS : public Camera3D
+	{
+	public:
+		inline void Forwards(const float fSpeed)
+		{
+			vecPosition += GetViewForward() * fSpeed;			
+		}
+
+		inline void Backwards(const float fSpeed)
+		{
+			vecPosition -= GetViewForward() * fSpeed;			
+		}
+
+		inline void Upwards(const float fSpeed)
+		{
+			vecPosition += GetViewUp() * fSpeed;
+		}
+
+		inline void Downwards(const float fSpeed)
+		{
+			vecPosition -= GetViewUp() * fSpeed;
+		}
+
+		inline void StrafeLeft(const float fSpeed)
+		{
+			vecPosition -= GetViewRight() * fSpeed;			
+		}
+
+		inline void StrafeRight(const float fSpeed)
+		{
+			vecPosition += GetViewRight() * fSpeed;			
+		}
+
+		inline void TurnLeft(const float fSpeed)
+		{
+			fHeading += fSpeed;
+			if (fHeading >= std::numbers::pi * 2.0f)
+				fHeading -= std::numbers::pi * 2.0f;
+			if (fHeading < 0)
+				fHeading += std::numbers::pi * 2.0f;			
+		}
+
+		inline void TurnRight(const float fSpeed)
+		{
+			fHeading -= fSpeed;
+			if (fHeading >= std::numbers::pi * 2.0f)
+				fHeading -= std::numbers::pi * 2.0f;
+			if(fHeading < 0)
+				fHeading += std::numbers::pi * 2.0f;			
+		}
+
+		inline void SetHeading(const float fAngle)
+		{
+			fHeading = fAngle;			
+		}
+
+		void Update() override
+		{
+			SetTarget(vecPosition + olc::vf3d(cos(fHeading), 0.0f, sin(fHeading)));
+			Camera3D::Update();
+		}
+
+	protected:
+		float fHeading = std::numbers::pi * 0.5;
+
+		
+	};
+
+	class Camera3D_Orbit : public Camera3D
+	{
+	public:
+		inline void Pan(const olc::vf3d& vScreenMoved)
+		{
+			vecTarget -= vScreenMoved * fCameraRadius;
+			vecPosition -= vScreenMoved * fCameraRadius;
+		}
+
+		inline void Zoom(const float fZoomDelta)
+		{
+			fCameraRadius *= fZoomDelta;
+		}
+
+
+		inline void Spin(const olc::vf2d& vScreenMoved)
+		{			
+			vSpin = 2.0f * (vScreenMoved / vScreenSize) * fProjection_AspectRatio;
+		}
+
+
+		void Update() override
+		{
+			// Calculate where camera is given, target, position and up	as usual		
+			vecViewForward = -(GetTarget() - GetPosition()).norm();
+			vecViewUp = (vecAxisUp - (vecAxisUp.dot(vecViewForward) * vecViewForward)).norm();
+			vecViewRight = vecViewUp.cross(vecViewForward);
+
+			// Turn screen space gesture into projected 3D action...
+			float fDirectionOfRotation = -std::atan2(vSpin.y, vSpin.x);
+			float fMagnitudeOfRotation = vSpin.mag();
+			// Create an axis of rotation through the camera, that corresponds to gesture
+			// Consider this a plane through the camera where mouse movement defines orthogonality
+			olc::vf3d vRotation = vecViewUp * std::sin(fDirectionOfRotation) - vecViewRight * std::cos(fDirectionOfRotation);
+			// Which gives us a 3rd "new" axis to complete lhr
+			olc::vf3d vNewAxis = vecViewForward.cross(vRotation);
+
+			// See https://github.com/processing/p5.js/blob/v1.11.3/src/webgl/p5.Camera.js#L3854 for
+			// inspiration, but modified here in OLC land. Here we generate the Up vector around the 
+			// new axis to implement tilt, i.e. rotate the Up
+			float s = std::sin(fMagnitudeOfRotation);
+			float c = std::cos(fMagnitudeOfRotation);
+			float dotFront = vecAxisUp.dot(vecViewForward);
+			float dotSide = vecAxisUp.dot(vRotation);			
+			float ux = dotFront * c + dotSide * s;
+			float uy = -dotFront * s + dotSide * c;
+			float uz = vecAxisUp.dot(vNewAxis);
+						// Forward          + Side (Tilt Axis) + Tilted Up
+			vecViewUp = ux * vecViewForward + uy * vRotation   + uz * vNewAxis;
+
+			// Panning, Recall Forward is normed and 90 degrees to Rotation
+			vRotation *= -s;
+			vecViewForward *= c;
+			vecViewForward += vRotation;
+
+			// Offset back to user's expectation of distance away from target
+			vecViewForward *= fCameraRadius;
+			vecPosition = vecViewForward + vecTarget;			
+			
+			// Re-generate camera with new "tweaked" components
+			vecViewForward = -(GetTarget() - GetPosition()).norm();
+			vecViewUp = (vecAxisUp - (vecAxisUp.dot(vecViewForward) * vecViewForward)).norm();
+			vecViewRight = vecViewUp.cross(vecViewForward);
+
+			// Manual "Point-At" Matrix
+			matViewInv(0, 0) = vecViewRight.x;		matViewInv(0, 1) = vecViewRight.y;		matViewInv(0, 2) = vecViewRight.z;		matViewInv(0, 3) = 0.0f;
+			matViewInv(1, 0) = vecViewUp.x;			matViewInv(1, 1) = vecViewUp.y;			matViewInv(1, 2) = vecViewUp.z;			matViewInv(1, 3) = 0.0f;
+			matViewInv(2, 0) = vecViewForward.x;	matViewInv(2, 1) = vecViewForward.y;	matViewInv(2, 2) = vecViewForward.z;	matViewInv(2, 3) = 0.0f;
+			matViewInv(3, 0) = vecPosition.x;		matViewInv(3, 1) = vecPosition.y;	    matViewInv(3, 2) = vecPosition.z;	    matViewInv(3, 3) = 1.0f;
+
+			// "Look-At" Matrix
+			matView = matViewInv.quickinvert();
+		}
+
+		inline float GetDistance() const
+		{
+			return fCameraRadius;
+		}
+
+	protected:
+		olc::vf3d vFocalPoint = { 0.0f, 0.0f, 0.0f };
+		float fCameraRadius = 10.0f;
+		float fAngle1 = 0.0f;
+		float fAngle2 = 0.0f;
+		olc::vf2d vSpin;
+	};
 }
+

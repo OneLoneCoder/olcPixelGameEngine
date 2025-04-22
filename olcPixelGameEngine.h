@@ -355,6 +355,7 @@
 		  +adv_FlushLayerGPUTasks - [ADVANCED] Prematurely drain GPUTasks for immediate buffer update
 		  Added polylines as drawable decal	structures
 		  Updated Geometry2D to support non-segment line intersections
+		  +olcUTIL_Hardware3D.h file v1.01
 		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
 
 
@@ -436,7 +437,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 228
+#define PGE_VER 229
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -5047,7 +5048,7 @@ namespace olc
 			if (pack != nullptr)
 			{
 				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
+				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), int(rb.vMemory.size()), &w, &h, &cmp, 4);
 			}
 			else
 			{
