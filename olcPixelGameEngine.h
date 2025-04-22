@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.28              |
+	|           OneLoneCoder Pixel Game Engine v2.29              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -29,7 +29,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2024 OneLoneCoder.com
+	Copyright 2018 - 2025 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
@@ -111,7 +111,7 @@
 	about Mac, so if you need support, I suggest checking out the instructions
 	here: https://github.com/MumflrFumperdink/olcPGEMac
 
-	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL 
+	clang++ -arch x86_64 -std=c++17 -mmacosx-version-min=10.15 -Wall -framework OpenGL
 		-framework GLUT -framework Carbon -lpng YourSource.cpp -o YourProgName
 
 
@@ -119,8 +119,8 @@
 	Compiling with Emscripten (New & Experimental)
 	~~~~~~~~~~~~~~~~~~~~~~~~~
 	Emscripten compiler will turn your awesome C++ PixelGameEngine project into WASM!
-	This means you can run your application in teh browser, great for distributing
-	and submission in to jams and things! It's a bit new at the moment. 
+	This means you can run your application in the browser, great for distributing
+	and submission in to jams and things! It's a bit new at the moment.
 
 	em++ -std=c++17 -O2 -s ALLOW_MEMORY_GROWTH=1 -s MAX_WEBGL_VERSION=2 -s MIN_WEBGL_VERSION=2 -s USE_LIBPNG=1 ./YourSource.cpp -o pge.html
 
@@ -150,9 +150,9 @@
 	#define OLC_PGE_APPLICATION
 	#include "olcPixelGameEngine.h"
 
-	That's all it should include. You can also include PGEX includes and 
-	defines in here too. With this in place, you dont need to 
-	#define OLC_PGE_APPLICATION anywhere, and can simply include this 
+	That's all it should include. You can also include PGEX includes and
+	defines in here too. With this in place, you dont need to
+	#define OLC_PGE_APPLICATION anywhere, and can simply include this
 	header file as an when you need to.
 
 
@@ -169,10 +169,10 @@
 	Thanks
 	~~~~~~
 	I'd like to extend thanks to Ian McKay, Bispoo, Eremiell, slavka, Kwizatz77, gurkanctn, Phantim,
-	IProgramInCPP, JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice, 
-	dandistine,	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, Alexio, SaladinAkara 
+	IProgramInCPP, JackOJC, KrossX, Huhlig, Dragoneye, Appa, JustinRichardsMusic, SliceNDice,
+	dandistine,	Ralakus, Gorbit99, raoul, joshinils, benedani, Moros1138, Alexio, SaladinAkara
 	& MagetzUb for advice, ideas and testing, and I'd like to extend my appreciation to the
-	250K YouTube followers,	80+ Patreons, 4.8K Twitch followers and 10K Discord server members 
+	250K YouTube followers,	80+ Patreons, 4.8K Twitch followers and 10K Discord server members
 	who give me	the motivation to keep going with all this :D
 
 	Significant Contributors: @Moros1138, @SaladinAkara, @MaGetzUb, @slavka,
@@ -186,9 +186,12 @@
 	SaladinAkara.......Aseprite, Inside, Quern: Undying Thoughts, Outer Wilds
 	AlterEgo...........Final Fantasy XII - The Zodiac Age
 	SlicEnDicE.........Noita, Inside
-	TGD................Voucher Gift
+	TGD................Several Voucher Gifts*
 	Dragoneye..........Lucas Arts Adventure Game Pack
 	Anonymous Pirate...Return To Monkey Island
+
+	*Sponsored a new mouse and several OLC studio bits, mic mounts, cables etc
+	and is a proponent of PGE, and you know what? a jolly nice chap too!
 
 	Special thanks to my Patreons too - I wont name you on here, but I've
 	certainly enjoyed my tea and flapjacks :D
@@ -197,7 +200,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022, 2023, 2024
+	David Barr, aka javidx9, (c) OneLoneCoder 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 */
 #pragma endregion
 
@@ -258,12 +261,12 @@
 		  +Wireframe Decal Mode - For debug overlays
 	2.11: Made PGEX hooks optional - (provide true to super constructor)
 	2.12: Fix for MinGW compiler non-compliance :( - why is its sdk structure different?? why???
-	2.13: +GetFontSprite() - allows access to font data	 
+	2.13: +GetFontSprite() - allows access to font data
 	2.14: Fix WIN32 Definition reshuffle
 		  Fix DrawPartialDecal() - messed up dimension during renderer experiment, didnt remove junk code, thanks Alexio
 		  Fix? Strange error regarding GDI+ Image Loader not knowing about COM, SDK change?
 	2.15: Big Reformat
-		  +WASM Platform (via Emscripten) - Big Thanks to OLC Community - See Platform for details		  
+		  +WASM Platform (via Emscripten) - Big Thanks to OLC Community - See Platform for details
 		  +Sample Mode for Decals
 		  +Made olc_ConfigureSystem() accessible
 		  +Added OLC_----_CUSTOM_EX for externalised platforms, renderers and image loaders
@@ -287,7 +290,7 @@
 	2.18: +Option to not "dirty" layers with SetDrawTarget() - Thanks TerasKasi!
 		  =Detection for Mac M1, fix for scroll wheel interrogation - Thanks ruarq!
 	2.19: Textual Input(of)course Edition!
-	      =Built in font is now olc::Renderable
+		  =Built in font is now olc::Renderable
 		  +EnablePixelTransfer() - Gate if layer content transfers occur (speedup in decal only apps)
 		  +TextEntryEnable() - Enables/Disables text entry mode
 		  +TextEntryGetString() - Gets the current accumulated string in text entry mode
@@ -301,7 +304,7 @@
 		  +ConsoleCaptureStdOut() - Capture std::cout by redirecting to built-in console
 		  +OnConsoleCommand() - Override is called when command is entered into built in console
 	2.20: +DrawRectDecal() - Keeps OneSketchyGuy quiet
-	      +GetScreenSize()
+		  +GetScreenSize()
 		  +olc::Sprite::Size() - returns size of sprite in vector format
 	2.21: Emscripten Overhaul - Thanks Moros!
 		  +DrawPolygonDecal() tint overload, can now tint a polygon accounting for vertex colours
@@ -337,10 +340,26 @@
 		  +Updated olcUTIL_QuadTree.h
 		  +Updated olcUTIL_Animate2D.h
 		  +Updated olcUTIL_SplashScreen.h
-		  +File Resolution for PGEtinker.com
+		  +File Resolution for PGEtinker.com							   
 	2.28: Brought olc::v_2d inline with other sources
-		  
-    !! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
+	2.29: Hardware 3D Rendering & Efficient Keyboard Interrogation
+		  +GetKeyPressCache() - [ADVANCED] Returns vector of keycodes encountered this frame (thanks discord/carbon13)
+		  +ConvertKeycode() - [ADVANCED] Converts system keycode to olc::Key
+		  +GetKeySymbol() - [ADVANCED] Returns 'character' associated with an olc::Key (with modifiers)    
+		  +HW3D_Projection() - Sets a hardware projection matrix for 3D rendering
+		  +HW3D_EnableDepthTest - Sets whether 3D rendered objects should be depth tested
+		  +HW3D_SetCullMode - Sets which faces of a 3D rendered model are visible
+		  +HW3D_DrawObject - Draw a 3D mesh using hardware
+		  +HW3D_DrawLine - Draw a 3D line usingh hardware
+		  +HW3D_DrawLineBox	- Draw a 3D box using hardware
+		  +adv_FlushLayerGPUTasks - [ADVANCED] Prematurely drain GPUTasks for immediate buffer update
+		  Added polylines as drawable decal	structures
+		  Updated Geometry2D to support non-segment line intersections
+		  +olcUTIL_Hardware3D.h file v1.01
+		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
+
+
+	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
 */
 #pragma endregion
@@ -418,7 +437,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 228
+#define PGE_VER 229
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -426,36 +445,36 @@ int main()
 #pragma region compiler_config
 #define USE_EXPERIMENTAL_FS
 #if defined(_WIN32)
-	#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if _MSC_VER >= 1920 && _MSVC_LANG >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 #if defined(__linux__) || defined(__MINGW32__) || defined(__EMSCRIPTEN__) || defined(__FreeBSD__) || defined(__APPLE__)
-	#if __cplusplus >= 201703L
-		#undef USE_EXPERIMENTAL_FS
-	#endif
+#if __cplusplus >= 201703L
+#undef USE_EXPERIMENTAL_FS
+#endif
 #endif
 
 #if !defined(OLC_KEYBOARD_UK)
-	#define OLC_KEYBOARD_UK
+#define OLC_KEYBOARD_UK
 #endif
 
 
 #if defined(USE_EXPERIMENTAL_FS) || defined(FORCE_EXPERIMENTAL_FS)
 	// C++14
-	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#include <experimental/filesystem>
-	namespace _gfs = std::experimental::filesystem::v1;
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+namespace _gfs = std::experimental::filesystem::v1;
 #else
 	// C++17
-	#include <filesystem>
-	namespace _gfs = std::filesystem;
+#include <filesystem>
+namespace _gfs = std::filesystem;
 #endif
 
 #if defined(UNICODE) || defined(_UNICODE)
-	#define olcT(s) L##s
+#define olcT(s) L##s
 #else
-	#define olcT(s) s
+#define olcT(s) s
 #endif
 
 #define UNUSED(x) (void)(x)
@@ -465,60 +484,60 @@ int main()
 // O------------------------------------------------------------------------------O
 
 #if defined(OLC_PGE_HEADLESS)
-	#define OLC_PLATFORM_HEADLESS
-	#define OLC_GFX_HEADLESS
-	#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
-		#define OLC_IMAGE_HEADLESS
-	#endif
+#define OLC_PLATFORM_HEADLESS
+#define OLC_GFX_HEADLESS
+#if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG)
+#define OLC_IMAGE_HEADLESS
+#endif
 #endif
 
 // Platform
 #if !defined(OLC_PLATFORM_WINAPI) && !defined(OLC_PLATFORM_X11) && !defined(OLC_PLATFORM_GLUT) && !defined(OLC_PLATFORM_EMSCRIPTEN) && !defined(OLC_PLATFORM_HEADLESS)
-	#if !defined(OLC_PLATFORM_CUSTOM_EX)
-		#if defined(_WIN32)
-			#define OLC_PLATFORM_WINAPI
-		#endif
-		#if defined(__linux__) || defined(__FreeBSD__)
-			#define OLC_PLATFORM_X11
-		#endif
-		#if defined(__APPLE__)
-			#define GL_SILENCE_DEPRECATION
-			#define OLC_PLATFORM_GLUT
-		#endif
-		#if defined(__EMSCRIPTEN__)
-			#define OLC_PLATFORM_EMSCRIPTEN
-		#endif
-	#endif
+#if !defined(OLC_PLATFORM_CUSTOM_EX)
+#if defined(_WIN32)
+#define OLC_PLATFORM_WINAPI
+#endif
+#if defined(__linux__) || defined(__FreeBSD__)
+#define OLC_PLATFORM_X11
+#endif
+#if defined(__APPLE__)
+#define GL_SILENCE_DEPRECATION
+#define OLC_PLATFORM_GLUT
+#endif
+#if defined(__EMSCRIPTEN__)
+#define OLC_PLATFORM_EMSCRIPTEN
+#endif
+#endif
 #endif
 
 // Start Situation
 #if defined(OLC_PLATFORM_GLUT) || defined(OLC_PLATFORM_EMSCRIPTEN)
-	#define PGE_USE_CUSTOM_START
+#define PGE_USE_CUSTOM_START
 #endif
 
 
 
 // Renderer
 #if !defined(OLC_GFX_OPENGL10) && !defined(OLC_GFX_OPENGL33) && !defined(OLC_GFX_DIRECTX10) && !defined(OLC_GFX_HEADLESS)
-	#if !defined(OLC_GFX_CUSTOM_EX)
-		#if defined(OLC_PLATFORM_EMSCRIPTEN)
-			#define OLC_GFX_OPENGL33
-		#else
-			#define OLC_GFX_OPENGL10
-		#endif
-	#endif
+#if !defined(OLC_GFX_CUSTOM_EX)
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+#define OLC_GFX_OPENGL33
+#else
+#define OLC_GFX_OPENGL10
+#endif
+#endif
 #endif
 
 // Image loader
 #if !defined(OLC_IMAGE_STB) && !defined(OLC_IMAGE_GDI) && !defined(OLC_IMAGE_LIBPNG) && !defined(OLC_IMAGE_HEADLESS)
-	#if !defined(OLC_IMAGE_CUSTOM_EX)
-		#if defined(_WIN32)
-			#define	OLC_IMAGE_GDI
-		#endif
-		#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
-			#define	OLC_IMAGE_LIBPNG
-		#endif
-	#endif
+#if !defined(OLC_IMAGE_CUSTOM_EX)
+#if defined(_WIN32)
+#define	OLC_IMAGE_GDI
+#endif
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__EMSCRIPTEN__)
+#define	OLC_IMAGE_LIBPNG
+#endif
+#endif
 #endif
 
 // File resolver for runtime FS access of emscripten builds
@@ -534,45 +553,45 @@ int main()
 // O------------------------------------------------------------------------------O
 #if !defined(OLC_PGE_HEADLESS)
 #if defined(OLC_PLATFORM_WINAPI)	
-	#define _WINSOCKAPI_ // Thanks Cornchipss
-		#if !defined(VC_EXTRALEAN)
-		#define VC_EXTRALEAN
-	#endif
-	#if !defined(NOMINMAX)
-		#define NOMINMAX
-	#endif
+#define _WINSOCKAPI_ // Thanks Cornchipss
+#if !defined(VC_EXTRALEAN)
+#define VC_EXTRALEAN
+#endif
+#if !defined(NOMINMAX)
+#define NOMINMAX
+#endif
 
-	// In Code::Blocks
-	#if !defined(_WIN32_WINNT)
-		#ifdef HAVE_MSMF
-			#define _WIN32_WINNT 0x0600 // Windows Vista
-		#else
-			#define _WIN32_WINNT 0x0500 // Windows 2000
-		#endif
-	#endif
+// In Code::Blocks
+#if !defined(_WIN32_WINNT)
+#ifdef HAVE_MSMF
+#define _WIN32_WINNT 0x0600 // Windows Vista
+#else
+#define _WIN32_WINNT 0x0500 // Windows 2000
+#endif
+#endif
 
-	#include <windows.h>
-	#undef _WINSOCKAPI_
+#include <windows.h>
+#undef _WINSOCKAPI_
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-	namespace X11
-	{
-		#include <X11/X.h>
-		#include <X11/Xlib.h>
-	}
+namespace X11
+{
+#include <X11/X.h>
+#include <X11/Xlib.h>
+}
 #endif
 
 #if defined(OLC_PLATFORM_GLUT)
-	#if defined(__linux__)
-		#include <GL/glut.h>
-		#include <GL/freeglut_ext.h>
-	#endif
-	#if defined(__APPLE__)
-		#include <GLUT/glut.h>
-	#include <objc/message.h>
-	#include <objc/NSObjCRuntime.h>
-	#endif
+#if defined(__linux__)
+#include <GL/glut.h>
+#include <GL/freeglut_ext.h>
+#endif
+#if defined(__APPLE__)
+#include <GLUT/glut.h>
+#include <objc/message.h>
+#include <objc/NSObjCRuntime.h>
+#endif
 #endif
 #endif
 
@@ -589,311 +608,316 @@ int main()
 
 
 #if !defined(OLC_VECTOR2D_DEFINED)
-	namespace olc
+namespace olc
+{
+	/*
+		A complete 2D geometric vector structure, with a variety
+		of useful utility functions and operator overloads
+	*/
+	template<class T>
+	struct v_2d
 	{
-		/*
-			A complete 2D geometric vector structure, with a variety
-			of useful utility functions and operator overloads
-		*/
-		template<class T>
-		struct v_2d
+		static_assert(std::is_arithmetic<T>::value, "olc::v_2d<type> must be numeric");
+
+		// x-axis component
+		T x = 0;
+		// y-axis component
+		T y = 0;
+
+		// Default constructor
+		inline constexpr v_2d() = default;
+
+		// Specific constructor
+		inline constexpr v_2d(T _x, T _y) : x(_x), y(_y)
+		{}
+
+		// Copy constructor
+		inline constexpr v_2d(const v_2d& v) = default;
+
+		// Assignment operator
+		inline constexpr v_2d& operator=(const v_2d& v) = default;
+
+
+		inline constexpr std::array<T, 2> a() const
 		{
-			static_assert(std::is_arithmetic<T>::value, "olc::v_2d<type> must be numeric");
-
-			// x-axis component
-			T x = 0;
-			// y-axis component
-			T y = 0;
-
-			// Default constructor
-			inline constexpr v_2d() = default;
-
-			// Specific constructor
-			inline constexpr v_2d(T _x, T _y) : x(_x), y(_y)
-			{}
-
-			// Copy constructor
-			inline constexpr v_2d(const v_2d& v) = default;
-
-			// Assignment operator
-			inline constexpr v_2d& operator=(const v_2d& v) = default;
-
-
-			// Returns rectangular area of vector
-			inline constexpr auto area() const
-			{
-				return x * y;
-			}
-
-			// Returns magnitude of vector
-			inline auto mag() const
-			{
-				return std::sqrt(x * x + y * y);
-			}
-
-			// Returns magnitude squared of vector (useful for fast comparisons)
-			inline constexpr T mag2() const
-			{
-				return x * x + y * y;
-			}
-
-			// Returns normalised version of vector
-			inline v_2d norm() const
-			{
-				auto r = 1 / mag();
-				return v_2d(x * r, y * r);
-			}
-
-			// Returns vector at 90 degrees to this one
-			inline constexpr v_2d perp() const
-			{
-				return v_2d(-y, x);
-			}
-
-			// Rounds both components down
-			inline constexpr v_2d floor() const
-			{
-				return v_2d(std::floor(x), std::floor(y));
-			}
-
-			// Rounds both components up
-			inline constexpr v_2d ceil() const
-			{
-				return v_2d(std::ceil(x), std::ceil(y));
-			}
-
-			// Returns 'element-wise' max of this and another vector
-			inline constexpr v_2d max(const v_2d& v) const
-			{
-				return v_2d(std::max(x, v.x), std::max(y, v.y));
-			}
-
-			// Returns 'element-wise' min of this and another vector
-			inline constexpr v_2d min(const v_2d& v) const
-			{
-				return v_2d(std::min(x, v.x), std::min(y, v.y));
-			}
-
-			// Calculates scalar dot product between this and another vector
-			inline constexpr auto dot(const v_2d& rhs) const
-			{
-				return this->x * rhs.x + this->y * rhs.y;
-			}
-
-			// Calculates 'scalar' cross product between this and another vector (useful for winding orders)
-			inline constexpr auto cross(const v_2d& rhs) const
-			{
-				return this->x * rhs.y - this->y * rhs.x;
-			}
-
-			// Treat this as polar coordinate (R, Theta), return cartesian equivalent (X, Y)
-			inline constexpr v_2d cart() const
-			{
-				return v_2d(std::cos(y) * x, std::sin(y) * x);
-			}
-
-			// Treat this as cartesian coordinate (X, Y), return polar equivalent (R, Theta)
-			inline constexpr v_2d polar() const
-			{
-				return v_2d(mag(), std::atan2(y, x));
-			}
-
-			// Clamp the components of this vector in between the 'element-wise' minimum and maximum of 2 other vectors
-			inline constexpr v_2d clamp(const v_2d& v1, const v_2d& v2) const
-			{
-				return this->max(v1).min(v2);
-			}
-
-			// Linearly interpolate between this vector, and another vector, given normalised parameter 't'
-			inline constexpr v_2d lerp(const v_2d& v1, const double t) const
-			{
-				return (*this) * (T(1.0 - t)) + (v1 * T(t));
-			}
-
-			// Compare if this vector is numerically equal to another
-			inline constexpr bool operator == (const v_2d& rhs) const
-			{
-				return (this->x == rhs.x && this->y == rhs.y);
-			}
-
-			// Compare if this vector is not numerically equal to another
-			inline constexpr bool operator != (const v_2d& rhs) const
-			{
-				return (this->x != rhs.x || this->y != rhs.y);
-			}
-
-			// Return this vector as a std::string, of the form "(x,y)"
-			inline std::string str() const
-			{
-				return std::string("(") + std::to_string(this->x) + "," + std::to_string(this->y) + ")";
-			}
-
-			// Assuming this vector is incident, given a normal, return the reflection
-			inline constexpr v_2d reflect(const v_2d& n) const
-			{
-				return (*this) - 2.0 * (this->dot(n) * n);
-			}
-
-			// Allow 'casting' from other v_2d types
-			template<class F>
-			inline constexpr operator v_2d<F>() const
-			{
-				return { static_cast<F>(this->x), static_cast<F>(this->y) };
-			}
-		};
-
-		// Multiplication operator overloads between vectors and scalars, and vectors and vectors
-		template<class TL, class TR>
-		inline constexpr auto operator * (const TL& lhs, const v_2d<TR>& rhs)
-		{
-			return v_2d(lhs * rhs.x, lhs * rhs.y);
+			return std::array<T, 2>{x, y};
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator * (const v_2d<TL>& lhs, const TR& rhs)
+		// Returns rectangular area of vector
+		inline constexpr auto area() const
 		{
-			return v_2d(lhs.x * rhs, lhs.y * rhs);
+			return x * y;
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator * (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Returns magnitude of vector
+		inline auto mag() const
 		{
-			return v_2d(lhs.x * rhs.x, lhs.y * rhs.y);
+			return std::sqrt(x * x + y * y);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator *= (v_2d<TL>& lhs, const TR& rhs)
+		// Returns magnitude squared of vector (useful for fast comparisons)
+		inline constexpr T mag2() const
 		{
-			lhs = lhs * rhs;
-			return lhs;
+			return x * x + y * y;
 		}
 
-		// Division operator overloads between vectors and scalars, and vectors and vectors
-		template<class TL, class TR>
-		inline constexpr auto operator / (const TL& lhs, const v_2d<TR>& rhs)
+		// Returns normalised version of vector
+		inline v_2d norm() const
 		{
-			return v_2d(lhs / rhs.x, lhs / rhs.y);
+			auto r = 1 / mag();
+			return v_2d(x * r, y * r);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator / (const v_2d<TL>& lhs, const TR& rhs)
+		// Returns vector at 90 degrees to this one
+		inline constexpr v_2d perp() const
 		{
-			return v_2d(lhs.x / rhs, lhs.y / rhs);
+			return v_2d(-y, x);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator / (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Rounds both components down
+		inline constexpr v_2d floor() const
 		{
-			return v_2d(lhs.x / rhs.x, lhs.y / rhs.y);
+			return v_2d(std::floor(x), std::floor(y));
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator /= (v_2d<TL>& lhs, const TR& rhs)
+		// Rounds both components up
+		inline constexpr v_2d ceil() const
 		{
-			lhs = lhs / rhs;
-			return lhs;
+			return v_2d(std::ceil(x), std::ceil(y));
 		}
 
-		// Unary Addition operator (pointless but i like the platinum trophies)
-		template<class T>
-		inline constexpr auto operator + (const v_2d<T>& lhs)
+		// Returns 'element-wise' max of this and another vector
+		inline constexpr v_2d max(const v_2d& v) const
 		{
-			return v_2d(+lhs.x, +lhs.y);
+			return v_2d(std::max(x, v.x), std::max(y, v.y));
 		}
 
-		// Addition operator overloads between vectors and scalars, and vectors and vectors
-		template<class TL, class TR>
-		inline constexpr auto operator + (const TL& lhs, const v_2d<TR>& rhs)
+		// Returns 'element-wise' min of this and another vector
+		inline constexpr v_2d min(const v_2d& v) const
 		{
-			return v_2d(lhs + rhs.x, lhs + rhs.y);
+			return v_2d(std::min(x, v.x), std::min(y, v.y));
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator + (const v_2d<TL>& lhs, const TR& rhs)
+		// Calculates scalar dot product between this and another vector
+		inline constexpr auto dot(const v_2d& rhs) const
 		{
-			return v_2d(lhs.x + rhs, lhs.y + rhs);
+			return this->x * rhs.x + this->y * rhs.y;
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator + (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Calculates 'scalar' cross product between this and another vector (useful for winding orders)
+		inline constexpr auto cross(const v_2d& rhs) const
 		{
-			return v_2d(lhs.x + rhs.x, lhs.y + rhs.y);
+			return this->x * rhs.y - this->y * rhs.x;
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator += (v_2d<TL>& lhs, const TR& rhs)
+		// Treat this as polar coordinate (R, Theta), return cartesian equivalent (X, Y)
+		inline constexpr v_2d cart() const
 		{
-			lhs = lhs + rhs;
-			return lhs;
+			return v_2d(std::cos(y) * x, std::sin(y) * x);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator += (v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Treat this as cartesian coordinate (X, Y), return polar equivalent (R, Theta)
+		inline constexpr v_2d polar() const
 		{
-			lhs = lhs + rhs;
-			return lhs;
+			return v_2d(mag(), std::atan2(y, x));
 		}
 
-		// Unary negation operator overoad for inverting a vector
-		template<class T>
-		inline constexpr auto operator - (const v_2d<T>& lhs)
+		// Clamp the components of this vector in between the 'element-wise' minimum and maximum of 2 other vectors
+		inline constexpr v_2d clamp(const v_2d& v1, const v_2d& v2) const
 		{
-			return v_2d(-lhs.x, -lhs.y);
+			return this->max(v1).min(v2);
 		}
 
-		// Subtraction operator overloads between vectors and scalars, and vectors and vectors
-		template<class TL, class TR>
-		inline constexpr auto operator - (const TL& lhs, const v_2d<TR>& rhs)
+		// Linearly interpolate between this vector, and another vector, given normalised parameter 't'
+		inline constexpr v_2d lerp(const v_2d& v1, const double t) const
 		{
-			return v_2d(lhs - rhs.x, lhs - rhs.y);
+			return (*this) * (T(1.0 - t)) + (v1 * T(t));
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator - (const v_2d<TL>& lhs, const TR& rhs)
+		// Compare if this vector is numerically equal to another
+		inline constexpr bool operator == (const v_2d& rhs) const
 		{
-			return v_2d(lhs.x - rhs, lhs.y - rhs);
+			return (this->x == rhs.x && this->y == rhs.y);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator - (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Compare if this vector is not numerically equal to another
+		inline constexpr bool operator != (const v_2d& rhs) const
 		{
-			return v_2d(lhs.x - rhs.x, lhs.y - rhs.y);
+			return (this->x != rhs.x || this->y != rhs.y);
 		}
 
-		template<class TL, class TR>
-		inline constexpr auto operator -= (v_2d<TL>& lhs, const TR& rhs)
+		// Return this vector as a std::string, of the form "(x,y)"
+		inline std::string str() const
 		{
-			lhs = lhs - rhs;
-			return lhs;
+			return std::string("(") + std::to_string(this->x) + "," + std::to_string(this->y) + ")";
 		}
 
-		// Greater/Less-Than Operator overloads - mathematically useless, but handy for "sorted" container storage
-		template<class TL, class TR>
-		inline constexpr bool operator < (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Assuming this vector is incident, given a normal, return the reflection
+		inline constexpr v_2d reflect(const v_2d& n) const
 		{
-			return (lhs.y < rhs.y) || (lhs.y == rhs.y && lhs.x < rhs.x);
+			return (*this) - 2.0 * (this->dot(n) * n);
 		}
 
-		template<class TL, class TR>
-		inline constexpr bool operator > (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+		// Allow 'casting' from other v_2d types
+		template<class F>
+		inline constexpr operator v_2d<F>() const
 		{
-			return (lhs.y > rhs.y) || (lhs.y == rhs.y && lhs.x > rhs.x);
+			return { static_cast<F>(this->x), static_cast<F>(this->y) };
 		}
+	};
 
-		// Allow olc::v_2d to play nicely with std::cout
-		template<class T>
-		inline constexpr std::ostream& operator << (std::ostream& os, const v_2d<T>& rhs)
-		{
-			os << rhs.str();
-			return os;
-		}
-
-		// Convenient types ready-to-go
-		typedef v_2d<int32_t> vi2d;
-		typedef v_2d<uint32_t> vu2d;
-		typedef v_2d<float> vf2d;
-		typedef v_2d<double> vd2d;
+	// Multiplication operator overloads between vectors and scalars, and vectors and vectors
+	template<class TL, class TR>
+	inline constexpr auto operator * (const TL& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs * rhs.x, lhs * rhs.y);
 	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator * (const v_2d<TL>& lhs, const TR& rhs)
+	{
+		return v_2d(lhs.x * rhs, lhs.y * rhs);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator * (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs.x * rhs.x, lhs.y * rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator *= (v_2d<TL>& lhs, const TR& rhs)
+	{
+		lhs = lhs * rhs;
+		return lhs;
+	}
+
+	// Division operator overloads between vectors and scalars, and vectors and vectors
+	template<class TL, class TR>
+	inline constexpr auto operator / (const TL& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs / rhs.x, lhs / rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator / (const v_2d<TL>& lhs, const TR& rhs)
+	{
+		return v_2d(lhs.x / rhs, lhs.y / rhs);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator / (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs.x / rhs.x, lhs.y / rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator /= (v_2d<TL>& lhs, const TR& rhs)
+	{
+		lhs = lhs / rhs;
+		return lhs;
+	}
+
+	// Unary Addition operator (pointless but i like the platinum trophies)
+	template<class T>
+	inline constexpr auto operator + (const v_2d<T>& lhs)
+	{
+		return v_2d(+lhs.x, +lhs.y);
+	}
+
+	// Addition operator overloads between vectors and scalars, and vectors and vectors
+	template<class TL, class TR>
+	inline constexpr auto operator + (const TL& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs + rhs.x, lhs + rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator + (const v_2d<TL>& lhs, const TR& rhs)
+	{
+		return v_2d(lhs.x + rhs, lhs.y + rhs);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator + (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs.x + rhs.x, lhs.y + rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator += (v_2d<TL>& lhs, const TR& rhs)
+	{
+		lhs = lhs + rhs;
+		return lhs;
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator += (v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		lhs = lhs + rhs;
+		return lhs;
+	}
+
+	// Unary negation operator overoad for inverting a vector
+	template<class T>
+	inline constexpr auto operator - (const v_2d<T>& lhs)
+	{
+		return v_2d(-lhs.x, -lhs.y);
+	}
+
+	// Subtraction operator overloads between vectors and scalars, and vectors and vectors
+	template<class TL, class TR>
+	inline constexpr auto operator - (const TL& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs - rhs.x, lhs - rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator - (const v_2d<TL>& lhs, const TR& rhs)
+	{
+		return v_2d(lhs.x - rhs, lhs.y - rhs);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator - (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return v_2d(lhs.x - rhs.x, lhs.y - rhs.y);
+	}
+
+	template<class TL, class TR>
+	inline constexpr auto operator -= (v_2d<TL>& lhs, const TR& rhs)
+	{
+		lhs = lhs - rhs;
+		return lhs;
+	}
+
+	// Greater/Less-Than Operator overloads - mathematically useless, but handy for "sorted" container storage
+	template<class TL, class TR>
+	inline constexpr bool operator < (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return (lhs.y < rhs.y) || (lhs.y == rhs.y && lhs.x < rhs.x);
+	}
+
+	template<class TL, class TR>
+	inline constexpr bool operator > (const v_2d<TL>& lhs, const v_2d<TR>& rhs)
+	{
+		return (lhs.y > rhs.y) || (lhs.y == rhs.y && lhs.x > rhs.x);
+	}
+
+	// Allow olc::v_2d to play nicely with std::cout
+	template<class T>
+	inline constexpr std::ostream& operator << (std::ostream& os, const v_2d<T>& rhs)
+	{
+		os << rhs.str();
+		return os;
+	}
+
+	// Convenient types ready-to-go
+	typedef v_2d<int32_t> vi2d;
+	typedef v_2d<uint32_t> vu2d;
+	typedef v_2d<float> vf2d;
+	typedef v_2d<double> vd2d;
+}
 #define OLC_VECTOR2D_DEFINED 1
 #endif
 
@@ -968,7 +992,7 @@ namespace olc
 #endif
 	// Thanks to scripticuk and others for updating the key maps
 	// NOTE: The GLUT platform will need updating, open to contributions ;)
-	enum Key
+	enum class Key : uint8_t
 	{
 		NONE,
 		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
@@ -1124,8 +1148,8 @@ namespace olc
 	class Renderable
 	{
 	public:
-		Renderable() = default;		
-		Renderable(Renderable&& r) = default; 
+		Renderable() = default;
+		Renderable(Renderable&& r) = default;
 		Renderable& operator=(Renderable&& r) = default;
 		Renderable(const Renderable&) = delete;
 		olc::rcode Load(const std::string& sFile, ResourcePack* pack = nullptr, bool filter = false, bool clamp = true);
@@ -1158,6 +1182,32 @@ namespace olc
 		bool depth = false;
 	};
 
+	enum class CullMode : uint8_t
+	{
+		NONE = 0,
+		CW = 1,
+		CCW = 2
+	};
+
+	struct GPUTask
+	{
+		//   x      y      z      w      u      v       rgb
+		struct Vertex { float p[6]; uint32_t c; };
+		std::vector<Vertex> vb;
+		olc::Decal* decal = nullptr;
+		olc::DecalStructure structure = olc::DecalStructure::FAN;
+		olc::DecalMode mode = olc::DecalMode::NORMAL;
+		bool depth = false;
+		std::array<float, 16> mvp = { {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				0, 0, 0, 1
+			} };
+		olc::CullMode cull = olc::CullMode::NONE;
+		olc::Pixel tint = olc::WHITE;
+	};
+
 	struct LayerDesc
 	{
 		olc::vf2d vOffset = { 0, 0 };
@@ -1167,6 +1217,7 @@ namespace olc
 		olc::Renderable pDrawTarget;
 		uint32_t nResID = 0;
 		std::vector<DecalInstance> vecDecalInstance;
+		std::vector<GPUTask> vecGPUTasks;
 		olc::Pixel tint = olc::WHITE;
 		std::function<void()> funcHook = nullptr;
 	};
@@ -1183,6 +1234,8 @@ namespace olc
 		virtual void	   SetDecalMode(const olc::DecalMode& mode) = 0;
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) = 0;
 		virtual void       DrawDecal(const olc::DecalInstance& decal) = 0;
+		virtual void       DoGPUTask(const olc::GPUTask& task) = 0;
+		virtual void	   Set3DProjection(const std::array<float, 16>& mat) = 0;
 		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) = 0;
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) = 0;
 		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) = 0;
@@ -1216,7 +1269,7 @@ namespace olc
 	// The Static Twins (plus one)
 	static std::unique_ptr<Renderer> renderer;
 	static std::unique_ptr<Platform> platform;
-	static std::map<size_t, uint8_t> mapKeys;
+	inline std::map<size_t, olc::Key> mapKeys;
 
 	// O------------------------------------------------------------------------------O
 	// | olc::PixelGameEngine - The main BASE class for your application              |
@@ -1263,7 +1316,7 @@ namespace olc
 		// Gets the mouse as a vector to keep Tarriest happy
 		const olc::vi2d& GetMousePos() const;
 
-		static const std::map<size_t, uint8_t>& GetKeyMap() { return mapKeys; }
+		const std::map<size_t, olc::Key>& GetKeyMap() const { return mapKeys; }
 
 		// Muck about with the GUI
 		olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize);
@@ -1334,6 +1387,7 @@ namespace olc
 		void adv_HardwareClip(const bool bScale, const olc::vi2d& viewPos, const olc::vi2d& viewSize, const bool bClear = false);
 		void adv_FlushLayer(const size_t nLayerID);
 		void adv_FlushLayerDecals(const size_t nLayerID);
+		void adv_FlushLayerGPUTasks(const size_t nLayerID);
 
 	public: // DRAWING ROUTINES
 		// Draws a single Pixel
@@ -1407,7 +1461,7 @@ namespace olc
 		void DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		void FillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded rectangle as a decal
-		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);		
+		void GradientFillRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel colTL, const olc::Pixel colBL, const olc::Pixel colBR, const olc::Pixel colTR);
 		// Draws a single shaded filled triangle as a decal
 		void FillTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel col = olc::WHITE);
 		// Draws a corner shaded triangle as a decal
@@ -1437,7 +1491,7 @@ namespace olc
 		void EnablePixelTransfer(const bool bEnable = true);
 
 		// Command Console Routines
-		void ConsoleShow(const olc::Key &keyExit, bool bSuspendTime = true);
+		void ConsoleShow(const olc::Key& keyExit, bool bSuspendTime = true);
 		bool IsConsoleShowing() const;
 		void ConsoleClear();
 		std::stringstream& ConsoleOut();
@@ -1450,45 +1504,54 @@ namespace olc
 		bool IsTextEntryEnabled() const;
 
 
+		// KeyPress Cache
+		const std::vector<int32_t>& GetKeyPressCache() const;
+		olc::Key ConvertKeycode(const int keycode) const;
+		const std::string GetKeySymbol(const olc::Key pgekey, const bool modShift = false, const bool modCtrl = false, const bool modAlt = false) const;
+
 
 	private:
 		void UpdateTextEntry();
 		void UpdateConsole();
 
 	public:
-
-		// Experimental Lightweight 3D Routines ================
-#ifdef OLC_ENABLE_EXPERIMENTAL
-		// Set Manual View Matrix
-		void LW3D_View(const std::array<float, 16>& m);
-		// Set Manual World Matrix
-		void LW3D_World(const std::array<float, 16>& m);
+		// HW3D - Lightweight 3D Rendering 
 		// Set Manual Projection Matrix
-		void LW3D_Projection(const std::array<float, 16>& m);
-		
-		// Draws a vector of vertices, interprted as individual triangles
-		void LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float,3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col);
-		void LW3D_DrawWarpedDecal(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const olc::Pixel& tint);
+		void HW3D_Projection(const std::array<float, 16>& m);
+		// 3D Rendering is tested against depth buffer
+		void HW3D_EnableDepthTest(const bool bEnableDepth);
+		// 3D Rendering cull faces depending on winding order
+		void HW3D_SetCullMode(const olc::CullMode mode);
 
-		void LW3D_ModelTranslate(const float x, const float y, const float z);
-		
-		// Camera convenience functions
-		void LW3D_SetCameraAtTarget(const float fEyeX, const float fEyeY, const float fEyeZ,
-			const float fTargetX, const float fTargetY, const float fTargetZ,
-			const float fUpX = 0.0f, const float fUpY = 1.0f, const float fUpZ = 0.0f);
-		void LW3D_SetCameraAlongDirection(const float fEyeX, const float fEyeY, const float fEyeZ,
-			const float fDirX, const float fDirY, const float fDirZ,
-			const float fUpX = 0.0f, const float fUpY = 1.0f, const float fUpZ = 0.0f);
+		// Draws a 3D Mesh structure (as defined by olc::DecalStructure)
+		void HW3D_DrawObject(
+			const std::array<float, 16>& matModelView,
+			olc::Decal* decal,
+			const olc::DecalStructure layout,
+			const std::vector<std::array<float, 4>>& pos,
+			const std::vector<std::array<float, 2>>& uv,
+			const std::vector<olc::Pixel>& col,
+			const olc::Pixel tint = olc::WHITE);
 
-		// 3D Rendering Flags
-		void LW3D_EnableDepthTest(const bool bEnableDepth);
-		void LW3D_EnableBackfaceCulling(const bool bEnableCull);
-#endif
+		// Draws a 3D line from pos1 to pos2
+		void HW3D_DrawLine(
+			const std::array<float, 16>& matModelView,
+			const std::array<float, 4>& pos1,
+			const std::array<float, 4>& pos2,
+			const olc::Pixel col = olc::WHITE);
+
+		// Draws a 3D line box at pos, and dimensions size
+		void HW3D_DrawLineBox(
+			const std::array<float, 16>& matModelView,
+			const std::array<float, 4>& pos,
+			const std::array<float, 4>& size,
+			const olc::Pixel col = olc::WHITE);
+
 	public: // Branding
 		std::string sAppName;
 
 	private: // Inner mysterious workings
-		olc::Sprite*     pDrawTarget = nullptr;
+		olc::Sprite* pDrawTarget = nullptr;
 		Pixel::Mode	nPixelMode = Pixel::NORMAL;
 		float		fBlendFactor = 1.0f;
 		olc::vi2d	vScreenSize = { 256, 240 };
@@ -1514,7 +1577,7 @@ namespace olc
 		olc::vi2d	vResizeRequested = { 0, 0 };
 		float		fFrameTimer = 1.0f;
 		float		fLastElapsed = 0.0f;
-		int			nFrameCount = 0;		
+		int			nFrameCount = 0;
 		bool bSuspendTextureTransfer = false;
 		Renderable  fontRenderable;
 		std::vector<LayerDesc> vLayers;
@@ -1524,9 +1587,13 @@ namespace olc
 		bool        bPixelCohesion = false;
 		DecalMode   nDecalMode = DecalMode::NORMAL;
 		DecalStructure nDecalStructure = DecalStructure::FAN;
+		CullMode	nHW3DCullMode = CullMode::NONE;
+		bool		bHW3DDepthTest = true;
+		
 		std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> funcPixelMode;
 		std::chrono::time_point<std::chrono::system_clock> m_tp1, m_tp2;
 		std::vector<olc::vi2d> vFontSpacing;
+		
 		std::vector<std::string> vDroppedFiles;
 		std::vector<std::string> vDroppedFilesCache;
 		olc::vi2d vDroppedFilesPoint;
@@ -1549,7 +1616,7 @@ namespace olc
 		bool bTextEntryEnable = false;
 		std::string sTextEntryString = "";
 		int32_t nTextEntryCursor = 0;
-		std::vector<std::tuple<olc::Key, std::string, std::string>> vKeyboardMap;
+		std::unordered_map<olc::Key, std::tuple<std::string, std::string, std::string, std::string>> vKeyboardMap;
 
 
 
@@ -1562,6 +1629,9 @@ namespace olc
 		bool		pMouseNewState[nMouseButtons] = { 0 };
 		bool		pMouseOldState[nMouseButtons] = { 0 };
 		HWButton	pMouseState[nMouseButtons] = { 0 };
+
+		std::vector<int32_t>	vKeyPressCache[2];
+		uint32_t				nKeyPressCacheTarget = 0;
 
 		// The main engine thread
 		void		EngineThread();
@@ -1582,7 +1652,7 @@ namespace olc
 		void olc_CoreUpdate();
 		void olc_PrepareEngine();
 		void olc_UpdateMouseState(int32_t button, bool state);
-		void olc_UpdateKeyState(int32_t key, bool state);
+		void olc_UpdateKeyState(int32_t keycode, bool state);
 		void olc_UpdateMouseFocus(bool state);
 		void olc_UpdateKeyFocus(bool state);
 		void olc_Terminate();
@@ -1620,7 +1690,7 @@ namespace olc
 	protected:
 		virtual void OnBeforeUserCreate();
 		virtual void OnAfterUserCreate();
-		virtual bool OnBeforeUserUpdate(float &fElapsedTime);
+		virtual bool OnBeforeUserUpdate(float& fElapsedTime);
 		virtual void OnAfterUserUpdate(float fElapsedTime);
 
 	protected:
@@ -1638,38 +1708,38 @@ namespace olc
 
 #if defined(OLC_GFX_OPENGL33)
 
-	#if defined(OLC_PLATFORM_WINAPI)
-		#include <gl/GL.h>
-		#define CALLSTYLE __stdcall
-	#endif
+#if defined(OLC_PLATFORM_WINAPI)
+#include <gl/GL.h>
+#define CALLSTYLE __stdcall
+#endif
 
-	#if defined(__linux__) || defined(__FreeBSD__)
-		#include <GL/gl.h>
-	#endif
+#if defined(__linux__) || defined(__FreeBSD__)
+#include <GL/gl.h>
+#endif
 
-	#if defined(OLC_PLATFORM_X11)
-		namespace X11 {
-			#include <GL/glx.h>
-		}
-		#define CALLSTYLE 
-	#endif
+#if defined(OLC_PLATFORM_X11)
+namespace X11 {
+#include <GL/glx.h>
+}
+#define CALLSTYLE 
+#endif
 
-	#if defined(__APPLE__)
-		#define GL_SILENCE_DEPRECATION
-		#include <OpenGL/OpenGL.h>
-		#include <OpenGL/gl.h>
-		#include <OpenGL/glu.h>
-	#endif
+#if defined(__APPLE__)
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#endif
 
-	#if defined(OLC_PLATFORM_EMSCRIPTEN)
-		#include <EGL/egl.h>
-		#include <GLES2/gl2.h>
-		#define GL_GLEXT_PROTOTYPES
-		#include <GLES2/gl2ext.h>
-		#include <emscripten/emscripten.h>
-		#define CALLSTYLE
-		#define GL_CLAMP GL_CLAMP_TO_EDGE
-	#endif
+#if defined(OLC_PLATFORM_EMSCRIPTEN)
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2ext.h>
+#include <emscripten/emscripten.h>
+#define CALLSTYLE
+#define GL_CLAMP GL_CLAMP_TO_EDGE
+#endif
 
 namespace olc
 {
@@ -1696,6 +1766,8 @@ namespace olc
 	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
 	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
 	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+	typedef void CALLSTYLE locUniform4fv_t(GLint location, GLsizei count, const GLfloat* value);
+	typedef void CALLSTYLE locUniformMatrix4fv_t(GLint location, GLsizei count, GLboolean trasnpose, const GLfloat* value);
 	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
 	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
 	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
@@ -1746,19 +1818,29 @@ namespace olc
 	// O------------------------------------------------------------------------------O
 #if !defined(OLC_IGNORE_PIXEL)
 	Pixel::Pixel()
-	{ r = 0; g = 0; b = 0; a = nDefaultAlpha; }
+	{
+		r = 0; g = 0; b = 0; a = nDefaultAlpha;
+	}
 
 	Pixel::Pixel(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha)
-	{ n = red | (green << 8) | (blue << 16) | (alpha << 24); } // Thanks jarekpelczar 
+	{
+		n = red | (green << 8) | (blue << 16) | (alpha << 24);
+	} // Thanks jarekpelczar 
 
 	Pixel::Pixel(uint32_t p)
-	{ n = p; }
+	{
+		n = p;
+	}
 
 	bool Pixel::operator==(const Pixel& p) const
-	{ return n == p.n; }
+	{
+		return n == p.n;
+	}
 
 	bool Pixel::operator!=(const Pixel& p) const
-	{ return n != p.n; }
+	{
+		return n != p.n;
+	}
 
 	Pixel  Pixel::operator * (const float i) const
 	{
@@ -1851,22 +1933,30 @@ namespace olc
 	}
 
 	Pixel PixelF(float red, float green, float blue, float alpha)
-	{ return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f)); }
+	{
+		return Pixel(uint8_t(red * 255.0f), uint8_t(green * 255.0f), uint8_t(blue * 255.0f), uint8_t(alpha * 255.0f));
+	}
 
 	Pixel PixelLerp(const olc::Pixel& p1, const olc::Pixel& p2, float t)
-	{ return (p2 * t) + p1 * (1.0f - t); }
+	{
+		return (p2 * t) + p1 * (1.0f - t);
+	}
 #endif
 	// O------------------------------------------------------------------------------O
 	// | olc::Sprite IMPLEMENTATION                                                   |
 	// O------------------------------------------------------------------------------O
 	Sprite::Sprite()
-	{ width = 0; height = 0; }
+	{
+		width = 0; height = 0;
+	}
 
 	Sprite::Sprite(const std::string& sImageFile, olc::ResourcePack* pack)
-	{ LoadFromFile(sImageFile, pack); }
+	{
+		LoadFromFile(sImageFile, pack);
+	}
 
 	Sprite::Sprite(int32_t w, int32_t h)
-	{		
+	{
 		SetSize(w, h);
 	}
 
@@ -1877,16 +1967,24 @@ namespace olc
 	}
 
 	Sprite::~Sprite()
-	{ pColData.clear();	}
+	{
+		pColData.clear();
+	}
 
 	void Sprite::SetSampleMode(olc::Sprite::Mode mode)
-	{ modeSample = mode; }
+	{
+		modeSample = mode;
+	}
 
 	Pixel Sprite::GetPixel(const olc::vi2d& a) const
-	{ return GetPixel(a.x, a.y); }
+	{
+		return GetPixel(a.x, a.y);
+	}
 
 	bool Sprite::SetPixel(const olc::vi2d& a, Pixel p)
-	{ return SetPixel(a.x, a.y, p); }
+	{
+		return SetPixel(a.x, a.y, p);
+	}
 
 	Pixel Sprite::GetPixel(int32_t x, int32_t y) const
 	{
@@ -1902,7 +2000,7 @@ namespace olc
 			if (modeSample == olc::Sprite::Mode::PERIODIC)
 				return pColData[abs(y % height) * width + abs(x % width)];
 			else
-				return pColData[std::max(0, std::min(y, height-1)) * width + std::max(0, std::min(x, width-1))];
+				return pColData[std::max(0, std::min(y, height - 1)) * width + std::max(0, std::min(x, width - 1))];
 		}
 	}
 
@@ -1957,7 +2055,9 @@ namespace olc
 	}
 
 	Pixel* Sprite::GetData()
-	{ return pColData.data(); }
+	{
+		return pColData.data();
+	}
 
 
 	olc::rcode Sprite::LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack)
@@ -2053,10 +2153,14 @@ namespace olc
 	}
 
 	olc::Decal* Renderable::Decal() const
-	{ return pDecal.get(); }
+	{
+		return pDecal.get();
+	}
 
 	olc::Sprite* Renderable::Sprite() const
-	{ return pSprite.get(); }
+	{
+		return pSprite.get();
+	}
 
 	// O------------------------------------------------------------------------------O
 	// | olc::ResourcePack IMPLEMENTATION                                             |
@@ -2110,7 +2214,7 @@ namespace olc
 		auto read = [&decoded, &pos](char* dst, size_t size) {
 			memcpy((void*)dst, (const void*)(decoded.data() + pos), size);
 			pos += size;
-		};
+			};
 
 		auto get = [&read]() -> int { char c; read(&c, 1); return c; };
 
@@ -2185,7 +2289,7 @@ namespace olc
 			size_t sizeNow = stream.size();
 			stream.resize(sizeNow + size);
 			memcpy(stream.data() + sizeNow, data, size);
-		};
+			};
 
 		// Iterate through map
 		write((char*)&nMapSize, sizeof(uint32_t));
@@ -2212,10 +2316,14 @@ namespace olc
 	}
 
 	ResourceBuffer ResourcePack::GetFileBuffer(const std::string& sFile)
-	{ return ResourceBuffer(baseFile, mapFiles[sFile].nOffset, mapFiles[sFile].nSize); }
+	{
+		return ResourceBuffer(baseFile, mapFiles[sFile].nOffset, mapFiles[sFile].nSize);
+	}
 
 	bool ResourcePack::Loaded()
-	{ return baseFile.is_open(); }
+	{
+		return baseFile.is_open();
+	}
 
 	std::vector<char> ResourcePack::scramble(const std::vector<char>& data, const std::string& key)
 	{
@@ -2322,7 +2430,7 @@ namespace olc
 		else
 		{
 			nTargetLayer = 0;
-			if(!vLayers.empty())
+			if (!vLayers.empty())
 				pDrawTarget = vLayers[0].pDrawTarget.Sprite();
 		}
 	}
@@ -2338,28 +2446,44 @@ namespace olc
 	}
 
 	void PixelGameEngine::EnableLayer(uint8_t layer, bool b)
-	{ if (layer < vLayers.size()) vLayers[layer].bShow = b; }
+	{
+		if (layer < vLayers.size()) vLayers[layer].bShow = b;
+	}
 
 	void PixelGameEngine::SetLayerOffset(uint8_t layer, const olc::vf2d& offset)
-	{ SetLayerOffset(layer, offset.x, offset.y); }
+	{
+		SetLayerOffset(layer, offset.x, offset.y);
+	}
 
 	void PixelGameEngine::SetLayerOffset(uint8_t layer, float x, float y)
-	{ if (layer < vLayers.size()) vLayers[layer].vOffset = { x, y }; }
+	{
+		if (layer < vLayers.size()) vLayers[layer].vOffset = { x, y };
+	}
 
 	void PixelGameEngine::SetLayerScale(uint8_t layer, const olc::vf2d& scale)
-	{ SetLayerScale(layer, scale.x, scale.y); }
+	{
+		SetLayerScale(layer, scale.x, scale.y);
+	}
 
 	void PixelGameEngine::SetLayerScale(uint8_t layer, float x, float y)
-	{ if (layer < vLayers.size()) vLayers[layer].vScale = { x, y }; }
+	{
+		if (layer < vLayers.size()) vLayers[layer].vScale = { x, y };
+	}
 
 	void PixelGameEngine::SetLayerTint(uint8_t layer, const olc::Pixel& tint)
-	{ if (layer < vLayers.size()) vLayers[layer].tint = tint; }
+	{
+		if (layer < vLayers.size()) vLayers[layer].tint = tint;
+	}
 
 	void PixelGameEngine::SetLayerCustomRenderFunction(uint8_t layer, std::function<void()> f)
-	{ if (layer < vLayers.size()) vLayers[layer].funcHook = f; }
+	{
+		if (layer < vLayers.size()) vLayers[layer].funcHook = f;
+	}
 
 	std::vector<LayerDesc>& PixelGameEngine::GetLayers()
-	{ return vLayers; }
+	{
+		return vLayers;
+	}
 
 	uint32_t PixelGameEngine::CreateLayer()
 	{
@@ -2370,7 +2494,9 @@ namespace olc
 	}
 
 	Sprite* PixelGameEngine::GetDrawTarget() const
-	{ return pDrawTarget; }
+	{
+		return pDrawTarget;
+	}
 
 	int32_t PixelGameEngine::GetDrawTargetWidth() const
 	{
@@ -2389,58 +2515,94 @@ namespace olc
 	}
 
 	uint32_t PixelGameEngine::GetFPS() const
-	{ return nLastFPS; }
+	{
+		return nLastFPS;
+	}
 
 	bool PixelGameEngine::IsFocused() const
-	{ return bHasInputFocus; }
+	{
+		return bHasInputFocus;
+	}
 
 	HWButton PixelGameEngine::GetKey(Key k) const
-	{ return pKeyboardState[k];	}
+	{
+		return pKeyboardState[uint8_t(k)];
+	}
 
 	HWButton PixelGameEngine::GetMouse(uint32_t b) const
-	{ return pMouseState[b]; }
+	{
+		return pMouseState[b];
+	}
 
 	int32_t PixelGameEngine::GetMouseX() const
-	{ return vMousePos.x; }
+	{
+		return vMousePos.x;
+	}
 
 	int32_t PixelGameEngine::GetMouseY() const
-	{ return vMousePos.y; }
+	{
+		return vMousePos.y;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetMousePos() const
-	{ return vMousePos; }
+	{
+		return vMousePos;
+	}
 
 	int32_t PixelGameEngine::GetMouseWheel() const
-	{ return nMouseWheelDelta; }
+	{
+		return nMouseWheelDelta;
+	}
 
 	int32_t PixelGameEngine::ScreenWidth() const
-	{ return vScreenSize.x; }
+	{
+		return vScreenSize.x;
+	}
 
 	int32_t PixelGameEngine::ScreenHeight() const
-	{ return vScreenSize.y; }
+	{
+		return vScreenSize.y;
+	}
 
 	float PixelGameEngine::GetElapsedTime() const
-	{ return fLastElapsed; }
+	{
+		return fLastElapsed;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowSize() const
-	{ return vWindowSize; }
+	{
+		return vWindowSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowPos() const
-	{ return vWindowPos; }
+	{
+		return vWindowPos;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetPixelSize() const
-	{ return vPixelSize; }
+	{
+		return vPixelSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetScreenPixelSize() const
-	{ return vScreenPixelSize; }
+	{
+		return vScreenPixelSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetScreenSize() const
-	{ return vScreenSize;	}
+	{
+		return vScreenSize;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetWindowMouse() const
-	{ return vMouseWindowPos; }
+	{
+		return vMouseWindowPos;
+	}
 
 	bool PixelGameEngine::Draw(const olc::vi2d& pos, Pixel p)
-	{ return Draw(pos.x, pos.y, p); }
+	{
+		return Draw(pos.x, pos.y, p);
+	}
 
 	// This is it, the critical function that plots a pixel
 	bool PixelGameEngine::Draw(int32_t x, int32_t y, Pixel p)
@@ -2479,7 +2641,9 @@ namespace olc
 
 
 	void PixelGameEngine::DrawLine(const olc::vi2d& pos1, const olc::vi2d& pos2, Pixel p, uint32_t pattern)
-	{ DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, p, pattern); }
+	{
+		DrawLine(pos1.x, pos1.y, pos2.x, pos2.y, p, pattern);
+	}
 
 	void PixelGameEngine::DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Pixel p, uint32_t pattern)
 	{
@@ -2567,7 +2731,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawCircle(const olc::vi2d& pos, int32_t radius, Pixel p, uint8_t mask)
-	{ DrawCircle(pos.x, pos.y, radius, p, mask); }
+	{
+		DrawCircle(pos.x, pos.y, radius, p, mask);
+	}
 
 	void PixelGameEngine::DrawCircle(int32_t x, int32_t y, int32_t radius, Pixel p, uint8_t mask)
 	{ // Thanks to IanM-Matrix1 #PR121
@@ -2606,7 +2772,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillCircle(const olc::vi2d& pos, int32_t radius, Pixel p)
-	{ FillCircle(pos.x, pos.y, radius, p); }
+	{
+		FillCircle(pos.x, pos.y, radius, p);
+	}
 
 	void PixelGameEngine::FillCircle(int32_t x, int32_t y, int32_t radius, Pixel p)
 	{ // Thanks to IanM-Matrix1 #PR121
@@ -2620,10 +2788,10 @@ namespace olc
 			int d = 3 - 2 * radius;
 
 			auto drawline = [&](int sx, int ex, int y)
-			{
-				for (int x = sx; x <= ex; x++)
-					Draw(x, y, p);
-			};
+				{
+					for (int x = sx; x <= ex; x++)
+						Draw(x, y, p);
+				};
 
 			while (y0 >= x0)
 			{
@@ -2648,7 +2816,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
-	{ DrawRect(pos.x, pos.y, size.x, size.y, p); }
+	{
+		DrawRect(pos.x, pos.y, size.x, size.y, p);
+	}
 
 	void PixelGameEngine::DrawRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
 	{
@@ -2666,22 +2836,26 @@ namespace olc
 	}
 
 	void PixelGameEngine::ClearBuffer(Pixel p, bool bDepth)
-	{ renderer->ClearBuffer(p, bDepth);	}
+	{
+		renderer->ClearBuffer(p, bDepth);
+	}
 
 	olc::Sprite* PixelGameEngine::GetFontSprite()
-	{ return fontRenderable.Sprite(); }
+	{
+		return fontRenderable.Sprite();
+	}
 
 	bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
 	{
 		// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
 		static constexpr int SEG_I = 0b0000, SEG_L = 0b0001, SEG_R = 0b0010, SEG_B = 0b0100, SEG_T = 0b1000;
 		auto Segment = [&vScreenSize = vScreenSize](const olc::vi2d& v)
-		{
-			int i = SEG_I;
-			if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
-			if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
-			return i;
-		};
+			{
+				int i = SEG_I;
+				if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
+				if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
+				return i;
+			};
 
 		int s1 = Segment(in_p1), s2 = Segment(in_p2);
 
@@ -2711,7 +2885,9 @@ namespace olc
 
 
 	void PixelGameEngine::FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p)
-	{ FillRect(pos.x, pos.y, size.x, size.y, p); }
+	{
+		FillRect(pos.x, pos.y, size.x, size.y, p);
+	}
 
 	void PixelGameEngine::FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p)
 	{
@@ -2734,7 +2910,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
-	{ DrawTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p); }
+	{
+		DrawTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p);
+	}
 
 	void PixelGameEngine::DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
 	{
@@ -2744,7 +2922,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p)
-	{ FillTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p); }
+	{
+		FillTriangle(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, p);
+	}
 
 	// https://www.avrfreaks.net/sites/default/files/triangles.c
 	void PixelGameEngine::FillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p)
@@ -2815,7 +2995,7 @@ namespace olc
 			if (maxx < t1x) maxx = t1x;
 			if (maxx < t2x) maxx = t2x;
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
-										// Now increase y
+			// Now increase y
 			if (!changed1) t1x += signx1;
 			t1x += t1xp;
 			if (!changed2) t2x += signx2;
@@ -2888,9 +3068,9 @@ namespace olc
 		olc::vi2d p2 = vPoints[1];
 		olc::vi2d p3 = vPoints[2];
 
-		if (p2.y < p1.y){std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); std::swap(vTex[0].x, vTex[1].x); std::swap(vTex[0].y, vTex[1].y); std::swap(vColour[0], vColour[1]);}
-		if (p3.y < p1.y){std::swap(p1.y, p3.y); std::swap(p1.x, p3.x); std::swap(vTex[0].x, vTex[2].x); std::swap(vTex[0].y, vTex[2].y); std::swap(vColour[0], vColour[2]);}
-		if (p3.y < p2.y){std::swap(p2.y, p3.y); std::swap(p2.x, p3.x); std::swap(vTex[1].x, vTex[2].x); std::swap(vTex[1].y, vTex[2].y); std::swap(vColour[1], vColour[2]);}
+		if (p2.y < p1.y) { std::swap(p1.y, p2.y); std::swap(p1.x, p2.x); std::swap(vTex[0].x, vTex[1].x); std::swap(vTex[0].y, vTex[1].y); std::swap(vColour[0], vColour[1]); }
+		if (p3.y < p1.y) { std::swap(p1.y, p3.y); std::swap(p1.x, p3.x); std::swap(vTex[0].x, vTex[2].x); std::swap(vTex[0].y, vTex[2].y); std::swap(vColour[0], vColour[2]); }
+		if (p3.y < p2.y) { std::swap(p2.y, p3.y); std::swap(p2.x, p3.x); std::swap(vTex[1].x, vTex[2].x); std::swap(vTex[1].y, vTex[2].y); std::swap(vColour[1], vColour[2]); }
 
 		olc::vi2d dPos1 = p2 - p1;
 		olc::vf2d dTex1 = vTex[1] - vTex[0];
@@ -2906,7 +3086,7 @@ namespace olc
 		int dcb2 = vColour[2].b - vColour[0].b;
 		int dca2 = vColour[2].a - vColour[0].a;
 
-		float dax_step = 0, dbx_step = 0, dcr1_step = 0, dcr2_step = 0,	dcg1_step = 0, dcg2_step = 0, dcb1_step = 0, dcb2_step = 0,	dca1_step = 0, dca2_step = 0;
+		float dax_step = 0, dbx_step = 0, dcr1_step = 0, dcr2_step = 0, dcg1_step = 0, dcg2_step = 0, dcb1_step = 0, dcb2_step = 0, dca1_step = 0, dca2_step = 0;
 		olc::vf2d vTex1Step, vTex2Step;
 
 		if (dPos1.y)
@@ -2993,7 +3173,7 @@ namespace olc
 					}
 				}
 			}
-		}			
+		}
 	}
 
 	void PixelGameEngine::FillTexturedPolygon(const std::vector<olc::vf2d>& vPoints, const std::vector<olc::vf2d>& vTex, const std::vector<olc::Pixel>& vColour, olc::Sprite* sprTex, olc::DecalStructure structure)
@@ -3007,7 +3187,7 @@ namespace olc
 			return;
 
 		if (structure == olc::DecalStructure::LIST)
-		{			
+		{
 			for (size_t tri = 0; tri < vPoints.size() / 3; tri++)
 			{
 				std::vector<olc::vf2d> vP = { vPoints[tri * 3 + 0], vPoints[tri * 3 + 1], vPoints[tri * 3 + 2] };
@@ -3022,7 +3202,7 @@ namespace olc
 		{
 			for (size_t tri = 2; tri < vPoints.size(); tri++)
 			{
-				std::vector<olc::vf2d> vP = { vPoints[tri - 2], vPoints[tri-1], vPoints[tri] };
+				std::vector<olc::vf2d> vP = { vPoints[tri - 2], vPoints[tri - 1], vPoints[tri] };
 				std::vector<olc::vf2d> vT = { vTex[tri - 2], vTex[tri - 1], vTex[tri] };
 				std::vector<olc::Pixel> vC = { vColour[tri - 2], vColour[tri - 1], vColour[tri] };
 				FillTexturedTriangle(vP, vT, vC, sprTex);
@@ -3045,7 +3225,9 @@ namespace olc
 
 
 	void PixelGameEngine::DrawSprite(const olc::vi2d& pos, Sprite* sprite, uint32_t scale, uint8_t flip)
-	{ DrawSprite(pos.x, pos.y, sprite, scale, flip); }
+	{
+		DrawSprite(pos.x, pos.y, sprite, scale, flip);
+	}
 
 	void PixelGameEngine::DrawSprite(int32_t x, int32_t y, Sprite* sprite, uint32_t scale, uint8_t flip)
 	{
@@ -3082,7 +3264,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawPartialSprite(const olc::vi2d& pos, Sprite* sprite, const olc::vi2d& sourcepos, const olc::vi2d& size, uint32_t scale, uint8_t flip)
-	{ DrawPartialSprite(pos.x, pos.y, sprite, sourcepos.x, sourcepos.y, size.x, size.y, scale, flip); }
+	{
+		DrawPartialSprite(pos.x, pos.y, sprite, sourcepos.x, sourcepos.y, size.x, size.y, scale, flip);
+	}
 
 	void PixelGameEngine::DrawPartialSprite(int32_t x, int32_t y, Sprite* sprite, int32_t ox, int32_t oy, int32_t w, int32_t h, uint32_t scale, uint8_t flip)
 	{
@@ -3119,10 +3303,14 @@ namespace olc
 	}
 
 	void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
-	{ nDecalMode = mode; }
+	{
+		nDecalMode = mode;
+	}
 
 	void PixelGameEngine::SetDecalStructure(const olc::DecalStructure& structure)
-	{ nDecalStructure = structure; }
+	{
+		nDecalStructure = structure;
+	}
 
 	void PixelGameEngine::DrawPartialDecal(const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
@@ -3132,7 +3320,7 @@ namespace olc
 			-((pos.y * vInvScreenSize.y) * 2.0f - 1.0f)
 		};
 
-		
+
 		olc::vf2d vScreenSpaceDim =
 		{
 			  ((pos.x + source_size.x * scale.x) * vInvScreenSize.x) * 2.0f - 1.0f,
@@ -3176,8 +3364,8 @@ namespace olc
 		di.decal = decal;
 		di.tint = { tint, tint, tint, tint };
 		di.pos = { { vScreenSpacePos.x, vScreenSpacePos.y }, { vScreenSpacePos.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpaceDim.y }, { vScreenSpaceDim.x, vScreenSpacePos.y } };
-		olc::vf2d uvtl = (source_pos) * decal->vUVScale;
-		olc::vf2d uvbr = uvtl + ((source_size) * decal->vUVScale);
+		olc::vf2d uvtl = (source_pos)*decal->vUVScale;
+		olc::vf2d uvbr = uvtl + ((source_size)*decal->vUVScale);
 		di.uv = { { uvtl.x, uvtl.y }, { uvtl.x, uvbr.y }, { uvbr.x, uvbr.y }, { uvbr.x, uvtl.y } };
 		di.w = { 1,1,1,1 };
 		di.mode = nDecalMode;
@@ -3254,7 +3442,7 @@ namespace olc
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
-	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel> &tint)
+	void PixelGameEngine::DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& tint)
 	{
 		DecalInstance di;
 		di.decal = decal;
@@ -3326,75 +3514,104 @@ namespace olc
 		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
 	}
 
-#ifdef OLC_ENABLE_EXPERIMENTAL
-	// Lightweight 3D
-	void PixelGameEngine::LW3D_DrawTriangles(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const std::vector<olc::vf2d>& tex, const std::vector<olc::Pixel>& col)
+	void PixelGameEngine::HW3D_Projection(const std::array<float, 16>& m)
 	{
-		DecalInstance di;
-		di.decal = decal;
-		di.points = uint32_t(pos.size());
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.z.resize(di.points);
-		di.tint.resize(di.points);
-		for (uint32_t i = 0; i < di.points; i++)
-		{
-			di.pos[i] = { pos[i][0], pos[i][1] };
-			di.w[i] = pos[i][2];
-			di.z[i] = pos[i][2];
-			di.uv[i] = tex[i];
-			di.tint[i] = col[i];			
-		}
-		di.mode = nDecalMode;
-		di.structure = DecalStructure::LIST;
-		di.depth = true;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		renderer->Set3DProjection(m);
 	}
 
-	void PixelGameEngine::LW3D_DrawWarpedDecal(olc::Decal* decal, const std::vector<std::array<float, 3>>& pos, const olc::Pixel& tint)
+	void PixelGameEngine::HW3D_EnableDepthTest(const bool bEnableDepth)
 	{
-		// Thanks Nathan Reed, a brilliant article explaining whats going on here
-		// http://www.reedbeta.com/blog/quadrilateral-interpolation-part-1/
-		DecalInstance di;
-		di.points = 4;
-		di.decal = decal;
-		di.tint = { tint, tint, tint, tint };
-		di.w = { 1, 1, 1, 1 };
-		di.z = { 1, 1, 1, 1 };
-		di.pos.resize(4);
-		di.uv = { { 0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f} };
-		olc::vf2d center;
-		float rd = ((pos[2][0] - pos[0][0]) * (pos[3][1] - pos[1][1]) - (pos[3][0] - pos[1][0]) * (pos[2][1] - pos[0][1]));
-		if (rd != 0)
-		{
-			rd = 1.0f / rd;
-			float rn = ((pos[3][0] - pos[1][0]) * (pos[0][1] - pos[1][1]) - (pos[3][1] - pos[1][1]) * (pos[0][0] - pos[1][0])) * rd;
-			float sn = ((pos[2][0] - pos[0][0]) * (pos[0][1] - pos[1][1]) - (pos[2][1] - pos[0][1]) * (pos[0][0] - pos[1][0])) * rd;
-			if (!(rn < 0.f || rn > 1.f || sn < 0.f || sn > 1.f))
-			{
-				center.x = pos[0][0] + rn * (pos[2][0] - pos[0][0]);
-				center.y = pos[0][1] + rn * (pos[2][1] - pos[0][1]);
-			}
-			float d[4];
-			for (int i = 0; i < 4; i++)
-				d[i] = std::sqrt((pos[i][0] - center.x) * (pos[i][0] - center.x) + (pos[i][1] - center.y) * (pos[i][1] - center.y));
-
-			for (int i = 0; i < 4; i++)
-			{
-				float q = d[i] == 0.0f ? 1.0f : (d[i] + d[(i + 2) & 3]) / d[(i + 2) & 3];
-				di.uv[i] *= q; 
-				di.w[i] *= q;
-				di.z[i] = pos[i][2];
-				di.pos[i] = { (pos[i][0] * vInvScreenSize.x) * 2.0f - 1.0f, ((pos[i][1] * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-			}
-			di.mode = nDecalMode;
-			di.structure = nDecalStructure;
-			di.depth = true;
-			vLayers[nTargetLayer].vecDecalInstance.push_back(di);
-		}
+		bHW3DDepthTest = bEnableDepth;
 	}
-#endif
+
+	void PixelGameEngine::HW3D_SetCullMode(const olc::CullMode mode)
+	{
+		nHW3DCullMode = mode;
+	}
+
+	void PixelGameEngine::HW3D_DrawObject(const std::array<float, 16>& matModelView, olc::Decal* decal, const olc::DecalStructure layout, const std::vector<std::array<float, 4>>& pos, const std::vector<std::array<float, 2>>& uv, const std::vector<olc::Pixel>& col, const olc::Pixel tint)
+	{
+		GPUTask task;
+		task.decal = decal;
+		task.mode = nDecalMode;
+		task.structure = layout;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
+		task.mvp = matModelView;
+		task.tint = tint;
+		task.vb.resize(pos.size());
+
+		for (size_t i = 0; i < pos.size(); i++)
+			task.vb[i] = { pos[i][0], pos[i][1], pos[i][2], 1.0f, uv[i][0], uv[i][1], col[i].n };
+
+		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
+	}
+
+	void PixelGameEngine::HW3D_DrawLine(const std::array<float, 16>& matModelView, const std::array<float, 4>& pos1, const std::array<float, 4>& pos2, const olc::Pixel col)
+	{
+		GPUTask task;
+		task.decal = nullptr;
+		task.mode = olc::DecalMode::WIREFRAME;
+		task.structure = olc::DecalStructure::LINE;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
+		task.mvp = matModelView;
+		task.tint = olc::WHITE;
+		task.vb =
+		{
+			{ pos1[0], pos1[1], pos1[2], 1.0f, 0.0f, 0.0f, col.n},
+			{ pos2[0], pos2[1], pos2[2], 1.0f, 0.0f, 0.0f, col.n}
+		};
+
+		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
+	}
+
+	void PixelGameEngine::HW3D_DrawLineBox(const std::array<float, 16>& matModelView, const std::array<float, 4>& pos, const std::array<float, 4>& size, const olc::Pixel col)
+	{
+		GPUTask task;
+		task.decal = nullptr;
+		task.mode = nDecalMode;
+		task.structure = olc::DecalStructure::LINE;
+		task.depth = bHW3DDepthTest;
+		task.cull = nHW3DCullMode;
+		task.mvp = matModelView;
+		task.tint = olc::WHITE;
+
+		const float ox = pos[0];
+		const float oy = pos[1];
+		const float oz = pos[2];
+		const float sx = size[0];
+		const float sy = size[1];
+		const float sz = size[2];
+
+		const std::array<float, 3> p0 = { {ox, oy, oz} };
+		const std::array<float, 3> p1 = { {ox+sx, oy, oz} };
+		const std::array<float, 3> p2 = { {ox+sx, oy+sy, oz} };
+		const std::array<float, 3> p3 = { {ox, oy+sy, oz} };
+
+		const std::array<float, 3> p4 = { {ox, oy, oz+sz} };
+		const std::array<float, 3> p5 = { {ox+sx, oy, oz+sz} };
+		const std::array<float, 3> p6 = { {ox+sx, oy+sy, oz+sz} };
+		const std::array<float, 3> p7 = { {ox, oy+sy, oz+sz} };
+
+		task.vb =
+		{
+			{ p0[0], p0[1], p0[2], 1.0f, 0.0f, 0.0f, col.n }, { p1[0], p1[1], p1[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p1[0], p1[1], p1[2], 1.0f, 0.0f, 0.0f, col.n }, { p2[0], p2[1], p2[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p2[0], p2[1], p2[2], 1.0f, 0.0f, 0.0f, col.n }, { p3[0], p3[1], p3[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p3[0], p3[1], p3[2], 1.0f, 0.0f, 0.0f, col.n }, { p0[0], p0[1], p0[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p4[0], p4[1], p4[2], 1.0f, 0.0f, 0.0f, col.n }, { p5[0], p5[1], p5[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p5[0], p5[1], p5[2], 1.0f, 0.0f, 0.0f, col.n }, { p6[0], p6[1], p6[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p6[0], p6[1], p6[2], 1.0f, 0.0f, 0.0f, col.n }, { p7[0], p7[1], p7[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p7[0], p7[1], p7[2], 1.0f, 0.0f, 0.0f, col.n }, { p4[0], p4[1], p4[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p0[0], p0[1], p0[2], 1.0f, 0.0f, 0.0f, col.n }, { p4[0], p4[1], p4[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p1[0], p1[1], p1[2], 1.0f, 0.0f, 0.0f, col.n }, { p5[0], p5[1], p5[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p2[0], p2[1], p2[2], 1.0f, 0.0f, 0.0f, col.n }, { p6[0], p6[1], p6[2], 1.0f, 0.0f, 0.0f, col.n },
+			{ p3[0], p3[1], p3[2], 1.0f, 0.0f, 0.0f, col.n }, { p7[0], p7[1], p7[2], 1.0f, 0.0f, 0.0f, col.n },
+		};
+
+		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
+	}
 
 	void PixelGameEngine::DrawLineDecal(const olc::vf2d& pos1, const olc::vf2d& pos2, Pixel p)
 	{
@@ -3402,25 +3619,6 @@ namespace olc
 		nDecalMode = olc::DecalMode::WIREFRAME;
 		DrawPolygonDecal(nullptr, { pos1, pos2 }, { {0, 0}, {0,0} }, p);
 		nDecalMode = m;
-
-		/*DecalInstance di;
-		di.decal = nullptr;
-		di.points = uint32_t(2);
-		di.pos.resize(di.points);
-		di.uv.resize(di.points);
-		di.w.resize(di.points);
-		di.tint.resize(di.points);
-		di.pos[0] = { (pos1.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos1.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[0] = { 0.0f, 0.0f };
-		di.tint[0] = p;
-		di.w[0] = 1.0f;
-		di.pos[1] = { (pos2.x * vInvScreenSize.x) * 2.0f - 1.0f, ((pos2.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f };
-		di.uv[1] = { 0.0f, 0.0f };
-		di.tint[1] = p;
-		di.w[1] = 1.0f;
-		di.mode = olc::DecalMode::WIREFRAME;
-		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);*/
 	}
 
 	void PixelGameEngine::DrawRectDecal(const olc::vf2d& pos, const olc::vf2d& size, const olc::Pixel col)
@@ -3454,7 +3652,7 @@ namespace olc
 	}
 
 	void PixelGameEngine::FillTriangleDecal(const olc::vf2d& p0, const olc::vf2d& p1, const olc::vf2d& p2, const olc::Pixel col)
-	{		
+	{
 		std::array<olc::vf2d, 4> points = { { p0, p1, p2 } };
 		std::array<olc::vf2d, 4> uvs = { {{0,0},{0,0},{0,0}} };
 		std::array<olc::Pixel, 4> cols = { {col, col, col} };
@@ -3492,7 +3690,21 @@ namespace olc
 		}
 		di.mode = nDecalMode;
 		di.structure = nDecalStructure;
-		vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+		//vLayers[nTargetLayer].vecDecalInstance.push_back(di);
+
+
+		GPUTask task;
+		task.decal = decal;
+		task.mode = nDecalMode;
+		task.structure = nDecalStructure;
+		task.depth = false;
+		task.vb = {
+			{di.pos[0].x, di.pos[0].y, 0.0f, 1.0f, 0.0f, 0.0f, tint.n},
+			{di.pos[1].x, di.pos[1].y, 0.0f, 1.0f, 0.0f, 1.0f, tint.n},
+			{di.pos[2].x, di.pos[2].y, 0.0f, 1.0f, 1.0f, 1.0f, tint.n},
+			{di.pos[3].x, di.pos[3].y, 0.0f, 1.0f, 1.0f, 0.0f, tint.n},
+		};
+		vLayers[nTargetLayer].vecGPUTasks.push_back(task);
 	}
 
 
@@ -3591,16 +3803,24 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::Pixel& tint)
-	{ DrawWarpedDecal(decal, pos.data(), tint); }
+	{
+		DrawWarpedDecal(decal, pos.data(), tint);
+	}
 
 	void PixelGameEngine::DrawWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::Pixel& tint)
-	{ DrawWarpedDecal(decal, &pos[0], tint); }
+	{
+		DrawWarpedDecal(decal, &pos[0], tint);
+	}
 
 	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const std::array<olc::vf2d, 4>& pos, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{ DrawPartialWarpedDecal(decal, pos.data(), source_pos, source_size, tint); }
+	{
+		DrawPartialWarpedDecal(decal, pos.data(), source_pos, source_size, tint);
+	}
 
 	void PixelGameEngine::DrawPartialWarpedDecal(olc::Decal* decal, const olc::vf2d(&pos)[4], const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::Pixel& tint)
-	{ DrawPartialWarpedDecal(decal, &pos[0], source_pos, source_size, tint); }
+	{
+		DrawPartialWarpedDecal(decal, &pos[0], source_pos, source_size, tint);
+	}
 
 	void PixelGameEngine::DrawStringDecal(const olc::vf2d& pos, const std::string& sText, const Pixel col, const olc::vf2d& scale)
 	{
@@ -3619,7 +3839,7 @@ namespace olc
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
-				DrawPartialDecal(pos + spos, fontRenderable.Decal(), {float(ox) * 8.0f, float(oy) * 8.0f}, {8.0f, 8.0f}, scale, col);
+				DrawPartialDecal(pos + spos, fontRenderable.Decal(), { float(ox) * 8.0f, float(oy) * 8.0f }, { 8.0f, 8.0f }, scale, col);
 				spos.x += 8.0f * scale.x;
 			}
 		}
@@ -3710,7 +3930,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawString(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
-	{ DrawString(pos.x, pos.y, sText, col, scale); }
+	{
+		DrawString(pos.x, pos.y, sText, col, scale);
+	}
 
 	void PixelGameEngine::DrawString(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
 	{
@@ -3733,7 +3955,7 @@ namespace olc
 			{
 				sx += 8 * nTabSizeInSpaces * scale;
 			}
-			else			
+			else
 			{
 				int32_t ox = (c - 32) % 16;
 				int32_t oy = (c - 32) / 16;
@@ -3778,7 +4000,9 @@ namespace olc
 	}
 
 	void PixelGameEngine::DrawStringProp(const olc::vi2d& pos, const std::string& sText, Pixel col, uint32_t scale)
-	{ DrawStringProp(pos.x, pos.y, sText, col, scale); }
+	{
+		DrawStringProp(pos.x, pos.y, sText, col, scale);
+	}
 
 	void PixelGameEngine::DrawStringProp(int32_t x, int32_t y, const std::string& sText, Pixel col, uint32_t scale)
 	{
@@ -3829,10 +4053,14 @@ namespace olc
 	}
 
 	void PixelGameEngine::SetPixelMode(Pixel::Mode m)
-	{ nPixelMode = m; }
+	{
+		nPixelMode = m;
+	}
 
 	Pixel::Mode PixelGameEngine::GetPixelMode()
-	{ return nPixelMode; }
+	{
+		return nPixelMode;
+	}
 
 	void PixelGameEngine::SetPixelMode(std::function<olc::Pixel(const int x, const int y, const olc::Pixel&, const olc::Pixel&)> pixelMode)
 	{
@@ -3848,31 +4076,37 @@ namespace olc
 	}
 
 	std::stringstream& PixelGameEngine::ConsoleOut()
-	{ return ssConsoleOutput; }
+	{
+		return ssConsoleOutput;
+	}
 
 	bool PixelGameEngine::IsConsoleShowing() const
-	{ return bConsoleShow; }
+	{
+		return bConsoleShow;
+	}
 
 	void PixelGameEngine::ConsoleShow(const olc::Key& keyExit, bool bSuspendTime)
 	{
 		if (bConsoleShow)
 			return;
 
-		bConsoleShow = true;		
+		bConsoleShow = true;
 		bConsoleSuspendTime = bSuspendTime;
 		TextEntryEnable(true);
 		keyConsoleExit = keyExit;
-		pKeyboardState[keyConsoleExit].bHeld = false;
-		pKeyboardState[keyConsoleExit].bPressed = false;
-		pKeyboardState[keyConsoleExit].bReleased = true;
+		pKeyboardState[uint8_t(keyConsoleExit)].bHeld = false;
+		pKeyboardState[uint8_t(keyConsoleExit)].bPressed = false;
+		pKeyboardState[uint8_t(keyConsoleExit)].bReleased = true;
 	}
-	
+
 	void PixelGameEngine::ConsoleClear()
-	{ sConsoleLines.clear(); }
+	{
+		sConsoleLines.clear();
+	}
 
 	void PixelGameEngine::ConsoleCaptureStdOut(const bool bCapture)
 	{
-		if(bCapture)
+		if (bCapture)
 			sbufOldCout = std::cout.rdbuf(ssConsoleOutput.rdbuf());
 		else
 			std::cout.rdbuf(sbufOldCout);
@@ -3901,26 +4135,26 @@ namespace olc
 		}
 
 		auto TypeCharacter = [&](const char c)
-		{
-			if (c >= 32 && c < 127)
 			{
-				sConsoleLines[vConsoleCursor.y].append(1, c);
-				vConsoleCursor.x++;
-			}
+				if (c >= 32 && c < 127)
+				{
+					sConsoleLines[vConsoleCursor.y].append(1, c);
+					vConsoleCursor.x++;
+				}
 
-			if( c == '\n' || vConsoleCursor.x >= vConsoleSize.x)
-			{
-				vConsoleCursor.y++; vConsoleCursor.x = 0;				
-			}			
+				if (c == '\n' || vConsoleCursor.x >= vConsoleSize.x)
+				{
+					vConsoleCursor.y++; vConsoleCursor.x = 0;
+				}
 
-			if (vConsoleCursor.y >= vConsoleSize.y)
-			{
-				vConsoleCursor.y = vConsoleSize.y - 1;
-				for (int i = 1; i < vConsoleSize.y; i++)
-					sConsoleLines[i - 1] = sConsoleLines[i];
-				sConsoleLines[vConsoleCursor.y].clear();
-			}
-		};
+				if (vConsoleCursor.y >= vConsoleSize.y)
+				{
+					vConsoleCursor.y = vConsoleSize.y - 1;
+					for (int i = 1; i < vConsoleSize.y; i++)
+						sConsoleLines[i - 1] = sConsoleLines[i];
+					sConsoleLines[vConsoleCursor.y].clear();
+				}
+			};
 
 		// Empty out "std::cout", parsing as we go
 		while (ssConsoleOutput.rdbuf()->sgetc() != -1)
@@ -3931,23 +4165,27 @@ namespace olc
 
 		// Draw Shadow
 		GradientFillRectDecal({ 0,0 }, olc::vf2d(vScreenSize), olc::PixelF(0, 0, 0.5f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f), olc::PixelF(0, 0, 0.25f, 0.5f));
-				
+
 		// Draw the console buffer
 		SetDecalMode(olc::DecalMode::NORMAL);
 		for (int32_t nLine = 0; nLine < vConsoleSize.y; nLine++)
-			DrawStringDecal(olc::vf2d( 1, 1 + float(nLine) ) * vConsoleCharacterScale * 8.0f, sConsoleLines[nLine], olc::WHITE, vConsoleCharacterScale);
+			DrawStringDecal(olc::vf2d(1, 1 + float(nLine)) * vConsoleCharacterScale * 8.0f, sConsoleLines[nLine], olc::WHITE, vConsoleCharacterScale);
 
 		// Draw Input State
 		FillRectDecal(olc::vf2d(1 + float((TextEntryGetCursor() + 1)), 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, olc::vf2d(8, 8) * vConsoleCharacterScale, olc::DARK_CYAN);
-		DrawStringDecal(olc::vf2d(1, 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, std::string(">") + TextEntryGetString(), olc::YELLOW, vConsoleCharacterScale);		
+		DrawStringDecal(olc::vf2d(1, 1 + float((vConsoleSize.y - 1))) * vConsoleCharacterScale * 8.0f, std::string(">") + TextEntryGetString(), olc::YELLOW, vConsoleCharacterScale);
 	}
 
 
 	const std::vector<std::string>& PixelGameEngine::GetDroppedFiles() const
-	{ return vDroppedFiles;	}
+	{
+		return vDroppedFiles;
+	}
 
 	const olc::vi2d& PixelGameEngine::GetDroppedFilesPoint() const
-	{ return vDroppedFilesPoint; }
+	{
+		return vDroppedFilesPoint;
+	}
 
 
 	void PixelGameEngine::TextEntryEnable(const bool bEnable, const std::string& sText)
@@ -3965,88 +4203,98 @@ namespace olc
 	}
 
 	std::string PixelGameEngine::TextEntryGetString() const
-	{ return sTextEntryString; }
+	{
+		return sTextEntryString;
+	}
 
 	int32_t PixelGameEngine::TextEntryGetCursor() const
-	{ return nTextEntryCursor; }
+	{
+		return nTextEntryCursor;
+	}
 
 	bool PixelGameEngine::IsTextEntryEnabled() const
-	{ return bTextEntryEnable; }
+	{
+		return bTextEntryEnable;
+	}
 
 
 	void PixelGameEngine::UpdateTextEntry()
 	{
 		// Check for typed characters
-		for (const auto& key : vKeyboardMap)
-			if (GetKey(std::get<0>(key)).bPressed)
-			{
-				sTextEntryString.insert(nTextEntryCursor, GetKey(olc::Key::SHIFT).bHeld ? std::get<2>(key) : std::get<1>(key));
-				nTextEntryCursor++;
-			}
-
-		// Check for command characters
-		if (GetKey(olc::Key::LEFT).bPressed)
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		if (GetKey(olc::Key::RIGHT).bPressed)
-			nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
-		if (GetKey(olc::Key::BACK).bPressed && nTextEntryCursor > 0)
+		for (const auto& key : GetKeyPressCache())
 		{
-			sTextEntryString.erase(nTextEntryCursor-1, 1);
-			nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
-		}
-		if (GetKey(olc::Key::DEL).bPressed && size_t(nTextEntryCursor) < sTextEntryString.size())
-			sTextEntryString.erase(nTextEntryCursor, 1);	
+			const auto& sym = GetKeySymbol(ConvertKeycode(key), GetKey(olc::Key::SHIFT).bHeld, GetKey(olc::Key::CTRL).bHeld);
 
-		if (GetKey(olc::Key::UP).bPressed)
-		{
-			if (!sCommandHistory.empty())
+
+
+			// Check for command characters
+			if (sym == "_L")
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+			else if (sym == "_R")
+				nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
+			else if (sym == "\b" && nTextEntryCursor > 0)
 			{
-				if (sCommandHistoryIt != sCommandHistory.begin())
-					sCommandHistoryIt--;
-
-				nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-				sTextEntryString = *sCommandHistoryIt;
+				sTextEntryString.erase(nTextEntryCursor - 1, 1);
+				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
 			}
-		}
-
-		if (GetKey(olc::Key::DOWN).bPressed)
-		{	
-			if (!sCommandHistory.empty())
+			else if (sym == "_X" && size_t(nTextEntryCursor) < sTextEntryString.size())
+				sTextEntryString.erase(nTextEntryCursor, 1);
+			else if (sym == "_U")
 			{
-				if (sCommandHistoryIt != sCommandHistory.end())
+				if (!sCommandHistory.empty())
 				{
-					sCommandHistoryIt++;
+					if (sCommandHistoryIt != sCommandHistory.begin())
+						sCommandHistoryIt--;
+
+					nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+					sTextEntryString = *sCommandHistoryIt;
+				}
+			}
+
+			else if (sym == "_D")
+			{
+				if (!sCommandHistory.empty())
+				{
 					if (sCommandHistoryIt != sCommandHistory.end())
 					{
-						nTextEntryCursor = int32_t(sCommandHistoryIt->size());
-						sTextEntryString = *sCommandHistoryIt;
-					}
-					else
-					{
-						nTextEntryCursor = 0;
-						sTextEntryString = "";
+						sCommandHistoryIt++;
+						if (sCommandHistoryIt != sCommandHistory.end())
+						{
+							nTextEntryCursor = int32_t(sCommandHistoryIt->size());
+							sTextEntryString = *sCommandHistoryIt;
+						}
+						else
+						{
+							nTextEntryCursor = 0;
+							sTextEntryString = "";
+						}
 					}
 				}
 			}
-		}
 
-		if (GetKey(olc::Key::ENTER).bPressed)
-		{
-			if (bConsoleShow)
+			else if (sym == "\n")
 			{
-				std::cout << ">" + sTextEntryString + "\n";
-				if (OnConsoleCommand(sTextEntryString))
+				if (bConsoleShow)
 				{
-					sCommandHistory.push_back(sTextEntryString);
-					sCommandHistoryIt = sCommandHistory.end();
+					std::cout << ">" + sTextEntryString + "\n";
+					if (OnConsoleCommand(sTextEntryString))
+					{
+						sCommandHistory.push_back(sTextEntryString);
+						sCommandHistoryIt = sCommandHistory.end();
+					}
+					sTextEntryString.clear();
+					nTextEntryCursor = 0;
 				}
-				sTextEntryString.clear();
-				nTextEntryCursor = 0;
+				else
+				{
+					OnTextEntryComplete(sTextEntryString);
+					TextEntryEnable(false);
+				}
 			}
-			else
+			else if (sym.size() == 1)
 			{
-				OnTextEntryComplete(sTextEntryString);
-				TextEntryEnable(false);
+				sTextEntryString.insert(nTextEntryCursor, sym);
+				nTextEntryCursor++;
 			}
 		}
 	}
@@ -4056,17 +4304,23 @@ namespace olc
 	// they are not overwritten
 
 	bool PixelGameEngine::OnUserCreate()
-	{ return false;	}
+	{
+		return false;
+	}
 
 	bool PixelGameEngine::OnUserUpdate(float fElapsedTime)
-	{ UNUSED(fElapsedTime);  return false; }
+	{
+		UNUSED(fElapsedTime);  return false;
+	}
 
 	bool PixelGameEngine::OnUserDestroy()
-	{ return true; }
+	{
+		return true;
+	}
 
 	void PixelGameEngine::OnTextEntryComplete(const std::string& sText) { UNUSED(sText); }
 	bool PixelGameEngine::OnConsoleCommand(const std::string& sCommand) { UNUSED(sCommand); return false; }
-	
+
 
 	olc::rcode PixelGameEngine::SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize)
 	{
@@ -4075,7 +4329,7 @@ namespace olc
 		else
 			return olc::FAIL;
 	}
-	
+
 	olc::rcode PixelGameEngine::ShowWindowFrame(const bool bShowFrame)
 	{
 		if (platform)
@@ -4122,7 +4376,7 @@ namespace olc
 
 	void PixelGameEngine::olc_UpdateWindowPos(int32_t x, int32_t y)
 	{
-		vWindowPos = { x, y };	
+		vWindowPos = { x, y };
 		olc_UpdateViewport();
 	}
 
@@ -4133,14 +4387,16 @@ namespace olc
 		if (bRealWindowMode)
 		{
 			vResizeRequested = vWindowSize;
-			bResizeRequested = true;			
+			bResizeRequested = true;
 		}
 
 		olc_UpdateViewport();
 	}
 
 	void PixelGameEngine::olc_UpdateMouseWheel(int32_t delta)
-	{ nMouseWheelDeltaCache += delta; }
+	{
+		nMouseWheelDeltaCache += delta;
+	}
 
 	void PixelGameEngine::olc_UpdateMouse(int32_t x, int32_t y)
 	{
@@ -4160,19 +4416,28 @@ namespace olc
 	}
 
 	void PixelGameEngine::olc_UpdateMouseState(int32_t button, bool state)
-	{ pMouseNewState[button] = state; }
+	{
+		pMouseNewState[button] = state;
+	}
 
-	void PixelGameEngine::olc_UpdateKeyState(int32_t key, bool state)
-	{ pKeyNewState[key] = state; }
+	void PixelGameEngine::olc_UpdateKeyState(int32_t keycode, bool state)
+	{
+		pKeyNewState[uint8_t(mapKeys[keycode])] = state;
+		if (state) vKeyPressCache[nKeyPressCacheTarget].push_back(keycode);
+	}
 
 	void PixelGameEngine::olc_UpdateMouseFocus(bool state)
-	{ bHasMouseFocus = state; }
+	{
+		bHasMouseFocus = state;
+	}
 
 	void PixelGameEngine::olc_UpdateKeyFocus(bool state)
-	{ bHasInputFocus = state; }
+	{
+		bHasInputFocus = state;
+	}
 
 	void PixelGameEngine::olc_DropFiles(int32_t x, int32_t y, const std::vector<std::string>& vFiles)
-	{ 
+	{
 		x -= vViewPos.x;
 		y -= vViewPos.y;
 		vDroppedFilesPointCache.x = (int32_t)(((float)x / (float)(vWindowSize.x - (vViewPos.x * 2)) * (float)vScreenSize.x));
@@ -4181,17 +4446,23 @@ namespace olc
 		if (vDroppedFilesPointCache.y >= (int32_t)vScreenSize.y)	vDroppedFilesPointCache.y = vScreenSize.y - 1;
 		if (vDroppedFilesPointCache.x < 0) vDroppedFilesPointCache.x = 0;
 		if (vDroppedFilesPointCache.y < 0) vDroppedFilesPointCache.y = 0;
-		vDroppedFilesCache = vFiles; 
+		vDroppedFilesCache = vFiles;
 	}
 
 	void PixelGameEngine::olc_Reanimate()
-	{ bAtomActive = true; }
+	{
+		bAtomActive = true;
+	}
 
 	bool PixelGameEngine::olc_IsRunning()
-	{ return bAtomActive; }
+	{
+		return bAtomActive;
+	}
 
 	void PixelGameEngine::olc_Terminate()
-	{ bAtomActive = false; }
+	{
+		bAtomActive = false;
+	}
 
 	void PixelGameEngine::EngineThread()
 	{
@@ -4247,7 +4518,7 @@ namespace olc
 		bManualRenderEnable = bEnable;
 	}
 
-	void PixelGameEngine::adv_HardwareClip(const bool bClipAndScale, const olc::vi2d & viewPos, const olc::vi2d & viewSize, const bool bClear)
+	void PixelGameEngine::adv_HardwareClip(const bool bClipAndScale, const olc::vi2d& viewPos, const olc::vi2d& viewSize, const bool bClear)
 	{
 		olc::vf2d vNewSize = olc::vf2d(viewSize) / olc::vf2d(vScreenSize);
 		olc::vf2d vNewPos = olc::vf2d(viewPos) / olc::vf2d(vScreenSize);
@@ -4259,7 +4530,7 @@ namespace olc
 		SetDecalMode(DecalMode::NORMAL);
 		renderer->PrepareDrawing();
 
-		if(!bClipAndScale)
+		if (!bClipAndScale)
 			vInvScreenSize = 1.0f / olc::vf2d(viewSize);
 		else
 			vInvScreenSize = 1.0f / olc::vf2d(vScreenSize);
@@ -4286,8 +4557,8 @@ namespace olc
 
 				olc::vf2d vScreenSpacePos =
 				{
-					(layer.vOffset.x  * vInvScreenSize.x) * 2.0f - 1.0f,
-					((layer.vOffset.y  * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
+					(layer.vOffset.x * vInvScreenSize.x) * 2.0f - 1.0f,
+					((layer.vOffset.y * vInvScreenSize.y) * 2.0f - 1.0f) * -1.0f
 				};
 
 				olc::vf2d vScreenSpaceDim =
@@ -4324,6 +4595,15 @@ namespace olc
 		layer.vecDecalInstance.clear();
 	}
 
+	void PixelGameEngine::adv_FlushLayerGPUTasks(const size_t nLayerID)
+	{
+		// Display Decals in order for this layer
+		auto& layer = vLayers[nLayerID];
+		for (auto& decal : layer.vecGPUTasks)
+			renderer->DoGPUTask(decal);
+		layer.vecGPUTasks.clear();
+	}
+
 
 
 	void PixelGameEngine::olc_CoreUpdate()
@@ -4345,27 +4625,27 @@ namespace olc
 
 		// Compare hardware input states from previous frame
 		auto ScanHardware = [&](HWButton* pKeys, bool* pStateOld, bool* pStateNew, uint32_t nKeyCount)
-		{
-			for (uint32_t i = 0; i < nKeyCount; i++)
 			{
-				pKeys[i].bPressed = false;
-				pKeys[i].bReleased = false;
-				if (pStateNew[i] != pStateOld[i])
+				for (uint32_t i = 0; i < nKeyCount; i++)
 				{
-					if (pStateNew[i])
+					pKeys[i].bPressed = false;
+					pKeys[i].bReleased = false;
+					if (pStateNew[i] != pStateOld[i])
 					{
-						pKeys[i].bPressed = !pKeys[i].bHeld;
-						pKeys[i].bHeld = true;
+						if (pStateNew[i])
+						{
+							pKeys[i].bPressed = !pKeys[i].bHeld;
+							pKeys[i].bHeld = true;
+						}
+						else
+						{
+							pKeys[i].bReleased = true;
+							pKeys[i].bHeld = false;
+						}
 					}
-					else
-					{
-						pKeys[i].bReleased = true;
-						pKeys[i].bHeld = false;
-					}
+					pStateOld[i] = pStateNew[i];
 				}
-				pStateOld[i] = pStateNew[i];
-			}
-		};
+			};
 
 		ScanHardware(pKeyboardState, pKeyOldState, pKeyNewState, 256);
 		ScanHardware(pMouseState, pMouseOldState, pMouseNewState, nMouseButtons);
@@ -4379,22 +4659,28 @@ namespace olc
 		vDroppedFilesPoint = vDroppedFilesPointCache;
 		vDroppedFilesCache.clear();
 
+
+
+		// Swap Keypress cache
+		nKeyPressCacheTarget ^= 0x01;
+
 		if (bTextEntryEnable)
 		{
 			UpdateTextEntry();
 		}
 
 		// Handle Frame Update
-		bool bExtensionBlockFrame = false;		
+		bool bExtensionBlockFrame = false;
 		for (auto& ext : vExtensions) bExtensionBlockFrame |= ext->OnBeforeUserUpdate(fElapsedTime);
 		if (!bExtensionBlockFrame)
 		{
 			if (!OnUserUpdate(fElapsedTime)) bAtomActive = false;
-			
+
 		}
 		for (auto& ext : vExtensions) ext->OnAfterUserUpdate(fElapsedTime);
 
-		
+		// Clear prior keypress cache
+		vKeyPressCache[nKeyPressCacheTarget ^ 0x01].clear();
 
 		if (bRealWindowMode)
 		{
@@ -4436,6 +4722,11 @@ namespace olc
 
 						renderer->DrawLayerQuad(layer->vOffset, layer->vScale, layer->tint);
 
+						// Do GPU Tasks - 2D/3D Objects
+						for (auto& task : layer->vecGPUTasks)
+							renderer->DoGPUTask(task);
+						layer->vecGPUTasks.clear();
+
 						// Display Decals in order for this layer
 						for (auto& decal : layer->vecDecalInstance)
 							renderer->DrawDecal(decal);
@@ -4448,7 +4739,7 @@ namespace olc
 					}
 				}
 			}
-		}	
+		}
 
 		// Present Graphics to screen
 		renderer->DisplayFrame();
@@ -4528,40 +4819,131 @@ namespace olc
 #ifdef OLC_KEYBOARD_UK
 		vKeyboardMap =
 		{
-			{olc::Key::A, "a", "A"}, {olc::Key::B, "b", "B"}, {olc::Key::C, "c", "C"}, {olc::Key::D, "d", "D"}, {olc::Key::E, "e", "E"},
-			{olc::Key::F, "f", "F"}, {olc::Key::G, "g", "G"}, {olc::Key::H, "h", "H"}, {olc::Key::I, "i", "I"}, {olc::Key::J, "j", "J"},
-			{olc::Key::K, "k", "K"}, {olc::Key::L, "l", "L"}, {olc::Key::M, "m", "M"}, {olc::Key::N, "n", "N"}, {olc::Key::O, "o", "O"},
-			{olc::Key::P, "p", "P"}, {olc::Key::Q, "q", "Q"}, {olc::Key::R, "r", "R"}, {olc::Key::S, "s", "S"}, {olc::Key::T, "t", "T"},
-			{olc::Key::U, "u", "U"}, {olc::Key::V, "v", "V"}, {olc::Key::W, "w", "W"}, {olc::Key::X, "x", "X"}, {olc::Key::Y, "y", "Y"},
-			{olc::Key::Z, "z", "Z"},
+			// PGE Key, no mods, shift mod, ctrl mod, alt mod
+			{olc::Key::A, {"a", "A", "a", "a"}},
+			{olc::Key::B, {"b", "B", "b", "b"}},
+			{olc::Key::C, {"c", "C", "c", "c"}},
+			{olc::Key::D, {"d", "D", "d", "d"}},
+			{olc::Key::E, {"e", "E", "e", "e"}},
+			{olc::Key::F, {"f", "F", "f", "f"}},
+			{olc::Key::G, {"g", "G", "g", "g"}},
+			{olc::Key::H, {"h", "H", "h", "h"}},
+			{olc::Key::I, {"i", "I", "i", "i"}},
+			{olc::Key::J, {"j", "J", "j", "j"}},
+			{olc::Key::K, {"k", "K", "k", "k"}},
+			{olc::Key::L, {"l", "L", "l", "l"}},
+			{olc::Key::M, {"m", "M", "m", "m"}},
+			{olc::Key::N, {"n", "N", "n", "n"}},
+			{olc::Key::O, {"o", "O", "o", "o"}},
+			{olc::Key::P, {"p", "P", "p", "p"}},
+			{olc::Key::Q, {"q", "Q", "q", "q"}},
+			{olc::Key::R, {"r", "R", "r", "r"}},
+			{olc::Key::S, {"s", "S", "s", "s"}},
+			{olc::Key::T, {"t", "T", "t", "t"}},
+			{olc::Key::U, {"u", "U", "u", "u"}},
+			{olc::Key::V, {"v", "V", "v", "v"}},
+			{olc::Key::W, {"w", "W", "w", "w"}},
+			{olc::Key::X, {"x", "X", "x", "x"}},
+			{olc::Key::Y, {"y", "Y", "y", "y"}},
+			{olc::Key::Z, {"z", "Z", "z", "z"}},
 
-			{olc::Key::K0, "0", ")"}, {olc::Key::K1, "1", "!"}, {olc::Key::K2, "2", "\""}, {olc::Key::K3, "3", "#"},	{olc::Key::K4, "4", "$"},
-			{olc::Key::K5, "5", "%"}, {olc::Key::K6, "6", "^"}, {olc::Key::K7, "7", "&"}, {olc::Key::K8, "8", "*"},	{olc::Key::K9, "9", "("},
+			{olc::Key::K0, {"0", ")", "0", "0"}},
+			{olc::Key::K1, {"1", "!", "1", "1"}},
+			{olc::Key::K2, {"2", "\"","2", "2"}},
+			{olc::Key::K3, {"3", "#", "3", "3"}},
+			{olc::Key::K4, {"4", "$", "4", "4"}},
+			{olc::Key::K5, {"5", "%", "5", "5"}},
+			{olc::Key::K6, {"6", "^", "6", "6"}},
+			{olc::Key::K7, {"7", "&", "7", "7"}},
+			{olc::Key::K8, {"8", "*", "8", "8"}},
+			{olc::Key::K9, {"9", "(", "9", "9"}},
 
-			{olc::Key::NP0, "0", "0"}, {olc::Key::NP1, "1", "1"}, {olc::Key::NP2, "2", "2"}, {olc::Key::NP3, "3", "3"},	{olc::Key::NP4, "4", "4"},
-			{olc::Key::NP5, "5", "5"}, {olc::Key::NP6, "6", "6"}, {olc::Key::NP7, "7", "7"}, {olc::Key::NP8, "8", "8"},	{olc::Key::NP9, "9", "9"},
-			{olc::Key::NP_MUL, "*", "*"}, {olc::Key::NP_DIV, "/", "/"}, {olc::Key::NP_ADD, "+", "+"}, {olc::Key::NP_SUB, "-", "-"},	{olc::Key::NP_DECIMAL, ".", "."},
+			{olc::Key::NP0, {"0", "0", "0", "0"}},
+			{olc::Key::NP1, {"1", "1", "1", "1"}},
+			{olc::Key::NP2, {"2", "2", "2", "2"}},
+			{olc::Key::NP3, {"3", "3", "3", "3"}},
+			{olc::Key::NP4, {"4", "4", "4", "4"}},
+			{olc::Key::NP5, {"5", "5", "5", "5"}},
+			{olc::Key::NP6, {"6", "6", "6", "6"}},
+			{olc::Key::NP7, {"7", "7", "7", "7"}},
+			{olc::Key::NP8, {"8", "8", "8", "8"}},
+			{olc::Key::NP9, {"9", "9", "9", "9"}},
+			{olc::Key::NP_MUL, {"*", "*", "", ""}},
+			{olc::Key::NP_DIV, {"/", "/", "", ""}},
+			{olc::Key::NP_ADD, {"+", "+", "", ""}},
+			{olc::Key::NP_SUB, {"-", "-", "", ""}},
+			{olc::Key::NP_DECIMAL, {".", ".", "", ""}},
 
-			{olc::Key::PERIOD, ".", ">"}, {olc::Key::EQUALS, "=", "+"}, {olc::Key::COMMA, ",", "<"}, {olc::Key::MINUS, "-", "_"}, {olc::Key::SPACE, " ", " "},
+			{olc::Key::PERIOD, {".", ">", "", ""}},
+			{olc::Key::EQUALS, {"=", "+", "", ""}},
+			{olc::Key::COMMA, {",", "<", "", ""}},
+			{olc::Key::MINUS, {"-", "_", "", ""}},
+			{olc::Key::SPACE, {" ", " ", "", ""}},
+			{olc::Key::ENTER, {"\n", "\n ", "\n", "\n"}},
 
-			{olc::Key::OEM_1, ";", ":"}, {olc::Key::OEM_2, "/", "?"}, {olc::Key::OEM_3, "\'", "@"}, {olc::Key::OEM_4, "[", "{"},
-			{olc::Key::OEM_5, "\\", "|"}, {olc::Key::OEM_6, "]", "}"}, {olc::Key::OEM_7, "#", "~"}, 
-			
-			// {olc::Key::TAB, "\t", "\t"}
+			{olc::Key::OEM_1, {";", ":", "", ""}},
+			{olc::Key::OEM_2, {"/", "?", "", ""}},
+			{olc::Key::OEM_3, {"\'","@", "", ""}},
+			{olc::Key::OEM_4, {"[", "{", "", ""}},
+			{olc::Key::OEM_5, {"\\", "|", "", ""}},
+			{olc::Key::OEM_6, {"]", "}", "", ""}},
+			{olc::Key::OEM_7, {"#", "~", "", ""}},
+
+			{olc::Key::TAB, {"\t", "\t", "\t", "\t"}},
+			{olc::Key::BACK, {"\b", "\b", "\b", "\b"}},
+			{olc::Key::DEL, {"_X", "_X", "_X", "_X"}},
+
+
+			{olc::Key::LEFT, {"_L", "_L", "_L", "_L"}},
+			{olc::Key::RIGHT, {"_R", "_R", "_R", "_R"}},
+			{olc::Key::UP, {"_U", "_U", "_U", "_U"}},
+			{olc::Key::DOWN, {"_D", "_D", "_D", "_D"}},
 		};
 #endif
+	}
+
+
+	// KeyPress Cache
+	const std::vector<int32_t>& PixelGameEngine::GetKeyPressCache() const
+	{
+		// Return prior-switch cache
+		return vKeyPressCache[nKeyPressCacheTarget ^ 0x01];
+	}
+
+	olc::Key PixelGameEngine::ConvertKeycode(const int keycode) const
+	{
+		if (mapKeys.count(size_t(keycode)) > 0)
+		{
+			return mapKeys.at(keycode);
+		}
+
+		return olc::Key::NONE;
+	}
+
+	const std::string PixelGameEngine::GetKeySymbol(const olc::Key pgekey, const bool modShift, const bool modCtrl, const bool modAlt) const
+	{
+		if (vKeyboardMap.count(pgekey) > 0)
+		{
+			const auto& [sym, sym_s, sym_c, sym_a] = vKeyboardMap.at(pgekey);
+			if (modShift) return sym_s;
+			if (modCtrl) return sym_c;
+			if (modAlt) return sym_a;
+			return sym;
+		}
+		else
+			return "";
 	}
 
 	void PixelGameEngine::pgex_Register(olc::PGEX* pgex)
 	{
 		if (std::find(vExtensions.begin(), vExtensions.end(), pgex) == vExtensions.end())
-			vExtensions.push_back(pgex);			
+			vExtensions.push_back(pgex);
 	}
 
 
-	PGEX::PGEX(bool bHook) { if(bHook) pge->pgex_Register(this); }
+	PGEX::PGEX(bool bHook) { if (bHook) pge->pgex_Register(this); }
 	void PGEX::OnBeforeUserCreate() {}
-	void PGEX::OnAfterUserCreate()	{}
+	void PGEX::OnAfterUserCreate() {}
 	bool PGEX::OnBeforeUserUpdate(float& fElapsedTime) { return false; }
 	void PGEX::OnAfterUserUpdate(float fElapsedTime) {}
 
@@ -4584,17 +4966,17 @@ namespace olc
 	{
 	public:
 		virtual void       PrepareDevice() {};
-		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK;		}
+		virtual olc::rcode CreateDevice(std::vector<void*> params, bool bFullScreen, bool bVSYNC) { return olc::rcode::OK; }
 		virtual olc::rcode DestroyDevice() { return olc::rcode::OK; }
 		virtual void       DisplayFrame() {}
 		virtual void       PrepareDrawing() {}
 		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
 		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
-		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) {return 1;};
+		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) { return 1; };
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
 		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
-		virtual uint32_t   DeleteTexture(const uint32_t id) {return 1;}
+		virtual uint32_t   DeleteTexture(const uint32_t id) { return 1; }
 		virtual void       ApplyTexture(uint32_t id) {}
 		virtual void       UpdateViewport(const olc::vi2d& pos, const olc::vi2d& size) {}
 		virtual void       ClearBuffer(olc::Pixel p, bool bDepth) {}
@@ -4605,10 +4987,14 @@ namespace olc
 	{
 	public:
 		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ApplicationStartUp() { return olc::rcode::OK; }
 		virtual olc::rcode ApplicationCleanUp() { return olc::rcode::OK; }
@@ -4662,7 +5048,7 @@ namespace olc
 			if (pack != nullptr)
 			{
 				ResourceBuffer rb = pack->GetFileBuffer(sImageFile);
-				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), rb.vMemory.size(), &w, &h, &cmp, 4);
+				bytes = stbi_load_from_memory((unsigned char*)rb.vMemory.data(), int(rb.vMemory.size()), &w, &h, &cmp, 4);
 			}
 			else
 			{
@@ -4702,37 +5088,37 @@ namespace olc
 #if defined(OLC_GFX_OPENGL10)
 
 #if defined(OLC_PLATFORM_WINAPI)
-	#include <dwmapi.h>
-	#include <GL/gl.h>
-	#if !defined(__MINGW32__)
-		#pragma comment(lib, "Dwmapi.lib")
-	#endif
-	typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
-	static wglSwapInterval_t* wglSwapInterval = nullptr;
-	typedef HDC glDeviceContext_t;
-	typedef HGLRC glRenderContext_t;
+#include <dwmapi.h>
+#include <GL/gl.h>
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif
+typedef BOOL(WINAPI wglSwapInterval_t) (int interval);
+static wglSwapInterval_t* wglSwapInterval = nullptr;
+typedef HDC glDeviceContext_t;
+typedef HGLRC glRenderContext_t;
 #endif
 
 #if defined(__linux__) || defined(__FreeBSD__)
-	#include <GL/gl.h>
+#include <GL/gl.h>
 #endif
 
 #if defined(OLC_PLATFORM_X11)
-	namespace X11
-	{
-		#include <GL/glx.h>
-	}
-	typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
-	static glSwapInterval_t* glSwapIntervalEXT;
-	typedef X11::GLXContext glDeviceContext_t;
-	typedef X11::GLXContext glRenderContext_t;
+namespace X11
+{
+#include <GL/glx.h>
+}
+typedef int(glSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);
+static glSwapInterval_t* glSwapIntervalEXT;
+typedef X11::GLXContext glDeviceContext_t;
+typedef X11::GLXContext glRenderContext_t;
 #endif
 
 #if defined(__APPLE__)
-	#define GL_SILENCE_DEPRECATION
-	#include <OpenGL/OpenGL.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
+#define GL_SILENCE_DEPRECATION
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #endif
 
 namespace olc
@@ -4750,6 +5136,7 @@ namespace olc
 		bool bSync = false;
 		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
 		olc::DecalStructure nDecalStructure = olc::DecalStructure(-1);
+		std::array<float, 16> matProjection = { {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} };
 #if defined(OLC_PLATFORM_X11)
 		X11::Display* olc_Display = nullptr;
 		X11::Window* olc_Window = nullptr;
@@ -4881,12 +5268,13 @@ namespace olc
 
 		void PrepareDrawing() override
 		{
-			
+
 			//ClearBuffer(olc::GREEN, true);
 			glEnable(GL_BLEND);
 			nDecalMode = DecalMode::NORMAL;
 			nDecalStructure = DecalStructure::FAN;
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisable(GL_CULL_FACE);
 		}
 
 		void SetDecalMode(const olc::DecalMode& mode)
@@ -4921,6 +5309,7 @@ namespace olc
 
 		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
 		{
+			glDisable(GL_CULL_FACE);
 			glBegin(GL_QUADS);
 			glColor4ub(tint.r, tint.g, tint.b, tint.a);
 			glTexCoord2f(0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y);
@@ -4942,7 +5331,9 @@ namespace olc
 				glBindTexture(GL_TEXTURE_2D, 0);
 			else
 				glBindTexture(GL_TEXTURE_2D, decal.decal->id);
-			
+
+			glDisable(GL_CULL_FACE);
+
 			if (decal.depth)
 			{
 				glEnable(GL_DEPTH_TEST);
@@ -4952,13 +5343,17 @@ namespace olc
 				glBegin(GL_LINE_LOOP);
 			else
 			{
-				if(decal.structure == olc::DecalStructure::FAN)
+				if (decal.structure == olc::DecalStructure::FAN)
 					glBegin(GL_TRIANGLE_FAN);
-				else if(decal.structure == olc::DecalStructure::STRIP)
+				else if (decal.structure == olc::DecalStructure::STRIP)
 					glBegin(GL_TRIANGLE_STRIP);
-				else if(decal.structure == olc::DecalStructure::LIST)
+				else if (decal.structure == olc::DecalStructure::LIST)
 					glBegin(GL_TRIANGLES);
+				else if (decal.structure == olc::DecalStructure::LINE)
+					glBegin(GL_LINE_STRIP);
 			}
+
+
 
 			if (decal.depth)
 			{
@@ -4988,7 +5383,117 @@ namespace olc
 			{
 				glDisable(GL_DEPTH_TEST);
 			}
-		
+
+		}
+
+		void Set3DProjection(const std::array<float, 16>& mat)
+		{
+			matProjection = mat;
+		}
+
+		void DoGPUTask(const olc::GPUTask& task) override
+		{
+			SetDecalMode(task.mode);
+
+			if (task.decal == nullptr)
+				glBindTexture(GL_TEXTURE_2D, 0);
+			else
+				glBindTexture(GL_TEXTURE_2D, task.decal->id);
+
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+																	
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+
+			if (task.cull == olc::CullMode::NONE)
+			{
+				glCullFace(GL_FRONT);
+				glDisable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CW)
+			{
+				glCullFace(GL_FRONT);
+				glEnable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CCW)
+			{
+				glCullFace(GL_BACK);
+				glEnable(GL_CULL_FACE);
+			}
+
+			if (task.depth)
+			{
+				glEnable(GL_DEPTH_TEST);
+
+				glMatrixMode(GL_PROJECTION);
+				glLoadMatrixf(matProjection.data());
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadMatrixf(task.mvp.data());
+			}
+			else
+			{
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+
+			}
+
+			if (nDecalMode == DecalMode::WIREFRAME)
+				glBegin(GL_LINE_LOOP);
+			else
+			{
+				if (task.structure == olc::DecalStructure::FAN)
+					glBegin(GL_TRIANGLE_FAN);
+				else if (task.structure == olc::DecalStructure::STRIP)
+					glBegin(GL_TRIANGLE_STRIP);
+				else if (task.structure == olc::DecalStructure::LIST)
+					glBegin(GL_TRIANGLES);
+				else if (task.structure == olc::DecalStructure::LINE)
+					glBegin(GL_LINES);
+			}
+
+			//                           x      y      z      w      u      v       rgb
+			//std::vector<std::tuple<float, float, float, float, float, float, uint32_t>> vb;
+
+			float f[4] = { float(task.tint.r) / 255.0f, float(task.tint.g) / 255.0f, float(task.tint.b) / 255.0f, float(task.tint.a) / 255.0f };
+
+			if (task.depth)
+			{
+				for (uint32_t n = 0; n < task.vb.size(); n++)
+				{
+					olc::Pixel p = task.vb[n].c;
+					glColor4ub(GLubyte(p.r * f[0]), GLubyte(p.g * f[1]), GLubyte(p.b * f[2]), GLubyte(p.a * f[3]));
+					glTexCoord2f(task.vb[n].p[4], task.vb[n].p[5]);
+					glVertex4f(task.vb[n].p[0], task.vb[n].p[1], task.vb[n].p[2], task.vb[n].p[3]);
+				}
+			}
+			else
+			{
+				for (uint32_t n = 0; n < task.vb.size(); n++)
+				{
+					olc::Pixel p = task.vb[n].c;
+					glColor4ub(GLubyte(p.r * f[0]), GLubyte(p.g * f[1]), GLubyte(p.b * f[2]), GLubyte(p.a * f[3]));
+					glVertex4f(task.vb[n].p[4], task.vb[n].p[5], 0.0f, task.vb[n].p[3]);
+					glTexCoord2f(task.vb[n].p[0], task.vb[n].p[1]);
+				}
+			}
+
+			glEnd();
+
+			if (task.depth)
+			{
+				glDisable(GL_DEPTH_TEST);
+			}
+
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+
+			glMatrixMode(GL_MODELVIEW);
+			glPopMatrix();
 		}
 
 		uint32_t CreateTexture(const uint32_t width, const uint32_t height, const bool filtered, const bool clamp) override
@@ -5072,16 +5577,16 @@ namespace olc
 #if defined(OLC_GFX_OPENGL33)
 
 #if defined(OLC_PLATFORM_WINAPI)
-	#include <dwmapi.h>
-	//#include <gl/GL.h>
-	#if !defined(__MINGW32__)
-		#pragma comment(lib, "Dwmapi.lib")
-	#endif		
-	//typedef void __stdcall locSwapInterval_t(GLsizei n);
-	typedef HDC glDeviceContext_t;
-	typedef HGLRC glRenderContext_t;
-	//#define CALLSTYLE __stdcall
-	#define OGL_LOAD(t, n) (t*)wglGetProcAddress(#n)
+#include <dwmapi.h>
+//#include <gl/GL.h>
+#if !defined(__MINGW32__)
+#pragma comment(lib, "Dwmapi.lib")
+#endif		
+//typedef void __stdcall locSwapInterval_t(GLsizei n);
+typedef HDC glDeviceContext_t;
+typedef HGLRC glRenderContext_t;
+//#define CALLSTYLE __stdcall
+#define OGL_LOAD(t, n) (t*)wglGetProcAddress(#n)
 #endif
 //
 //#if defined(__linux__) || defined(__FreeBSD__)
@@ -5094,10 +5599,10 @@ namespace olc
 		#include <GL/glx.h>
 	}
 	typedef int(locSwapInterval_t)(X11::Display* dpy, X11::GLXDrawable drawable, int interval);*/
-	typedef X11::GLXContext glDeviceContext_t;
-	typedef X11::GLXContext glRenderContext_t;
-	//#define CALLSTYLE 
-	#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
+typedef X11::GLXContext glDeviceContext_t;
+typedef X11::GLXContext glRenderContext_t;
+//#define CALLSTYLE 
+#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
 #endif
 
 //#if defined(__APPLE__)
@@ -5108,56 +5613,56 @@ namespace olc
 //#endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-	#include <EGL/egl.h>
-	#include <GLES2/gl2.h>
-	#define GL_GLEXT_PROTOTYPES
-	#include <GLES2/gl2ext.h>
-	#include <emscripten/emscripten.h>
-	#define CALLSTYLE
-	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
-	#define GL_CLAMP GL_CLAMP_TO_EDGE
-	#define OGL_LOAD(t, n) n;
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2ext.h>
+#include <emscripten/emscripten.h>
+#define CALLSTYLE
+typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
+#define GL_CLAMP GL_CLAMP_TO_EDGE
+#define OGL_LOAD(t, n) n;
 #endif
 
 namespace olc
 {
-//	typedef char GLchar;
-//	typedef ptrdiff_t GLsizeiptr;
-//	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
-//	typedef GLuint CALLSTYLE locCreateProgram_t(void);
-//	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
-//#if defined(OLC_PLATFORM_EMSCRIPTEN)
-//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
-//#else
-//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
-//#endif
-//	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
-//	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
-//	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
-//	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
-//	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
-//	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
-//	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
-//	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
-//	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
-//	typedef void CALLSTYLE locUseProgram_t(GLuint program);
-//	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
-//	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
-//	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
-//	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
-//	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
-//	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
-//	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
-//	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
-//	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
-//	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
-//	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
-//	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
-//	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-//	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
-//	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+	//	typedef char GLchar;
+	//	typedef ptrdiff_t GLsizeiptr;
+	//	typedef GLuint CALLSTYLE locCreateShader_t(GLenum type);
+	//	typedef GLuint CALLSTYLE locCreateProgram_t(void);
+	//	typedef void CALLSTYLE locDeleteShader_t(GLuint shader);
+	//#if defined(OLC_PLATFORM_EMSCRIPTEN)
+	//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+	//#else
+	//	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+	//#endif
+	//	typedef void CALLSTYLE locCompileShader_t(GLuint shader);
+	//	typedef void CALLSTYLE locLinkProgram_t(GLuint program);
+	//	typedef void CALLSTYLE locDeleteProgram_t(GLuint program);
+	//	typedef void CALLSTYLE locAttachShader_t(GLuint program, GLuint shader);
+	//	typedef void CALLSTYLE locBindBuffer_t(GLenum target, GLuint buffer);
+	//	typedef void CALLSTYLE locBufferData_t(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
+	//	typedef void CALLSTYLE locGenBuffers_t(GLsizei n, GLuint* buffers);
+	//	typedef void CALLSTYLE locVertexAttribPointer_t(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer);
+	//	typedef void CALLSTYLE locEnableVertexAttribArray_t(GLuint index);
+	//	typedef void CALLSTYLE locUseProgram_t(GLuint program);
+	//	typedef void CALLSTYLE locBindVertexArray_t(GLuint array);
+	//	typedef void CALLSTYLE locGenVertexArrays_t(GLsizei n, GLuint* arrays);
+	//	typedef void CALLSTYLE locGetShaderInfoLog_t(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+	//	typedef GLint CALLSTYLE locGetUniformLocation_t(GLuint program, const GLchar* name);
+	//	typedef void CALLSTYLE locUniform1f_t(GLint location, GLfloat v0);
+	//	typedef void CALLSTYLE locUniform1i_t(GLint location, GLint v0);
+	//	typedef void CALLSTYLE locUniform2fv_t(GLint location, GLsizei count, const GLfloat* value);
+	//	typedef void CALLSTYLE locActiveTexture_t(GLenum texture);
+	//	typedef void CALLSTYLE locGenFrameBuffers_t(GLsizei n, GLuint* ids);
+	//	typedef void CALLSTYLE locBindFrameBuffer_t(GLenum target, GLuint fb);
+	//	typedef GLenum CALLSTYLE locCheckFrameBufferStatus_t(GLenum target);
+	//	typedef void CALLSTYLE locDeleteFrameBuffers_t(GLsizei n, const GLuint* fbs);
+	//	typedef void CALLSTYLE locFrameBufferTexture2D_t(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+	//	typedef void CALLSTYLE locDrawBuffers_t(GLsizei n, const GLenum* bufs);
+	//	typedef void CALLSTYLE locBlendFuncSeparate_t(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
-	
+
 
 	class Renderer_OGL33 : public olc::Renderer
 	{
@@ -5172,10 +5677,10 @@ namespace olc
 #if defined(OLC_PLATFORM_GLUT)
 		bool mFullScreen = false;
 #else
-	#if !defined(OLC_PLATFORM_EMSCRIPTEN)
+#if !defined(OLC_PLATFORM_EMSCRIPTEN)
 		glDeviceContext_t glDeviceContext = 0;
 		glRenderContext_t glRenderContext = 0;
-	#endif
+#endif
 #endif
 		bool bSync = false;
 		olc::DecalMode nDecalMode = olc::DecalMode(-1); // Thanks Gusgo & Bispoo
@@ -5204,6 +5709,10 @@ namespace olc
 		locGenVertexArrays_t* locGenVertexArrays = nullptr;
 		locSwapInterval_t* locSwapInterval = nullptr;
 		locGetShaderInfoLog_t* locGetShaderInfoLog = nullptr;
+		locGetUniformLocation_t* locGetUniformLocation = nullptr;
+		locUniformMatrix4fv_t* locUniformMatrix4fv = nullptr;
+		locUniform1i_t* locUniform1i = nullptr;
+		locUniform4fv_t* locUniform4fv = nullptr;
 
 		uint32_t m_nFS = 0;
 		uint32_t m_nVS = 0;
@@ -5211,12 +5720,18 @@ namespace olc
 		uint32_t m_vbQuad = 0;
 		uint32_t m_vaQuad = 0;
 
+		uint32_t m_uniMVP = 0;
+		uint32_t m_uniIs3D = 0;
+		uint32_t m_uniTint = 0;
+
 		struct locVertex
 		{
-			float pos[3];
+			float pos[4];
 			olc::vf2d tex;
 			olc::Pixel col;
 		};
+
+		std::array<float, 16> matProjection = { {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} };
 
 		locVertex pVertexMem[OLC_MAX_VERTS];
 
@@ -5296,7 +5811,7 @@ namespace olc
 #endif		
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_NONE };
+			EGLint const attribute_list[] = { EGL_RED_SIZE, 8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8, EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 16, EGL_NONE };
 			EGLint const context_config[] = { EGL_CONTEXT_CLIENT_VERSION , 2, EGL_NONE };
 			EGLint num_config;
 
@@ -5324,10 +5839,10 @@ namespace olc
 #endif
 			}
 #else
-	#if !defined(OLC_PLATFORM_EMSCRIPTEN)
+#if !defined(OLC_PLATFORM_EMSCRIPTEN)
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	#endif
+#endif
 #endif
 			// Load External OpenGL Functions
 			locCreateShader = OGL_LOAD(locCreateShader_t, glCreateShader);
@@ -5345,6 +5860,10 @@ namespace olc
 			locEnableVertexAttribArray = OGL_LOAD(locEnableVertexAttribArray_t, glEnableVertexAttribArray);
 			locUseProgram = OGL_LOAD(locUseProgram_t, glUseProgram);
 			locGetShaderInfoLog = OGL_LOAD(locGetShaderInfoLog_t, glGetShaderInfoLog);
+			locUniform1i = OGL_LOAD(locUniform1i_t, glUniform1i);
+			locUniform4fv = OGL_LOAD(locUniform4fv_t, glUniform4fv);
+			locUniformMatrix4fv = OGL_LOAD(locUniformMatrix4fv_t, glUniformMatrix4fv);
+			locGetUniformLocation = OGL_LOAD(locGetUniformLocation_t, glGetUniformLocation);
 #if !defined(OLC_PLATFORM_EMSCRIPTEN)
 			locBindVertexArray = OGL_LOAD(locBindVertexArray_t, glBindVertexArray);
 			locGenVertexArrays = OGL_LOAD(locGenVertexArrays_t, glGenVertexArrays);
@@ -5362,8 +5881,11 @@ namespace olc
 #else
 				"#version 330 core\n"
 #endif
-				"out vec4 pixel;\n""in vec2 oTex;\n"
-				"in vec4 oCol;\n""uniform sampler2D sprTex;\n""void main(){pixel = texture(sprTex, oTex) * oCol;}";
+				"out vec4 pixel;\n"
+				"in vec2 oTex;\n"
+				"in vec4 oCol;\n"
+				"uniform sampler2D sprTex;\n"
+				"void main(){pixel = texture(sprTex, oTex) * oCol;}";
 			locShaderSource(m_nFS, 1, &strFS, NULL);
 			locCompileShader(m_nFS);
 
@@ -5375,9 +5897,15 @@ namespace olc
 #else
 				"#version 330 core\n"
 #endif
-				"layout(location = 0) in vec3 aPos;\n""layout(location = 1) in vec2 aTex;\n"
-				"layout(location = 2) in vec4 aCol;\n""out vec2 oTex;\n""out vec4 oCol;\n"
-				"void main(){ float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex; oCol = aCol;}";
+				"layout(location = 0) in vec4 aPos;\n"
+				"layout(location = 1) in vec2 aTex;\n"
+				"layout(location = 2) in vec4 aCol;\n"
+				"uniform mat4 mvp;\n"
+				"uniform int is3d;\n"
+				"uniform vec4 tint;\n"
+				"out vec2 oTex;\n"
+				"out vec4 oCol;\n"
+				"void main(){ if(is3d!=0) {gl_Position = mvp * vec4(aPos.x, aPos.y, aPos.z, 1.0); oTex = aTex;} else {float p = 1.0 / aPos.z; gl_Position = p * vec4(aPos.x, aPos.y, 0.0, 1.0); oTex = p * aTex;} oCol = aCol * tint;}";
 			locShaderSource(m_nVS, 1, &strVS, NULL);
 			locCompileShader(m_nVS);
 
@@ -5385,6 +5913,14 @@ namespace olc
 			locAttachShader(m_nQuadShader, m_nFS);
 			locAttachShader(m_nQuadShader, m_nVS);
 			locLinkProgram(m_nQuadShader);
+
+			m_uniMVP = locGetUniformLocation(m_nQuadShader, "mvp");
+			m_uniIs3D = locGetUniformLocation(m_nQuadShader, "is3d");
+			m_uniTint = locGetUniformLocation(m_nQuadShader, "tint");
+			locUniform1i(m_uniIs3D, 0);
+			locUniformMatrix4fv(m_uniMVP, 16, false, matProjection.data());
+			float f[4] = { 100.0f, 100.0f, 100.0f, 100.0f };
+			locUniform4fv(m_uniTint, 4, f);
 
 			// Create Quad
 			locGenBuffers(1, &m_vbQuad);
@@ -5394,9 +5930,9 @@ namespace olc
 
 			locVertex verts[OLC_MAX_VERTS];
 			locBufferData(0x8892, sizeof(locVertex) * OLC_MAX_VERTS, verts, 0x88E0);
-			locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
-			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
-			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
+			locVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
+			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(4 * sizeof(float))); locEnableVertexAttribArray(1);
+			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(6 * sizeof(float)));	locEnableVertexAttribArray(2);
 			locBindBuffer(0x8892, 0);
 			locBindVertexArray(0);
 
@@ -5461,12 +5997,19 @@ namespace olc
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			locUseProgram(m_nQuadShader);
 			locBindVertexArray(m_vaQuad);
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
-			locVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
-			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(3 * sizeof(float))); locEnableVertexAttribArray(1);
-			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(5 * sizeof(float)));	locEnableVertexAttribArray(2);
+			locVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(locVertex), 0); locEnableVertexAttribArray(0);
+			locVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(locVertex), (void*)(4 * sizeof(float))); locEnableVertexAttribArray(1);
+			locVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(locVertex), (void*)(6 * sizeof(float)));	locEnableVertexAttribArray(2);
 #endif
+
+			locUniform1i(m_uniIs3D, 0);
+			locUniformMatrix4fv(m_uniMVP, 1, false, matProjection.data());
+			glDisable(GL_CULL_FACE);
+			glDepthFunc(GL_LESS);
 		}
 
 		void SetDecalMode(const olc::DecalMode& mode) override
@@ -5489,20 +6032,26 @@ namespace olc
 
 		void DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) override
 		{
+			glDisable(GL_CULL_FACE);
 			locBindBuffer(0x8892, m_vbQuad);
 			locVertex verts[4] = {
-				{{-1.0f, -1.0f, 1.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
-				{{+1.0f, -1.0f, 1.0}, {1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
-				{{-1.0f, +1.0f, 1.0}, {0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
-				{{+1.0f, +1.0f, 1.0}, {1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+				{{-1.0f, -1.0f, 1.0, 0.0}, {0.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+				{{+1.0f, -1.0f, 1.0, 0.0}, {1.0f * scale.x + offset.x, 1.0f * scale.y + offset.y}, tint},
+				{{-1.0f, +1.0f, 1.0, 0.0}, {0.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
+				{{+1.0f, +1.0f, 1.0, 0.0}, {1.0f * scale.x + offset.x, 0.0f * scale.y + offset.y}, tint},
 			};
 
 			locBufferData(0x8892, sizeof(locVertex) * 4, verts, 0x88E0);
+
+			locUniform1i(m_uniIs3D, 0);
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 
 		void DrawDecal(const olc::DecalInstance& decal) override
 		{
+			glDisable(GL_CULL_FACE);
 			SetDecalMode(decal.mode);
 			if (decal.decal == nullptr)
 				glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
@@ -5512,9 +6061,13 @@ namespace olc
 			locBindBuffer(0x8892, m_vbQuad);
 
 			for (uint32_t i = 0; i < decal.points; i++)
-				pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i] }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
+				pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i], 0.0 }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
 
 			locBufferData(0x8892, sizeof(locVertex) * decal.points, pVertexMem, 0x88E0);
+			locUniform1i(m_uniIs3D, 0);
+
+			float f[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			locUniform4fv(m_uniTint, 1, f);
 
 			if (nDecalMode == DecalMode::WIREFRAME)
 				glDrawArrays(GL_LINE_LOOP, 0, decal.points);
@@ -5526,6 +6079,8 @@ namespace olc
 					glDrawArrays(GL_TRIANGLE_STRIP, 0, decal.points);
 				else if (decal.structure == olc::DecalStructure::LIST)
 					glDrawArrays(GL_TRIANGLES, 0, decal.points);
+				else if (decal.structure == olc::DecalStructure::LINE)
+					glDrawArrays(GL_LINES, 0, decal.points);
 			}
 		}
 
@@ -5597,6 +6152,85 @@ namespace olc
 		{
 			glViewport(pos.x, pos.y, size.x, size.y);
 		}
+
+		void Set3DProjection(const std::array<float, 16>& mat)
+		{
+			matProjection = mat;
+		}
+
+		void DoGPUTask(const olc::GPUTask& task) override
+		{
+			SetDecalMode(task.mode);
+			if (task.decal == nullptr)
+				glBindTexture(GL_TEXTURE_2D, rendBlankQuad.Decal()->id);
+			else
+				glBindTexture(GL_TEXTURE_2D, task.decal->id);
+
+			locBindBuffer(0x8892, m_vbQuad);
+
+			//for (uint32_t i = 0; i < task.vb.size; i++)
+			// pVertexMem[i] = { { decal.pos[i].x, decal.pos[i].y, decal.w[i] }, { decal.uv[i].x, decal.uv[i].y }, decal.tint[i] };
+
+			// ooooof... f^%ing win!!! B) [planned of course]
+			locBufferData(0x8892, sizeof(GPUTask::Vertex) * task.vb.size(), task.vb.data(), 0x88E0);
+
+			// Use 3D Shader
+			locUniform1i(m_uniIs3D, 1);
+
+			// Use MVP Matrix - yeah, but this needs to happen somewhere
+			// and at least its per object which makes sense
+			std::array<float, 16> matMVP;
+			for (size_t c = 0; c < 4; c++)
+				for (size_t r = 0; r < 4; r++)
+					matMVP[c * 4 + r] =
+					+ matProjection[0 * 4 + r] * task.mvp[c * 4 + 0] 
+					+ matProjection[1 * 4 + r] * task.mvp[c * 4 + 1]
+					+ matProjection[2 * 4 + r] * task.mvp[c * 4 + 2]
+					+ matProjection[3 * 4 + r] * task.mvp[c * 4 + 3];
+			locUniformMatrix4fv(m_uniMVP, 1, false, matMVP.data());
+
+			float f[4] = { float(task.tint.r) / 255.0f, float(task.tint.g) / 255.0f, float(task.tint.b) / 255.0f, float(task.tint.a) / 255.0f };
+			locUniform4fv(m_uniTint, 1, f);
+
+			
+			if (task.cull == olc::CullMode::NONE)
+			{
+				glCullFace(GL_FRONT);
+				glDisable(GL_CULL_FACE);
+			}
+			else if(task.cull == olc::CullMode::CW)
+			{
+				glCullFace(GL_FRONT);
+				glEnable(GL_CULL_FACE);
+			}
+			else if (task.cull == olc::CullMode::CCW)
+			{
+				glCullFace(GL_BACK);
+				glEnable(GL_CULL_FACE);
+			}
+
+			if(task.depth)
+				glEnable(GL_DEPTH_TEST);
+
+			
+
+			if (nDecalMode == DecalMode::WIREFRAME)
+				glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)task.vb.size());
+			else
+			{
+				if (task.structure == olc::DecalStructure::FAN)
+					glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)task.vb.size());
+				else if (task.structure == olc::DecalStructure::STRIP)
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, (GLsizei)task.vb.size());
+				else if (task.structure == olc::DecalStructure::LIST)
+					glDrawArrays(GL_TRIANGLES, 0, (GLsizei)task.vb.size());
+				else if (task.structure == olc::DecalStructure::LINE)
+					glDrawArrays(GL_LINES, 0, (GLsizei)task.vb.size());
+			}
+
+			if(task.depth)
+				glDisable(GL_DEPTH_TEST);
+		}
 	};
 }
 #endif
@@ -5620,17 +6254,17 @@ namespace olc
 #include <objidl.h>
 #include <gdiplus.h>
 #if defined(__MINGW32__) // Thanks Gusgo & Dandistine, but c'mon mingw!! wtf?!
-	#include <gdiplus/gdiplusinit.h>
+#include <gdiplus/gdiplusinit.h>
 #else
-	#include <gdiplusinit.h>
+#include <gdiplusinit.h>
 #endif
 #include <shlwapi.h>
 #undef min
 #undef max
 
 #if !defined(__MINGW32__)
-	#pragma comment(lib, "gdiplus.lib")
-	#pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "gdiplus.lib")
+#pragma comment(lib, "Shlwapi.lib")
 #endif
 
 namespace olc
@@ -5641,13 +6275,13 @@ namespace olc
 	{
 	public:
 		GDIPlusStartup()
-		{			
+		{
 			Gdiplus::GdiplusStartupInput startupInput;
 			GdiplusStartup(&token, &startupInput, NULL);
 		}
 
 		ULONG_PTR	token;
-		
+
 		~GDIPlusStartup()
 		{
 			// Well, MarcusTU thought this was important :D
@@ -5766,48 +6400,48 @@ namespace olc
 			png_infop info;
 
 			auto loadPNG = [&]()
-			{
-				png_read_info(png, info);
-				png_byte color_type;
-				png_byte bit_depth;
-				png_bytep* row_pointers;
-				spr->width = png_get_image_width(png, info);
-				spr->height = png_get_image_height(png, info);
-				color_type = png_get_color_type(png, info);
-				bit_depth = png_get_bit_depth(png, info);
-				if (bit_depth == 16) png_set_strip_16(png);
-				if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-				if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)	png_set_expand_gray_1_2_4_to_8(png);
-				if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
-				if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
-					png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
-				if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-					png_set_gray_to_rgb(png);
-				png_read_update_info(png, info);
-				row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * spr->height);
-				for (int y = 0; y < spr->height; y++) {
-					row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png, info));
-				}
-				png_read_image(png, row_pointers);
-				////////////////////////////////////////////////////////////////////////////
-				// Create sprite array
-				spr->pColData.resize(spr->width * spr->height);
-				// Iterate through image rows, converting into sprite format
-				for (int y = 0; y < spr->height; y++)
 				{
-					png_bytep row = row_pointers[y];
-					for (int x = 0; x < spr->width; x++)
-					{
-						png_bytep px = &(row[x * 4]);
-						spr->SetPixel(x, y, Pixel(px[0], px[1], px[2], px[3]));
+					png_read_info(png, info);
+					png_byte color_type;
+					png_byte bit_depth;
+					png_bytep* row_pointers;
+					spr->width = png_get_image_width(png, info);
+					spr->height = png_get_image_height(png, info);
+					color_type = png_get_color_type(png, info);
+					bit_depth = png_get_bit_depth(png, info);
+					if (bit_depth == 16) png_set_strip_16(png);
+					if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
+					if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)	png_set_expand_gray_1_2_4_to_8(png);
+					if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
+					if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_PALETTE)
+						png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+					if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+						png_set_gray_to_rgb(png);
+					png_read_update_info(png, info);
+					row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * spr->height);
+					for (int y = 0; y < spr->height; y++) {
+						row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png, info));
 					}
-				}
+					png_read_image(png, row_pointers);
+					////////////////////////////////////////////////////////////////////////////
+					// Create sprite array
+					spr->pColData.resize(spr->width * spr->height);
+					// Iterate through image rows, converting into sprite format
+					for (int y = 0; y < spr->height; y++)
+					{
+						png_bytep row = row_pointers[y];
+						for (int x = 0; x < spr->width; x++)
+						{
+							png_bytep px = &(row[x * 4]);
+							spr->SetPixel(x, y, Pixel(px[0], px[1], px[2], px[3]));
+						}
+					}
 
-				for (int y = 0; y < spr->height; y++) // Thanks maksym33
-					free(row_pointers[y]);
-				free(row_pointers);
-				png_destroy_read_struct(&png, &info, nullptr);
-			};
+					for (int y = 0; y < spr->height; y++) // Thanks maksym33
+						free(row_pointers[y]);
+					free(row_pointers);
+					png_destroy_read_struct(&png, &info, nullptr);
+				};
 
 			png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 			if (!png) goto fail_load;
@@ -5866,9 +6500,9 @@ namespace olc
 #if defined(OLC_PLATFORM_WINAPI)
 
 #if defined(_WIN32) && !defined(__MINGW32__)
-	#pragma comment(lib, "user32.lib")		// Visual Studio Only
-	#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
-	#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
+#pragma comment(lib, "user32.lib")		// Visual Studio Only
+#pragma comment(lib, "gdi32.lib")		// For other Windows Compilers please add
+#pragma comment(lib, "opengl32.lib")	// these libs to your linker input
 #endif
 
 namespace olc
@@ -5985,7 +6619,7 @@ namespace olc
 
 			mapKeys[VK_DOWN] = Key::DOWN; mapKeys[VK_LEFT] = Key::LEFT; mapKeys[VK_RIGHT] = Key::RIGHT; mapKeys[VK_UP] = Key::UP;
 			//mapKeys[VK_RETURN] = Key::ENTER;// mapKeys[VK_RETURN] = Key::RETURN;
-			
+
 			mapKeys[VK_BACK] = Key::BACK; mapKeys[VK_ESCAPE] = Key::ESCAPE; mapKeys[VK_RETURN] = Key::ENTER; mapKeys[VK_PAUSE] = Key::PAUSE;
 			mapKeys[VK_SCROLL] = Key::SCROLL; mapKeys[VK_TAB] = Key::TAB; mapKeys[VK_DELETE] = Key::DEL; mapKeys[VK_HOME] = Key::HOME;
 			mapKeys[VK_END] = Key::END; mapKeys[VK_PRIOR] = Key::PGUP; mapKeys[VK_NEXT] = Key::PGDN; mapKeys[VK_INSERT] = Key::INS;
@@ -6031,28 +6665,28 @@ namespace olc
 			// Oooooooof... yeah....
 			DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 			DWORD dwStyle = WS_CAPTION | WS_SYSMENU | WS_VISIBLE | WS_THICKFRAME;
-			
+
 			RECT rWndRect, rWndRectNow;
 			GetWindowRect(olc_hWnd, &rWndRectNow);
-			
+
 			if (!bShowFrame)
 			{
 				LONG_PTR lp = GetWindowLongPtr(olc_hWnd, GWL_STYLE);
-				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp & ~(WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW | WS_THICKFRAME));								
+				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp & ~(WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW | WS_THICKFRAME));
 				lp = GetWindowLongPtr(olc_hWnd, GWL_EXSTYLE);
 				SetWindowLongPtr(olc_hWnd, GWL_EXSTYLE, lp & ~(WS_EX_WINDOWEDGE));
 				dwExStyle = WS_EX_APPWINDOW;
-				dwStyle = 0;			
+				dwStyle = 0;
 			}
 			else
 			{
 				LONG_PTR lp = GetWindowLongPtr(olc_hWnd, GWL_STYLE);
-				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp | (WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW|WS_THICKFRAME));
+				SetWindowLongPtr(olc_hWnd, GWL_STYLE, lp | (WS_CAPTION | WS_SYSMENU | WS_POPUPWINDOW | WS_THICKFRAME));
 				lp = GetWindowLongPtr(olc_hWnd, GWL_EXSTYLE);
 				SetWindowLongPtr(olc_hWnd, GWL_EXSTYLE, lp | (WS_EX_WINDOWEDGE));
 			}
 
-			
+
 			rWndRectNow.right = rWndRectNow.left + vWinSize.x;
 			rWndRectNow.bottom = rWndRectNow.top + vWinSize.y;
 			rWndRect = rWndRectNow;
@@ -6120,10 +6754,10 @@ namespace olc
 			case WM_MOUSELEAVE: ptrPGE->olc_UpdateMouseFocus(false);                                    return 0;
 			case WM_SETFOCUS:	ptrPGE->olc_UpdateKeyFocus(true);                                       return 0;
 			case WM_KILLFOCUS:	ptrPGE->olc_UpdateKeyFocus(false);                                      return 0;
-			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);                      return 0;
-			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);                     return 0;
-			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(mapKeys[wParam], true);						return 0;
-			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(mapKeys[wParam], false);						return 0;
+			case WM_KEYDOWN:	ptrPGE->olc_UpdateKeyState(int32_t(wParam), true);                      return 0;
+			case WM_KEYUP:		ptrPGE->olc_UpdateKeyState(int32_t(wParam), false);                     return 0;
+			case WM_SYSKEYDOWN: ptrPGE->olc_UpdateKeyState(int32_t(wParam), true);						return 0;
+			case WM_SYSKEYUP:	ptrPGE->olc_UpdateKeyState(int32_t(wParam), false);						return 0;
 			case WM_LBUTTONDOWN:ptrPGE->olc_UpdateMouseState(0, true);                                  return 0;
 			case WM_LBUTTONUP:	ptrPGE->olc_UpdateMouseState(0, false);                                 return 0;
 			case WM_RBUTTONDOWN:ptrPGE->olc_UpdateMouseState(1, true);                                  return 0;
@@ -6134,7 +6768,7 @@ namespace olc
 			{
 				// This is all eww...
 				HDROP drop = (HDROP)wParam;
-				
+
 				uint32_t nFiles = DragQueryFile(drop, 0xFFFFFFFF, nullptr, 0);
 				std::vector<std::string> vFiles;
 				for (uint32_t i = 0; i < nFiles; i++)
@@ -6143,15 +6777,15 @@ namespace olc
 					uint32_t len = DragQueryFile(drop, i, nullptr, 0);
 					DragQueryFile(drop, i, dfbuffer, 256);
 #ifdef UNICODE
-	#ifdef __MINGW32__
+#ifdef __MINGW32__
 					char* buffer = new char[len + 1];
 					wcstombs(buffer, dfbuffer, len);
 					buffer[len] = '\0';
-	#else
+#else
 					int count = WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, NULL, 0, NULL, NULL);
 					char* buffer = new char[count];
 					WideCharToMultiByte(CP_UTF8, 0, dfbuffer, -1, buffer, count, NULL, NULL);
-	#endif				
+#endif				
 					vFiles.push_back(std::string(buffer));
 					delete[] buffer;
 #else
@@ -6164,7 +6798,7 @@ namespace olc
 				ptrPGE->olc_DropFiles(p.x, p.y, vFiles);
 				DragFinish(drop);
 				return 0;
-			} 
+			}
 			break;
 
 
@@ -6289,13 +6923,22 @@ namespace olc
 			}
 
 			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
-			mapKeys[0x61] = Key::A; mapKeys[0x62] = Key::B; mapKeys[0x63] = Key::C; mapKeys[0x64] = Key::D; mapKeys[0x65] = Key::E;
-			mapKeys[0x66] = Key::F; mapKeys[0x67] = Key::G; mapKeys[0x68] = Key::H; mapKeys[0x69] = Key::I; mapKeys[0x6A] = Key::J;
-			mapKeys[0x6B] = Key::K; mapKeys[0x6C] = Key::L; mapKeys[0x6D] = Key::M; mapKeys[0x6E] = Key::N; mapKeys[0x6F] = Key::O;
-			mapKeys[0x70] = Key::P; mapKeys[0x71] = Key::Q; mapKeys[0x72] = Key::R; mapKeys[0x73] = Key::S; mapKeys[0x74] = Key::T;
-			mapKeys[0x75] = Key::U; mapKeys[0x76] = Key::V; mapKeys[0x77] = Key::W; mapKeys[0x78] = Key::X; mapKeys[0x79] = Key::Y;
-			mapKeys[0x7A] = Key::Z;
+			mapKeys[NoSymbol] = Key::NONE;
+
+			// There are separate KeySyms for uppercase and lowercase letters, let's loop 'em
+			{
+				int keyTracker = (int)Key::A;
+				size_t key;
+				size_t key2;
+
+				for (key = (size_t)XK_A, key2 = (size_t)XK_a; key <= (size_t)XK_Z; ++key, ++key2)
+				{
+					mapKeys[key] = (Key)keyTracker;
+					mapKeys[key2] = (Key)keyTracker;
+					++keyTracker;
+				}
+			}
+
 
 			mapKeys[XK_F1] = Key::F1; mapKeys[XK_F2] = Key::F2; mapKeys[XK_F3] = Key::F3; mapKeys[XK_F4] = Key::F4;
 			mapKeys[XK_F5] = Key::F5; mapKeys[XK_F6] = Key::F6; mapKeys[XK_F7] = Key::F7; mapKeys[XK_F8] = Key::F8;
@@ -6317,10 +6960,17 @@ namespace olc
 			mapKeys[XK_KP_5] = Key::NP5; mapKeys[XK_KP_6] = Key::NP6; mapKeys[XK_KP_7] = Key::NP7; mapKeys[XK_KP_8] = Key::NP8; mapKeys[XK_KP_9] = Key::NP9;
 			mapKeys[XK_KP_Multiply] = Key::NP_MUL; mapKeys[XK_KP_Add] = Key::NP_ADD; mapKeys[XK_KP_Divide] = Key::NP_DIV; mapKeys[XK_KP_Subtract] = Key::NP_SUB; mapKeys[XK_KP_Decimal] = Key::NP_DECIMAL;
 
+			// These map the keypad when NUMLOCK is off
+			mapKeys[XK_KP_Home] = Key::HOME; mapKeys[XK_KP_End] = Key::END; mapKeys[XK_KP_Up] = Key::UP;
+			mapKeys[XK_KP_Down] = Key::DOWN; mapKeys[XK_KP_Left] = Key::LEFT; mapKeys[XK_KP_Right] = Key::RIGHT;
+			mapKeys[XK_KP_Page_Up] = Key::PGUP; mapKeys[XK_KP_Page_Down] = Key::PGDN; mapKeys[XK_KP_Insert] = Key::INS;
+			mapKeys[XK_KP_Delete] = Key::DEL;
+
 			// These keys vary depending on the keyboard. I've included comments for US and UK keyboard layouts
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
 			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+			mapKeys[XK_grave] = Key::OEM_3;	// On US keyboard this is the '`' key
 			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
 			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
 			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
@@ -6380,19 +7030,21 @@ namespace olc
 				}
 				else if (xev.type == KeyPress)
 				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
-					XKeyEvent* e = (XKeyEvent*)&xev; // Because DragonEye loves numpads
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], true);
+					KeySym ks;
+
+					// DragonEye still loves numpads, but this is a better way
+					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
+
+					if (ks != NoSymbol)
+						ptrPGE->olc_UpdateKeyState(ks, true);
 				}
 				else if (xev.type == KeyRelease)
 				{
-					KeySym sym = XLookupKeysym(&xev.xkey, 0);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
-					XKeyEvent* e = (XKeyEvent*)&xev;
-					XLookupString(e, NULL, 0, &sym, NULL);
-					ptrPGE->olc_UpdateKeyState(mapKeys[sym], false);
+					KeySym ks;
+					XLookupString(&xev.xkey, NULL, 0, &ks, NULL);
+
+					if (ks != NoSymbol)
+						ptrPGE->olc_UpdateKeyState(ks, false);
 				}
 				else if (xev.type == ButtonPress)
 				{
@@ -6620,25 +7272,30 @@ namespace olc {
 
 			// NOTE: MISSING KEYS :O
 
+			// JAVIDX9 WOZ ERE - Rethinking some keyboad stuff has required
+			// some changes. MOst of them are trivial, but I'm not sure
+			// what's going on here and have no readily available testing
+			// suite either - its for MAC users. However broken as of 2.29
+
 			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
 				switch (glutGetModifiers()) {
 				case 0: //This is when there are no modifiers
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
+					//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
+					//	ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
 					break;
 				case GLUT_ACTIVE_ALT:
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				}
 
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+				//if (mapKeys[key])
+				ptrPGE->olc_UpdateKeyState(key, true);
 				});
 
 			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
@@ -6647,11 +7304,11 @@ namespace olc {
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
+					//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
+					//	ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
 					break;
 				case GLUT_ACTIVE_ALT:
 					if ('a' <= key && key <= 'z') key -= 32;
@@ -6659,19 +7316,19 @@ namespace olc {
 					break;
 				}
 
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+				//if (mapKeys[key])
+				ptrPGE->olc_UpdateKeyState(key, false);
 				});
 
 			//Special keys
 			glutSpecialFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
+				//if (mapKeys[key])
+				ptrPGE->olc_UpdateKeyState(key, true);
 				});
 
 			glutSpecialUpFunc([](int key, int x, int y) -> void {
-				if (mapKeys[key])
-					ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
+				//if (mapKeys[key])
+				ptrPGE->olc_UpdateKeyState(key, false);
 				});
 
 			glutMouseFunc([](int button, int state, int x, int y) -> void {
@@ -6693,7 +7350,7 @@ namespace olc {
 
 			auto mouseMoveCall = [](int x, int y) -> void {
 				ptrPGE->olc_UpdateMouse(x, y);
-			};
+				};
 
 			glutMotionFunc(mouseMoveCall);
 			glutPassiveMotionFunc(mouseMoveCall);
@@ -6784,10 +7441,12 @@ namespace olc {
 #include <emscripten/html5.h>
 #include <emscripten/key_codes.h>
 
-extern "C" 
+extern "C"
 {
 	EMSCRIPTEN_KEEPALIVE inline int olc_OnPageUnload()
-	{ olc::platform->ApplicationCleanUp(); return 0; }
+	{
+		olc::platform->ApplicationCleanUp(); return 0;
+	}
 }
 
 namespace olc
@@ -6797,22 +7456,34 @@ namespace olc
 	public:
 
 		virtual olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize) override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
-		virtual olc::rcode ApplicationStartUp() override 
-		{ return olc::rcode::OK; }
+		virtual olc::rcode ApplicationStartUp() override
+		{
+			return olc::rcode::OK;
+		}
 
-		virtual olc::rcode ApplicationCleanUp() override 
-		{ ThreadCleanUp(); return olc::rcode::OK; }
+		virtual olc::rcode ApplicationCleanUp() override
+		{
+			ThreadCleanUp(); return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ThreadStartUp() override
-		{ return olc::rcode::OK; }
+		{
+			return olc::rcode::OK;
+		}
 
 		virtual olc::rcode ThreadCleanUp() override
-		{ renderer->DestroyDevice(); return olc::OK; }
+		{
+			renderer->DestroyDevice(); return olc::OK;
+		}
 
 		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) override
 		{
@@ -6887,9 +7558,9 @@ namespace olc
 			// Canvas Focus Callbacks
 			emscripten_set_blur_callback("#canvas", 0, 1, focus_callback);
 			emscripten_set_focus_callback("#canvas", 0, 1, focus_callback);
-			
+
 #pragma warning disable format
-			EM_ASM( window.onunload = Module._olc_OnPageUnload; );
+			EM_ASM(window.onunload = Module._olc_OnPageUnload; );
 
 			// IMPORTANT! - Sorry About This...
 			//
@@ -6902,15 +7573,15 @@ namespace olc
 			//
 			//	Wake up people! Of course theres a spoon. There has to be to keep feeding
 			//	the giant web baby.
-			
+
 
 			EM_ASM({
 
-			// olc_ApsectRatio
-			// 
-			// Used by olc_ResizeHandler to calculate the viewport from the
-			// dimensions of the canvas container's element.
-			Module.olc_AspectRatio = $0 / $1;
+				// olc_ApsectRatio
+				// 
+				// Used by olc_ResizeHandler to calculate the viewport from the
+				// dimensions of the canvas container's element.
+				Module.olc_AspectRatio = $0 / $1;
 
 			// HACK ALERT!
 			// 
@@ -6927,55 +7598,55 @@ namespace olc
 				let isFullscreen = (document.fullscreenElement != null);
 
 				// get the width of the containing element
-				let width  = (isFullscreen) ? window.innerWidth  : Module.canvas.parentNode.clientWidth;
+				let width = (isFullscreen) ? window.innerWidth : Module.canvas.parentNode.clientWidth;
 				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
 
 				// calculate the expected viewport size
-				let viewWidth  = width;
+				let viewWidth = width;
 				let viewHeight = width / Module.olc_AspectRatio;
 
 				// if we're taller than the containing element, recalculate based on height
-				if(viewHeight > height)
+				if (viewHeight > height)
 				{
-					viewWidth  = height * Module.olc_AspectRatio;
+					viewWidth = height * Module.olc_AspectRatio;
 					viewHeight = height;
 				}
-    
+
 				// ensure resulting viewport is in integer space
-				viewWidth  = parseInt(viewWidth);
+				viewWidth = parseInt(viewWidth);
 				viewHeight = parseInt(viewHeight);
 
 				setTimeout(function()
 				{
 					// if default shells, apply default styles
-					if(Module.olc_AssumeDefaultShells)
+					if (Module.olc_AssumeDefaultShells)
 						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
-				
-					// apply viewport dimensions to teh canvas
+
+					// apply viewport dimensions to the canvas
 					Module.canvas.setAttribute('width', viewWidth);
 					Module.canvas.setAttribute('height', viewHeight);
-					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px;`);
-					
+					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px; `);
+
 					// update the PGE window size
 					Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
-					
+
 					// force focus on our PGE canvas
 					Module.canvas.focus();
 				}, 200);
 			};
 
-			
+
 			// olc_Init
 			// 
 			// set up resize observer and fullscreenchange event handler
 			var olc_Init = function()
 			{
-				if(Module.olc_AspectRatio === undefined)
+				if (Module.olc_AspectRatio == = undefined)
 				{
 					setTimeout(function() { Module.olc_Init(); }, 50);
 					return;
 				}
-					
+
 				let resizeObserver = new ResizeObserver(function(entries)
 				{
 					Module.olc_ResizeHandler();
@@ -6984,22 +7655,22 @@ namespace olc
 				let mutationObserver = new MutationObserver(function(mutationsList, observer)
 				{
 					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
-				}).observe(Module.canvas.parentNode, { attributes: false, childList: true, subtree: false });
+				}).observe(Module.canvas.parentNode, { attributes: false, childList : true, subtree : false });
 
 				window.addEventListener('fullscreenchange', function(e)
 				{
-					setTimeout(function() { Module.olc_ResizeHandler();},  200);
+					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
 				});
 			};
-			
+
 			// set up hooks
 			Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
-			Module.olc_Init          = (Module.olc_Init          != undefined) ? Module.olc_Init : olc_Init;
+			Module.olc_Init = (Module.olc_Init != undefined) ? Module.olc_Init : olc_Init;
 
 			// run everything!
 			Module.olc_Init();
 
-			}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
+					}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
 #pragma warning restore format
 			return olc::rcode::OK;
 		}
@@ -7011,7 +7682,7 @@ namespace olc
 		}
 
 		//TY Gorbit
-		static EM_BOOL focus_callback(int eventType, const EmscriptenFocusEvent* focusEvent, void* userData) 
+		static EM_BOOL focus_callback(int eventType, const EmscriptenFocusEvent* focusEvent, void* userData)
 		{
 			if (eventType == EMSCRIPTEN_EVENT_BLUR)
 			{
@@ -7031,11 +7702,11 @@ namespace olc
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
 
 			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
@@ -7117,13 +7788,19 @@ namespace olc
 
 
 		virtual olc::rcode SetWindowTitle(const std::string& s) override
-		{ emscripten_set_window_title(s.c_str()); return olc::OK; }
+		{
+			emscripten_set_window_title(s.c_str()); return olc::OK;
+		}
 
-		virtual olc::rcode StartSystemEventLoop() override 
-		{ return olc::OK; }
+		virtual olc::rcode StartSystemEventLoop() override
+		{
+			return olc::OK;
+		}
 
 		virtual olc::rcode HandleSystemEvent() override
-		{ return olc::OK; }
+		{
+			return olc::OK;
+		}
 
 		static void MainLoop()
 		{
@@ -7179,7 +7856,7 @@ namespace olc
 	}
 }
 
-extern "C" 
+extern "C"
 {
 	EMSCRIPTEN_KEEPALIVE inline void olc_PGE_UpdateWindowSize(int width, int height)
 	{
@@ -7207,7 +7884,7 @@ namespace olc
 	void PixelGameEngine::olc_ConfigureSystem()
 	{
 
-//#if !defined(OLC_PGE_HEADLESS)
+		//#if !defined(OLC_PGE_HEADLESS)
 
 		olc::Sprite::loader = nullptr;
 
@@ -7283,11 +7960,11 @@ namespace olc
 		// Associate components with PGE instance
 		platform->ptrPGE = this;
 		renderer->ptrPGE = this;
-//#else
-//		olc::Sprite::loader = nullptr;
-//		platform = nullptr;
-//		renderer = nullptr;
-//#endif
+		//#else
+		//		olc::Sprite::loader = nullptr;
+		//		platform = nullptr;
+		//		renderer = nullptr;
+		//#endif
 	}
 }
 

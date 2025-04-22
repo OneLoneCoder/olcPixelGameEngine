@@ -3,7 +3,7 @@
 
 	+-------------------------------------------------------------+
 	|         OneLoneCoder Pixel Game Engine Extension            |
-	|                 Transformed View v1.09                      |
+	|                 Transformed View v1.10                      |
 	+-------------------------------------------------------------+
 
 	NOTE: UNDER ACTIVE DEVELOPMENT - THERE ARE BUGS/GLITCHES
@@ -18,7 +18,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2024 OneLoneCoder.com
+	Copyright 2018 - 2025 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -59,7 +59,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024, 2025
 
 	Revisions:
 	1.00:	Initial Release
@@ -78,6 +78,7 @@
 		   +EnableScaleClamp() - Applies a range that scaling is clamped to
 				These are both useful for having zoom clamped between a min and max
 				without weird panning artefacts occuring
+	1.10:	Hitched in some "shader" PGEX things
 */
 
 #pragma once
@@ -205,7 +206,7 @@ namespace olc
 		void DrawPolygonDecal(olc::Decal* decal, const std::vector<olc::vf2d>& pos, const std::vector<olc::vf2d>& uv, const std::vector<olc::Pixel>& colours, const olc::Pixel tint);
 
 
-#if defined(OLC_PGEX_SHADER)
+#if defined(OLC_USING_PGEX_SHADER)
 		// Shader Specific
 		void DrawDecal(olc::Shade& shader, const olc::vf2d & pos, olc::Decal * decal, const olc::vf2d & scale = { 1.0f,1.0f }, const olc::Pixel & tint = olc::WHITE);
 		void DrawPartialDecal(olc::Shade& shader, const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& source_pos, const olc::vf2d& source_size, const olc::vf2d& scale = { 1.0f,1.0f }, const olc::Pixel& tint = olc::WHITE);
@@ -704,7 +705,7 @@ namespace olc
 
 
 
-#if defined (OLC_PGEX_SHADER)
+#if defined (OLC_USING_PGEX_SHADER)
 
 	void TransformedView::DrawDecal(olc::Shade &shade, const olc::vf2d& pos, olc::Decal* decal, const olc::vf2d& scale, const olc::Pixel& tint)
 	{
