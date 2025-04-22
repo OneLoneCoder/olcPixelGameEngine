@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.29              |
+	|           OneLoneCoder Pixel Game Engine v2.30              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -357,6 +357,7 @@
 		  Updated Geometry2D to support non-segment line intersections
 		  +olcUTIL_Hardware3D.h file v1.01
 		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
+	2.30:
 
 
 	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -437,7 +438,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 229
+#define PGE_VER 230
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
