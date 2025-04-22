@@ -1252,6 +1252,7 @@ namespace olc
 		virtual ~Platform() = default;
 		virtual olc::rcode ApplicationStartUp() = 0;
 		virtual olc::rcode ApplicationCleanUp() = 0;
+		virtual olc::rcode SetThreadName(const std::string&) = 0;
 		virtual olc::rcode ThreadStartUp() = 0;
 		virtual olc::rcode ThreadCleanUp() = 0;
 		virtual olc::rcode CreateGraphics(bool bFullScreen, bool bEnableVSYNC, const olc::vi2d& vViewPos, const olc::vi2d& vViewSize) = 0;
@@ -4466,6 +4467,8 @@ namespace olc
 
 	void PixelGameEngine::EngineThread()
 	{
+		platform->SetThreadName("OLC PGE Engine Thread");
+
 		// Allow platform to do stuff here if needed, since its now in the
 		// context of this thread
 		if (platform->ThreadStartUp() == olc::FAIL)	return;
@@ -6536,6 +6539,33 @@ namespace olc
 	public:
 		virtual olc::rcode ApplicationStartUp() override { return olc::rcode::OK; }
 		virtual olc::rcode ApplicationCleanUp() override { return olc::rcode::OK; }
+
+		virtual olc::rcode SetThreadName(const std::string& s) 
+		{
+			// Reference:
+			// https://docs.microsoft.com/en-us/visualstudio/debugger/how-to-set-a-thread-name-in-native-code?view=vs-2019#set-a-thread-name-by-throwing-an-exception
+
+			#pragma pack(push, 8)
+			struct THREADNAME_INFO
+			{
+				DWORD dwType;
+				LPCSTR szName;
+				DWORD dwThreadID;
+				DWORD dwFlags;
+			};
+			#pragma pack(pop)
+
+			THREADNAME_INFO info{ 0x1000, s.c_str(), 0xFFFFFFFF, 0 };
+
+			__try
+			{
+				RaiseException(0x406D1388, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
+			}
+			__except(EXCEPTION_CONTINUE_EXECUTION) { }
+
+			return olc::rcode::OK;
+		}
+
 		virtual olc::rcode ThreadStartUp() override { return olc::rcode::OK; }
 
 		virtual olc::rcode ThreadCleanUp() override
@@ -6844,6 +6874,11 @@ namespace olc
 			return olc::rcode::OK;
 		}
 
+		virtual olc::rcode SetThreadName(const std::string&) override
+		{
+			return olc::rcode::OK;
+		}
+
 		virtual olc::rcode ThreadStartUp() override
 		{
 			return olc::rcode::OK;
@@ -7130,6 +7165,11 @@ namespace olc {
 		}
 
 		virtual olc::rcode ApplicationCleanUp() override
+		{
+			return olc::rcode::OK;
+		}
+
+		virtual olc::rcode SetThreadName(const std::string&) override
 		{
 			return olc::rcode::OK;
 		}
@@ -7474,6 +7514,9 @@ namespace olc
 		{
 			ThreadCleanUp(); return olc::rcode::OK;
 		}
+
+		virtual olc::rcode SetThreadName(const std::string&)
+		{ return olc::rcode::OK; }
 
 		virtual olc::rcode ThreadStartUp() override
 		{
