@@ -45,7 +45,7 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, Â©OneLoneCoder 2019, 2020, 2021, 2022
 
 */
 
@@ -240,7 +240,7 @@ public:
 
 			// If walk off screen, wrap around to other side
 			if (dude.pos.x > ScreenWidth()) dude.pos.x -= ScreenWidth();
-			if (dude.pos.y > ScreenHeight()) dude.pos.x -= ScreenHeight();
+			if (dude.pos.y > ScreenHeight()) dude.pos.y -= ScreenHeight();
 			if (dude.pos.x < 0) dude.pos.x += ScreenWidth();
 			if (dude.pos.y < 0) dude.pos.y += ScreenHeight();
 
