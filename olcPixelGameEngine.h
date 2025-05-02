@@ -7641,7 +7641,7 @@ namespace olc
 			// set up resize observer and fullscreenchange event handler
 			var olc_Init = function()
 			{
-				if (Module.olc_AspectRatio == = undefined)
+				if (Module.olc_AspectRatio === undefined)
 				{
 					setTimeout(function() { Module.olc_Init(); }, 50);
 					return;
