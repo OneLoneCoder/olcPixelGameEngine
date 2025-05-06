@@ -84,7 +84,7 @@
 
 namespace olc
 {
-	// Container class for Advanced 2D Drawing functions
+	// Container class for Advanced 3D Drawing functions
 	class GFX3D : public olc::PGEX
 	{
 
