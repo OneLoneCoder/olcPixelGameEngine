@@ -477,7 +477,9 @@ namespace _gfs = std::filesystem;
 #define olcT(s) s
 #endif
 
-#define UNUSED(x) (void)(x)
+#if ! defined(UNUSED)
+  #define UNUSED(x) (void)(x)
+#endif
 
 // O------------------------------------------------------------------------------O
 // | PLATFORM SELECTION CODE, Thanks slavka!                                      |
