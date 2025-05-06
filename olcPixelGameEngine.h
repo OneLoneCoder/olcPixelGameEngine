@@ -2624,11 +2624,16 @@ namespace olc
 		{
 			Pixel d = pDrawTarget->GetPixel(x, y);
 			float a = (float)(p.a / 255.0f) * fBlendFactor;
-			float c = 1.0f - a;
-			float r = a * (float)p.r + c * (float)d.r;
-			float g = a * (float)p.g + c * (float)d.g;
-			float b = a * (float)p.b + c * (float)d.b;
-			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b/*, (uint8_t)(p.a * fBlendFactor)*/));
+			float a2 = (float)(d.a / 255.0f);
+			float a3 = a + a2 * (1.0f - a);
+			float s = a3 > 0 ? 1 / a3 : 1;
+			float c = (1.0f - a) * a2;
+
+			float r = (a * (float)p.r + c * (float)d.r) * s;
+			float g = (a * (float)p.g + c * (float)d.g) * s;
+			float b = (a * (float)p.b + c * (float)d.b) * s;
+
+			return pDrawTarget->SetPixel(x, y, Pixel((uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)(a3 * 255)));
 		}
 
 		if (nPixelMode == Pixel::CUSTOM)
