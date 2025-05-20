@@ -7359,11 +7359,11 @@ namespace olc {
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					//	ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, true);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, true);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					//	ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, true);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, true);
 					break;
 				}
 
@@ -7378,11 +7378,11 @@ namespace olc {
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					//	ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, false);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, false);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					//	ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, false);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, false);
 					break;
 				}
 
