@@ -1,5 +1,5 @@
 /*
-	OneLoneCoder - Camera2D v1.00
+	OneLoneCoder - Camera2D v1.01
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	A 2D world camera with various modes
 
@@ -7,7 +7,7 @@
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2022 OneLoneCoder.com
+	Copyright 2018 - 2025 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -48,7 +48,12 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024, 2025
+
+	Version
+	~~~~~~~
+
+	1.01	+SlideScreens - Prompted by AtomizerZero
 
 */
 
@@ -67,6 +72,7 @@ namespace olc::utils
 			EdgeMove,		// Moves as target crosses boundary			
 			LazyFollow,		// Lazily follows the target			
 			FixedScreens,	// Moves statically between "screens"
+			SlideScreens,	// MOves statically between "screens" but with a fast transition
 		};
 
 	public:
@@ -214,6 +220,13 @@ namespace olc::utils
 				case Mode::FixedScreens:
 				{
 					m_vPosition = olc::vf2d(olc::vi2d(GetTarget() / m_vScreenSize) * olc::vi2d(m_vScreenSize)) + (m_vViewSize * 0.5f);
+				}
+				break;
+
+				case Mode::SlideScreens:
+				{
+					olc::vf2d vScreen = olc::vf2d(olc::vi2d(GetTarget() / m_vScreenSize) * olc::vi2d(m_vScreenSize)) + (m_vViewSize * 0.5f);
+					m_vPosition += (vScreen - m_vPosition) * m_fLazyFollowRate * 2.0f * fElapsedTime;
 				}
 				break;
 			}

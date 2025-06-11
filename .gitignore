@@ -5,3 +5,5 @@
 /.vs
 /utilities/olcUTIL_AffineView.h
 /utilities/olcUTIL_Maths.h
+/utilities/olcUTIL_GameMode.h
+/utilities/olcUTIL_Sparkles.h

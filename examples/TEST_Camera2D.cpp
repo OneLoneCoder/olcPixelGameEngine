@@ -1,10 +1,13 @@
 /*
-	Example file for olcUTIL_Camera2D.h
+	OneLoneCoder - Camera2D v1.01
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	A 2D world camera with various modes
+
 
 	License (OLC-3)
 	~~~~~~~~~~~~~~~
 
-	Copyright 2018 - 2022 OneLoneCoder.com
+	Copyright 2018 - 2025 OneLoneCoder.com
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
@@ -45,175 +48,224 @@
 
 	Author
 	~~~~~~
-	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022
+	David Barr, aka javidx9, ©OneLoneCoder 2019, 2020, 2021, 2022, 2023, 2024, 2025
+
+	Version
+	~~~~~~~
+
+	1.01	+SlideScreens - Prompted by AtomizerZero
 
 */
 
-#define OLC_PGE_APPLICATION
+#pragma once
+
 #include "olcPixelGameEngine.h"
 
-#define OLC_PGEX_TRANSFORMEDVIEW
-#include "extensions/olcPGEX_TransformedView.h"
-
-#include "utilities/olcUTIL_Camera2D.h"
-
-/*
-	To demonstrate the camera, we need a world. In this case its a simle tile
-	world of 80x75 tiles, and each tile is 32x32 screen pixels.
-
-	A transformed view is used to navigate the world manually via the middle
-	mouse button in "free roam" mode, or controlled by the camera. 
-
-	Specifically a Tile Transformed View is used, which means all units for
-	drawing and for the camera are specified in tile space, i.e. 1 tile is 
-	1x1 units (regardless of pixel size)
-
-	No assets are used for this application, so the world is constructed
-	out of coloured squares so you can see you are moving through it.
-
-	Pressing "TAB" key will swap between "free roam" and "play" modes. In
-	free roam mode, you can use middle mouse button to pan and zoom around 
-	the world. The camera's visible area to the player is highlighted in red.
-	In play mode, the camera behaves as it would in a 2D game, depending upon 
-	the selected mode.
-*/
-
-class TEST_Camera2D : public olc::PixelGameEngine
+namespace olc::utils
 {
-public:
-	TEST_Camera2D()
+	class Camera2D
 	{
-		sAppName = "Camera2D Utility Test";
-	}
-
-	// Transformed view object to make world offsetting simple
-	olc::TileTransformedView tv;
-
-	// Conveninet constants to define tile map world
-	olc::vi2d m_vWorldSize = { 80, 75 };
-	olc::vi2d m_vTileSize = { 32, 32 };
-
-	// The camera!
-	olc::utils::Camera2D camera;
-
-	// The point that represents the player, it is "tracked"
-	// by the camera
-	olc::vf2d vTrackedPoint;
-
-	// Flag whether we are in "free roam" or "play" mode
-	bool bFreeRoam = false;
-
-	// The world map, stored as a 1D array
-	std::vector<uint8_t> vWorldMap;
-
-public:
-	bool OnUserCreate() override
-	{
-		// Construct transform view
-		tv = olc::TileTransformedView(GetScreenSize(), m_vTileSize);
-		
-		// Construct Camera
-		vTrackedPoint = { 20.0f, 20.0f };		
-		camera = olc::utils::Camera2D(GetScreenSize() / m_vTileSize, vTrackedPoint);
-
-		// Configure Camera
-		camera.SetTarget(vTrackedPoint);
-		camera.SetMode(olc::utils::Camera2D::Mode::Simple);
-		camera.SetWorldBoundary({ 0.0f, 0.0f }, m_vWorldSize);
-		camera.EnableWorldBoundary(true);
-
-		// Create "tile map" world with just two tiles
-		vWorldMap.resize(m_vWorldSize.x * m_vWorldSize.y);
-		for (int i = 0; i < vWorldMap.size(); i++)
-			vWorldMap[i] = ((rand() % 20) == 1) ? 1 : 0;		
-
-		// Set background colour
-		Clear(olc::CYAN);
-		return true;
-	}
-
-	bool OnUserUpdate(float fElapsedTime) override
-	{
-		// In free roam, middle mouse button pans & zooms
-		if (bFreeRoam)
-			tv.HandlePanAndZoom();
-
-		// Handle player "physics" in response to key presses
-		olc::vf2d vVel = { 0.0f, 0.0f };
-		if (GetKey(olc::Key::W).bHeld) vVel += {0, -1};
-		if (GetKey(olc::Key::S).bHeld) vVel += {0, +1};
-		if (GetKey(olc::Key::A).bHeld) vVel += {-1, 0};
-		if (GetKey(olc::Key::D).bHeld) vVel += {+1, 0};
-		vTrackedPoint += vVel * 8.0f * fElapsedTime;
-		
-		// Switch between "free roam" and "play" mode with TAB key
-		if (GetKey(olc::Key::TAB).bPressed)
+	public:
+		enum class Mode : uint8_t
 		{
-			// Always setup camera to play mode when tab key pressed
-			tv.SetWorldOffset(camera.GetViewPosition());
-			tv.SetWorldScale(m_vTileSize);
-			bFreeRoam = !bFreeRoam;
+			Simple,			// No motion, just directly settable			
+			EdgeMove,		// Moves as target crosses boundary			
+			LazyFollow,		// Lazily follows the target			
+			FixedScreens,	// Moves statically between "screens"
+			SlideScreens,	// MOves statically between "screens" but with a fast transition
+		};
+
+	public:
+		inline Camera2D() : m_pTarget(&m_vLocalTarget) {}
+
+		// Construct a camera with a viewable area size, and an optional starting position
+		inline Camera2D(const olc::vf2d& vViewSize, const olc::vf2d& vViewPos = { 0.0f, 0.0f }) : m_pTarget(&m_vLocalTarget)
+		{
+			m_vViewSize = vViewSize;
+			m_vViewPos = vViewPos;
 		}
 
-		// Switch camera mode in operation
-		if (GetKey(olc::Key::K1).bPressed) 
-			camera.SetMode(olc::utils::Camera2D::Mode::Simple);
-		if (GetKey(olc::Key::K2).bPressed) 
-			camera.SetMode(olc::utils::Camera2D::Mode::EdgeMove);
-		if (GetKey(olc::Key::K3).bPressed) 
-			camera.SetMode(olc::utils::Camera2D::Mode::LazyFollow);
-		if (GetKey(olc::Key::K4).bPressed) 
-			camera.SetMode(olc::utils::Camera2D::Mode::FixedScreens);
+		// Set the operational mode of this camera
+		inline void SetMode(const Mode t)
+		{
+			m_nMode = t;
+		}
 
-		// Update the camera, if teh tracked object remains visible, 
-		// true is returned
-		bool bOnScreen = camera.Update(fElapsedTime);
+		// Get the operational mode of this camera
+		inline Mode GetMode() const
+		{
+			return m_nMode;
+		}
 
-		// In "play" mode, set the transformed view to that required by
-		// the camera
-		if (!bFreeRoam)
-			tv.SetWorldOffset(camera.GetViewPosition());
+		// Get the position of the target being tracked by this camera
+		inline const olc::vf2d& GetTarget() const
+		{
+			return *m_pTarget;
+		}
 
-		// Render "tile map", by getting visible tiles
-		olc::vi2d vTileTL = tv.GetTopLeftTile().max({ 0,0 });
-		olc::vi2d vTileBR = tv.GetBottomRightTile().min(m_vWorldSize);
-		olc::vi2d vTile;
-		// Then looping through them and drawing them
-		for (vTile.y = vTileTL.y; vTile.y < vTileBR.y; vTile.y++)
-			for (vTile.x = vTileTL.x; vTile.x < vTileBR.x; vTile.x++)
+		// Get the position of the cameras focus point
+		inline const olc::vf2d& GetPosition() const
+		{
+			return m_vPosition;
+		}
+
+		// Get the top left of teh cameras visible area in world space
+		inline const olc::vf2d& GetViewPosition() const
+		{
+			return m_vViewPos;
+		}
+
+		// Get the camera's visible area
+		inline const olc::vf2d& GetViewSize() const
+		{
+			return m_vViewSize;
+		}
+
+		// Set tracked point via pointer
+		inline void SetTarget(olc::vf2d& vTarget)
+		{
+			m_pTarget = &vTarget;
+		}
+
+		// Set tracked point via const ref - {10, 35} for example
+		inline void SetTarget(const olc::vf2d&& vTarget)
+		{
+			m_vLocalTarget = vTarget;
+			m_pTarget = &m_vLocalTarget;
+		}
+
+		// Set world boundary rectangle
+		inline void SetWorldBoundary(const olc::vf2d& vPos, const olc::vf2d& vSize)
+		{
+			m_vWorldBoundaryPos = vPos;
+			m_vWorldBoundarySize = vSize;
+		}
+
+		// Instruct camera to respect world boundaries
+		inline void EnableWorldBoundary(const bool bEnable)
+		{
+			m_bWorldBoundary = bEnable;
+		}
+
+		// Are we using a world boundary?
+		inline bool IsWorldBoundaryEnabled() const
+		{
+			return m_bWorldBoundary;
+		}
+
+		// Get the world boundary rectangle position
+		inline const olc::vf2d& GetWorldBoundaryPosition() const
+		{
+			return m_vWorldBoundaryPos;
+		}
+
+		// Get the world boundary rectangle size
+		inline const olc::vf2d& GetWorldBoundarySize() const
+		{
+			return m_vWorldBoundarySize;
+		}
+
+		// Set the velocity at which the lazy follower reaches tracked point
+		inline void SetLazyFollowRate(const float fRate)
+		{
+			m_fLazyFollowRate = fRate;
+		}
+
+		// Get the velocity at which the lazy follower reaches tracked point
+		inline float GetLazyFollowRate() const
+		{
+			return m_fLazyFollowRate;
+		}
+
+		// Set distance from tracked point to start nudging screen
+		inline void SetEdgeTriggerDistance(const olc::vf2d& vEdge)
+		{
+			m_vEdgeTriggerDistance = vEdge;
+		}
+
+		// Return disance from tracked point that screen will nudge
+		inline const olc::vf2d& GetEdgeTriggerDistance() const
+		{
+			return m_vEdgeTriggerDistance;
+		}
+
+		// Update camera, animating if necessary, obeying world boundary rules
+		// returns true if target is visible
+		inline virtual bool Update(const float fElapsedTime)
+		{
+			switch (m_nMode)
 			{
-				int idx = vTile.y * m_vWorldSize.x + vTile.x;
-				
-				if (vWorldMap[idx] == 0)
-					tv.FillRectDecal(vTile, { 1.0f, 1.0f }, olc::Pixel(40, 40, 40));
-				
-				if (vWorldMap[idx] == 1)
-					tv.FillRectDecal(vTile, { 1.0f, 1.0f }, olc::Pixel(60, 60, 60));				
+			case Mode::Simple:
+			{
+				m_vPosition = GetTarget();
+			}
+			break;
+
+			case Mode::EdgeMove:
+			{
+				olc::vf2d vOverlap = GetTarget() - m_vPosition;
+				if (vOverlap.x > m_vEdgeTriggerDistance.x) m_vPosition.x += vOverlap.x - m_vEdgeTriggerDistance.x;
+				if (vOverlap.x < -m_vEdgeTriggerDistance.x) m_vPosition.x += vOverlap.x + m_vEdgeTriggerDistance.x;
+				if (vOverlap.y > m_vEdgeTriggerDistance.y) m_vPosition.y += vOverlap.y - m_vEdgeTriggerDistance.y;
+				if (vOverlap.y < -m_vEdgeTriggerDistance.y) m_vPosition.y += vOverlap.y + m_vEdgeTriggerDistance.y;
+			}
+			break;
+
+			case Mode::LazyFollow:
+			{
+				m_vPosition += (GetTarget() - m_vPosition) * m_fLazyFollowRate * fElapsedTime;
+			}
+			break;
+
+			case Mode::FixedScreens:
+			{
+				m_vPosition = olc::vf2d(olc::vi2d(GetTarget() / m_vScreenSize) * olc::vi2d(m_vScreenSize)) + (m_vViewSize * 0.5f);
+			}
+			break;
+
+			case Mode::SlideScreens:
+			{
+				olc::vf2d vScreen = olc::vf2d(olc::vi2d(GetTarget() / m_vScreenSize) * olc::vi2d(m_vScreenSize)) + (m_vViewSize * 0.5f);
+				m_vPosition += (vScreen - m_vPosition) * m_fLazyFollowRate * 2.0f * fElapsedTime;
+			}
+			break;
 			}
 
-		// Draw the "player" as a 1x1 cell
-		tv.FillRectDecal(vTrackedPoint - olc::vf2d(0.5f, 0.5f), {1.0f, 1.0f}, olc::BLUE);
+			// Make camera target the middle of the view
+			m_vViewPos = m_vPosition - (m_vViewSize * 0.5f);
 
-		// Overlay with information
-		if (bFreeRoam)
-		{
-			tv.FillRectDecal(camera.GetViewPosition(), camera.GetViewSize(), olc::PixelF(1.0f, 0.0f, 0.0f, 0.5f));
-			DrawStringPropDecal({ 2, 2 }, "TAB: Free Mode, M-Btn to Pan & Zoom", olc::YELLOW);
+			// Clamp to World Boundary (if in place)
+			if (m_bWorldBoundary)
+			{
+				m_vViewPos = m_vViewPos.max(m_vWorldBoundaryPos).min(m_vWorldBoundaryPos + m_vWorldBoundarySize - m_vViewSize);
+			}
+
+			return GetTarget().x >= m_vViewPos.x && GetTarget().x < (m_vViewPos.x + m_vViewSize.x) &&
+				GetTarget().y >= m_vViewPos.y && GetTarget().y < (m_vViewPos.y + m_vViewSize.y);
 		}
-		else
-			DrawStringPropDecal({ 2,2 }, "TAB: Play Mode", olc::YELLOW);
 
-		DrawStringPropDecal({ 2,12 }, "WASD  : Move", olc::YELLOW);
-		DrawStringPropDecal({ 2,22 }, "CAMERA: 1) Simple  2) EdgeMove  3) LazyFollow  4) Screens", olc::YELLOW);		
-		DrawStringPropDecal({ 2,42 }, vTrackedPoint.str(), olc::YELLOW);
-		return true;
-	}
-};
+	protected:
+		// Position of camera focus point in the world
+		olc::vf2d m_vPosition;
+		// Rectangular size of camera viewing area
+		olc::vf2d m_vViewSize;
+		// Top left coordinate of camera viewing area
+		olc::vf2d m_vViewPos;
+		// Camera movement mode
+		Mode m_nMode = Mode::Simple;
 
-int main()
-{
-	TEST_Camera2D demo;
-	if (demo.Construct(512, 480, 2, 2))
-		demo.Start();
-	return 0;
+		// Target Vector2D object camera should follow (either ref or ptr)
+		olc::vf2d* m_pTarget = nullptr;
+		olc::vf2d m_vLocalTarget;
+
+		// World Boundary
+		bool m_bWorldBoundary = false;
+		olc::vf2d m_vWorldBoundaryPos = { 0.0f, 0.0f };
+		olc::vf2d m_vWorldBoundarySize = { 256.0f, 240.0f };
+
+		// Mode specific
+		olc::vf2d m_vEdgeTriggerDistance = { 1.0f, 1.0f };
+		float m_fLazyFollowRate = 4.0f;
+		olc::vi2d m_vScreenSize = { 16,15 };
+	};
 }
