@@ -1267,19 +1267,19 @@ namespace olc::utils::hw3d
 		inline void TurnLeft(const float fSpeed)
 		{
 			fHeading += fSpeed;
-			if (fHeading >= std::numbers::pi * 2.0f)
-				fHeading -= std::numbers::pi * 2.0f;
+			if (fHeading >= float(std::numbers::pi) * 2.0f)
+				fHeading -= float(std::numbers::pi) * 2.0f;
 			if (fHeading < 0)
-				fHeading += std::numbers::pi * 2.0f;			
+				fHeading += float(std::numbers::pi) * 2.0f;
 		}
 
 		inline void TurnRight(const float fSpeed)
 		{
 			fHeading -= fSpeed;
-			if (fHeading >= std::numbers::pi * 2.0f)
-				fHeading -= std::numbers::pi * 2.0f;
+			if (fHeading >= float(std::numbers::pi) * 2.0f)
+				fHeading -= float(std::numbers::pi) * 2.0f;
 			if(fHeading < 0)
-				fHeading += std::numbers::pi * 2.0f;			
+				fHeading += float(std::numbers::pi) * 2.0f;
 		}
 
 		inline void SetHeading(const float fAngle)
@@ -1294,7 +1294,7 @@ namespace olc::utils::hw3d
 		}
 
 	protected:
-		float fHeading = std::numbers::pi * 0.5;
+		float fHeading = float(std::numbers::pi) * 0.5;
 
 		
 	};

@@ -112,9 +112,14 @@ namespace olc::utils::Animate2D
 		// Constructs a sequence of frames with a duration and a traversal style
 		inline FrameSequence(const float fFrameDuration = 0.1f, const Style nStyle = Style::Repeat)
 		{
+			SetFrameDuration(fFrameDuration);
+			m_nStyle = nStyle;
+		}
+
+		inline void SetFrameDuration(const float fFrameDuration = 0.1f)
+		{
 			m_fFrameDuration = fFrameDuration;
 			m_fFrameRate = 1.0f / m_fFrameDuration;
-			m_nStyle = nStyle;
 		}
 
 		// Adds a frame to this sequence
@@ -126,7 +131,13 @@ namespace olc::utils::Animate2D
 		// Returns a Frame Object for a given time into an animation
 		inline const Frame& GetFrame(const float fTime) const
 		{
-			return m_vFrames[ConvertTimeToFrame(fTime)];
+			size_t frame = ConvertTimeToFrame(fTime);
+			return m_vFrames[frame];
+		}
+
+		inline const bool Complete(const float fTime) const
+		{
+			return std::abs(fTime - (m_vFrames.size() * m_fFrameDuration)) < 0.01f;
 		}
 		
 	private:
@@ -143,7 +154,10 @@ namespace olc::utils::Animate2D
 				return size_t(fTime * m_fFrameRate) % m_vFrames.size();
 				break;
 			case Style::OneShot:
-				return std::clamp(size_t(fTime * m_fFrameRate), size_t(0), m_vFrames.size() - 1);
+				{
+					size_t frame = std::clamp(size_t(fTime * m_fFrameRate), size_t(0), m_vFrames.size() - 1);
+					return frame;
+				}
 				break;
 			case Style::PingPong:
 				{
@@ -167,7 +181,8 @@ namespace olc::utils::Animate2D
 	{
 	private:
 		size_t nIndex = 0;
-		float fTime = 0.0f;		
+		float fTime = 0.0f;	
+		bool bComplete = false;
 		template<typename StatesEnum>
 		friend class Animation;
 	};
@@ -187,6 +202,7 @@ namespace olc::utils::Animate2D
 			{
 				state.fTime = 0.0f;
 				state.nIndex = idx;
+				state.bComplete = false;
 				return true;
 			}
 
@@ -197,6 +213,7 @@ namespace olc::utils::Animate2D
 		inline void UpdateState(AnimationState& state, const float fElapsedTime) const
 		{
 			state.fTime += fElapsedTime;
+			state.bComplete = m_vSequences[state.nIndex].Complete(state.fTime);
 		}
 
 	public:

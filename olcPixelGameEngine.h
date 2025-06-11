@@ -4974,6 +4974,8 @@ namespace olc
 		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
 		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
+		virtual void       DoGPUTask(const olc::GPUTask& task) {}
+		virtual void	   Set3DProjection(const std::array<float, 16>& mat) {}
 		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) { return 1; };
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
 		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
@@ -7642,7 +7644,7 @@ namespace olc
 			// set up resize observer and fullscreenchange event handler
 			var olc_Init = function()
 			{
-				if (Module.olc_AspectRatio == = undefined)
+				if (Module.olc_AspectRatio === undefined)
 				{
 					setTimeout(function() { Module.olc_Init(); }, 50);
 					return;
