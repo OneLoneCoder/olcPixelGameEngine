@@ -7541,7 +7541,7 @@ namespace olc
 			mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
 			mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
 			mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
-			mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
+			mapKeys[DOM_PK_QUOTE] = Key::OEM_7;
 
 			// Keyboard Callbacks
 			emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
@@ -7704,12 +7704,48 @@ namespace olc
 		//TY Moros
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
-			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
-
+			// we maintain our own state for teh number pad, default true
+			static bool numPadActive = true;
+			
 			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
+			int pk_code = emscripten_compute_dom_pk_code(e->code);
+			
+			if(!numPadActive)
+			{
+				/**
+				 * we need to react differently if the numlock is not
+				 * active. this block ensures uniform behavior with
+				 * windows and linux, MacOS is a lost cause due to GLUT.
+				 */
+				switch(pk_code)
+				{
+					case DOM_PK_NUMPAD_7: pk_code = DOM_PK_HOME; break;
+					case DOM_PK_NUMPAD_8: pk_code = DOM_PK_ARROW_UP; break;
+					case DOM_PK_NUMPAD_9: pk_code = DOM_PK_PAGE_UP; break;
+					case DOM_PK_NUMPAD_4: pk_code = DOM_PK_ARROW_LEFT; break;
+					case DOM_PK_NUMPAD_5: pk_code = DOM_PK_UNKNOWN; break;
+					case DOM_PK_NUMPAD_6: pk_code = DOM_PK_ARROW_RIGHT; break;
+					case DOM_PK_NUMPAD_1: pk_code = DOM_PK_END; break;
+					case DOM_PK_NUMPAD_2: pk_code = DOM_PK_ARROW_DOWN; break;
+					case DOM_PK_NUMPAD_3: pk_code = DOM_PK_PAGE_DOWN; break;
+					case DOM_PK_NUMPAD_0: pk_code = DOM_PK_INSERT; break;
+					case DOM_PK_NUMPAD_DECIMAL: pk_code = DOM_PK_DELETE; break;
+					default:
+						break;
+				}
+			}
+
+			// check for keydown + numlock and act appropriately
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN && pk_code == DOM_PK_NUM_LOCK)
+			{
+				numPadActive = !numPadActive;
+			}
+
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
+				ptrPGE->olc_UpdateKeyState(pk_code, true);
+
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), false);
+				ptrPGE->olc_UpdateKeyState(pk_code, false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
