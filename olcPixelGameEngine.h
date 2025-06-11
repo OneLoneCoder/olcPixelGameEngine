@@ -357,8 +357,12 @@
 		  Updated Geometry2D to support non-segment line intersections
 		  +olcUTIL_Hardware3D.h file v1.01
 		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
-	2.30:
-
+	2.30:     Johnnyg63:
+ 		  + MacOS support for OpenGL 3.3
+		  + MacOS support for Window Resize, Full-Screen, minimised
+		  + MacOS Keyboard support
+		  + Corrected race condition in ~Decal when the renderer is destroyed before the deconstructor is call (MacOS XCode)
+    		  - Removed MacOS ALT key support as it is not supported
 
 	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
 	!!   Volunteers willing to help appreciated, though PRs are manually integrated with credit     !!
@@ -436,6 +440,9 @@ int main()
 #include <algorithm>
 #include <array>
 #include <cstring>
+#if defined (__APPLE__)
+#include <cassert>        // Johnnyg63: Added missing <cassert> from Develop Branch
+#endif
 #pragma endregion
 
 #define PGE_VER 230
@@ -1725,11 +1732,17 @@ namespace X11 {
 #define CALLSTYLE 
 #endif
 
+// Johnnyg63: Adding OpenGL3.3 Support for MacOS
 #if defined(__APPLE__)
 #define GL_SILENCE_DEPRECATION
+#define CALLSTYLE
+#define OGL_LOAD(t, n) n;
+#define GL_GLEXT_PROTOTYPES
 #include <OpenGL/OpenGL.h>
-#include <OpenGL/gl.h>
+#include <OpenGl/gl3ext.h>
+#include <OpenGL/gl3.h>
 #include <OpenGL/glu.h>
+#include <OpenGL/gltypes.h>
 #endif
 
 #if defined(OLC_PLATFORM_EMSCRIPTEN)
@@ -1790,7 +1803,21 @@ namespace olc
 	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
 	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, EGLint interval);
 #else
+	// Johnnyg63: Adding OpenGL3.3 Support for MacOS
+#if defined(__APPLE__)
+	typedef int EGLBoolean;
+	typedef int32_t EGLint;
+	typedef void *EGLDisplay;
+	typedef void *EGLConfig;
+	typedef void *EGLSurface;
+	typedef void *EGLContext;
+
+	typedef EGLBoolean(locSwapInterval_t)(EGLDisplay display, GLint interval);
+	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+#else
 	typedef void CALLSTYLE locShaderSource_t(GLuint shader, GLsizei count, const GLchar** string, const GLint* length);
+#endif
+
 #endif
 
 } // olc namespace
@@ -2126,7 +2153,9 @@ namespace olc
 	{
 		if (id != -1)
 		{
-			renderer->DeleteTexture(id);
+			// Johnnyg63: Added check for null, race condition can occur on MacOS Xcode, 
+			// when the renderer is destroyed before the deconstructor is call (MacOS XCode)
+            		if(renderer != nullptr) renderer->DeleteTexture(id);
 			id = -1;
 		}
 	}
@@ -5117,11 +5146,20 @@ typedef X11::GLXContext glDeviceContext_t;
 typedef X11::GLXContext glRenderContext_t;
 #endif
 
+// Johnnyg63: Adding OpenGL3.3 Support for MacOS
 #if defined(__APPLE__)
-#define GL_SILENCE_DEPRECATION
-#include <OpenGL/OpenGL.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+    #define GL_SILENCE_DEPRECATION
+#if defined (OLC_GFX_OPENGL33)
+    #include <OpenGL/OpenGL.h>
+    #include <OpenGL/gl3.h>
+    #include <OpenGL/gl3ext.h>
+    #include <OpenGL/glu.h>
+#else
+    #include <OpenGL/OpenGL.h>
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glext.h>
+    #include <OpenGL/glu.h>
+#endif
 #endif
 
 namespace olc
@@ -5147,6 +5185,17 @@ namespace olc
 #endif
 
 	public:
+
+        // Johnnyg63: Added resizing support for MacOS
+#if defined (__APPLE__)
+		// This callback function is called from the window when it is resized (see PrepareDevice -- glutReshapeFunc(reSizeCallBack);)
+		static void reSizeCallBack(int width, int height) 
+		{
+            		// Update viewport
+            		ptrPGE->olc_UpdateWindowSize(width, height);
+        	}
+        
+#endif
 		void PrepareDevice() override
 		{
 #if defined(OLC_PLATFORM_GLUT)
@@ -5159,6 +5208,10 @@ namespace olc
 			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
 			// Creates the window and the OpenGL context for it
 			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+			// Johnnyg63: Added resizing support for MacOS
+#if defined (__APPLE__)
+			glutReshapeFunc(reSizeCallBack);
+#endif
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
@@ -5280,7 +5333,7 @@ namespace olc
 			glDisable(GL_CULL_FACE);
 		}
 
-		void SetDecalMode(const olc::DecalMode& mode)
+		void SetDecalMode(const olc::DecalMode& mode) override   // Johnnyg63: Removed override warning
 		{
 			if (mode != nDecalMode)
 			{
@@ -5389,7 +5442,7 @@ namespace olc
 
 		}
 
-		void Set3DProjection(const std::array<float, 16>& mat)
+		void Set3DProjection(const std::array<float, 16>& mat) override   // Johnnyg63: Removed override warning
 		{
 			matProjection = mat;
 		}
@@ -5741,6 +5794,16 @@ namespace olc
 		olc::Renderable rendBlankQuad;
 
 	public:
+        // Johnnyg63: Added resizing support for MacOS
+#if defined (__APPLE__)
+		// This callback function is called from the window when it is resized (see PrepareDevice -- glutReshapeFunc(reSizeCallBack);)
+		static void reSizeCallBack(int width, int height) 
+		{
+			// Update viewport
+			ptrPGE->olc_UpdateWindowSize(width, height);
+		}
+        
+#endif
 		void PrepareDevice() override
 		{
 #if defined(OLC_PLATFORM_GLUT)
@@ -5750,9 +5813,18 @@ namespace olc
 			glutInit(&argc, argv);
 			glutInitWindowPosition(0, 0);
 			glutInitWindowSize(512, 512);
-			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+			// Johnnyg63 Adding OpenGL3.3 Support for MacOS
+			// Note: Order is important, therefore glutCreateWindow must occur before glutReshapeFunc()
+#if defined(__APPLE__)
+			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA | GLUT_3_2_CORE_PROFILE);
 			// Creates the window and the OpenGL context for it
 			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+			glutReshapeFunc(reSizeCallBack);
+#else
+			// Creates the window and the OpenGL context for it
+			glutCreateWindow("OneLoneCoder.com - Pixel Game Engine");
+			glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
+#endif
 			glEnable(GL_TEXTURE_2D); // Turn on texturing
 			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 #endif
@@ -6156,7 +6228,7 @@ namespace olc
 			glViewport(pos.x, pos.y, size.x, size.y);
 		}
 
-		void Set3DProjection(const std::array<float, 16>& mat)
+		void Set3DProjection(const std::array<float, 16>& mat) override  // Johnnyg63: Removed override warning
 		{
 			matProjection = mat;
 		}
@@ -7205,7 +7277,7 @@ namespace olc {
 
 				// [window setStyleMask: NSWindowStyleMaskClosable | ~NSWindowStyleMaskResizable]
 				SEL setStyleMaskSel = sel_registerName("setStyleMask:");
-				((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 7);
+				((void (*)(id, SEL, NSUInteger))objc_msgSend)(window, setStyleMaskSel, 15); // Johnnyg63: Updated to 15 to allow for NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable
 
 				hasEnabledCocoa = true;
 			}
@@ -7280,20 +7352,20 @@ namespace olc {
 			// what's going on here and have no readily available testing
 			// suite either - its for MAC users. However broken as of 2.29
 
+			// Johnnyg63 WOZ ERE later - corrected key mapping 
+			// and removed GLUT_ACTIVE_ALT as it is not supported in PGE
 			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
 				switch (glutGetModifiers()) {
+				case GLUT_ACTIVE_ALT:
 				case 0: //This is when there are no modifiers
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, true);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, true);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					//	ptrPGE->olc_UpdateKeyState(Key::CTRL, true);
-					break;
-				case GLUT_ACTIVE_ALT:
-					if ('a' <= key && key <= 'z') key -= 32;
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, true);
 					break;
 				}
 
@@ -7303,19 +7375,16 @@ namespace olc {
 
 			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
 				switch (glutGetModifiers()) {
+				case GLUT_ACTIVE_ALT:
 				case 0: //This is when there are no modifiers
 					if ('a' <= key && key <= 'z') key -= 32;
 					break;
 				case GLUT_ACTIVE_SHIFT:
-					//	ptrPGE->olc_UpdateKeyState(Key::SHIFT, false);
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::SHIFT, false);
 					break;
 				case GLUT_ACTIVE_CTRL:
 					if ('a' <= key && key <= 'z') key -= 32;
-					//	ptrPGE->olc_UpdateKeyState(Key::CTRL, false);
-					break;
-				case GLUT_ACTIVE_ALT:
-					if ('a' <= key && key <= 'z') key -= 32;
-					//No ALT in PGE
+					ptrPGE->olc_UpdateKeyState((int32_t)Key::CTRL, false);
 					break;
 				}
 
