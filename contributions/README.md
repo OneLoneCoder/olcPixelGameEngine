@@ -23,6 +23,8 @@ These source code contributions enhance the functionality of the olcPixelGameEng
   * https://github.com/Oso-Grande/olcPGEX_Font
 * Arc Drawing
   * https://github.com/AlterEgoIV/olcPGEX_Arc
+* Audio/Video Playback
+  * https://github.com/Piratux/olcPGEX_Media
   
 ## MacOS Support
 * These will potentially be absorbed into main build
