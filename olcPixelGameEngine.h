@@ -5546,7 +5546,7 @@ namespace olc
 
 		void ReadTexture(uint32_t id, olc::Sprite* spr) override
 		{
-			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
 		void ApplyTexture(uint32_t id) override
@@ -6136,7 +6136,7 @@ namespace olc
 
 		void ReadTexture(uint32_t id, olc::Sprite* spr) override
 		{
-			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
 		void ApplyTexture(uint32_t id) override
