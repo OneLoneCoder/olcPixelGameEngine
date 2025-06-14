@@ -357,7 +357,10 @@
 		  Updated Geometry2D to support non-segment line intersections
 		  +olcUTIL_Hardware3D.h file v1.01
 		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
-	2.30:
+	2.30: Experimental "Patches" - Pass image resources to drawing functions using intermediate placeholders
+		  +SpritePatch
+		  +DecalPatch
+		  +Added the Colour "Orange" cos some internet rando made me laugh about it :D
 
 
 	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -932,6 +935,8 @@ namespace olc
 {
 	class PixelGameEngine;
 	class Sprite;
+	struct SpritePatch;
+	struct DecalPatch;
 
 	// Pixel Game Engine Advanced Configuration
 	constexpr uint8_t  nMouseButtons = 5;
@@ -989,7 +994,7 @@ namespace olc
 		CYAN(0, 255, 255), DARK_CYAN(0, 128, 128), VERY_DARK_CYAN(0, 64, 64),
 		BLUE(0, 0, 255), DARK_BLUE(0, 0, 128), VERY_DARK_BLUE(0, 0, 64),
 		MAGENTA(255, 0, 255), DARK_MAGENTA(128, 0, 128), VERY_DARK_MAGENTA(64, 0, 64),
-		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0);
+		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0), TANGERINE(255, 165, 0);
 #endif
 	// Thanks to scripticuk and others for updating the key maps
 	// NOTE: The GLUT platform will need updating, open to contributions ;)
@@ -1104,8 +1109,19 @@ namespace olc
 		std::vector<olc::Pixel> pColData;
 		Mode modeSample = Mode::NORMAL;
 
+		operator olc::SpritePatch();
+		olc::SpritePatch Patch(const olc::vi2d& pos, const olc::vi2d& size);
+		olc::SpritePatch Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR);
+
 		static std::unique_ptr<olc::ImageLoader> loader;
 	};
+
+	struct SpritePatch
+	{
+		olc::Sprite* sprite;
+		std::array<olc::vf2d, 4> coords;
+	};
+
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal - A GPU resident storage of an olc::Sprite                        |
@@ -1119,10 +1135,21 @@ namespace olc
 		void Update();
 		void UpdateSprite();
 
+		operator olc::DecalPatch();
+		olc::DecalPatch Patch(const olc::vi2d& pos, const olc::vi2d& size);
+		olc::DecalPatch Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR);
+
+
 	public: // But dont touch
 		int32_t id = -1;
 		olc::Sprite* sprite = nullptr;
 		olc::vf2d vUVScale = { 1.0f, 1.0f };
+	};
+
+	struct DecalPatch
+	{
+		olc::Decal* decal;
+		std::array<olc::vf2d, 4> coords;
 	};
 
 	enum class DecalMode
@@ -1487,6 +1514,11 @@ namespace olc
 
 		// Clip a line segment to visible area
 		bool ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2);
+
+
+		// Patches
+		void DrawSprite(const olc::vf2d& pos, const SpritePatch& patch, const olc::vf2d& scale = { 1.0f, 1.0f });
+		void DrawDecal(const olc::vf2d& pos, const DecalPatch& patch, const olc::vf2d& scale = { 1.0f, 1.0f });
 
 		// Dont allow PGE to mark layers as dirty, so pixel graphics don't update
 		void EnablePixelTransfer(const bool bEnable = true);
@@ -2089,6 +2121,34 @@ namespace olc
 		return { width, height };
 	}
 
+
+	olc::Sprite::operator olc::SpritePatch()
+	{
+		return Patch({ 0,0 }, Size());
+	}
+
+	SpritePatch olc::Sprite::Patch(const olc::vi2d& pos, const olc::vi2d& size)
+	{
+		SpritePatch patch;
+		patch.sprite = this;
+		patch.coords[0] = olc::vf2d(pos.x, pos.y + size.y) / olc::vf2d(Size());
+		patch.coords[1] = olc::vf2d(pos) / olc::vf2d(Size());
+		patch.coords[2] = olc::vf2d(pos.x + size.x, pos.y) / olc::vf2d(Size());
+		patch.coords[3] = olc::vf2d(pos + size) / olc::vf2d(Size());
+		return patch;
+	}
+
+	SpritePatch olc::Sprite::Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR)
+	{
+		SpritePatch patch;
+		patch.sprite = this;
+		patch.coords[0] = pBL;
+		patch.coords[1] = pTL;
+		patch.coords[2] = pTR;
+		patch.coords[3] = pBR;
+		return patch;
+	}
+
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal IMPLEMENTATION                                                    |
 	// O------------------------------------------------------------------------------O
@@ -2161,6 +2221,33 @@ namespace olc
 	olc::Sprite* Renderable::Sprite() const
 	{
 		return pSprite.get();
+	}
+
+	olc::Decal::operator olc::DecalPatch()
+	{
+		return Patch({ 0,0 }, this->sprite->Size());
+	}
+
+	DecalPatch olc::Decal::Patch(const olc::vi2d& pos, const olc::vi2d& size)
+	{
+		DecalPatch patch;
+		patch.decal = this;
+		patch.coords[0] = olc::vf2d(pos.x, pos.y + size.y) / olc::vf2d(this->sprite->Size());
+		patch.coords[1] = olc::vf2d(pos) / olc::vf2d(this->sprite->Size());
+		patch.coords[2] = olc::vf2d(pos.x + size.x, pos.y) / olc::vf2d(this->sprite->Size());
+		patch.coords[3] = olc::vf2d(pos + size) / olc::vf2d(this->sprite->Size());
+		return patch;
+	}
+
+	DecalPatch olc::Decal::Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR)
+	{
+		DecalPatch patch;
+		patch.decal = this;
+		patch.coords[0] = pBL;
+		patch.coords[1] = pTL;
+		patch.coords[2] = pTR;
+		patch.coords[3] = pBR;
+		return patch;
 	}
 
 	// O------------------------------------------------------------------------------O
@@ -3301,6 +3388,53 @@ namespace olc
 					Draw(x + i, y + j, sprite->GetPixel(fx + ox, fy + oy));
 			}
 		}
+	}
+
+
+	void PixelGameEngine::DrawSprite(const olc::vf2d& pos, const SpritePatch& patch, const olc::vf2d& scale)
+	{
+		std::vector<olc::vf2d> transformed(4);
+		transformed = {
+			(patch.coords[0] - patch.coords[1]) * patch.sprite->Size() * scale + pos,
+			pos,												
+			(patch.coords[2] - patch.coords[1]) * patch.sprite->Size() * scale + pos,
+			(patch.coords[3] - patch.coords[1]) * patch.sprite->Size() * scale + pos
+		} ;
+
+		std::vector<olc::vf2d> verts =
+		{
+			olc::vf2d{pos.x, pos.y + scale.y},
+			pos,
+			olc::vf2d{pos.x + scale.x, pos.y},
+			olc::vf2d{pos + scale}
+		};
+
+		std::vector<olc::vf2d> uv(patch.coords.begin(), patch.coords.end());
+			
+		FillTexturedPolygon(verts, uv, { olc::WHITE, olc::WHITE , olc::WHITE , olc::WHITE }, patch.sprite, olc::DecalStructure::FAN);
+	}
+
+	void PixelGameEngine::DrawDecal(const olc::vf2d& pos, const DecalPatch& patch, const olc::vf2d& scale)
+	{
+		std::vector<olc::vf2d> transformed(4);
+		transformed = {
+			(patch.coords[0] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos,
+			pos,
+			(patch.coords[2] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos,
+			(patch.coords[3] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos
+		};
+
+		std::vector<olc::vf2d> verts =
+		{
+			olc::vf2d{pos.x, pos.y + scale.y},
+			pos,
+			olc::vf2d{pos.x + scale.x, pos.y},
+			olc::vf2d{pos + scale}
+		};
+
+		std::vector<olc::vf2d> uv(patch.coords.begin(), patch.coords.end());
+
+		DrawPolygonDecal(patch.decal, verts, uv, { olc::WHITE, olc::WHITE , olc::WHITE , olc::WHITE });
 	}
 
 	void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
