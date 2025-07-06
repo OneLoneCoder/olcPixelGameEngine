@@ -1485,7 +1485,7 @@ namespace olc
 		olc::Sprite* GetFontSprite();
 
 		// Clip a line segment to visible area
-		bool ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2);
+		bool ClipLineToDrawTarget(olc::vi2d& in_p1, olc::vi2d& in_p2);
 
 		// Dont allow PGE to mark layers as dirty, so pixel graphics don't update
 		void EnablePixelTransfer(const bool bEnable = true);
@@ -2653,7 +2653,7 @@ namespace olc
 		auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
 
 		olc::vi2d p1(x1, y1), p2(x2, y2);
-		if (!ClipLineToScreen(p1, p2))
+		if (!ClipLineToDrawTarget(p1, p2))
 			return;
 		x1 = p1.x; y1 = p1.y;
 		x2 = p2.x; y2 = p2.y;
@@ -2845,15 +2845,17 @@ namespace olc
 		return fontRenderable.Sprite();
 	}
 
-	bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
+	bool PixelGameEngine::ClipLineToDrawTarget(olc::vi2d& in_p1, olc::vi2d& in_p2)
 	{
+		olc::vi2d vDrawTargetSize{ (int32_t)GetDrawTargetWidth(), (int32_t)GetDrawTargetHeight() };
+
 		// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
 		static constexpr int SEG_I = 0b0000, SEG_L = 0b0001, SEG_R = 0b0010, SEG_B = 0b0100, SEG_T = 0b1000;
-		auto Segment = [&vScreenSize = vScreenSize](const olc::vi2d& v)
+		auto Segment = [&vDrawTargetSize = vDrawTargetSize](const olc::vi2d& v)
 			{
 				int i = SEG_I;
-				if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
-				if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
+				if (v.x < 0) i |= SEG_L; else if (v.x > vDrawTargetSize.x) i |= SEG_R;
+				if (v.y < 0) i |= SEG_B; else if (v.y > vDrawTargetSize.y) i |= SEG_T;
 				return i;
 			};
 
@@ -2867,9 +2869,9 @@ namespace olc
 			{
 				int s3 = s2 > s1 ? s2 : s1;
 				olc::vi2d n;
-				if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vScreenSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vScreenSize.y; }
+				if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vDrawTargetSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vDrawTargetSize.y; }
 				else if (s3 & SEG_B) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (0 - in_p1.y) / (in_p2.y - in_p1.y); n.y = 0; }
-				else if (s3 & SEG_R) { n.x = vScreenSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vScreenSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
+				else if (s3 & SEG_R) { n.x = vDrawTargetSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vDrawTargetSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
 				else if (s3 & SEG_L) { n.x = 0; n.y = in_p1.y + (in_p2.y - in_p1.y) * (0 - in_p1.x) / (in_p2.x - in_p1.x); }
 				if (s3 == s1) { in_p1 = n; s1 = Segment(in_p1); }
 				else { in_p2 = n; s2 = Segment(in_p2); }
