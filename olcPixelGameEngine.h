@@ -3,7 +3,7 @@
 	olcPixelGameEngine.h
 
 	+-------------------------------------------------------------+
-	|           OneLoneCoder Pixel Game Engine v2.30              |
+	|           OneLoneCoder Pixel Game Engine v2.29              |
 	|  "What do you need? Pixels... Lots of Pixels..." - javidx9  |
 	+-------------------------------------------------------------+
 
@@ -357,11 +357,6 @@
 		  Updated Geometry2D to support non-segment line intersections
 		  +olcUTIL_Hardware3D.h file v1.01
 		  NOTICE OF DEPRECATION! olc::DecalInstance is to be removed and replaced by olc::GPUTask
-	2.30: Experimental "Patches" - Pass image resources to drawing functions using intermediate placeholders
-		  +SpritePatch
-		  +DecalPatch
-		  +Added the Colour "Orange" cos some internet rando made me laugh about it :D
-		  +Changed ClipLineToScreen to ClipLineToDrawTarget
 
 
 	!! Apple Platforms will not see these updates immediately - Sorry, I dont have a mac to test... !!
@@ -442,7 +437,7 @@ int main()
 #include <cstring>
 #pragma endregion
 
-#define PGE_VER 230
+#define PGE_VER 229
 
 // O------------------------------------------------------------------------------O
 // | COMPILER CONFIGURATION ODDITIES                                              |
@@ -936,8 +931,6 @@ namespace olc
 {
 	class PixelGameEngine;
 	class Sprite;
-	struct SpritePatch;
-	struct DecalPatch;
 
 	// Pixel Game Engine Advanced Configuration
 	constexpr uint8_t  nMouseButtons = 5;
@@ -995,7 +988,7 @@ namespace olc
 		CYAN(0, 255, 255), DARK_CYAN(0, 128, 128), VERY_DARK_CYAN(0, 64, 64),
 		BLUE(0, 0, 255), DARK_BLUE(0, 0, 128), VERY_DARK_BLUE(0, 0, 64),
 		MAGENTA(255, 0, 255), DARK_MAGENTA(128, 0, 128), VERY_DARK_MAGENTA(64, 0, 64),
-		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0), TANGERINE(255, 165, 0);
+		WHITE(255, 255, 255), BLACK(0, 0, 0), BLANK(0, 0, 0, 0);
 #endif
 	// Thanks to scripticuk and others for updating the key maps
 	// NOTE: The GLUT platform will need updating, open to contributions ;)
@@ -1081,10 +1074,7 @@ namespace olc
 		Sprite(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
 		Sprite(int32_t w, int32_t h);
 		Sprite(const olc::Sprite&) = delete;
-		Sprite(olc::Sprite&&);
 		~Sprite();
-		Sprite& operator=(const olc::Sprite&) = delete;
-		Sprite& operator=(olc::Sprite&&);
 
 	public:
 		olc::rcode LoadFromFile(const std::string& sImageFile, olc::ResourcePack* pack = nullptr);
@@ -1113,19 +1103,8 @@ namespace olc
 		std::vector<olc::Pixel> pColData;
 		Mode modeSample = Mode::NORMAL;
 
-		operator olc::SpritePatch();
-		olc::SpritePatch Patch(const olc::vi2d& pos, const olc::vi2d& size);
-		olc::SpritePatch Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR);
-
 		static std::unique_ptr<olc::ImageLoader> loader;
 	};
-
-	struct SpritePatch
-	{
-		olc::Sprite* sprite;
-		std::array<olc::vf2d, 4> coords;
-	};
-
 
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal - A GPU resident storage of an olc::Sprite                        |
@@ -1139,23 +1118,10 @@ namespace olc
 		void Update();
 		void UpdateSprite();
 
-		operator olc::DecalPatch();
-		olc::DecalPatch Patch(const olc::vi2d& pos, const olc::vi2d& size);
-		olc::DecalPatch Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR);
-
-
 	public: // But dont touch
 		int32_t id = -1;
-		int32_t width = 0;
-		int32_t height = 0;
 		olc::Sprite* sprite = nullptr;
 		olc::vf2d vUVScale = { 1.0f, 1.0f };
-	};
-
-	struct DecalPatch
-	{
-		olc::Decal* decal;
-		std::array<olc::vf2d, 4> coords;
 	};
 
 	enum class DecalMode
@@ -1442,6 +1408,12 @@ namespace olc
 		// Fills a rectangle at (x,y) to (x+w,y+h)
 		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		void FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE);
+		// Draws a rectangle using 4 vertices (x1,y1), (x2,y2), (x3,y3) and (x4, y4).
+		void DrawQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p);
+		void DrawQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p);
+		// Flat fills a rectangle between points (x1,y1), (x2,y2), (x3,y3) and (x4, y4).
+		void FillQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p);
+		void FillQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p);
 		// Draws a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		void DrawTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
@@ -1519,12 +1491,7 @@ namespace olc
 		olc::Sprite* GetFontSprite();
 
 		// Clip a line segment to visible area
-		bool ClipLineToDrawTarget(olc::vi2d& in_p1, olc::vi2d& in_p2);
-
-
-		// Patches
-		void DrawSprite(const olc::vf2d& pos, const SpritePatch& patch, const olc::vf2d& scale = { 1.0f, 1.0f });
-		void DrawDecal(const olc::vf2d& pos, const DecalPatch& patch, const olc::vf2d& scale = { 1.0f, 1.0f });
+		bool ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2);
 
 		// Dont allow PGE to mark layers as dirty, so pixel graphics don't update
 		void EnablePixelTransfer(const bool bEnable = true);
@@ -1999,32 +1966,6 @@ namespace olc
 		SetSize(w, h);
 	}
 
-	Sprite::Sprite(olc::Sprite&& spr)
-	{
-		width = spr.width;
-		spr.width = 0;
-
-		height = spr.height;
-		spr.height = 0;
-
-		pColData = std::move(spr.pColData);
-
-		modeSample = spr.modeSample;
-	}
-
-	Sprite& Sprite::operator=(olc::Sprite&& spr)
-	{
-		std::swap(width, spr.width);
-
-		std::swap(height, spr.height);
-
-		std::swap(pColData, spr.pColData);
-
-		std::swap(modeSample, spr.modeSample);
-
-		return *this;
-	}
-
 	void Sprite::SetSize(int32_t w, int32_t h)
 	{
 		width = w;		height = h;
@@ -2153,34 +2094,6 @@ namespace olc
 		return { width, height };
 	}
 
-
-	olc::Sprite::operator olc::SpritePatch()
-	{
-		return Patch({ 0,0 }, Size());
-	}
-
-	SpritePatch olc::Sprite::Patch(const olc::vi2d& pos, const olc::vi2d& size)
-	{
-		SpritePatch patch;
-		patch.sprite = this;
-		patch.coords[0] = olc::vf2d(pos.x, pos.y + size.y) / olc::vf2d(Size());
-		patch.coords[1] = olc::vf2d(pos) / olc::vf2d(Size());
-		patch.coords[2] = olc::vf2d(pos.x + size.x, pos.y) / olc::vf2d(Size());
-		patch.coords[3] = olc::vf2d(pos + size) / olc::vf2d(Size());
-		return patch;
-	}
-
-	SpritePatch olc::Sprite::Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR)
-	{
-		SpritePatch patch;
-		patch.sprite = this;
-		patch.coords[0] = pBL;
-		patch.coords[1] = pTL;
-		patch.coords[2] = pTR;
-		patch.coords[3] = pBR;
-		return patch;
-	}
-
 	// O------------------------------------------------------------------------------O
 	// | olc::Decal IMPLEMENTATION                                                    |
 	// O------------------------------------------------------------------------------O
@@ -2188,8 +2101,6 @@ namespace olc
 	{
 		id = -1;
 		if (spr == nullptr) return;
-		width = spr->width;
-		height = spr->height;
 		sprite = spr;
 		id = renderer->CreateTexture(sprite->width, sprite->height, filter, clamp);
 		Update();
@@ -2204,9 +2115,7 @@ namespace olc
 	void Decal::Update()
 	{
 		if (sprite == nullptr) return;
-		width = sprite->width;
-		height = sprite->height;
-		vUVScale = { 1.0f / float(width), 1.0f / float(height) };
+		vUVScale = { 1.0f / float(sprite->width), 1.0f / float(sprite->height) };
 		renderer->ApplyTexture(id);
 		renderer->UpdateTexture(id, sprite);
 	}
@@ -2214,7 +2123,6 @@ namespace olc
 	void Decal::UpdateSprite()
 	{
 		if (sprite == nullptr) return;
-		sprite->SetSize(width, height);
 		renderer->ApplyTexture(id);
 		renderer->ReadTexture(id, sprite);
 	}
@@ -2244,6 +2152,7 @@ namespace olc
 		}
 		else
 		{
+			pSprite.release();
 			pSprite = nullptr;
 			return olc::rcode::NO_FILE;
 		}
@@ -2257,33 +2166,6 @@ namespace olc
 	olc::Sprite* Renderable::Sprite() const
 	{
 		return pSprite.get();
-	}
-
-	olc::Decal::operator olc::DecalPatch()
-	{
-		return Patch({ 0,0 }, this->sprite->Size());
-	}
-
-	DecalPatch olc::Decal::Patch(const olc::vi2d& pos, const olc::vi2d& size)
-	{
-		DecalPatch patch;
-		patch.decal = this;
-		patch.coords[0] = olc::vf2d(pos.x, pos.y + size.y) / olc::vf2d(this->sprite->Size());
-		patch.coords[1] = olc::vf2d(pos) / olc::vf2d(this->sprite->Size());
-		patch.coords[2] = olc::vf2d(pos.x + size.x, pos.y) / olc::vf2d(this->sprite->Size());
-		patch.coords[3] = olc::vf2d(pos + size) / olc::vf2d(this->sprite->Size());
-		return patch;
-	}
-
-	DecalPatch olc::Decal::Patch(const olc::vf2d& pBL, const olc::vf2d& pTL, const olc::vf2d& pTR, const olc::vf2d& pBR)
-	{
-		DecalPatch patch;
-		patch.decal = this;
-		patch.coords[0] = pBL;
-		patch.coords[1] = pTL;
-		patch.coords[2] = pTR;
-		patch.coords[3] = pBR;
-		return patch;
 	}
 
 	// O------------------------------------------------------------------------------O
@@ -2777,7 +2659,7 @@ namespace olc
 		auto rol = [&](void) { pattern = (pattern << 1) | (pattern >> 31); return pattern & 1; };
 
 		olc::vi2d p1(x1, y1), p2(x2, y2);
-		if (!ClipLineToDrawTarget(p1, p2))
+		if (!ClipLineToScreen(p1, p2))
 			return;
 		x1 = p1.x; y1 = p1.y;
 		x2 = p2.x; y2 = p2.y;
@@ -2952,6 +2834,30 @@ namespace olc
 		DrawLine(x, y + h, x, y, p);
 	}
 
+	void PixelGameEngine::DrawQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p)
+	{
+		DrawQuadRect(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, pos4.x, pos4.y, p);
+	}
+
+	void PixelGameEngine::DrawQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p)
+	{
+		DrawLine(x1, y1, x2, y2, p);
+		DrawLine(x2, y2, x4, y4, p);
+		DrawLine(x4, y4, x3, y3, p);
+		DrawLine(x3, y3, x1, y1, p);
+	}
+
+	void PixelGameEngine::FillQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p)	
+	{
+		FillQuadRect(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, pos4.x, pos4.y, p);
+	}
+
+	void PixelGameEngine::FillQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p)
+	{
+		FillTriangle(x1, y1, x2, y2, x3, y3, p);
+		FillTriangle(x3, y3, x2, y2, x4, y4, p);
+	}
+	
 	void PixelGameEngine::Clear(Pixel p)
 	{
 		int pixels = GetDrawTargetWidth() * GetDrawTargetHeight();
@@ -2969,17 +2875,15 @@ namespace olc
 		return fontRenderable.Sprite();
 	}
 
-	bool PixelGameEngine::ClipLineToDrawTarget(olc::vi2d& in_p1, olc::vi2d& in_p2)
+	bool PixelGameEngine::ClipLineToScreen(olc::vi2d& in_p1, olc::vi2d& in_p2)
 	{
-		olc::vi2d vDrawTargetSize{ (int32_t)GetDrawTargetWidth(), (int32_t)GetDrawTargetHeight() };
-
 		// https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
 		static constexpr int SEG_I = 0b0000, SEG_L = 0b0001, SEG_R = 0b0010, SEG_B = 0b0100, SEG_T = 0b1000;
-		auto Segment = [&vDrawTargetSize = vDrawTargetSize](const olc::vi2d& v)
+		auto Segment = [&vScreenSize = vScreenSize](const olc::vi2d& v)
 			{
 				int i = SEG_I;
-				if (v.x < 0) i |= SEG_L; else if (v.x > vDrawTargetSize.x) i |= SEG_R;
-				if (v.y < 0) i |= SEG_B; else if (v.y > vDrawTargetSize.y) i |= SEG_T;
+				if (v.x < 0) i |= SEG_L; else if (v.x > vScreenSize.x) i |= SEG_R;
+				if (v.y < 0) i |= SEG_B; else if (v.y > vScreenSize.y) i |= SEG_T;
 				return i;
 			};
 
@@ -2993,9 +2897,9 @@ namespace olc
 			{
 				int s3 = s2 > s1 ? s2 : s1;
 				olc::vi2d n;
-				if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vDrawTargetSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vDrawTargetSize.y; }
+				if (s3 & SEG_T) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (vScreenSize.y - in_p1.y) / (in_p2.y - in_p1.y); n.y = vScreenSize.y; }
 				else if (s3 & SEG_B) { n.x = in_p1.x + (in_p2.x - in_p1.x) * (0 - in_p1.y) / (in_p2.y - in_p1.y); n.y = 0; }
-				else if (s3 & SEG_R) { n.x = vDrawTargetSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vDrawTargetSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
+				else if (s3 & SEG_R) { n.x = vScreenSize.x; n.y = in_p1.y + (in_p2.y - in_p1.y) * (vScreenSize.x - in_p1.x) / (in_p2.x - in_p1.x); }
 				else if (s3 & SEG_L) { n.x = 0; n.y = in_p1.y + (in_p2.y - in_p1.y) * (0 - in_p1.x) / (in_p2.x - in_p1.x); }
 				if (s3 == s1) { in_p1 = n; s1 = Segment(in_p1); }
 				else { in_p2 = n; s2 = Segment(in_p2); }
@@ -3428,53 +3332,6 @@ namespace olc
 		}
 	}
 
-
-	void PixelGameEngine::DrawSprite(const olc::vf2d& pos, const SpritePatch& patch, const olc::vf2d& scale)
-	{
-		std::vector<olc::vf2d> transformed(4);
-		transformed = {
-			(patch.coords[0] - patch.coords[1]) * patch.sprite->Size() * scale + pos,
-			pos,												
-			(patch.coords[2] - patch.coords[1]) * patch.sprite->Size() * scale + pos,
-			(patch.coords[3] - patch.coords[1]) * patch.sprite->Size() * scale + pos
-		} ;
-
-		std::vector<olc::vf2d> verts =
-		{
-			olc::vf2d{pos.x, pos.y + scale.y},
-			pos,
-			olc::vf2d{pos.x + scale.x, pos.y},
-			olc::vf2d{pos + scale}
-		};
-
-		std::vector<olc::vf2d> uv(patch.coords.begin(), patch.coords.end());
-			
-		FillTexturedPolygon(verts, uv, { olc::WHITE, olc::WHITE , olc::WHITE , olc::WHITE }, patch.sprite, olc::DecalStructure::FAN);
-	}
-
-	void PixelGameEngine::DrawDecal(const olc::vf2d& pos, const DecalPatch& patch, const olc::vf2d& scale)
-	{
-		std::vector<olc::vf2d> transformed(4);
-		transformed = {
-			(patch.coords[0] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos,
-			pos,
-			(patch.coords[2] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos,
-			(patch.coords[3] - patch.coords[1]) * patch.decal->sprite->Size() * scale + pos
-		};
-
-		std::vector<olc::vf2d> verts =
-		{
-			olc::vf2d{pos.x, pos.y + scale.y},
-			pos,
-			olc::vf2d{pos.x + scale.x, pos.y},
-			olc::vf2d{pos + scale}
-		};
-
-		std::vector<olc::vf2d> uv(patch.coords.begin(), patch.coords.end());
-
-		DrawPolygonDecal(patch.decal, verts, uv, { olc::WHITE, olc::WHITE , olc::WHITE , olc::WHITE });
-	}
-
 	void PixelGameEngine::SetDecalMode(const olc::DecalMode& mode)
 	{
 		nDecalMode = mode;
@@ -3557,8 +3414,8 @@ namespace olc
 
 		olc::vf2d vScreenSpaceDim =
 		{
-			vScreenSpacePos.x + (2.0f * (float(decal->width) * vInvScreenSize.x)) * scale.x,
-			vScreenSpacePos.y - (2.0f * (float(decal->height) * vInvScreenSize.y)) * scale.y
+			vScreenSpacePos.x + (2.0f * (float(decal->sprite->width) * vInvScreenSize.x)) * scale.x,
+			vScreenSpacePos.y - (2.0f * (float(decal->sprite->height) * vInvScreenSize.y)) * scale.y
 		};
 
 		DecalInstance di;
@@ -5146,8 +5003,6 @@ namespace olc
 		virtual void	   SetDecalMode(const olc::DecalMode& mode) {}
 		virtual void       DrawLayerQuad(const olc::vf2d& offset, const olc::vf2d& scale, const olc::Pixel tint) {}
 		virtual void       DrawDecal(const olc::DecalInstance& decal) {}
-		virtual void       DoGPUTask(const olc::GPUTask& task) {}
-		virtual void	   Set3DProjection(const std::array<float, 16>& mat) {}
 		virtual uint32_t   CreateTexture(const uint32_t width, const uint32_t height, const bool filtered = false, const bool clamp = true) { return 1; };
 		virtual void       UpdateTexture(uint32_t id, olc::Sprite* spr) {}
 		virtual void       ReadTexture(uint32_t id, olc::Sprite* spr) {}
@@ -5718,7 +5573,7 @@ namespace olc
 
 		void ReadTexture(uint32_t id, olc::Sprite* spr) override
 		{
-			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
 		void ApplyTexture(uint32_t id) override
@@ -5777,7 +5632,7 @@ typedef HGLRC glRenderContext_t;
 typedef X11::GLXContext glDeviceContext_t;
 typedef X11::GLXContext glRenderContext_t;
 //#define CALLSTYLE 
-#define OGL_LOAD(t, n) (t*)X11::glXGetProcAddress((unsigned char*)#n);
+#define OGL_LOAD(t, n) (t*)glXGetProcAddress((unsigned char*)#n);
 #endif
 
 //#if defined(__APPLE__)
@@ -6308,7 +6163,7 @@ namespace olc
 
 		void ReadTexture(uint32_t id, olc::Sprite* spr) override
 		{
-			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
+			glReadPixels(0, 0, spr->width, spr->height, GL_RGBA, GL_UNSIGNED_BYTE, spr->GetData());
 		}
 
 		void ApplyTexture(uint32_t id) override
@@ -7713,7 +7568,7 @@ namespace olc
 			mapKeys[DOM_PK_CAPS_LOCK] = Key::CAPS_LOCK;
 			mapKeys[DOM_PK_SEMICOLON] = Key::OEM_1;	mapKeys[DOM_PK_SLASH] = Key::OEM_2; mapKeys[DOM_PK_BACKQUOTE] = Key::OEM_3;
 			mapKeys[DOM_PK_BRACKET_LEFT] = Key::OEM_4; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_5; mapKeys[DOM_PK_BRACKET_RIGHT] = Key::OEM_6;
-			mapKeys[DOM_PK_QUOTE] = Key::OEM_7;
+			mapKeys[DOM_PK_QUOTE] = Key::OEM_7; mapKeys[DOM_PK_BACKSLASH] = Key::OEM_8;
 
 			// Keyboard Callbacks
 			emscripten_set_keydown_callback("#canvas", 0, 1, keyboard_callback);
@@ -7734,14 +7589,126 @@ namespace olc
 			emscripten_set_blur_callback("#canvas", 0, 1, focus_callback);
 			emscripten_set_focus_callback("#canvas", 0, 1, focus_callback);
 
-			// Canvas Resize Callbacks
-			emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, 0, 1, resize_callback);
-			emscripten_set_fullscreenchange_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, 0, 1, fullscreen_change_callback);
-			
-			// trigger resize after a short pause
-			EM_ASM({ setTimeout(function() { window.dispatchEvent(new Event("resize")); }, 200); });
+#pragma warning disable format
+			EM_ASM(window.onunload = Module._olc_OnPageUnload; );
 
+			// IMPORTANT! - Sorry About This...
+			//
+			//	In order to handle certain browser based events, such as resizing and
+			//	going to full screen, we have to effectively inject code into the container
+			//	running the PGE. Yes, I vomited about 11 times too when the others were
+			//	convincing me this is the future. Well, this isnt the future, and if it
+			//	were to be, I want no part of what must be a miserable distopian free
+			//	for all of anarchic code injection to get rudimentary events like "Resize()".
+			//
+			//	Wake up people! Of course theres a spoon. There has to be to keep feeding
+			//	the giant web baby.
+
+
+			EM_ASM({
+
+				// olc_ApsectRatio
+				// 
+				// Used by olc_ResizeHandler to calculate the viewport from the
+				// dimensions of the canvas container's element.
+				Module.olc_AspectRatio = $0 / $1;
+
+			// HACK ALERT!
+			// 
+			// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
+			// is using one of the default or minimal emscripten page layouts
+			Module.olc_AssumeDefaultShells = (document.querySelectorAll('.emscripten').length >= 3) ? true : false;
+
+			// olc_ResizeHandler
+			// 
+			// Used by olc_Init, and is called when a resize observer and fullscreenchange event is triggered.
+			var olc_ResizeHandler = function()
+			{
+				// are we in fullscreen mode?
+				let isFullscreen = (document.fullscreenElement != null);
+
+				// get the width of the containing element
+				let width = (isFullscreen) ? window.innerWidth : Module.canvas.parentNode.clientWidth;
+				let height = (isFullscreen) ? window.innerHeight : Module.canvas.parentNode.clientHeight;
+
+				// calculate the expected viewport size
+				let viewWidth = width;
+				let viewHeight = width / Module.olc_AspectRatio;
+
+				// if we're taller than the containing element, recalculate based on height
+				if (viewHeight > height)
+				{
+					viewWidth = height * Module.olc_AspectRatio;
+					viewHeight = height;
+				}
+
+				// ensure resulting viewport is in integer space
+				viewWidth = parseInt(viewWidth);
+				viewHeight = parseInt(viewHeight);
+
+				setTimeout(function()
+				{
+					// if default shells, apply default styles
+					if (Module.olc_AssumeDefaultShells)
+						Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;');
+
+					// apply viewport dimensions to the canvas
+					Module.canvas.setAttribute('width', viewWidth);
+					Module.canvas.setAttribute('height', viewHeight);
+					Module.canvas.setAttribute('style', `width: ${viewWidth}px; height: ${viewHeight}px; `);
+
+					// update the PGE window size
+					Module._olc_PGE_UpdateWindowSize(viewWidth, viewHeight);
+
+					// force focus on our PGE canvas
+					Module.canvas.focus();
+				}, 200);
+			};
+
+
+			// olc_Init
+			// 
+			// set up resize observer and fullscreenchange event handler
+			var olc_Init = function()
+			{
+				if (Module.olc_AspectRatio == = undefined)
+				{
+					setTimeout(function() { Module.olc_Init(); }, 50);
+					return;
+				}
+
+				let resizeObserver = new ResizeObserver(function(entries)
+				{
+					Module.olc_ResizeHandler();
+				}).observe(Module.canvas.parentNode);
+
+				let mutationObserver = new MutationObserver(function(mutationsList, observer)
+				{
+					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
+				}).observe(Module.canvas.parentNode, { attributes: false, childList : true, subtree : false });
+
+				window.addEventListener('fullscreenchange', function(e)
+				{
+					setTimeout(function() { Module.olc_ResizeHandler(); },  200);
+				});
+			};
+
+			// set up hooks
+			Module.olc_ResizeHandler = (Module.olc_ResizeHandler != undefined) ? Module.olc_ResizeHandler : olc_ResizeHandler;
+			Module.olc_Init = (Module.olc_Init != undefined) ? Module.olc_Init : olc_Init;
+
+			// run everything!
+			Module.olc_Init();
+
+					}, vWindowSize.x, vWindowSize.y); // Fullscreen and Resize Observers
+#pragma warning restore format
 			return olc::rcode::OK;
+		}
+
+		// Interface PGE's UpdateWindowSize, for use in Javascript
+		void UpdateWindowSize(int width, int height)
+		{
+			ptrPGE->olc_UpdateWindowSize(width, height);
 		}
 
 		//TY Gorbit
@@ -7762,96 +7729,14 @@ namespace olc
 		}
 
 		//TY Moros
-		static EM_BOOL fullscreen_change_callback(int eventType, const EmscriptenFullscreenChangeEvent *event, void *userData)
-		{
-			// trigger resize after a short pause
-			EM_ASM({ setTimeout(function() { window.dispatchEvent(new Event("resize")); }, 50); });
-			return 0;
-		}
-		
-		//TY Moros
-		static EM_BOOL resize_callback(int eventType, const EmscriptenUiEvent *event, void *userData)
-		{
-			// HACK ALERT!
-			// 
-			// Here we assume any html shell that uses 3 or more instance of the class "emscripten"
-			// is using one of the default or minimal emscripten page layouts
-			static bool assumeDefaultShell = EM_ASM_INT( return (document.querySelectorAll('.emscripten').length >= 3) ? 1 : 0; );
-			static bool firstTry = false;
-
-			// we to apply this style once
-			if(!firstTry && assumeDefaultShell)
-			{
-				EM_ASM({ Module.canvas.parentNode.setAttribute('style', 'width: 100%; height: 70vh; margin-left: auto; margin-right: auto;'); });
-				firstTry = true;
-			}
-
-			// get and keep the aspect ratio of the canvas
-			static double aspect = EM_ASM_DOUBLE( return Module.canvas.clientWidth; ) / EM_ASM_DOUBLE( return Module.canvas.clientHeight; );
-
-			double parentWidth = EM_ASM_DOUBLE( return (!!document.fullscreenElement) ? window.innerWidth : Module.canvas.parentElement.clientWidth; );
-			double parentHeight = EM_ASM_DOUBLE( return (!!document.fullscreenElement) ? window.innerHeight : Module.canvas.parentElement.clientHeight; );
-
-			double width = parentWidth;
-			double height = parentWidth / aspect;
-
-			if (height > parentHeight)
-			{
-				height = parentHeight;
-				width = height * aspect;
-			}
-			
-			// resize the canvas
-			emscripten_set_canvas_element_size("#canvas", static_cast<int>(width), static_cast<int>(height));
-			ptrPGE->olc_UpdateWindowSize(static_cast<int>(width), static_cast<int>(height));
-			return 0;
-		}
-		
-		//TY Moros
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
-			// we maintain our own state for teh number pad, default true
-			static bool numPadActive = true;
-			
-			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
-			int pk_code = emscripten_compute_dom_pk_code(e->code);
-			
-			if(!numPadActive)
-			{
-				/**
-				 * we need to react differently if the numlock is not
-				 * active. this block ensures uniform behavior with
-				 * windows and linux, MacOS is a lost cause due to GLUT.
-				 */
-				switch(pk_code)
-				{
-					case DOM_PK_NUMPAD_7: pk_code = DOM_PK_HOME; break;
-					case DOM_PK_NUMPAD_8: pk_code = DOM_PK_ARROW_UP; break;
-					case DOM_PK_NUMPAD_9: pk_code = DOM_PK_PAGE_UP; break;
-					case DOM_PK_NUMPAD_4: pk_code = DOM_PK_ARROW_LEFT; break;
-					case DOM_PK_NUMPAD_5: pk_code = DOM_PK_UNKNOWN; break;
-					case DOM_PK_NUMPAD_6: pk_code = DOM_PK_ARROW_RIGHT; break;
-					case DOM_PK_NUMPAD_1: pk_code = DOM_PK_END; break;
-					case DOM_PK_NUMPAD_2: pk_code = DOM_PK_ARROW_DOWN; break;
-					case DOM_PK_NUMPAD_3: pk_code = DOM_PK_PAGE_DOWN; break;
-					case DOM_PK_NUMPAD_0: pk_code = DOM_PK_INSERT; break;
-					case DOM_PK_NUMPAD_DECIMAL: pk_code = DOM_PK_DELETE; break;
-					default:
-						break;
-				}
-			}
-
-			// check for keydown + numlock and act appropriately
-			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN && pk_code == DOM_PK_NUM_LOCK)
-			{
-				numPadActive = !numPadActive;
-			}
-
 			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(pk_code, true);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), true);
 
+			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(pk_code, false);
+				ptrPGE->olc_UpdateKeyState(emscripten_compute_dom_pk_code(e->code), false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
@@ -7998,6 +7883,16 @@ namespace olc
 		// Wait for thread to be exited
 		if (platform->ApplicationCleanUp() != olc::OK) return olc::FAIL;
 		return olc::OK;
+	}
+}
+
+extern "C"
+{
+	EMSCRIPTEN_KEEPALIVE inline void olc_PGE_UpdateWindowSize(int width, int height)
+	{
+		emscripten_set_canvas_element_size("#canvas", width, height);
+		// Thanks slavka
+		((olc::Platform_Emscripten*)olc::platform.get())->UpdateWindowSize(width, height);
 	}
 }
 
