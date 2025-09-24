@@ -1444,6 +1444,12 @@ namespace olc
 		// Fills a rectangle at (x,y) to (x+w,y+h)
 		void FillRect(int32_t x, int32_t y, int32_t w, int32_t h, Pixel p = olc::WHITE);
 		void FillRect(const olc::vi2d& pos, const olc::vi2d& size, Pixel p = olc::WHITE);
+		// Draws a rectangle using 4 vertices (x1,y1), (x2,y2), (x3,y3) and (x4, y4).
+		void DrawQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p);
+		void DrawQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p);
+		// Flat fills a rectangle between points (x1,y1), (x2,y2), (x3,y3) and (x4, y4).
+		void FillQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p);
+		void FillQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p);
 		// Draws a triangle between points (x1,y1), (x2,y2) and (x3,y3)
 		void DrawTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, Pixel p = olc::WHITE);
 		void DrawTriangle(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, Pixel p = olc::WHITE);
@@ -2952,6 +2958,30 @@ namespace olc
 		DrawLine(x + w, y, x + w, y + h, p);
 		DrawLine(x + w, y + h, x, y + h, p);
 		DrawLine(x, y + h, x, y, p);
+	}
+
+	void PixelGameEngine::DrawQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p)
+	{
+		DrawQuadRect(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, pos4.x, pos4.y, p);
+	}
+
+	void PixelGameEngine::DrawQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p)
+	{
+		DrawLine(x1, y1, x2, y2, p);
+		DrawLine(x2, y2, x4, y4, p);
+		DrawLine(x4, y4, x3, y3, p);
+		DrawLine(x3, y3, x1, y1, p);
+	}
+
+	void PixelGameEngine::FillQuadRect(const olc::vi2d& pos1, const olc::vi2d& pos2, const olc::vi2d& pos3, const olc::vi2d& pos4, Pixel p)	
+	{
+		FillQuadRect(pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y, pos4.x, pos4.y, p);
+	}
+
+	void PixelGameEngine::FillQuadRect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, Pixel p)
+	{
+		FillTriangle(x1, y1, x2, y2, x3, y3, p);
+		FillTriangle(x3, y3, x2, y2, x4, y4, p);
 	}
 
 	void PixelGameEngine::Clear(Pixel p)
