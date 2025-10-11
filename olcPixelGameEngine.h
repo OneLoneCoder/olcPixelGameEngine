@@ -594,6 +594,7 @@ namespace X11
 #include <GL/freeglut_ext.h>
 #endif
 #if defined(__APPLE__)
+#include <assert.h>
 #include <GLUT/glut.h>
 #include <objc/message.h>
 #include <objc/NSObjCRuntime.h>
@@ -8111,4 +8112,5 @@ namespace olc
 // O------------------------------------------------------------------------------O
 // | END OF OLC_PGE_APPLICATION                                                   |
 // O------------------------------------------------------------------------------O
+
 
