@@ -922,12 +922,12 @@ namespace olc
 					// be tracking it somehow
 					OnClientDisconnect(client);
 
-					// Off you go now, bye bye!
-					client.reset();
-
 					// Then physically remove it from the container
 					m_deqConnections.erase(
 						std::remove(m_deqConnections.begin(), m_deqConnections.end(), client), m_deqConnections.end());
+
+					// Off you go now, bye bye!
+					client.reset();
 				}
 			}
 			
