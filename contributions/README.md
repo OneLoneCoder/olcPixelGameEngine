@@ -29,7 +29,16 @@ These source code contributions enhance the functionality of the olcPixelGameEng
 ## MacOS Support
 * These will potentially be absorbed into main build
   * https://github.com/MumflrFumperdink/olcPGEMac
- 
+
+* compilation instructions for MacOS
+  * install libpng using homebrew
+  ```shell
+  brew install libpng
+  ```
+  * use the below compilation flags for MacOS
+  ```shell
+  clang++ olcExampleProgram.cpp -I/opt/homebrew/opt/libpng/include -L/opt/homebrew/opt/libpng/lib -framework OpenGL -framework GLUT -framework Cocoa -lpthread -lpng -std=c++20
+  ```
 ## Android & IOS Support
 * Fiddlier to setup, but pretty cool once going
   * https://github.com/Johnnyg63/OLCPGEMobileVisualStudio
