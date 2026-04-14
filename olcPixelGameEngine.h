@@ -4406,10 +4406,17 @@ namespace olc
 				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
 			else if (sym == "_R")
 				nTextEntryCursor = std::min(int32_t(sTextEntryString.size()), nTextEntryCursor + 1);
-			else if (sym == "\b" && nTextEntryCursor > 0)
+			else if (sym == "\b")
 			{
-				sTextEntryString.erase(nTextEntryCursor - 1, 1);
-				nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+				if (nTextEntryCursor > 0)
+				{
+					sTextEntryString.erase(nTextEntryCursor - 1, 1);
+					nTextEntryCursor = std::max(0, nTextEntryCursor - 1);
+				}
+				else
+				{
+					// Consume the backspace character to prevent it from ending up in the TextEntry string
+				}
 			}
 			else if (sym == "_X" && size_t(nTextEntryCursor) < sTextEntryString.size())
 				sTextEntryString.erase(nTextEntryCursor, 1);
