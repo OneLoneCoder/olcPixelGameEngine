@@ -5320,6 +5320,15 @@ namespace olc
 #endif
 
 	public:
+#if defined(OLC_PLATFORM_X11)
+		// cpt -- free memory for VisualInfo
+    	~Renderer_OGL10() {
+        	if (olc_VisualInfo) {
+        	    X11::XFree(olc_VisualInfo);
+        	    olc_VisualInfo = nullptr;
+        	}
+    	}
+#endif
 		void PrepareDevice() override
 		{
 #if defined(OLC_PLATFORM_GLUT)
