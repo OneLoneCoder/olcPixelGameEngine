@@ -1294,6 +1294,7 @@ namespace olc
 		virtual olc::rcode SetWindowTitle(const std::string& s) = 0;
 		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) = 0;
 		virtual olc::rcode SetWindowSize(const olc::vi2d& vWindowPos, const olc::vi2d& vWindowSize) = 0;
+		virtual olc::rcode SetCursorVisible(const bool bVisible = true) { return olc::rcode::OK; }
 		virtual olc::rcode StartSystemEventLoop() = 0;
 		virtual olc::rcode HandleSystemEvent() = 0;
 		static olc::PixelGameEngine* ptrPGE;
@@ -1356,6 +1357,7 @@ namespace olc
 		// Muck about with the GUI
 		olc::rcode SetWindowSize(const olc::vi2d& vPos, const olc::vi2d& vSize);
 		olc::rcode ShowWindowFrame(const bool bShowFrame);
+		olc::rcode SetCursorVisible(const bool bVisible = true);
 
 	public: // Utility
 		// Returns the width of the screen in "pixels"
@@ -4512,6 +4514,14 @@ namespace olc
 			return olc::FAIL;
 	}
 
+	olc::rcode PixelGameEngine::SetCursorVisible(const bool bVisible)
+	{
+		if (platform)
+			return platform->SetCursorVisible(bVisible);
+		else
+			return olc::FAIL;
+	}
+
 
 	// Externalised API
 	void PixelGameEngine::olc_UpdateViewport()
@@ -6688,6 +6698,7 @@ namespace olc
 	private:
 		HWND olc_hWnd = nullptr;
 		std::wstring wsAppName;
+		bool olc_bCursorVisible = true;
 		inline static olc::vi2d vWinPos;
 		inline static olc::vi2d vWinSize;
 
@@ -6874,6 +6885,16 @@ namespace olc
 			SetWindowPos(olc_hWnd, NULL, rWndRectNow.left, rWndRectNow.top, width, height, SWP_SHOWWINDOW);
 
 
+			return olc::OK;
+		}
+
+		virtual olc::rcode SetCursorVisible(const bool bVisible = true) override
+		{
+			if (bVisible != olc_bCursorVisible)
+			{
+				olc_bCursorVisible = bVisible;
+				ShowCursor(bVisible);
+			}
 			return olc::OK;
 		}
 
@@ -7174,6 +7195,27 @@ namespace olc
 
 		virtual olc::rcode ShowWindowFrame(const bool bShowFrame = true) override
 		{
+			return olc::rcode::OK;
+		}
+
+		virtual olc::rcode SetCursorVisible(const bool bVisible = true) override
+		{
+			using namespace X11;
+			if (bVisible)
+			{
+				XUndefineCursor(olc_Display, olc_Window);
+			}
+			else
+			{
+				static char noData[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+				XColor black{ 0 };
+				Pixmap blankBitmap = XCreateBitmapFromData(olc_Display, olc_Window, noData, 8, 8);
+				Cursor hiddenCursor = XCreatePixmapCursor(olc_Display, blankBitmap, blankBitmap, &black, &black, 0, 0);
+				XDefineCursor(olc_Display, olc_Window, hiddenCursor);
+				XFreeCursor(olc_Display, hiddenCursor);
+				XFreePixmap(olc_Display, blankBitmap);
+			}
+			XFlush(olc_Display);
 			return olc::rcode::OK;
 		}
 
